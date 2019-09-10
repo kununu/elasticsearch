@@ -39,7 +39,7 @@ class AbstractElasticsearchManagerTest extends MockeryTestCase
             'body' => $data,
         ];
 
-        $this->elasticSearchClientMock
+        $this->elasticsearchClientMock
             ->shouldReceive('index')
             ->once()
             ->with($params)
@@ -56,7 +56,7 @@ class AbstractElasticsearchManagerTest extends MockeryTestCase
 
     public function testSaveFails(): void
     {
-        $this->elasticSearchClientMock
+        $this->elasticsearchClientMock
             ->shouldReceive('index')
             ->andThrow(new \Exception(self::ERROR_MESSAGE));
 
@@ -79,7 +79,7 @@ class AbstractElasticsearchManagerTest extends MockeryTestCase
             'id' => self::ID,
         ];
 
-        $this->elasticSearchClientMock
+        $this->elasticsearchClientMock
             ->shouldReceive('delete')
             ->once()
             ->with($params)
@@ -95,7 +95,7 @@ class AbstractElasticsearchManagerTest extends MockeryTestCase
 
     public function testDeleteFails(): void
     {
-        $this->elasticSearchClientMock
+        $this->elasticsearchClientMock
             ->shouldReceive('delete')
             ->andThrow(new \Exception(self::ERROR_MESSAGE));
 
@@ -120,7 +120,7 @@ class AbstractElasticsearchManagerTest extends MockeryTestCase
             ->with($params)
             ->andReturn();
 
-        $this->elasticSearchClientMock
+        $this->elasticsearchClientMock
             ->shouldReceive('indices')
             ->once()
             ->andReturn($this->indices);
@@ -137,7 +137,7 @@ class AbstractElasticsearchManagerTest extends MockeryTestCase
             ->shouldReceive('delete')
             ->andThrow(new \Exception(self::ERROR_MESSAGE));
 
-        $this->elasticSearchClientMock
+        $this->elasticsearchClientMock
             ->shouldReceive('indices')
             ->andReturn($this->indices);
 
@@ -155,7 +155,7 @@ class AbstractElasticsearchManagerTest extends MockeryTestCase
             'index' => self::INDEX,
         ];
 
-        $this->elasticSearchClientMock
+        $this->elasticsearchClientMock
             ->shouldReceive('search')
             ->once()
             ->with($params)
@@ -179,7 +179,7 @@ class AbstractElasticsearchManagerTest extends MockeryTestCase
 
     public function testFindAllFails(): void
     {
-        $this->elasticSearchClientMock
+        $this->elasticsearchClientMock
             ->shouldReceive('search')
             ->once()
             ->andThrow(new \Exception(self::ERROR_MESSAGE));
@@ -197,6 +197,6 @@ class AbstractElasticsearchManagerTest extends MockeryTestCase
      */
     private function getManager(): ElasticsearchManagerInterface
     {
-        return new ElasticsearchManager($this->elasticSearchClientMock, $this->loggerMock, self::INDEX);
+        return new ElasticsearchManager($this->elasticsearchClientMock, $this->loggerMock, self::INDEX);
     }
 }

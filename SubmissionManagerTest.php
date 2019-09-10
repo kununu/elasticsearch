@@ -88,7 +88,7 @@ class SubmissionManagerTest extends MockeryTestCase
             ],
         ];
 
-        $this->elasticSearchClientMock
+        $this->elasticsearchClientMock
             ->shouldReceive('search')
             ->once()
             ->with($expectedParams)
@@ -105,7 +105,7 @@ class SubmissionManagerTest extends MockeryTestCase
 
     public function testAggregateCultureDataByFieldFails(): void
     {
-        $this->elasticSearchClientMock
+        $this->elasticsearchClientMock
             ->shouldReceive('search')
             ->andThrow(new \Exception(self::ERROR_MESSAGE));
 
@@ -130,7 +130,7 @@ class SubmissionManagerTest extends MockeryTestCase
             ],
         ];
 
-        $this->elasticSearchClientMock
+        $this->elasticsearchClientMock
             ->shouldReceive('count')
             ->once()
             ->with($expectedParams)
@@ -144,7 +144,7 @@ class SubmissionManagerTest extends MockeryTestCase
 
     public function testCountSubmissionsByProfileUuidFails(): void
     {
-        $this->elasticSearchClientMock
+        $this->elasticsearchClientMock
             ->shouldReceive('count')
             ->once()
             ->andThrow(new \Exception(self::ERROR_MESSAGE));
@@ -162,6 +162,6 @@ class SubmissionManagerTest extends MockeryTestCase
      */
     private function getManager(): SubmissionManagerInterface
     {
-        return new SubmissionManager($this->elasticSearchClientMock, $this->loggerMock, self::INDEX);
+        return new SubmissionManager($this->elasticsearchClientMock, $this->loggerMock, self::INDEX);
     }
 }

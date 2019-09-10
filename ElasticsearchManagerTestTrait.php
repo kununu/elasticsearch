@@ -16,7 +16,7 @@ use Psr\Log\LoggerInterface;
 trait ElasticsearchManagerTestTrait
 {
     /** @var \Elasticsearch\Client|MockInterface */
-    protected $elasticSearchClientMock;
+    protected $elasticsearchClientMock;
 
     /** @var LoggerInterface|MockInterface */
     protected $loggerMock;
@@ -26,7 +26,7 @@ trait ElasticsearchManagerTestTrait
 
     protected function setUp(): void
     {
-        $this->elasticSearchClientMock = Mockery::mock(Client::class);
+        $this->elasticsearchClientMock = Mockery::mock(Client::class);
         $this->loggerMock = Mockery::mock(LoggerInterface::class);
         $this->indices = Mockery::mock(IndicesNamespace::class);
     }
