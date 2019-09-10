@@ -1,0 +1,145 @@
+<?php
+declare(strict_types=1);
+
+namespace App\Services\Elasticsearch;
+
+use App\Services\Elasticsearch\Exception\ElasticsearchException;
+use App\Services\Elasticsearch\Exception\ManagerConfigurationException;
+use Elasticsearch\Client;
+use Psr\Log\LoggerInterface;
+
+/**
+ * Class ElasticsearchManager
+ *
+ * @package App\Services\Elasticsearch
+ */
+class ElasticsearchManager implements ElasticsearchManagerInterface
+{
+    protected const EXCEPTION_PREFIX = 'Elasticsearch exception: ';
+
+    /** @var Client */
+    protected $elasticSearchClient;
+
+    /** @var LoggerInterface */
+    protected $logger;
+
+    /** @var string */
+    protected $index;
+
+    /**
+     * AbstractElasticsearchManager constructor.
+     *
+     * @param \Elasticsearch\Client    $elasticSearchClient
+     * @param \Psr\Log\LoggerInterface $logger
+     * @param string                   $index
+     */
+    public function __construct(Client $elasticSearchClient, LoggerInterface $logger, string $index)
+    {
+        $this->elasticSearchClient = $elasticSearchClient;
+        $this->logger = $logger;
+        $this->index = $index;
+    }
+
+    /**
+     * @param \Exception $e
+     *
+     * @throws \App\Services\Elasticsearch\Exception\ElasticsearchException
+     */
+    protected function logErrorAndThrowException(\Exception $e): void
+    {
+        $this->logger->error(self::EXCEPTION_PREFIX . $e->getMessage());
+
+        throw new ElasticsearchException($e->getMessage());
+    }
+
+    /**
+     * @return string
+     */
+    protected function getIndex(): string
+    {
+        if (!$this->index) {
+            throw new ManagerConfigurationException('no index defined');
+        }
+
+        return $this->index;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getType(): string
+    {
+        return '_doc';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function save(string $id, array $document): void
+    {
+        try {
+            $this->elasticSearchClient->index(
+                [
+                    'index' => $this->getIndex(),
+                    'type' => $this->getType(),
+                    'id' => $id,
+                    'body' => $document,
+                ]
+            );
+        } catch (\Exception $e) {
+            $this->logErrorAndThrowException($e);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function delete(string $id): void
+    {
+        try {
+            $this->elasticSearchClient->delete(
+                [
+                    'index' => $this->getIndex(),
+                    'type' => $this->getType(),
+                    'id' => $id,
+                ]
+            );
+        } catch (\Exception $e) {
+            $this->logErrorAndThrowException($e);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function deleteIndex(): void
+    {
+        try {
+            $this->elasticSearchClient->indices()->delete(
+                [
+                    'index' => $this->getIndex(),
+                ]
+            );
+        } catch (\Exception $e) {
+            $this->logErrorAndThrowException($e);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function findAll(): array
+    {
+        try {
+            $result = $this->elasticSearchClient->search(
+                [
+                    'index' => $this->getIndex(),
+                ]
+            );
+
+            return $result['hits']['hits'];
+        } catch (\Exception $e) {
+            $this->logErrorAndThrowException($e);
+        }
+    }
+}
