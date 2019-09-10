@@ -18,7 +18,7 @@ class ElasticsearchManager implements ElasticsearchManagerInterface
     protected const EXCEPTION_PREFIX = 'Elasticsearch exception: ';
 
     /** @var Client */
-    protected $elasticSearchClient;
+    protected $elasticsearchClient;
 
     /** @var LoggerInterface */
     protected $logger;
@@ -29,13 +29,13 @@ class ElasticsearchManager implements ElasticsearchManagerInterface
     /**
      * AbstractElasticsearchManager constructor.
      *
-     * @param \Elasticsearch\Client    $elasticSearchClient
+     * @param \Elasticsearch\Client    $elasticsearchClient
      * @param \Psr\Log\LoggerInterface $logger
      * @param string                   $index
      */
-    public function __construct(Client $elasticSearchClient, LoggerInterface $logger, string $index)
+    public function __construct(Client $elasticsearchClient, LoggerInterface $logger, string $index)
     {
-        $this->elasticSearchClient = $elasticSearchClient;
+        $this->elasticsearchClient = $elasticsearchClient;
         $this->logger = $logger;
         $this->index = $index;
     }
@@ -78,7 +78,7 @@ class ElasticsearchManager implements ElasticsearchManagerInterface
     public function save(string $id, array $document): void
     {
         try {
-            $this->elasticSearchClient->index(
+            $this->elasticsearchClient->index(
                 [
                     'index' => $this->getIndex(),
                     'type' => $this->getType(),
@@ -97,7 +97,7 @@ class ElasticsearchManager implements ElasticsearchManagerInterface
     public function delete(string $id): void
     {
         try {
-            $this->elasticSearchClient->delete(
+            $this->elasticsearchClient->delete(
                 [
                     'index' => $this->getIndex(),
                     'type' => $this->getType(),
@@ -115,7 +115,7 @@ class ElasticsearchManager implements ElasticsearchManagerInterface
     public function deleteIndex(): void
     {
         try {
-            $this->elasticSearchClient->indices()->delete(
+            $this->elasticsearchClient->indices()->delete(
                 [
                     'index' => $this->getIndex(),
                 ]
@@ -131,7 +131,7 @@ class ElasticsearchManager implements ElasticsearchManagerInterface
     public function findAll(): array
     {
         try {
-            $result = $this->elasticSearchClient->search(
+            $result = $this->elasticsearchClient->search(
                 [
                     'index' => $this->getIndex(),
                 ]

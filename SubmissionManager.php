@@ -26,7 +26,7 @@ class SubmissionManager extends ElasticsearchManager implements SubmissionManage
         ];
 
         try {
-            return $this->elasticSearchClient->search($params)['aggregations'];
+            return $this->elasticsearchClient->search($params)['aggregations'];
         } catch (\Exception $e) {
             $this->logErrorAndThrowException($e);
         }
@@ -104,7 +104,7 @@ class SubmissionManager extends ElasticsearchManager implements SubmissionManage
         ];
 
         try {
-            return $this->elasticSearchClient->count($params)['count'];
+            return $this->elasticsearchClient->count($params)['count'];
         } catch (\Exception $e) {
             $this->logErrorAndThrowException($e);
         }
