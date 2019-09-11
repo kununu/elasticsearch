@@ -5,7 +5,9 @@ namespace App\Services\Elasticsearch;
 
 use App\Services\Elasticsearch\Exception\ElasticsearchException;
 use App\Services\Elasticsearch\Exception\ManagerConfigurationException;
-use Elasticsearch\Client;
+use Elastica\Client;
+use Elastica\Query;
+use Elastica\Result;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -18,7 +20,7 @@ class ElasticsearchManager implements ElasticsearchManagerInterface
     protected const EXCEPTION_PREFIX = 'Elasticsearch exception: ';
 
     /** @var Client */
-    protected $elasticsearchClient;
+    protected $client;
 
     /** @var LoggerInterface */
     protected $logger;
@@ -29,13 +31,13 @@ class ElasticsearchManager implements ElasticsearchManagerInterface
     /**
      * AbstractElasticsearchManager constructor.
      *
-     * @param \Elasticsearch\Client    $elasticsearchClient
+     * @param \Elastica\Client         $client
      * @param \Psr\Log\LoggerInterface $logger
      * @param string                   $index
      */
-    public function __construct(Client $elasticsearchClient, LoggerInterface $logger, string $index)
+    public function __construct(Client $client, LoggerInterface $logger, string $index)
     {
-        $this->elasticsearchClient = $elasticsearchClient;
+        $this->client = $client;
         $this->logger = $logger;
         $this->index = $index;
     }
@@ -78,14 +80,8 @@ class ElasticsearchManager implements ElasticsearchManagerInterface
     public function save(string $id, array $document): void
     {
         try {
-            $this->elasticsearchClient->index(
-                [
-                    'index' => $this->getIndex(),
-                    'type' => $this->getType(),
-                    'id' => $id,
-                    'body' => $document,
-                ]
-            );
+            $type = $this->client->getIndex($this->getIndex())->getType($this->getType());
+            $type->addDocument($type->createDocument($id, $document));
         } catch (\Exception $e) {
             $this->logErrorAndThrowException($e);
         }
@@ -97,13 +93,7 @@ class ElasticsearchManager implements ElasticsearchManagerInterface
     public function delete(string $id): void
     {
         try {
-            $this->elasticsearchClient->delete(
-                [
-                    'index' => $this->getIndex(),
-                    'type' => $this->getType(),
-                    'id' => $id,
-                ]
-            );
+            $this->client->getIndex($this->getIndex())->getType($this->getType())->deleteById($id);
         } catch (\Exception $e) {
             $this->logErrorAndThrowException($e);
         }
@@ -115,11 +105,7 @@ class ElasticsearchManager implements ElasticsearchManagerInterface
     public function deleteIndex(): void
     {
         try {
-            $this->elasticsearchClient->indices()->delete(
-                [
-                    'index' => $this->getIndex(),
-                ]
-            );
+            $this->client->getIndex($this->getIndex())->delete();
         } catch (\Exception $e) {
             $this->logErrorAndThrowException($e);
         }
@@ -131,13 +117,67 @@ class ElasticsearchManager implements ElasticsearchManagerInterface
     public function findAll(): array
     {
         try {
-            $result = $this->elasticsearchClient->search(
-                [
-                    'index' => $this->getIndex(),
-                ]
+            return array_map(
+                function (Result $result) {
+                    return $result->getData();
+                },
+                $this->client->getIndex($this->getIndex())->getType($this->getType())->search()->getResults()
             );
+        } catch (\Exception $e) {
+            $this->logErrorAndThrowException($e);
+        }
+    }
 
-            return $result['hits']['hits'];
+    /**
+     * @inheritdoc
+     */
+    public function findByQuery(Query $query): array
+    {
+        try {
+            return array_map(
+                function (Result $result) {
+                    return $result->getData();
+                },
+                $this->client->getIndex($this->getIndex())->getType($this->getType())->search($query)->getResults()
+            );
+        } catch (\Exception $e) {
+            $this->logErrorAndThrowException($e);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function count(): int
+    {
+        try {
+            return $this->client->getIndex($this->getIndex())->getType($this->getType())->count();
+        } catch (\Exception $e) {
+            $this->logErrorAndThrowException($e);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function countByQuery(Query $query): int
+    {
+        try {
+            return $this->client->getIndex($this->getIndex())->getType($this->getType())->count($query);
+        } catch (\Exception $e) {
+            $this->logErrorAndThrowException($e);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function aggregateByQuery(Query $query): array
+    {
+        try {
+            return $this->client->getIndex($this->getIndex())->getType($this->getType())->search(
+                $query
+            )->getAggregations();
         } catch (\Exception $e) {
             $this->logErrorAndThrowException($e);
         }

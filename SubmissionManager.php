@@ -5,8 +5,8 @@ namespace App\Services\Elasticsearch;
 
 use App\Entity\Dimension;
 use App\Services\FactorService;
-use Elasticsearch\Client;
-use Psr\Log\LoggerInterface;
+use Elastica\Aggregation\Sum;
+use Elastica\Query;
 
 /**
  * Class SubmissionManager
@@ -20,71 +20,48 @@ class SubmissionManager extends ElasticsearchManager implements SubmissionManage
      */
     public function aggregateCultureDataByField(?string $field = null, ?string $value = null): array
     {
-        $params = [
-            'index' => $this->getIndex(),
-            'body' => $this->getSumAggregationQuery($field, $value),
-        ];
-
-        try {
-            return $this->elasticsearchClient->search($params)['aggregations'];
-        } catch (\Exception $e) {
-            $this->logErrorAndThrowException($e);
-        }
+        return $this->aggregateByQuery($this->buildSumAggregationQuery($field, $value));
     }
 
     /**
+     * This method is public for testing purposes only.
+     *
      * @param string|null $field
      * @param string|null $value
      *
-     * @return array
+     * @return \Elastica\Query
      */
-    protected function getSumAggregationQuery(?string $field, ?string $value): array
+    public function buildSumAggregationQuery(?string $field, ?string $value): Query
     {
         if (!is_numeric($value)) {
             $field = $field . '.keyword';
         }
 
-        $query = [
-            'query' => [
-                'bool' => [
-                    'should' => [
-                        [
-                            'match' => [
-                                $field => $value,
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ];
+        $filter =
+            $field && $value
+                ? (new Query\BoolQuery())->addShould(new Query\Match($field, $value))
+                : null;
 
-        if (!$field || !$value) {
-            $query = [];
-        }
-
-        $aggregation = [];
+        $query = Query::create($filter);
 
         foreach (FactorService::TYPES as $type) {
             foreach (Dimension::DIMENSIONS as $dimension) {
-                $key = sprintf(
+                $aggregationName = sprintf(
                     '%s_%s',
                     $type,
                     mb_strtolower($dimension)
                 );
+                $aggregationField = sprintf(
+                    '%s.%s',
+                    $type,
+                    $dimension
+                );
 
-                $aggregation['aggs'][$key] = [
-                    'sum' => [
-                        'field' => sprintf(
-                            '%s.%s',
-                            $type,
-                            $dimension
-                        ),
-                    ],
-                ];
+                $query->addAggregation((new Sum($aggregationName))->setField($aggregationField));
             }
         }
 
-        return array_merge($query, $aggregation);
+        return $query;
     }
 
     /**
@@ -92,21 +69,20 @@ class SubmissionManager extends ElasticsearchManager implements SubmissionManage
      */
     public function countSubmissions(string $profileUuid): int
     {
-        $params = [
-            'index' => $this->getIndex(),
-            'body' => [
-                'query' => [
-                    'term' => [
-                        'profile_uuid.keyword' => $profileUuid,
-                    ],
-                ],
-            ],
-        ];
+        return $this->countByQuery($this->buildCountByProfileUuidQuery($profileUuid));
+    }
 
-        try {
-            return $this->elasticsearchClient->count($params)['count'];
-        } catch (\Exception $e) {
-            $this->logErrorAndThrowException($e);
-        }
+    /**
+     * This method exists and is public for testing purposes only.
+     *
+     * @param string $profileUuid
+     *
+     * @return \Elastica\Query
+     */
+    public function buildCountByProfileUuidQuery(string $profileUuid): Query
+    {
+        return Query::create(
+            (new Query\Term())->setTerm('profile_uuid.keyword', $profileUuid)
+        );
     }
 }
