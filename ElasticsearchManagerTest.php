@@ -6,12 +6,8 @@ namespace App\Tests\Unit\Services\Elasticsearch;
 use App\Services\Elasticsearch\ElasticsearchManager;
 use App\Services\Elasticsearch\ElasticsearchManagerInterface;
 use App\Services\Elasticsearch\Exception\ElasticsearchException;
-use Elasticsearch\Client;
-use Elasticsearch\Namespaces\IndicesNamespace;
-use Mockery;
+use App\Services\Elasticsearch\Exception\ManagerConfigurationException;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
-use Mockery\MockInterface;
-use Psr\Log\LoggerInterface;
 
 /**
  * @group unit
@@ -25,6 +21,17 @@ class AbstractElasticsearchManagerTest extends MockeryTestCase
     protected const ERROR_PREFIX = 'Elasticsearch exception: ';
     protected const ERROR_MESSAGE = 'Any error, for example: missing type';
     protected const ID = 'can_be_anything';
+
+    public function testNoIndexDefined(): void
+    {
+        $this->expectException(ManagerConfigurationException::class);
+
+        new ElasticsearchManager(
+            $this->elasticsearchClientMock,
+            $this->loggerMock,
+            ''
+        );
+    }
 
     public function testSave(): void
     {
