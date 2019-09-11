@@ -3,8 +3,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Services\Elasticsearch;
 
-use Elasticsearch\Client;
-use Elasticsearch\Namespaces\IndicesNamespace;
+use Elastica\Client;
+use Elastica\Index;
+use Elastica\Type;
 use Mockery;
 use Psr\Log\LoggerInterface;
 
@@ -15,19 +16,38 @@ use Psr\Log\LoggerInterface;
  */
 trait ElasticsearchManagerTestTrait
 {
-    /** @var \Elasticsearch\Client|MockInterface */
+    /** @var \Elastica\Client|\Mockery\MockInterface */
     protected $elasticsearchClientMock;
 
-    /** @var LoggerInterface|MockInterface */
+    /** @var LoggerInterface|\Mockery\MockInterface */
     protected $loggerMock;
 
-    /** @var IndicesNamespace|MockInterface */
-    protected $indices;
+    /** @var \Elastica\Index|\Mockery\MockInterface */
+    protected $indexMock;
+
+    /** @var \Elastica\Type|\Mockery\MockInterface */
+    protected $typeMock;
 
     protected function setUp(): void
     {
         $this->elasticsearchClientMock = Mockery::mock(Client::class);
         $this->loggerMock = Mockery::mock(LoggerInterface::class);
-        $this->indices = Mockery::mock(IndicesNamespace::class);
+
+        $this->indexMock = Mockery::mock(Index::class);
+        $this->typeMock = Mockery::mock(Type::class);
+
+        $this->elasticsearchClientMock
+            ->shouldReceive('getIndex')
+            ->byDefault()
+            ->once()
+            ->with(self::INDEX)
+            ->andReturn($this->indexMock);
+
+        $this->indexMock
+            ->shouldReceive('getType')
+            ->byDefault()
+            ->once()
+            ->with(self::TYPE)
+            ->andReturn($this->typeMock);
     }
 }

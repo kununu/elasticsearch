@@ -5,12 +5,9 @@ namespace App\Tests\Unit\Services\Elasticsearch;
 use App\Services\Elasticsearch\Exception\ElasticsearchException;
 use App\Services\Elasticsearch\SubmissionManager;
 use App\Services\Elasticsearch\SubmissionManagerInterface;
-use Elasticsearch\Client;
-use Elasticsearch\Namespaces\IndicesNamespace;
+use Elastica\ResultSet;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
-use Mockery\MockInterface;
-use Psr\Log\LoggerInterface;
 
 /**
  * @group unit
@@ -20,79 +17,27 @@ class SubmissionManagerTest extends MockeryTestCase
     use ElasticsearchManagerTestTrait;
 
     protected const INDEX = 'some_index';
+    protected const TYPE = '_doc';
     protected const ERROR_PREFIX = 'Elasticsearch exception: ';
     protected const PROFILE_UUID = 'd547f967-523c-4788-a038-d7b9a3f2d5f6';
     protected const ERROR_MESSAGE = 'Any error, for example: missing type';
+    protected const DOCUMENT_COUNT = 42;
 
     public function testAggregateCultureDataByField(): void
     {
         $field = 'profile_id';
         $value = 12345;
 
-        $expectedParams = [
-            'index' => self::INDEX,
-            'body' => [
-                'query' => [
-                    'bool' => [
-                        'should' => [
-                            [
-                                'match' => [
-                                    $field => $value,
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-                'aggs' => [
-                    'classic_culture_dimension_leadership' => [
-                        'sum' => [
-                            'field' => 'classic.CULTURE_DIMENSION_LEADERSHIP',
-                        ],
-                    ],
-                    'classic_culture_dimension_strategic_direction' => [
-                        'sum' => [
-                            'field' => 'classic.CULTURE_DIMENSION_STRATEGIC_DIRECTION',
-                        ],
-                    ],
-                    'classic_culture_dimension_work_life' => [
-                        'sum' => [
-                            'field' => 'classic.CULTURE_DIMENSION_WORK_LIFE',
-                        ],
-                    ],
-                    'classic_culture_dimension_working_together' => [
-                        'sum' => [
-                            'field' => 'classic.CULTURE_DIMENSION_WORKING_TOGETHER',
-                        ],
-                    ],
-                    'new_work_culture_dimension_leadership' => [
-                        'sum' => [
-                            'field' => 'new_work.CULTURE_DIMENSION_LEADERSHIP',
-                        ],
-                    ],
-                    'new_work_culture_dimension_strategic_direction' => [
-                        'sum' => [
-                            'field' => 'new_work.CULTURE_DIMENSION_STRATEGIC_DIRECTION',
-                        ],
-                    ],
-                    'new_work_culture_dimension_work_life' => [
-                        'sum' => [
-                            'field' => 'new_work.CULTURE_DIMENSION_WORK_LIFE',
-                        ],
-                    ],
-                    'new_work_culture_dimension_working_together' => [
-                        'sum' => [
-                            'field' => 'new_work.CULTURE_DIMENSION_WORKING_TOGETHER',
-                        ],
-                    ],
-                ],
-            ],
-        ];
+        $resultSetMock = Mockery::mock(ResultSet::class);
+        $resultSetMock
+            ->shouldReceive('getAggregations')
+            ->once()
+            ->andReturn([]);
 
-        $this->elasticsearchClientMock
+        $this->typeMock
             ->shouldReceive('search')
             ->once()
-            ->with($expectedParams)
-            ->andReturn(['aggregations' => ['Let\'s assume it is aggregated data']]);
+            ->andReturn($resultSetMock);
 
         $this->loggerMock
             ->shouldNotReceive('error');
@@ -105,7 +50,7 @@ class SubmissionManagerTest extends MockeryTestCase
 
     public function testAggregateCultureDataByFieldFails(): void
     {
-        $this->elasticsearchClientMock
+        $this->typeMock
             ->shouldReceive('search')
             ->andThrow(new \Exception(self::ERROR_MESSAGE));
 
@@ -117,34 +62,94 @@ class SubmissionManagerTest extends MockeryTestCase
         $this->getManager()->aggregateCultureDataByField('profile_id', 12345);
     }
 
-    public function testCountSubmissionsByProfileUuid(): void
+    public function testBuildSumAggregationQuery(): void
     {
-        $expectedParams = [
-            'index' => self::INDEX,
-            'body' => [
-                'query' => [
-                    'term' => [
-                        'profile_uuid.keyword' => self::PROFILE_UUID,
+        $field = 'profile_id';
+        $value = 12345;
+
+        $this->elasticsearchClientMock
+            ->shouldNotReceive('getIndex');
+
+        $this->indexMock
+            ->shouldNotReceive('getType');
+
+        $query = $this->getManager()->buildSumAggregationQuery($field, $value);
+
+        $expected = [
+            'query' => [
+                'bool' => [
+                    'should' => [
+                        [
+                            'match' => [
+                                $field => $value,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            'aggs' => [
+                'classic_culture_dimension_leadership' => [
+                    'sum' => [
+                        'field' => 'classic.CULTURE_DIMENSION_LEADERSHIP',
+                    ],
+                ],
+                'classic_culture_dimension_strategic_direction' => [
+                    'sum' => [
+                        'field' => 'classic.CULTURE_DIMENSION_STRATEGIC_DIRECTION',
+                    ],
+                ],
+                'classic_culture_dimension_work_life' => [
+                    'sum' => [
+                        'field' => 'classic.CULTURE_DIMENSION_WORK_LIFE',
+                    ],
+                ],
+                'classic_culture_dimension_working_together' => [
+                    'sum' => [
+                        'field' => 'classic.CULTURE_DIMENSION_WORKING_TOGETHER',
+                    ],
+                ],
+                'new_work_culture_dimension_leadership' => [
+                    'sum' => [
+                        'field' => 'new_work.CULTURE_DIMENSION_LEADERSHIP',
+                    ],
+                ],
+                'new_work_culture_dimension_strategic_direction' => [
+                    'sum' => [
+                        'field' => 'new_work.CULTURE_DIMENSION_STRATEGIC_DIRECTION',
+                    ],
+                ],
+                'new_work_culture_dimension_work_life' => [
+                    'sum' => [
+                        'field' => 'new_work.CULTURE_DIMENSION_WORK_LIFE',
+                    ],
+                ],
+                'new_work_culture_dimension_working_together' => [
+                    'sum' => [
+                        'field' => 'new_work.CULTURE_DIMENSION_WORKING_TOGETHER',
                     ],
                 ],
             ],
         ];
 
-        $this->elasticsearchClientMock
+        $this->assertEquals($expected, $query->toArray());
+    }
+
+    public function testCountSubmissionsByProfileUuid(): void
+    {
+        $this->typeMock
             ->shouldReceive('count')
             ->once()
-            ->with($expectedParams)
-            ->andReturn(['count' => 7]);
+            ->andReturn(self::DOCUMENT_COUNT);
 
         $this->loggerMock
             ->shouldNotReceive('error');
 
-        $this->getManager()->countSubmissions(self::PROFILE_UUID);
+        $this->assertEquals(self::DOCUMENT_COUNT, $this->getManager()->countSubmissions(self::PROFILE_UUID));
     }
 
     public function testCountSubmissionsByProfileUuidFails(): void
     {
-        $this->elasticsearchClientMock
+        $this->typeMock
             ->shouldReceive('count')
             ->once()
             ->andThrow(new \Exception(self::ERROR_MESSAGE));
@@ -155,6 +160,30 @@ class SubmissionManagerTest extends MockeryTestCase
 
         $this->expectException(ElasticsearchException::class);
         $this->getManager()->countSubmissions(self::PROFILE_UUID);
+    }
+
+    public function testBuildCountByProfileUuidQuery(): void
+    {
+        $this->elasticsearchClientMock
+            ->shouldNotReceive('getIndex');
+
+        $this->indexMock
+            ->shouldNotReceive('getType');
+
+        $query = $this->getManager()->buildCountByProfileUuidQuery(self::PROFILE_UUID);
+
+        $expected = [
+            'query' => [
+                'term' => [
+                    'profile_uuid.keyword' => [
+                        'value' => self::PROFILE_UUID,
+                        'boost' => 1.0,
+                    ],
+                ],
+            ],
+        ];
+
+        $this->assertEquals($expected, $query->toArray());
     }
 
     /**

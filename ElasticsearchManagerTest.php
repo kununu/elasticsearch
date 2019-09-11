@@ -6,17 +6,19 @@ namespace App\Tests\Unit\Services\Elasticsearch;
 use App\Services\Elasticsearch\ElasticsearchManager;
 use App\Services\Elasticsearch\ElasticsearchManagerInterface;
 use App\Services\Elasticsearch\Exception\ElasticsearchException;
-use Elasticsearch\Client;
-use Elasticsearch\Namespaces\IndicesNamespace;
+use Elastica\Document;
+use Elastica\Query;
+use Elastica\Query\BoolQuery;
+use Elastica\Query\Term;
+use Elastica\Result;
+use Elastica\ResultSet;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
-use Mockery\MockInterface;
-use Psr\Log\LoggerInterface;
 
 /**
  * @group unit
  */
-class AbstractElasticsearchManagerTest extends MockeryTestCase
+class ElasticsearchManagerTest extends MockeryTestCase
 {
     use ElasticsearchManagerTestTrait;
 
@@ -25,6 +27,7 @@ class AbstractElasticsearchManagerTest extends MockeryTestCase
     protected const ERROR_PREFIX = 'Elasticsearch exception: ';
     protected const ERROR_MESSAGE = 'Any error, for example: missing type';
     protected const ID = 'can_be_anything';
+    protected const DOCUMENT_COUNT = 42;
 
     public function testSave(): void
     {
@@ -32,17 +35,18 @@ class AbstractElasticsearchManagerTest extends MockeryTestCase
             'whatever' => 'just some data',
         ];
 
-        $params = [
-            'index' => self::INDEX,
-            'type' => self::TYPE,
-            'id' => self::ID,
-            'body' => $data,
-        ];
+        $documentMock = Mockery::mock(Document::class);
 
-        $this->elasticsearchClientMock
-            ->shouldReceive('index')
+        $this->typeMock
+            ->shouldReceive('createDocument')
             ->once()
-            ->with($params)
+            ->with(self::ID, $data)
+            ->andReturn($documentMock);
+
+        $this->typeMock
+            ->shouldReceive('addDocument')
+            ->once()
+            ->with($documentMock)
             ->andReturn();
 
         $this->loggerMock
@@ -56,8 +60,22 @@ class AbstractElasticsearchManagerTest extends MockeryTestCase
 
     public function testSaveFails(): void
     {
-        $this->elasticsearchClientMock
-            ->shouldReceive('index')
+        $data = [
+            'foo' => 'bar',
+        ];
+
+        $documentMock = Mockery::mock(Document::class);
+
+        $this->typeMock
+            ->shouldReceive('createDocument')
+            ->once()
+            ->with(self::ID, $data)
+            ->andReturn($documentMock);
+
+        $this->typeMock
+            ->shouldReceive('addDocument')
+            ->once()
+            ->with($documentMock)
             ->andThrow(new \Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
@@ -67,22 +85,16 @@ class AbstractElasticsearchManagerTest extends MockeryTestCase
         $this->expectException(ElasticsearchException::class);
         $this->getManager()->save(
             self::ID,
-            ['some data']
+            $data
         );
     }
 
     public function testDelete(): void
     {
-        $params = [
-            'index' => self::INDEX,
-            'type' => self::TYPE,
-            'id' => self::ID,
-        ];
-
-        $this->elasticsearchClientMock
-            ->shouldReceive('delete')
+        $this->typeMock
+            ->shouldReceive('deleteById')
             ->once()
-            ->with($params)
+            ->with(self::ID)
             ->andReturn();
 
         $this->loggerMock
@@ -95,8 +107,8 @@ class AbstractElasticsearchManagerTest extends MockeryTestCase
 
     public function testDeleteFails(): void
     {
-        $this->elasticsearchClientMock
-            ->shouldReceive('delete')
+        $this->typeMock
+            ->shouldReceive('deleteById')
             ->andThrow(new \Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
@@ -111,19 +123,12 @@ class AbstractElasticsearchManagerTest extends MockeryTestCase
 
     public function testDeleteIndex(): void
     {
-        $params = [
-            'index' => self::INDEX,
-        ];
+        $this->indexMock
+            ->shouldNotReceive('getType');
 
-        $this->indices->shouldReceive('delete')
+        $this->indexMock->shouldReceive('delete')
             ->once()
-            ->with($params)
             ->andReturn();
-
-        $this->elasticsearchClientMock
-            ->shouldReceive('indices')
-            ->once()
-            ->andReturn($this->indices);
 
         $this->loggerMock
             ->shouldNotReceive('error');
@@ -133,13 +138,12 @@ class AbstractElasticsearchManagerTest extends MockeryTestCase
 
     public function testDeleteIndexFails(): void
     {
-        $this->indices
-            ->shouldReceive('delete')
-            ->andThrow(new \Exception(self::ERROR_MESSAGE));
+        $this->indexMock
+            ->shouldNotReceive('getType');
 
-        $this->elasticsearchClientMock
-            ->shouldReceive('indices')
-            ->andReturn($this->indices);
+        $this->indexMock->shouldReceive('delete')
+            ->once()
+            ->andThrow(new \Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
             ->shouldReceive('error')
@@ -151,22 +155,17 @@ class AbstractElasticsearchManagerTest extends MockeryTestCase
 
     public function testFindAll(): void
     {
-        $params = [
-            'index' => self::INDEX,
-        ];
+        $resultSetMock = Mockery::mock(ResultSet::class);
+        $resultSetMock
+            ->shouldReceive('getResults')
+            ->once()
+            ->andReturn([]);
 
-        $this->elasticsearchClientMock
+        $this->typeMock
             ->shouldReceive('search')
             ->once()
-            ->with($params)
             ->andReturn(
-                [
-                    'hits' => [
-                        'hits' => [
-                            'actual needed data',
-                        ],
-                    ],
-                ]
+                $resultSetMock
             );
 
         $this->loggerMock
@@ -179,7 +178,7 @@ class AbstractElasticsearchManagerTest extends MockeryTestCase
 
     public function testFindAllFails(): void
     {
-        $this->elasticsearchClientMock
+        $this->typeMock
             ->shouldReceive('search')
             ->once()
             ->andThrow(new \Exception(self::ERROR_MESSAGE));
@@ -190,6 +189,178 @@ class AbstractElasticsearchManagerTest extends MockeryTestCase
 
         $this->expectException(ElasticsearchException::class);
         $this->getManager()->findAll();
+    }
+
+    /**
+     * @return array
+     */
+    public function findByQueryData(): array
+    {
+        return [
+            [
+                [],
+                [],
+            ],
+            [
+                [
+                    new Result(
+                        [
+                            '_source' => ['foo' => 'bar'],
+                            '_id' => 'something',
+                            '_index' => self::INDEX,
+                            '_type' => self::TYPE,
+                            '_score' => 0,
+                        ]
+                    ),
+                ],
+                [
+                    ['foo' => 'bar'],
+                ],
+            ],
+            [
+                [
+                    new Result(
+                        [
+                            '_source' => ['foo' => 'bar'],
+                            '_id' => 'something',
+                            '_index' => self::INDEX,
+                            '_type' => self::TYPE,
+                            '_score' => 1,
+                        ]
+                    ),
+                    new Result(
+                        [
+                            '_source' => ['second' => 'result'],
+                            '_id' => 'else',
+                            '_index' => self::INDEX,
+                            '_type' => self::TYPE,
+                            '_score' => 0,
+                        ]
+                    ),
+                ],
+                [
+                    [
+                        'foo' => 'bar',
+                    ],
+                    [
+                        'second' => 'result',
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider findByQueryData
+     *
+     * @param array $esResult
+     * @param array $endResult
+     */
+    public function testFindByQuery(array $esResult, array $endResult): void
+    {
+        $query = Query::create(
+            (new BoolQuery())
+                ->addMust((new Term())->setTerm('foo', 'bar'))
+        );
+
+        $resultSetMock = Mockery::mock(ResultSet::class);
+        $resultSetMock
+            ->shouldReceive('getResults')
+            ->once()
+            ->andReturn($esResult);
+
+        $this->typeMock
+            ->shouldReceive('search')
+            ->once()
+            ->with($query)
+            ->andReturn($resultSetMock);
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $result = $this->getManager()->findByQuery($query);
+
+        $this->assertEquals($endResult, $result);
+    }
+
+    public function testFindByQueryFails(): void
+    {
+        $this->typeMock
+            ->shouldReceive('search')
+            ->once()
+            ->andThrow(new \Exception(self::ERROR_MESSAGE));
+
+        $this->loggerMock
+            ->shouldReceive('error')
+            ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
+
+        $this->expectException(ElasticsearchException::class);
+
+        $this->getManager()->findByQuery(Query::create(null));
+    }
+
+    public function testCount(): void
+    {
+        $this->typeMock
+            ->shouldReceive('count')
+            ->once()
+            ->andReturn(self::DOCUMENT_COUNT);
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $this->assertEquals(self::DOCUMENT_COUNT, $this->getManager()->count());
+    }
+
+    public function testCountFails(): void
+    {
+        $this->typeMock
+            ->shouldReceive('count')
+            ->once()
+            ->andThrow(new \Exception(self::ERROR_MESSAGE));
+
+        $this->loggerMock
+            ->shouldReceive('error')
+            ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
+
+        $this->expectException(ElasticsearchException::class);
+
+        $this->getManager()->count();
+    }
+
+    public function testCountByQuery(): void
+    {
+        $query = Query::create(
+            (new BoolQuery())
+                ->addMust((new Term())->setTerm('foo', 'bar'))
+        );
+
+        $this->typeMock
+            ->shouldReceive('count')
+            ->once()
+            ->with($query)
+            ->andReturn(self::DOCUMENT_COUNT);
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $this->assertEquals(self::DOCUMENT_COUNT, $this->getManager()->countByQuery($query));
+    }
+
+    public function testCountByQueryFails(): void
+    {
+        $this->typeMock
+            ->shouldReceive('count')
+            ->once()
+            ->andThrow(new \Exception(self::ERROR_MESSAGE));
+
+        $this->loggerMock
+            ->shouldReceive('error')
+            ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
+
+        $this->expectException(ElasticsearchException::class);
+
+        $this->getManager()->countByQuery(Query::create(null));
     }
 
     /**
