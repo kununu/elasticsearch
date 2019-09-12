@@ -1,12 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Tests\Unit\Services\Elasticsearch;
+namespace App\Tests\Unit\Services\Elasticsearch\Manager;
 
-use App\Services\Elasticsearch\ElasticsearchManager;
-use App\Services\Elasticsearch\ElasticsearchManagerInterface;
 use App\Services\Elasticsearch\Exception\ElasticsearchException;
 use App\Services\Elasticsearch\Exception\ManagerConfigurationException;
+use App\Tests\Unit\Services\Elasticsearch\ElasticsearchManagerTestTrait;
 use Elastica\Document;
 use Elastica\Query;
 use Elastica\Query\BoolQuery;
@@ -40,7 +39,7 @@ class ElasticsearchManagerTest extends MockeryTestCase
 
         $this->expectException(ManagerConfigurationException::class);
 
-        $foo = new ElasticsearchManager(
+        $foo = new \App\Services\Elasticsearch\Manager\ElasticsearchManager(
             $this->elasticsearchClientMock,
             $this->loggerMock,
             ''
@@ -388,10 +387,14 @@ class ElasticsearchManagerTest extends MockeryTestCase
     }
 
     /**
-     * @return \App\Services\Elasticsearch\ElasticsearchManagerInterface
+     * @return \App\Services\Elasticsearch\Manager\ElasticsearchManagerInterface
      */
-    private function getManager(): ElasticsearchManagerInterface
+    private function getManager(): \App\Services\Elasticsearch\Manager\ElasticsearchManagerInterface
     {
-        return new ElasticsearchManager($this->elasticsearchClientMock, $this->loggerMock, self::INDEX);
+        return new \App\Services\Elasticsearch\Manager\ElasticsearchManager(
+            $this->elasticsearchClientMock,
+            $this->loggerMock,
+            self::INDEX
+        );
     }
 }
