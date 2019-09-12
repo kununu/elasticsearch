@@ -26,7 +26,7 @@ class AbstractElasticsearchManagerTest extends MockeryTestCase
     {
         $this->expectException(ManagerConfigurationException::class);
 
-        new ElasticsearchManager(
+        $foo = new ElasticsearchManager(
             $this->elasticsearchClientMock,
             $this->loggerMock,
             ''
