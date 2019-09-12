@@ -24,9 +24,76 @@ class SubmissionManagerTest extends MockeryTestCase
      */
     public function aggregationData(): array
     {
+        $buildExpectedQuery = function (bool $hasQuery, ?string $expectedMatchField = null, $matchValue = null): array {
+            $expectedQuery = [
+                'index' => self::INDEX,
+                'body' => [
+                    'aggs' => [
+                        'classic_culture_dimension_leadership' => [
+                            'sum' => [
+                                'field' => 'classic.CULTURE_DIMENSION_LEADERSHIP',
+                            ],
+                        ],
+                        'classic_culture_dimension_strategic_direction' => [
+                            'sum' => [
+                                'field' => 'classic.CULTURE_DIMENSION_STRATEGIC_DIRECTION',
+                            ],
+                        ],
+                        'classic_culture_dimension_work_life' => [
+                            'sum' => [
+                                'field' => 'classic.CULTURE_DIMENSION_WORK_LIFE',
+                            ],
+                        ],
+                        'classic_culture_dimension_working_together' => [
+                            'sum' => [
+                                'field' => 'classic.CULTURE_DIMENSION_WORKING_TOGETHER',
+                            ],
+                        ],
+                        'new_work_culture_dimension_leadership' => [
+                            'sum' => [
+                                'field' => 'new_work.CULTURE_DIMENSION_LEADERSHIP',
+                            ],
+                        ],
+                        'new_work_culture_dimension_strategic_direction' => [
+                            'sum' => [
+                                'field' => 'new_work.CULTURE_DIMENSION_STRATEGIC_DIRECTION',
+                            ],
+                        ],
+                        'new_work_culture_dimension_work_life' => [
+                            'sum' => [
+                                'field' => 'new_work.CULTURE_DIMENSION_WORK_LIFE',
+                            ],
+                        ],
+                        'new_work_culture_dimension_working_together' => [
+                            'sum' => [
+                                'field' => 'new_work.CULTURE_DIMENSION_WORKING_TOGETHER',
+                            ],
+                        ],
+                    ],
+                ],
+            ];
+
+            if ($hasQuery) {
+                $expectedQuery['body']['query'] = [
+                    'bool' => [
+                        'should' => [
+                            [
+                                'match' => [
+                                    $expectedMatchField => $matchValue,
+                                ],
+                            ],
+                        ],
+                    ],
+                ];
+            }
+
+            return $expectedQuery;
+        };
+
         return [
-            ['profile_id', 12345, 'profile_id'],
-            ['profile_uuid', self::PROFILE_UUID, 'profile_uuid.keyword'],
+            ['profile_id', 12345, $buildExpectedQuery(true, 'profile_id', 12345)],
+            ['profile_uuid', self::PROFILE_UUID, $buildExpectedQuery(true, 'profile_uuid.keyword', self::PROFILE_UUID)],
+            ['profile_id', null, $buildExpectedQuery(false)],
         ];
     }
 
@@ -35,73 +102,14 @@ class SubmissionManagerTest extends MockeryTestCase
      *
      * @param string $field
      * @param mixed  $value
-     * @param string $expectedMatchField
+     * @param array  $expectedQuery
      */
-    public function testAggregateCultureDataByField(string $field, $value, string $expectedMatchField): void
+    public function testAggregateCultureDataByField(string $field, $value, array $expectedQuery): void
     {
-        $expectedParams = [
-            'index' => self::INDEX,
-            'body' => [
-                'query' => [
-                    'bool' => [
-                        'should' => [
-                            [
-                                'match' => [
-                                    $expectedMatchField => $value,
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-                'aggs' => [
-                    'classic_culture_dimension_leadership' => [
-                        'sum' => [
-                            'field' => 'classic.CULTURE_DIMENSION_LEADERSHIP',
-                        ],
-                    ],
-                    'classic_culture_dimension_strategic_direction' => [
-                        'sum' => [
-                            'field' => 'classic.CULTURE_DIMENSION_STRATEGIC_DIRECTION',
-                        ],
-                    ],
-                    'classic_culture_dimension_work_life' => [
-                        'sum' => [
-                            'field' => 'classic.CULTURE_DIMENSION_WORK_LIFE',
-                        ],
-                    ],
-                    'classic_culture_dimension_working_together' => [
-                        'sum' => [
-                            'field' => 'classic.CULTURE_DIMENSION_WORKING_TOGETHER',
-                        ],
-                    ],
-                    'new_work_culture_dimension_leadership' => [
-                        'sum' => [
-                            'field' => 'new_work.CULTURE_DIMENSION_LEADERSHIP',
-                        ],
-                    ],
-                    'new_work_culture_dimension_strategic_direction' => [
-                        'sum' => [
-                            'field' => 'new_work.CULTURE_DIMENSION_STRATEGIC_DIRECTION',
-                        ],
-                    ],
-                    'new_work_culture_dimension_work_life' => [
-                        'sum' => [
-                            'field' => 'new_work.CULTURE_DIMENSION_WORK_LIFE',
-                        ],
-                    ],
-                    'new_work_culture_dimension_working_together' => [
-                        'sum' => [
-                            'field' => 'new_work.CULTURE_DIMENSION_WORKING_TOGETHER',
-                        ],
-                    ],
-                ],
-            ],
-        ];
-
         $this->elasticsearchClientMock
             ->shouldReceive('search')
             ->once()
-            ->with($expectedParams)
+            ->with($expectedQuery)
             ->andReturn(['aggregations' => ['Let\'s assume it is aggregated data']]);
 
         $this->loggerMock
