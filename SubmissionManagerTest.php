@@ -5,12 +5,7 @@ namespace App\Tests\Unit\Services\Elasticsearch;
 use App\Services\Elasticsearch\Exception\ElasticsearchException;
 use App\Services\Elasticsearch\SubmissionManager;
 use App\Services\Elasticsearch\SubmissionManagerInterface;
-use Elasticsearch\Client;
-use Elasticsearch\Namespaces\IndicesNamespace;
-use Mockery;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
-use Mockery\MockInterface;
-use Psr\Log\LoggerInterface;
 
 /**
  * @group unit
@@ -24,11 +19,26 @@ class SubmissionManagerTest extends MockeryTestCase
     protected const PROFILE_UUID = 'd547f967-523c-4788-a038-d7b9a3f2d5f6';
     protected const ERROR_MESSAGE = 'Any error, for example: missing type';
 
-    public function testAggregateCultureDataByField(): void
+    /**
+     * @return array
+     */
+    public function aggregationData(): array
     {
-        $field = 'profile_id';
-        $value = 12345;
+        return [
+            ['profile_id', 12345, 'profile_id'],
+            ['profile_uuid', self::PROFILE_UUID, 'profile_uuid.keyword'],
+        ];
+    }
 
+    /**
+     * @dataProvider aggregationData
+     *
+     * @param string $field
+     * @param mixed  $value
+     * @param string $expectedMatchField
+     */
+    public function testAggregateCultureDataByField(string $field, $value, string $expectedMatchField): void
+    {
         $expectedParams = [
             'index' => self::INDEX,
             'body' => [
@@ -37,7 +47,7 @@ class SubmissionManagerTest extends MockeryTestCase
                         'should' => [
                             [
                                 'match' => [
-                                    $field => $value,
+                                    $expectedMatchField => $value,
                                 ],
                             ],
                         ],
