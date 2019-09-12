@@ -37,12 +37,11 @@ class SubmissionManager extends ElasticsearchManager implements SubmissionManage
             $field = $field . '.keyword';
         }
 
-        $filter =
+        $query = Query::create(
             $field && $value
                 ? (new Query\BoolQuery())->addShould(new Query\Match($field, $value))
-                : null;
-
-        $query = Query::create($filter);
+                : null
+        );
 
         foreach (FactorService::TYPES as $type) {
             foreach (Dimension::DIMENSIONS as $dimension) {

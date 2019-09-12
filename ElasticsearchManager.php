@@ -40,6 +40,10 @@ class ElasticsearchManager implements ElasticsearchManagerInterface
         $this->client = $client;
         $this->logger = $logger;
         $this->index = $index;
+
+        if (empty($this->index)) {
+            throw new ManagerConfigurationException('no index defined');
+        }
     }
 
     /**
@@ -59,10 +63,6 @@ class ElasticsearchManager implements ElasticsearchManagerInterface
      */
     protected function getIndex(): string
     {
-        if (!$this->index) {
-            throw new ManagerConfigurationException('no index defined');
-        }
-
         return $this->index;
     }
 
