@@ -62,76 +62,102 @@ class SubmissionManagerTest extends MockeryTestCase
         $this->getManager()->aggregateCultureDataByField('profile_id', 12345);
     }
 
-    public function testBuildSumAggregationQuery(): void
+    /**
+     * @return array
+     */
+    public function aggregationData(): array
     {
-        $field = 'profile_id';
-        $value = 12345;
+        $buildExpectedQuery = function (bool $hasQuery, ?string $expectedMatchField = null, $matchValue = null): array {
+            $expectedQuery = [
+                'aggs' => [
+                    'classic_culture_dimension_leadership' => [
+                        'sum' => [
+                            'field' => 'classic.CULTURE_DIMENSION_LEADERSHIP',
+                        ],
+                    ],
+                    'classic_culture_dimension_strategic_direction' => [
+                        'sum' => [
+                            'field' => 'classic.CULTURE_DIMENSION_STRATEGIC_DIRECTION',
+                        ],
+                    ],
+                    'classic_culture_dimension_work_life' => [
+                        'sum' => [
+                            'field' => 'classic.CULTURE_DIMENSION_WORK_LIFE',
+                        ],
+                    ],
+                    'classic_culture_dimension_working_together' => [
+                        'sum' => [
+                            'field' => 'classic.CULTURE_DIMENSION_WORKING_TOGETHER',
+                        ],
+                    ],
+                    'new_work_culture_dimension_leadership' => [
+                        'sum' => [
+                            'field' => 'new_work.CULTURE_DIMENSION_LEADERSHIP',
+                        ],
+                    ],
+                    'new_work_culture_dimension_strategic_direction' => [
+                        'sum' => [
+                            'field' => 'new_work.CULTURE_DIMENSION_STRATEGIC_DIRECTION',
+                        ],
+                    ],
+                    'new_work_culture_dimension_work_life' => [
+                        'sum' => [
+                            'field' => 'new_work.CULTURE_DIMENSION_WORK_LIFE',
+                        ],
+                    ],
+                    'new_work_culture_dimension_working_together' => [
+                        'sum' => [
+                            'field' => 'new_work.CULTURE_DIMENSION_WORKING_TOGETHER',
+                        ],
+                    ],
+                ],
+            ];
 
+            if ($hasQuery) {
+                $expectedQuery['query'] = [
+                    'bool' => [
+                        'should' => [
+                            [
+                                'match' => [
+                                    $expectedMatchField => $matchValue,
+                                ],
+                            ],
+                        ],
+                    ],
+                ];
+            } else {
+                $expectedQuery['query'] = [
+                    'match_all' => new \stdClass(),
+                ];
+            }
+
+            return $expectedQuery;
+        };
+
+        return [
+            ['profile_id', 12345, $buildExpectedQuery(true, 'profile_id', 12345)],
+            ['profile_uuid', self::PROFILE_UUID, $buildExpectedQuery(true, 'profile_uuid.keyword', self::PROFILE_UUID)],
+            ['profile_id', null, $buildExpectedQuery(false)],
+        ];
+    }
+
+    /**
+     * @dataProvider aggregationData
+     *
+     * @param string $matchField
+     * @param        $matchValue
+     * @param array  $expectedQuery
+     */
+    public function testBuildSumAggregationQuery(string $matchField, $matchValue, array $expectedQuery): void
+    {
         $this->elasticsearchClientMock
             ->shouldNotReceive('getIndex');
 
         $this->indexMock
             ->shouldNotReceive('getType');
 
-        $query = $this->getManager()->buildSumAggregationQuery($field, $value);
-
-        $expected = [
-            'query' => [
-                'bool' => [
-                    'should' => [
-                        [
-                            'match' => [
-                                $field => $value,
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-            'aggs' => [
-                'classic_culture_dimension_leadership' => [
-                    'sum' => [
-                        'field' => 'classic.CULTURE_DIMENSION_LEADERSHIP',
-                    ],
-                ],
-                'classic_culture_dimension_strategic_direction' => [
-                    'sum' => [
-                        'field' => 'classic.CULTURE_DIMENSION_STRATEGIC_DIRECTION',
-                    ],
-                ],
-                'classic_culture_dimension_work_life' => [
-                    'sum' => [
-                        'field' => 'classic.CULTURE_DIMENSION_WORK_LIFE',
-                    ],
-                ],
-                'classic_culture_dimension_working_together' => [
-                    'sum' => [
-                        'field' => 'classic.CULTURE_DIMENSION_WORKING_TOGETHER',
-                    ],
-                ],
-                'new_work_culture_dimension_leadership' => [
-                    'sum' => [
-                        'field' => 'new_work.CULTURE_DIMENSION_LEADERSHIP',
-                    ],
-                ],
-                'new_work_culture_dimension_strategic_direction' => [
-                    'sum' => [
-                        'field' => 'new_work.CULTURE_DIMENSION_STRATEGIC_DIRECTION',
-                    ],
-                ],
-                'new_work_culture_dimension_work_life' => [
-                    'sum' => [
-                        'field' => 'new_work.CULTURE_DIMENSION_WORK_LIFE',
-                    ],
-                ],
-                'new_work_culture_dimension_working_together' => [
-                    'sum' => [
-                        'field' => 'new_work.CULTURE_DIMENSION_WORKING_TOGETHER',
-                    ],
-                ],
-            ],
-        ];
-
-        $this->assertEquals($expected, $query->toArray());
+        $query = $this->getManager()->buildSumAggregationQuery($matchField, $matchValue);
+        $this->assertEquals($expectedQuery, $query->toArray());
     }
 
     public function testCountSubmissionsByProfileUuid(): void

@@ -6,6 +6,7 @@ namespace App\Tests\Unit\Services\Elasticsearch;
 use App\Services\Elasticsearch\ElasticsearchManager;
 use App\Services\Elasticsearch\ElasticsearchManagerInterface;
 use App\Services\Elasticsearch\Exception\ElasticsearchException;
+use App\Services\Elasticsearch\Exception\ManagerConfigurationException;
 use Elastica\Document;
 use Elastica\Query;
 use Elastica\Query\BoolQuery;
@@ -28,6 +29,17 @@ class ElasticsearchManagerTest extends MockeryTestCase
     protected const ERROR_MESSAGE = 'Any error, for example: missing type';
     protected const ID = 'can_be_anything';
     protected const DOCUMENT_COUNT = 42;
+
+    public function testNoIndexDefined(): void
+    {
+        $this->expectException(ManagerConfigurationException::class);
+
+        $foo = new ElasticsearchManager(
+            $this->elasticsearchClientMock,
+            $this->loggerMock,
+            ''
+        );
+    }
 
     public function testSave(): void
     {
