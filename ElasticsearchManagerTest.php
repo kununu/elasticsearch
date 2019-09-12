@@ -171,13 +171,19 @@ class ElasticsearchManagerTest extends MockeryTestCase
         $this->getManager()->deleteIndex();
     }
 
-    public function testFindAll(): void
+    /**
+     * @dataProvider findByQueryData
+     *
+     * @param array $esResult
+     * @param array $endResult
+     */
+    public function testFindAll(array $esResult, array $endResult): void
     {
         $resultSetMock = Mockery::mock(ResultSet::class);
         $resultSetMock
             ->shouldReceive('getResults')
             ->once()
-            ->andReturn([]);
+            ->andReturn($esResult);
 
         $this->typeMock
             ->shouldReceive('search')
@@ -189,9 +195,9 @@ class ElasticsearchManagerTest extends MockeryTestCase
         $this->loggerMock
             ->shouldNotReceive('error');
 
-        $response = $this->getManager()->findAll();
+        $result = $this->getManager()->findAll();
 
-        $this->assertArrayNotHasKey('hits', $response);
+        $this->assertEquals($endResult, $result);
     }
 
     public function testFindAllFails(): void
