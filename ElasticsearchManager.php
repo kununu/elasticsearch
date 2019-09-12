@@ -116,16 +116,7 @@ class ElasticsearchManager implements ElasticsearchManagerInterface
      */
     public function findAll(): array
     {
-        try {
-            return array_map(
-                function (Result $result) {
-                    return $result->getData();
-                },
-                $this->client->getIndex($this->getIndex())->getType($this->getType())->search()->getResults()
-            );
-        } catch (\Exception $e) {
-            $this->logErrorAndThrowException($e);
-        }
+        return $this->findByQuery(Query::create(null));
     }
 
     /**
