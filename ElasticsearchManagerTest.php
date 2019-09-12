@@ -32,6 +32,12 @@ class ElasticsearchManagerTest extends MockeryTestCase
 
     public function testNoIndexDefined(): void
     {
+        $this->elasticsearchClientMock
+            ->shouldNotReceive('getIndex');
+
+        $this->indexMock
+            ->shouldNotReceive('getType');
+
         $this->expectException(ManagerConfigurationException::class);
 
         $foo = new ElasticsearchManager(
