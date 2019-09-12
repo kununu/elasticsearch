@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Services\Elasticsearch;
 
 use App\Entity\Dimension;
+use App\Services\Elasticsearch\Manager\ElasticsearchManager;
 use App\Services\FactorService;
 use Elastica\Aggregation\Sum;
 use Elastica\Query;

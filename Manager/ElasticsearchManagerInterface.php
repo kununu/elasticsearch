@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Elasticsearch;
+namespace App\Services\Elasticsearch\Manager;
 
 use Elastica\Query;
 

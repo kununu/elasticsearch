@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch;
+namespace App\Services\Elasticsearch\Manager;
 
 use App\Services\Elasticsearch\Exception\ElasticsearchException;
 use App\Services\Elasticsearch\Exception\ManagerConfigurationException;
@@ -141,11 +141,7 @@ class ElasticsearchManager implements ElasticsearchManagerInterface
      */
     public function count(): int
     {
-        try {
-            return $this->client->getIndex($this->getIndex())->getType($this->getType())->count();
-        } catch (\Exception $e) {
-            $this->logErrorAndThrowException($e);
-        }
+        return $this->countByQuery(Query::create(null));
     }
 
     /**
