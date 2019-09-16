@@ -4,8 +4,9 @@ declare(strict_types=1);
 namespace App\Tests\Unit\Services\Elasticsearch\Manager;
 
 use App\Services\Elasticsearch\Adapter\ElasticaAdapter;
+use App\Services\Elasticsearch\Exception\InvalidQueryException;
 use App\Services\Elasticsearch\Query\Query;
-use App\Tests\Unit\Services\Elasticsearch\ElasticsearchManagerTestTrait;
+use App\Services\Elasticsearch\Query\QueryInterface;
 use Elastica\Client;
 use Elastica\Document;
 use Elastica\Index;
@@ -22,8 +23,6 @@ use Mockery\Adapter\Phpunit\MockeryTestCase;
  */
 class ElasticaAdapterTest extends MockeryTestCase
 {
-    use ElasticsearchManagerTestTrait;
-
     protected const INDEX = 'some_index';
     protected const TYPE = '_doc';
     protected const ID = 'can_be_anything';
@@ -64,8 +63,20 @@ class ElasticaAdapterTest extends MockeryTestCase
         return new ElasticaAdapter($this->clientMock, self::INDEX, self::TYPE);
     }
 
-    public function donttestVerifyElasticaQueryObject(): void
+    protected function getInvalidQueryObject()
     {
+        return new class() implements QueryInterface
+        {
+            public function toArray(): array
+            {
+                return [];
+            }
+
+            public static function create($query)
+            {
+                return new self();
+            }
+        };
     }
 
     public function testIndex(): void
@@ -213,7 +224,7 @@ class ElasticaAdapterTest extends MockeryTestCase
      * @param array $esResult
      * @param array $endResult
      */
-    public function testFindByQuery(array $esResult, array $endResult): void
+    public function testSearchByQuery(array $esResult, array $endResult): void
     {
         $query = Query::create(
             (new BoolQuery())
@@ -235,6 +246,13 @@ class ElasticaAdapterTest extends MockeryTestCase
         $result = $this->getAdapter()->search($query);
 
         $this->assertEquals($endResult, $result);
+    }
+
+    public function testSearchWithInvalidQuery(): void
+    {
+        $this->expectException(InvalidQueryException::class);
+
+        $this->getAdapter()->search($this->getInvalidQueryObject());
     }
 
     public function testCount(): void
@@ -261,5 +279,58 @@ class ElasticaAdapterTest extends MockeryTestCase
             ->andReturn(self::DOCUMENT_COUNT);
 
         $this->assertEquals(self::DOCUMENT_COUNT, $this->getAdapter()->count($query));
+    }
+
+    public function testCountWithInvalidQuery(): void
+    {
+        $this->expectException(InvalidQueryException::class);
+
+        $this->getAdapter()->count($this->getInvalidQueryObject());
+    }
+
+    public function testAggregate(): void
+    {
+        $resultSetMock = Mockery::mock(ResultSet::class);
+        $resultSetMock
+            ->shouldReceive('getAggregations')
+            ->once()
+            ->andReturn(['foo' => 'bar']);
+
+        $this->typeMock
+            ->shouldReceive('search')
+            ->once()
+            ->with(null)
+            ->andReturn($resultSetMock);
+
+        $this->assertEquals(['foo' => 'bar'], $this->getAdapter()->aggregate());
+    }
+
+    public function testAggregateByQuery(): void
+    {
+        $query = Query::create(
+            (new BoolQuery())
+                ->addMust((new Term())->setTerm('foo', 'bar'))
+        );
+
+        $resultSetMock = Mockery::mock(ResultSet::class);
+        $resultSetMock
+            ->shouldReceive('getAggregations')
+            ->once()
+            ->andReturn(['foo' => 'bar']);
+
+        $this->typeMock
+            ->shouldReceive('search')
+            ->once()
+            ->with($query)
+            ->andReturn($resultSetMock);
+
+        $this->assertEquals(['foo' => 'bar'], $this->getAdapter()->aggregate($query));
+    }
+
+    public function testAggregateWithInvalidQuery(): void
+    {
+        $this->expectException(InvalidQueryException::class);
+
+        $this->getAdapter()->aggregate($this->getInvalidQueryObject());
     }
 }
