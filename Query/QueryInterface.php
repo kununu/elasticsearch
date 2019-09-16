@@ -9,4 +9,11 @@ interface QueryInterface
      * @return array
      */
     public function toArray(): array;
+
+    /**
+     * @param mixed $query
+     *
+     * @return \App\Services\Elasticsearch\Query\QueryInterface
+     */
+    public static function create($query);
 }

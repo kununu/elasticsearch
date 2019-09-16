@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Services\Elasticsearch\Adapter;
 
-use App\Services\Elasticsearch\Query\Query;
 use App\Services\Elasticsearch\Query\QueryInterface;
 
 interface AdapterInterface
@@ -16,11 +15,11 @@ interface AdapterInterface
     public function search(?QueryInterface $query = null): array;
 
     /**
-     * @param \App\Services\Elasticsearch\Query\Query|null $query
+     * @param \App\Services\Elasticsearch\Query\QueryInterface|null $query
      *
      * @return int
      */
-    public function count(?Query $query = null): int;
+    public function count(?QueryInterface $query = null): int;
 
     /**
      * @param string $id

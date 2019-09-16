@@ -4,29 +4,18 @@ declare(strict_types=1);
 namespace App\Services\Elasticsearch\Adapter;
 
 use App\Services\Elasticsearch\Exception\InvalidQueryException;
-use App\Services\Elasticsearch\Query\Query;
 use App\Services\Elasticsearch\Query\QueryInterface;
 use Elastica\Client;
 use Elastica\Index;
 use Elastica\Result;
 use Elastica\Type;
 
-class ElasticaAdapter implements AdapterInterface
+class ElasticaAdapter extends AbstractAdapter implements AdapterInterface
 {
     /**
      * @var \Elastica\Client
      */
     protected $client;
-
-    /**
-     * @var string
-     */
-    protected $index;
-
-    /**
-     * @var string
-     */
-    protected $type;
 
     /**
      * ElasticaAdapter constructor.
@@ -38,9 +27,10 @@ class ElasticaAdapter implements AdapterInterface
     public function __construct(Client $client, string $index, string $type)
     {
         $this->client = $client;
-        $this->index = $index;
-        $this->type = $type;
-        // @todo validation for index and type
+        $this->indexName = $index;
+        $this->typeName = $type;
+
+        $this->validateIndexAndType();
     }
 
     /**
@@ -48,7 +38,7 @@ class ElasticaAdapter implements AdapterInterface
      */
     protected function getIndex(): Index
     {
-        return $this->client->getIndex($this->index);
+        return $this->client->getIndex($this->indexName);
     }
 
     /**
@@ -56,7 +46,7 @@ class ElasticaAdapter implements AdapterInterface
      */
     protected function getType(): Type
     {
-        return $this->getIndex()->getType($this->type);
+        return $this->getIndex()->getType($this->typeName);
     }
 
     /**
@@ -91,11 +81,11 @@ class ElasticaAdapter implements AdapterInterface
     }
 
     /**
-     * @param \App\Services\Elasticsearch\Query\Query|null $query
+     * @param \App\Services\Elasticsearch\Query\QueryInterface|null $query
      *
      * @return int
      */
-    public function count(?Query $query = null): int
+    public function count(?QueryInterface $query = null): int
     {
         return $this->getType()->count(
             $this->verifyElasticaQueryObject($query)
