@@ -3,26 +3,15 @@ declare(strict_types=1);
 
 namespace App\Services\Elasticsearch\Adapter;
 
-use App\Services\Elasticsearch\Query\Query;
 use App\Services\Elasticsearch\Query\QueryInterface;
 use Elasticsearch\Client;
 
-class ElasticsearchAdapter implements AdapterInterface
+class ElasticsearchAdapter extends AbstractAdapter implements AdapterInterface
 {
     /**
      * @var \Elasticsearch\Client
      */
     protected $client;
-
-    /**
-     * @var string
-     */
-    protected $index;
-
-    /**
-     * @var string
-     */
-    protected $type;
 
     /**
      * ElasticsearchAdapter constructor.
@@ -34,9 +23,10 @@ class ElasticsearchAdapter implements AdapterInterface
     public function __construct(Client $client, string $index, string $type)
     {
         $this->client = $client;
-        $this->index = $index;
-        $this->type = $type;
-        // @todo validation for index and type
+        $this->indexName = $index;
+        $this->typeName = $type;
+
+        $this->validateIndexAndType();
     }
 
     /**
@@ -45,8 +35,8 @@ class ElasticsearchAdapter implements AdapterInterface
     protected function buildRequestBase(): array
     {
         return [
-            'index' => $this->index,
-            'type' => $this->type,
+            'index' => $this->indexName,
+            'type' => $this->typeName,
         ];
     }
 
@@ -76,11 +66,11 @@ class ElasticsearchAdapter implements AdapterInterface
     }
 
     /**
-     * @param \App\Services\Elasticsearch\Query\Query|null $query
+     * @param \App\Services\Elasticsearch\Query\QueryInterface|null $query
      *
      * @return int
      */
-    public function count(?Query $query = null): int
+    public function count(?QueryInterface $query = null): int
     {
         return $this->client->count($this->buildRawQuery($query))['count'];
     }
@@ -116,6 +106,6 @@ class ElasticsearchAdapter implements AdapterInterface
 
     public function deleteIndex(): void
     {
-        $this->client->indices()->delete(['index' => $this->index]);
+        $this->client->indices()->delete(['index' => $this->indexName]);
     }
 }
