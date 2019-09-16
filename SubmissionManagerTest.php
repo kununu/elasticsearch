@@ -5,8 +5,6 @@ namespace App\Tests\Unit\Services\Elasticsearch;
 use App\Services\Elasticsearch\Exception\ElasticsearchException;
 use App\Services\Elasticsearch\SubmissionManager;
 use App\Services\Elasticsearch\SubmissionManagerInterface;
-use Elastica\ResultSet;
-use Mockery;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 /**
@@ -16,8 +14,6 @@ class SubmissionManagerTest extends MockeryTestCase
 {
     use ElasticsearchManagerTestTrait;
 
-    protected const INDEX = 'some_index';
-    protected const TYPE = '_doc';
     protected const ERROR_PREFIX = 'Elasticsearch exception: ';
     protected const PROFILE_UUID = 'd547f967-523c-4788-a038-d7b9a3f2d5f6';
     protected const ERROR_MESSAGE = 'Any error, for example: missing type';
@@ -25,33 +21,21 @@ class SubmissionManagerTest extends MockeryTestCase
 
     public function testAggregateCultureDataByField(): void
     {
-        $field = 'profile_id';
-        $value = 12345;
-
-        $resultSetMock = Mockery::mock(ResultSet::class);
-        $resultSetMock
-            ->shouldReceive('getAggregations')
-            ->once()
-            ->andReturn([]);
-
-        $this->typeMock
-            ->shouldReceive('search')
-            ->once()
-            ->andReturn($resultSetMock);
+        $this->elasticaAdapterMock
+            ->shouldReceive('aggregate')
+            ->once();
 
         $this->loggerMock
             ->shouldNotReceive('error');
 
-        $this->getManager()->aggregateCultureDataByField(
-            $field,
-            $value
-        );
+        $this->getManager()->aggregateCultureDataByField('profile_id', 12345);
     }
 
     public function testAggregateCultureDataByFieldFails(): void
     {
-        $this->typeMock
-            ->shouldReceive('search')
+        $this->elasticaAdapterMock
+            ->shouldReceive('aggregate')
+            ->once()
             ->andThrow(new \Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
@@ -150,19 +134,13 @@ class SubmissionManagerTest extends MockeryTestCase
      */
     public function testBuildSumAggregationQuery(string $matchField, $matchValue, array $expectedQuery): void
     {
-        $this->elasticsearchClientMock
-            ->shouldNotReceive('getIndex');
-
-        $this->indexMock
-            ->shouldNotReceive('getType');
-
         $query = $this->getManager()->buildSumAggregationQuery($matchField, $matchValue);
         $this->assertEquals($expectedQuery, $query->toArray());
     }
 
     public function testCountSubmissionsByProfileUuid(): void
     {
-        $this->typeMock
+        $this->elasticaAdapterMock
             ->shouldReceive('count')
             ->once()
             ->andReturn(self::DOCUMENT_COUNT);
@@ -175,7 +153,7 @@ class SubmissionManagerTest extends MockeryTestCase
 
     public function testCountSubmissionsByProfileUuidFails(): void
     {
-        $this->typeMock
+        $this->elasticaAdapterMock
             ->shouldReceive('count')
             ->once()
             ->andThrow(new \Exception(self::ERROR_MESSAGE));
@@ -190,12 +168,6 @@ class SubmissionManagerTest extends MockeryTestCase
 
     public function testBuildCountByProfileUuidQuery(): void
     {
-        $this->elasticsearchClientMock
-            ->shouldNotReceive('getIndex');
-
-        $this->indexMock
-            ->shouldNotReceive('getType');
-
         $query = $this->getManager()->buildCountByProfileUuidQuery(self::PROFILE_UUID);
 
         $expected = [
@@ -217,6 +189,6 @@ class SubmissionManagerTest extends MockeryTestCase
      */
     private function getManager(): SubmissionManagerInterface
     {
-        return new SubmissionManager($this->elasticsearchClientMock, $this->loggerMock, self::INDEX);
+        return new SubmissionManager($this->elasticaAdapterMock, $this->loggerMock);
     }
 }
