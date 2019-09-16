@@ -31,19 +31,26 @@ class Query extends \Elastica\Query implements QueryInterface
     {
         switch (true) {
             case $query instanceof self:
-                return $query;
+                $ret = $query;
+                break;
             case $query instanceof AbstractQuery:
             case is_array($query):
             case $query instanceof Suggest:
-                return new static($query);
+                $ret = new static($query);
+                break;
             case empty($query):
-                return new static(new MatchAll());
+                $ret = new static(new MatchAll());
+                break;
             case is_string($query):
-                return new static(new QueryString($query));
+                $ret = new static(new QueryString($query));
+                break;
             case $query instanceof AbstractSuggest:
-                return new static(new Suggest($query));
+                $ret = new static(new Suggest($query));
+                break;
+            default:
+                throw new InvalidException('Unexpected argument to create a query for.');
         }
 
-        throw new InvalidException('Unexpected argument to create a query for.');
+        return $ret;
     }
 }
