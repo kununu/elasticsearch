@@ -5,9 +5,12 @@ namespace App\Services\Elasticsearch;
 
 use App\Entity\Dimension;
 use App\Services\Elasticsearch\Manager\ElasticsearchManager;
+use App\Services\Elasticsearch\Query\Query;
 use App\Services\FactorService;
 use Elastica\Aggregation\Sum;
-use Elastica\Query;
+use Elastica\Query\BoolQuery;
+use Elastica\Query\Match;
+use Elastica\Query\Term;
 
 /**
  * Class SubmissionManager
@@ -30,7 +33,7 @@ class SubmissionManager extends ElasticsearchManager implements SubmissionManage
      * @param string|null $field
      * @param string|null $value
      *
-     * @return \Elastica\Query
+     * @return \App\Services\Elasticsearch\Query\Query
      */
     public function buildSumAggregationQuery(?string $field, ?string $value): Query
     {
@@ -40,7 +43,7 @@ class SubmissionManager extends ElasticsearchManager implements SubmissionManage
 
         $query = Query::create(
             $field && $value
-                ? (new Query\BoolQuery())->addShould(new Query\Match($field, $value))
+                ? (new BoolQuery())->addShould(new Match($field, $value))
                 : null
         );
 
@@ -77,12 +80,12 @@ class SubmissionManager extends ElasticsearchManager implements SubmissionManage
      *
      * @param string $profileUuid
      *
-     * @return \Elastica\Query
+     * @return \App\Services\Elasticsearch\Query\Query
      */
     public function buildCountByProfileUuidQuery(string $profileUuid): Query
     {
         return Query::create(
-            (new Query\Term())->setTerm('profile_uuid.keyword', $profileUuid)
+            (new Term())->setTerm('profile_uuid.keyword', $profileUuid)
         );
     }
 }

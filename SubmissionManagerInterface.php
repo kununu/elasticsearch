@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace App\Services\Elasticsearch;
 
 use App\Services\Elasticsearch\Manager\ElasticsearchManagerInterface;
-use Elastica\Query;
+use App\Services\Elasticsearch\Query\Query;
 
 /**
  * Interface SubmissionManagerInterface
@@ -27,7 +27,7 @@ interface SubmissionManagerInterface extends ElasticsearchManagerInterface
      * @param string|null $field
      * @param string|null $value
      *
-     * @return \Elastica\Query
+     * @return \App\Services\Elasticsearch\Query\Query
      */
     public function buildSumAggregationQuery(?string $field, ?string $value): Query;
 
@@ -43,7 +43,7 @@ interface SubmissionManagerInterface extends ElasticsearchManagerInterface
      *
      * @param string $profileUuid
      *
-     * @return \Elastica\Query
+     * @return \App\Services\Elasticsearch\Query\Query
      */
     public function buildCountByProfileUuidQuery(string $profileUuid): Query;
 }

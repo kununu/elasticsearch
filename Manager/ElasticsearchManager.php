@@ -3,11 +3,9 @@ declare(strict_types=1);
 
 namespace App\Services\Elasticsearch\Manager;
 
+use App\Services\Elasticsearch\Adapter\AdapterInterface;
 use App\Services\Elasticsearch\Exception\ElasticsearchException;
-use App\Services\Elasticsearch\Exception\ManagerConfigurationException;
-use Elastica\Client;
-use Elastica\Query;
-use Elastica\Result;
+use App\Services\Elasticsearch\Query\QueryInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -19,31 +17,22 @@ class ElasticsearchManager implements ElasticsearchManagerInterface
 {
     protected const EXCEPTION_PREFIX = 'Elasticsearch exception: ';
 
-    /** @var Client */
+    /** @var \App\Services\Elasticsearch\Adapter\AdapterInterface */
     protected $client;
 
-    /** @var LoggerInterface */
+    /** @var \Psr\Log\LoggerInterface */
     protected $logger;
-
-    /** @var string */
-    protected $index;
 
     /**
      * AbstractElasticsearchManager constructor.
      *
-     * @param \Elastica\Client         $client
-     * @param \Psr\Log\LoggerInterface $logger
-     * @param string                   $index
+     * @param \App\Services\Elasticsearch\Adapter\AdapterInterface $client
+     * @param \Psr\Log\LoggerInterface                             $logger
      */
-    public function __construct(Client $client, LoggerInterface $logger, string $index)
+    public function __construct(AdapterInterface $client, LoggerInterface $logger)
     {
         $this->client = $client;
         $this->logger = $logger;
-        $this->index = $index;
-
-        if (empty($this->index)) {
-            throw new ManagerConfigurationException('no index defined');
-        }
     }
 
     /**
@@ -59,29 +48,12 @@ class ElasticsearchManager implements ElasticsearchManagerInterface
     }
 
     /**
-     * @return string
-     */
-    protected function getIndex(): string
-    {
-        return $this->index;
-    }
-
-    /**
-     * @return string
-     */
-    protected function getType(): string
-    {
-        return '_doc';
-    }
-
-    /**
      * @inheritdoc
      */
     public function save(string $id, array $document): void
     {
         try {
-            $type = $this->client->getIndex($this->getIndex())->getType($this->getType());
-            $type->addDocument($type->createDocument($id, $document));
+            $this->client->index($id, $document);
         } catch (\Exception $e) {
             $this->logErrorAndThrowException($e);
         }
@@ -93,7 +65,7 @@ class ElasticsearchManager implements ElasticsearchManagerInterface
     public function delete(string $id): void
     {
         try {
-            $this->client->getIndex($this->getIndex())->getType($this->getType())->deleteById($id);
+            $this->client->delete($id);
         } catch (\Exception $e) {
             $this->logErrorAndThrowException($e);
         }
@@ -105,7 +77,7 @@ class ElasticsearchManager implements ElasticsearchManagerInterface
     public function deleteIndex(): void
     {
         try {
-            $this->client->getIndex($this->getIndex())->delete();
+            $this->client->deleteIndex();
         } catch (\Exception $e) {
             $this->logErrorAndThrowException($e);
         }
@@ -116,21 +88,20 @@ class ElasticsearchManager implements ElasticsearchManagerInterface
      */
     public function findAll(): array
     {
-        return $this->findByQuery(Query::create(null));
+        try {
+            return $this->client->search();
+        } catch (\Exception $e) {
+            $this->logErrorAndThrowException($e);
+        }
     }
 
     /**
      * @inheritdoc
      */
-    public function findByQuery(Query $query): array
+    public function findByQuery(QueryInterface $query): array
     {
         try {
-            return array_map(
-                function (Result $result) {
-                    return $result->getData();
-                },
-                $this->client->getIndex($this->getIndex())->getType($this->getType())->search($query)->getResults()
-            );
+            return $this->client->search($query);
         } catch (\Exception $e) {
             $this->logErrorAndThrowException($e);
         }
@@ -141,16 +112,8 @@ class ElasticsearchManager implements ElasticsearchManagerInterface
      */
     public function count(): int
     {
-        return $this->countByQuery(Query::create(null));
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function countByQuery(Query $query): int
-    {
         try {
-            return $this->client->getIndex($this->getIndex())->getType($this->getType())->count($query);
+            return $this->client->count();
         } catch (\Exception $e) {
             $this->logErrorAndThrowException($e);
         }
@@ -159,12 +122,22 @@ class ElasticsearchManager implements ElasticsearchManagerInterface
     /**
      * @inheritdoc
      */
-    public function aggregateByQuery(Query $query): array
+    public function countByQuery(QueryInterface $query): int
     {
         try {
-            return $this->client->getIndex($this->getIndex())->getType($this->getType())->search(
-                $query
-            )->getAggregations();
+            return $this->client->count($query);
+        } catch (\Exception $e) {
+            $this->logErrorAndThrowException($e);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function aggregateByQuery(QueryInterface $query): array
+    {
+        try {
+            return $this->client->aggregate($query);
         } catch (\Exception $e) {
             $this->logErrorAndThrowException($e);
         }

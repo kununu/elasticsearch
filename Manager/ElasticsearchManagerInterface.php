@@ -2,7 +2,7 @@
 
 namespace App\Services\Elasticsearch\Manager;
 
-use Elastica\Query;
+use App\Services\Elasticsearch\Query\QueryInterface;
 
 /**
  * Interface ElasticsearchManagerInterface
@@ -30,11 +30,11 @@ interface ElasticsearchManagerInterface
     public function findAll(): array;
 
     /**
-     * @param \Elastica\Query $query
+     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
      *
      * @return array
      */
-    public function findByQuery(Query $query): array;
+    public function findByQuery(QueryInterface $query): array;
 
     /**
      * @return int
@@ -42,16 +42,16 @@ interface ElasticsearchManagerInterface
     public function count(): int;
 
     /**
-     * @param \Elastica\Query $query
+     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
      *
      * @return int
      */
-    public function countByQuery(Query $query): int;
+    public function countByQuery(QueryInterface $query): int;
 
     /**
-     * @param \Elastica\Query $query
+     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
      *
      * @return array
      */
-    public function aggregateByQuery(Query $query): array;
+    public function aggregateByQuery(QueryInterface $query): array;
 }
