@@ -23,9 +23,18 @@ interface ElasticsearchManagerInterface
     public function deleteIndex(): void;
 
     /**
+     * @param int $size
+     *
      * @return array
      */
-    public function findAll(): array;
+    public function findAll(int $size): array;
+
+    /**
+     * @param string $scrollId
+     *
+     * @return array
+     */
+    public function findByScrollId(string $scrollId): array;
 
     /**
      * @param array $query

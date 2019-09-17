@@ -16,6 +16,7 @@ use Psr\Log\LoggerInterface;
 class ElasticsearchManager implements ElasticsearchManagerInterface
 {
     protected const EXCEPTION_PREFIX = 'Elasticsearch exception: ';
+    protected const SCROLL_CONTEXT_KEEPALIVE = '1m'; // 1 minute (see https://www.elastic.co/guide/en/elasticsearch/reference/6.5/search-request-scroll.html#scroll-search-context)
 
     /** @var Client */
     protected $elasticsearchClient;
@@ -128,19 +129,54 @@ class ElasticsearchManager implements ElasticsearchManagerInterface
     /**
      * @inheritdoc
      */
-    public function findAll(): array
+    public function findAll(int $size = 100): array
     {
         try {
             $result = $this->elasticsearchClient->search(
                 [
                     'index' => $this->getIndex(),
+                    'scroll' => self::SCROLL_CONTEXT_KEEPALIVE,
+                    'size' => $size,
                 ]
             );
 
-            return $result['hits']['hits'];
+            return $this->formatSearchResponse($result);
         } catch (\Exception $e) {
             $this->logErrorAndThrowException($e);
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function findByScrollId(string $scrollId): array
+    {
+        try {
+            $result = $this->elasticsearchClient->scroll(
+                [
+                    'scroll_id' => $scrollId,
+                    'scroll' => self::SCROLL_CONTEXT_KEEPALIVE,
+                ]
+            );
+
+            return $this->formatSearchResponse($result);
+        } catch (\Exception $e) {
+            $this->logErrorAndThrowException($e);
+        }
+    }
+
+    /**
+     * @param array $result
+     *
+     * @return array|null
+     */
+    protected function formatSearchResponse(array $result): array
+    {
+        return [
+            'hits' => $result['hits']['hits'] ?? [],
+            'scroll_id' => $result['_scroll_id'] ?? null,
+            'total' => $result['total'] ?? 0,
+        ];
     }
 
     /**
