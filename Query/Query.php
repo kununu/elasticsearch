@@ -55,9 +55,7 @@ class Query extends \Elastica\Query implements QueryInterface
     }
 
     /**
-     * @param int $offset
-     *
-     * @return \App\Services\Elasticsearch\Query\QueryInterface
+     * @inheritdoc
      */
     public function skip(int $offset): QueryInterface
     {
@@ -67,14 +65,46 @@ class Query extends \Elastica\Query implements QueryInterface
     }
 
     /**
-     * @param int $size
-     *
-     * @return \App\Services\Elasticsearch\Query\QueryInterface
+     * @inheritdoc
      */
     public function limit(int $size): QueryInterface
     {
         parent::setSize($size);
 
         return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getOffset(): ?int
+    {
+        return parent::getParam('from');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getLimit(): ?int
+    {
+        return parent::getParam('size');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function sort(string $field, string $direction): QueryInterface
+    {
+        parent::addSort([$field => $direction]);
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getSort(): array
+    {
+        return parent::getParam('sort');
     }
 }
