@@ -26,4 +26,11 @@ interface ElasticsearchManagerInterface
      * @return array
      */
     public function findAll(): array;
+
+    /**
+     * @param array $query
+     *
+     * @return array
+     */
+    public function updateByQuery(array $query): array;
 }

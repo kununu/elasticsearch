@@ -142,4 +142,21 @@ class ElasticsearchManager implements ElasticsearchManagerInterface
             $this->logErrorAndThrowException($e);
         }
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function updateByQuery(array $query): array
+    {
+        try {
+            return $this->elasticsearchClient->updateByQuery(
+                [
+                    'index' => $this->getIndex(),
+                    'body' => $query,
+                ]
+            );
+        } catch (\Exception $e) {
+            $this->logErrorAndThrowException($e);
+        }
+    }
 }
