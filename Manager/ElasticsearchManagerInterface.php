@@ -3,6 +3,7 @@
 namespace App\Services\Elasticsearch\Manager;
 
 use App\Services\Elasticsearch\Query\QueryInterface;
+use App\Services\Elasticsearch\Result\ResultIteratorInterface;
 
 /**
  * Interface ElasticsearchManagerInterface
@@ -32,9 +33,9 @@ interface ElasticsearchManagerInterface
     /**
      * @param \App\Services\Elasticsearch\Query\QueryInterface $query
      *
-     * @return array
+     * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
      */
-    public function findByQuery(QueryInterface $query): array;
+    public function findByQuery(QueryInterface $query): ResultIteratorInterface;
 
     /**
      * @return int

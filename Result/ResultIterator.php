@@ -26,6 +26,16 @@ class ResultIterator implements \Iterator, \ArrayAccess, ResultIteratorInterface
     }
 
     /**
+     * @param array $results
+     *
+     * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
+     */
+    public static function create(array $results = []): ResultIteratorInterface
+    {
+        return new static($results);
+    }
+
+    /**
      * @inheritdoc
      */
     public function current()

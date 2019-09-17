@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace App\Services\Elasticsearch\Adapter;
 
 use App\Services\Elasticsearch\Query\QueryInterface;
+use App\Services\Elasticsearch\Result\ResultIterator;
+use App\Services\Elasticsearch\Result\ResultIteratorInterface;
 use Elasticsearch\Client;
 
 class ElasticsearchAdapter extends AbstractAdapter implements AdapterInterface
@@ -56,13 +58,16 @@ class ElasticsearchAdapter extends AbstractAdapter implements AdapterInterface
     /**
      * @param \App\Services\Elasticsearch\Query\QueryInterface|null $query
      *
-     * @return array
+     * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
      */
-    public function search(?QueryInterface $query = null): array
+    public function search(?QueryInterface $query = null): ResultIteratorInterface
     {
-        return $this->client->search(
+        $rawResult = $this->client->search(
             $this->buildRawQuery($query)
-        )['hits']['hits'];
+        );
+
+        return ResultIterator::create($rawResult['hits']['hits'])
+            ->setTotal($rawResult['hits']['total']);
     }
 
     /**

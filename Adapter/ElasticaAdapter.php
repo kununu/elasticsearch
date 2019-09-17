@@ -5,6 +5,8 @@ namespace App\Services\Elasticsearch\Adapter;
 
 use App\Services\Elasticsearch\Exception\InvalidQueryException;
 use App\Services\Elasticsearch\Query\QueryInterface;
+use App\Services\Elasticsearch\Result\ResultIterator;
+use App\Services\Elasticsearch\Result\ResultIteratorInterface;
 use Elastica\Client;
 use Elastica\Index;
 use Elastica\Result;
@@ -66,18 +68,22 @@ class ElasticaAdapter extends AbstractAdapter implements AdapterInterface
     /**
      * @param \App\Services\Elasticsearch\Query\QueryInterface|null $query
      *
-     * @return array
+     * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
      */
-    public function search(?QueryInterface $query = null): array
+    public function search(?QueryInterface $query = null): ResultIteratorInterface
     {
-        return array_map(
-            function (Result $result) {
-                return $result->getData();
-            },
-            $this->getType()->search(
-                $this->verifyElasticaQueryObject($query)
-            )->getResults()
+        $elasticaResults = $this->getType()->search(
+            $this->verifyElasticaQueryObject($query)
         );
+
+        return ResultIterator::create(
+            array_map(
+                function (Result $result) {
+                    return $result->getData();
+                },
+                $elasticaResults->getResults()
+            )
+        )->setTotal($elasticaResults->getTotalHits());
     }
 
     /**

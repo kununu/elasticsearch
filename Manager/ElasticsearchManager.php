@@ -6,6 +6,7 @@ namespace App\Services\Elasticsearch\Manager;
 use App\Services\Elasticsearch\Adapter\AdapterInterface;
 use App\Services\Elasticsearch\Exception\ElasticsearchException;
 use App\Services\Elasticsearch\Query\QueryInterface;
+use App\Services\Elasticsearch\Result\ResultIteratorInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -98,7 +99,7 @@ class ElasticsearchManager implements ElasticsearchManagerInterface
     /**
      * @inheritdoc
      */
-    public function findByQuery(QueryInterface $query): array
+    public function findByQuery(QueryInterface $query): ResultIteratorInterface
     {
         try {
             return $this->client->search($query);

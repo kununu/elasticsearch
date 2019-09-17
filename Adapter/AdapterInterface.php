@@ -4,15 +4,16 @@ declare(strict_types=1);
 namespace App\Services\Elasticsearch\Adapter;
 
 use App\Services\Elasticsearch\Query\QueryInterface;
+use App\Services\Elasticsearch\Result\ResultIteratorInterface;
 
 interface AdapterInterface
 {
     /**
      * @param \App\Services\Elasticsearch\Query\QueryInterface|null $query
      *
-     * @return array
+     * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
      */
-    public function search(?QueryInterface $query = null): array;
+    public function search(?QueryInterface $query = null): ResultIteratorInterface;
 
     /**
      * @param \App\Services\Elasticsearch\Query\QueryInterface|null $query
