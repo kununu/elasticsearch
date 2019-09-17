@@ -27,7 +27,7 @@ class Query extends \Elastica\Query implements QueryInterface
      *
      * @return \App\Services\Elasticsearch\Query\Query
      */
-    public static function create($query): Query
+    public static function create($query = null): Query
     {
         switch (true) {
             case $query instanceof self:
