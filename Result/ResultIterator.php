@@ -148,11 +148,11 @@ class ResultIterator implements \Iterator, \ArrayAccess, ResultIteratorInterface
     }
 
     /**
-     * @param string $scrollId
+     * @param string|null $scrollId
      *
      * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
      */
-    public function setScrollId(string $scrollId): ResultIteratorInterface
+    public function setScrollId(?string $scrollId): ResultIteratorInterface
     {
         $this->scrollId = $scrollId;
 
