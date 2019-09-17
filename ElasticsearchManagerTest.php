@@ -160,6 +160,8 @@ class ElasticsearchManagerTest extends MockeryTestCase
     {
         $params = [
             'index' => self::INDEX,
+            'scroll' => ElasticsearchManager::SCROLL_CONTEXT_KEEPALIVE,
+            'size' => 100,
         ];
 
         $this->elasticsearchClientMock
@@ -169,10 +171,10 @@ class ElasticsearchManagerTest extends MockeryTestCase
             ->andReturn(
                 [
                     'hits' => [
-                        'hits' => [
-                            'actual needed data',
-                        ],
+                        'actual needed data',
                     ],
+                    'scroll_id' => null,
+                    'total' => 1,
                 ]
             );
 
@@ -181,7 +183,9 @@ class ElasticsearchManagerTest extends MockeryTestCase
 
         $response = $this->getManager()->findAll();
 
-        $this->assertArrayNotHasKey('hits', $response);
+        $this->assertArrayHasKey('hits', $response);
+        $this->assertArrayHasKey('scroll_id', $response);
+        $this->assertArrayHasKey('total', $response);
     }
 
     public function testFindAllFails(): void
