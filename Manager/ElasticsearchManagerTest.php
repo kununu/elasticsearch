@@ -125,34 +125,6 @@ class ElasticsearchManagerTest extends MockeryTestCase
         $this->getManager()->deleteIndex();
     }
 
-    public function testFindAll(): void
-    {
-        $this->elasticaAdapterMock
-            ->shouldReceive('search')
-            ->once()
-            ->andReturn();
-
-        $this->loggerMock
-            ->shouldNotReceive('error');
-
-        $this->getManager()->findAll();
-    }
-
-    public function testFindAllFails(): void
-    {
-        $this->elasticaAdapterMock
-            ->shouldReceive('search')
-            ->once()
-            ->andThrow(new \Exception(self::ERROR_MESSAGE));
-
-        $this->loggerMock
-            ->shouldReceive('error')
-            ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
-
-        $this->expectException(ElasticsearchException::class);
-        $this->getManager()->findAll();
-    }
-
     public function testFindByQuery(): void
     {
         $query = Query::create(null);
