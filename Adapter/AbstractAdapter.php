@@ -8,6 +8,13 @@ use App\Services\Elasticsearch\Exception\AdapterConfigurationException;
 abstract class AbstractAdapter
 {
     /**
+     * 1 minute
+     *
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/6.5/search-request-scroll.html#scroll-search-context
+     */
+    public const SCROLL_CONTEXT_KEEPALIVE = '1m';
+
+    /**
      * @var string
      */
     protected $indexName;

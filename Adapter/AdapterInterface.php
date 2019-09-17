@@ -11,9 +11,18 @@ interface AdapterInterface
     /**
      * @param \App\Services\Elasticsearch\Query\QueryInterface $query
      *
+     * @param bool                                             $scroll
+     *
      * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
      */
-    public function search(QueryInterface $query): ResultIteratorInterface;
+    public function search(QueryInterface $query, bool $scroll = false): ResultIteratorInterface;
+
+    /**
+     * @param string $scrollId
+     *
+     * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
+     */
+    public function scroll(string $scrollId): ResultIteratorInterface;
 
     /**
      * @param \App\Services\Elasticsearch\Query\QueryInterface $query

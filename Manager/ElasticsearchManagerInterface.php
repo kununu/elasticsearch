@@ -33,6 +33,20 @@ interface ElasticsearchManagerInterface
     public function findByQuery(QueryInterface $query): ResultIteratorInterface;
 
     /**
+     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
+     *
+     * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
+     */
+    public function findScrollableByQuery(QueryInterface $query): ResultIteratorInterface;
+
+    /**
+     * @param string $scrollId
+     *
+     * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
+     */
+    public function findByScrollId(string $scrollId): ResultIteratorInterface;
+
+    /**
      * @return int
      */
     public function count(): int;

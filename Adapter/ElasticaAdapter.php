@@ -8,9 +8,12 @@ use App\Services\Elasticsearch\Query\QueryInterface;
 use App\Services\Elasticsearch\Result\ResultIterator;
 use App\Services\Elasticsearch\Result\ResultIteratorInterface;
 use Elastica\Client;
+use Elastica\Exception\NotFoundException;
 use Elastica\Index;
 use Elastica\Result;
+use Elastica\ResultSet;
 use Elastica\Script\Script;
+use Elastica\Search;
 use Elastica\Type;
 
 class ElasticaAdapter extends AbstractAdapter implements AdapterInterface
@@ -67,24 +70,67 @@ class ElasticaAdapter extends AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
+     * @param \Elastica\ResultSet $resultSet
      *
      * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
      */
-    public function search(QueryInterface $query): ResultIteratorInterface
+    protected function parseResultSet(ResultSet $resultSet): ResultIteratorInterface
     {
-        $elasticaResults = $this->getType()->search(
-            $this->ensureElasticaQueryObject($query)
-        );
-
-        return ResultIterator::create(
+        $iterator = ResultIterator::create(
             array_map(
                 function (Result $result) {
                     return $result->getData();
                 },
-                $elasticaResults->getResults()
+                $resultSet->getResults()
             )
-        )->setTotal($elasticaResults->getTotalHits());
+        );
+
+        $iterator->setTotal($resultSet->getTotalHits());
+
+        try {
+            $iterator->setScrollId($resultSet->getResponse()->getScrollId());
+        } catch (NotFoundException $e) {
+            // ignore this
+        }
+    }
+
+    /**
+     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
+     *
+     * @param bool                                             $scroll
+     *
+     * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
+     */
+    public function search(QueryInterface $query, bool $scroll = false): ResultIteratorInterface
+    {
+        $options = $scroll
+            ? [Search::OPTION_SCROLL => static::SCROLL_CONTEXT_KEEPALIVE]
+            : [];
+
+        return $this->parseResultSet(
+            $this->getType()->search(
+                $this->ensureElasticaQueryObject($query),
+                $options
+            )
+        );
+    }
+
+    /**
+     * @param string $scrollId
+     *
+     * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
+     */
+    public function scroll(string $scrollId): ResultIteratorInterface
+    {
+        return $this->parseResultSet(
+            $this->getType()->search(
+                [],
+                [
+                    Search::OPTION_SCROLL => static::SCROLL_CONTEXT_KEEPALIVE,
+                    Search::OPTION_SCROLL_ID => $scrollId,
+                ]
+            )
+        );
     }
 
     /**

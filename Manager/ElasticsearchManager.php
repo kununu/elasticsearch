@@ -98,6 +98,32 @@ class ElasticsearchManager implements ElasticsearchManagerInterface
     }
 
     /**
+     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
+     *
+     * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
+     */
+    public function findScrollableByQuery(QueryInterface $query): ResultIteratorInterface
+    {
+        try {
+            return $this->client->search($query, true);
+        } catch (\Exception $e) {
+            $this->logErrorAndThrowException($e);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function findByScrollId(string $scrollId): ResultIteratorInterface
+    {
+        try {
+            return $this->client->scroll($scrollId);
+        } catch (\Exception $e) {
+            $this->logErrorAndThrowException($e);
+        }
+    }
+
+    /**
      * @inheritdoc
      */
     public function count(): int

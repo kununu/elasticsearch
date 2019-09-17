@@ -51,23 +51,56 @@ class ElasticsearchAdapter extends AbstractAdapter implements AdapterInterface
     {
         return array_merge(
             $this->buildRequestBase(),
-            $query ? ['body' => $query->toArray()] : []
+            ['body' => $query->toArray()]
         );
+    }
+
+    /**
+     * @param array $rawResult
+     *
+     * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
+     */
+    protected function parseRawSearchResponse(array $rawResult): ResultIteratorInterface
+    {
+        return ResultIterator::create($rawResult['hits']['hits'])
+            ->setTotal($rawResult['hits']['total'] ?? 0)
+            ->setScrollId($rawResult['_scroll_id'] ?? null);
     }
 
     /**
      * @param \App\Services\Elasticsearch\Query\QueryInterface $query
      *
+     * @param bool                                             $scroll
+     *
      * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
      */
-    public function search(?QueryInterface $query): ResultIteratorInterface
+    public function search(?QueryInterface $query, bool $scroll = false): ResultIteratorInterface
     {
-        $rawResult = $this->client->search(
-            $this->buildRawQuery($query)
-        );
+        $rawQuery = $this->buildRawQuery($query);
+        if ($scroll) {
+            $rawQuery['scroll'] = static::SCROLL_CONTEXT_KEEPALIVE;
+        }
 
-        return ResultIterator::create($rawResult['hits']['hits'])
-            ->setTotal($rawResult['hits']['total']);
+        return $this->parseRawSearchResponse(
+            $this->client->search($rawQuery)
+        );
+    }
+
+    /**
+     * @param string $scrollId
+     *
+     * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
+     */
+    public function scroll(string $scrollId): ResultIteratorInterface
+    {
+        return $this->parseRawSearchResponse(
+            $this->client->scroll(
+                [
+                    'scroll_id' => $scrollId,
+                    'scroll' => static::SCROLL_CONTEXT_KEEPALIVE,
+                ]
+            )
+        );
     }
 
     /**
