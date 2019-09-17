@@ -127,7 +127,7 @@ class ElasticsearchManagerTest extends MockeryTestCase
 
     public function testFindByQuery(): void
     {
-        $query = Query::create(null);
+        $query = Query::create();
 
         $this->elasticaAdapterMock
             ->shouldReceive('search')
@@ -153,7 +153,7 @@ class ElasticsearchManagerTest extends MockeryTestCase
 
         $this->expectException(ElasticsearchException::class);
 
-        $this->getManager()->findByQuery(Query::create(null));
+        $this->getManager()->findByQuery(Query::create());
     }
 
     public function testCount(): void
@@ -217,7 +217,66 @@ class ElasticsearchManagerTest extends MockeryTestCase
 
         $this->expectException(ElasticsearchException::class);
 
-        $this->getManager()->countByQuery(Query::create(null));
+        $this->getManager()->countByQuery(Query::create());
+    }
+
+    public function testUpdateByQuery(): void
+    {
+        $query = Query::create(
+            (new BoolQuery())
+                ->addMust((new Term())->setTerm('foo', 'bar'))
+        );
+
+        $updateScript = [
+            'lang' => 'painless',
+            'source' => 'ctx._source.dimensions_completed=4',
+        ];
+
+        $responseBody = [
+            'took' => 147,
+            'timed_out' => false,
+            'total' => 5,
+            'updated' => 5,
+            'deleted' => 0,
+            'batches' => 1,
+            'version_conflicts' => 0,
+            'noops' => 0,
+            'retries' => [
+                'bulk' => 0,
+                'search' => 0,
+            ],
+            'throttled_millis' => 0,
+            'requests_per_second' => -1.0,
+            'throttled_until_millis' => 0,
+            'failures' => [],
+        ];
+
+        $this->elasticaAdapterMock
+            ->shouldReceive('update')
+            ->once()
+            ->with($query, $updateScript)
+            ->andReturn($responseBody);
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $this->assertEquals($responseBody, $this->getManager()->updateByQuery($query, $updateScript));
+    }
+
+    public function testUpdateByQueryFails(): void
+    {
+        $this->elasticaAdapterMock
+            ->shouldReceive('update')
+            ->once()
+            ->andThrow(new \Exception(self::ERROR_MESSAGE));
+
+        $this->loggerMock
+            ->shouldReceive('error')
+            ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
+
+        $this->expectException(ElasticsearchException::class);
+
+        $this->getManager()->updateByQuery(Query::create(), []);
     }
 
     /**

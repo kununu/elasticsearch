@@ -12,6 +12,7 @@ use Elastica\Document;
 use Elastica\Index;
 use Elastica\Query\BoolQuery;
 use Elastica\Query\Term;
+use Elastica\Response;
 use Elastica\Result;
 use Elastica\ResultSet;
 use Elastica\Type;
@@ -27,6 +28,24 @@ class ElasticaAdapterTest extends MockeryTestCase
     protected const TYPE = '_doc';
     protected const ID = 'can_be_anything';
     protected const DOCUMENT_COUNT = 42;
+    protected const UPDATE_RESPONSE_BODY = [
+        'took' => 147,
+        'timed_out' => false,
+        'total' => 5,
+        'updated' => 5,
+        'deleted' => 0,
+        'batches' => 1,
+        'version_conflicts' => 0,
+        'noops' => 0,
+        'retries' => [
+            'bulk' => 0,
+            'search' => 0,
+        ],
+        'throttled_millis' => 0,
+        'requests_per_second' => -1.0,
+        'throttled_until_millis' => 0,
+        'failures' => [],
+    ];
 
     /** @var \Elastica\Client|\Mockery\MockInterface */
     protected $clientMock;
@@ -259,27 +278,34 @@ class ElasticaAdapterTest extends MockeryTestCase
         $this->getAdapter()->search($this->getInvalidQueryObject());
     }
 
-    public function testCountWithEmptyQuery(): void
+    /**
+     * @return array
+     */
+    public function queriesData(): array
     {
-        $this->typeMock
-            ->shouldReceive('count')
-            ->once()
-            ->andReturn(self::DOCUMENT_COUNT);
-
-        $this->assertEquals(self::DOCUMENT_COUNT, $this->getAdapter()->count(Query::create()));
+        return [
+            'empty query' => [
+                'query' => Query::create(),
+            ],
+            'some term query' => [
+                'query' => Query::create(
+                    (new BoolQuery())
+                        ->addMust((new Term())->setTerm('foo', 'bar'))
+                ),
+            ],
+        ];
     }
 
-    public function testCountByQuery(): void
+    /**
+     * @dataProvider queriesData
+     *
+     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
+     */
+    public function testCount(QueryInterface $query): void
     {
-        $query = Query::create(
-            (new BoolQuery())
-                ->addMust((new Term())->setTerm('foo', 'bar'))
-        );
-
         $this->typeMock
             ->shouldReceive('count')
             ->once()
-            ->with($query)
             ->andReturn(self::DOCUMENT_COUNT);
 
         $this->assertEquals(self::DOCUMENT_COUNT, $this->getAdapter()->count($query));
@@ -292,22 +318,12 @@ class ElasticaAdapterTest extends MockeryTestCase
         $this->getAdapter()->count($this->getInvalidQueryObject());
     }
 
-    public function testAggregateWithEmptyQuery(): void
-    {
-        $this->doTestAggregate(Query::create());
-    }
-
-    public function testAggregateByQuery(): void
-    {
-        $query = Query::create(
-            (new BoolQuery())
-                ->addMust((new Term())->setTerm('foo', 'bar'))
-        );
-
-        $this->doTestAggregate($query);
-    }
-
-    protected function doTestAggregate(QueryInterface $query): void
+    /**
+     * @dataProvider queriesData
+     *
+     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
+     */
+    public function testAggregate(QueryInterface $query): void
     {
         $resultSetMock = Mockery::mock(ResultSet::class);
         $resultSetMock
@@ -322,6 +338,70 @@ class ElasticaAdapterTest extends MockeryTestCase
             ->andReturn($resultSetMock);
 
         $this->assertEquals(['foo' => 'bar'], $this->getAdapter()->aggregate($query));
+    }
+
+    /**
+     * @return array
+     */
+    public function updateData(): array
+    {
+        $emptyQuery = Query::create();
+        $termQuery = Query::create(
+            (new BoolQuery())
+                ->addMust((new Term())->setTerm('foo', 'bar'))
+        );
+        $updateScript = [
+            'lang' => 'painless',
+            'source' => 'ctx._source.dimensions_completed=4',
+        ];
+
+        return [
+            'empty query, flat update script' => [
+                'query' => $emptyQuery,
+                'update_script' => $updateScript,
+            ],
+            'empty query, properly formatted update script' => [
+                'query' => $emptyQuery,
+                'update_script' => [
+                    'script' => $updateScript,
+                ],
+            ],
+            'some term query, flat update script' => [
+                'query' => $termQuery,
+                'update_script' => $updateScript,
+            ],
+            'some term query, properly formatted update script' => [
+                'query' => $termQuery,
+                'update_script' => [
+                    'script' => $updateScript,
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider updateData
+     *
+     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
+     * @param array                                            $updateScript
+     */
+    public function testUpdate(QueryInterface $query, array $updateScript): void
+    {
+        $this->indexMock
+            ->shouldNotReceive('getType');
+
+        $responseMock = Mockery::mock(Response::class);
+        $responseMock
+            ->shouldReceive('getData')
+            ->once()
+            ->andReturn(self::UPDATE_RESPONSE_BODY);
+
+        $this->indexMock
+            ->shouldReceive('updateByQuery')
+            ->once()
+            ->andReturn($responseMock);
+
+        $this->assertEquals(self::UPDATE_RESPONSE_BODY, $this->getAdapter()->update($query, $updateScript));
     }
 
     public function testAggregateWithInvalidQuery(): void
