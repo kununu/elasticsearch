@@ -16,7 +16,7 @@ use Psr\Log\LoggerInterface;
 class ElasticsearchManager implements ElasticsearchManagerInterface
 {
     protected const EXCEPTION_PREFIX = 'Elasticsearch exception: ';
-    protected const SCROLL_CONTEXT_KEEPALIVE = '1m'; // 1 minute (see https://www.elastic.co/guide/en/elasticsearch/reference/6.5/search-request-scroll.html#scroll-search-context)
+    public const SCROLL_CONTEXT_KEEPALIVE = '1m'; // 1 minute (see https://www.elastic.co/guide/en/elasticsearch/reference/6.5/search-request-scroll.html#scroll-search-context)
 
     /** @var Client */
     protected $elasticsearchClient;
