@@ -4,9 +4,8 @@ declare(strict_types=1);
 namespace App\Services\Elasticsearch;
 
 use App\Entity\Dimension;
+use App\Entity\Submission;
 use App\Services\FactorService;
-use Elasticsearch\Client;
-use Psr\Log\LoggerInterface;
 
 /**
  * Class SubmissionManager
@@ -47,12 +46,13 @@ class SubmissionManager extends ElasticsearchManager implements SubmissionManage
         $query = [
             'query' => [
                 'bool' => [
-                    'should' => [
+                    'must' => [
                         [
                             'match' => [
                                 $field => $value,
                             ],
                         ],
+                        $this->buildQueryPartForOnlyCompletedSubmissions(),
                     ],
                 ],
             ],
@@ -88,6 +88,20 @@ class SubmissionManager extends ElasticsearchManager implements SubmissionManage
     }
 
     /**
+     * @return array
+     */
+    private function buildQueryPartForOnlyCompletedSubmissions(): array
+    {
+        return [
+            'range' => [
+                'dimensions_completed' => [
+                    'gte' => Submission::CONSIDER_FOR_AGGREGATIONS_WHEN_NUMBER_OF_DIMENSIONS,
+                ],
+            ],
+        ];
+    }
+
+    /**
      * @inheritdoc
      */
     public function countSubmissions(string $profileUuid): int
@@ -96,8 +110,15 @@ class SubmissionManager extends ElasticsearchManager implements SubmissionManage
             'index' => $this->getIndex(),
             'body' => [
                 'query' => [
-                    'term' => [
-                        'profile_uuid.keyword' => $profileUuid,
+                    'bool' => [
+                        'must' => [
+                            [
+                                'term' => [
+                                    'profile_uuid.keyword' => $profileUuid,
+                                ],
+                            ],
+                            $this->buildQueryPartForOnlyCompletedSubmissions(),
+                        ],
                     ],
                 ],
             ],
