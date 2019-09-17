@@ -58,11 +58,17 @@ class ElasticaAdapterTest extends MockeryTestCase
             ->andReturn($this->typeMock);
     }
 
+    /**
+     * @return \App\Services\Elasticsearch\Adapter\ElasticaAdapter
+     */
     protected function getAdapter(): ElasticaAdapter
     {
         return new ElasticaAdapter($this->clientMock, self::INDEX, self::TYPE);
     }
 
+    /**
+     * @return \App\Services\Elasticsearch\Query\QueryInterface
+     */
     protected function getInvalidQueryObject()
     {
         return new class() implements QueryInterface
@@ -200,28 +206,9 @@ class ElasticaAdapterTest extends MockeryTestCase
      * @param array $esResult
      * @param array $expectedEndResult
      */
-    public function testSearchWithoutQuery(array $esResult, array $expectedEndResult): void
+    public function testSearchWithEmptyQuery(array $esResult, array $expectedEndResult): void
     {
-        $resultSetMock = Mockery::mock(ResultSet::class);
-        $resultSetMock
-            ->shouldReceive('getResults')
-            ->once()
-            ->andReturn($esResult);
-
-        $resultSetMock
-            ->shouldReceive('getTotalHits')
-            ->once()
-            ->andReturn(self::DOCUMENT_COUNT);
-
-        $this->typeMock
-            ->shouldReceive('search')
-            ->once()
-            ->andReturn($resultSetMock);
-
-        $result = $this->getAdapter()->search();
-
-        $this->assertEquals($expectedEndResult, $result->asArray());
-        $this->assertEquals(self::DOCUMENT_COUNT, $result->getTotal());
+        $this->doTestSearch($esResult, $expectedEndResult, Query::create());
     }
 
     /**
@@ -237,6 +224,11 @@ class ElasticaAdapterTest extends MockeryTestCase
                 ->addMust((new Term())->setTerm('foo', 'bar'))
         );
 
+        $this->doTestSearch($esResult, $expectedEndResult, $query);
+    }
+
+    protected function doTestSearch(array $esResult, array $expectedEndResult, QueryInterface $query): void
+    {
         $resultSetMock = Mockery::mock(ResultSet::class);
         $resultSetMock
             ->shouldReceive('getResults')
@@ -267,14 +259,14 @@ class ElasticaAdapterTest extends MockeryTestCase
         $this->getAdapter()->search($this->getInvalidQueryObject());
     }
 
-    public function testCount(): void
+    public function testCountWithEmptyQuery(): void
     {
         $this->typeMock
             ->shouldReceive('count')
             ->once()
             ->andReturn(self::DOCUMENT_COUNT);
 
-        $this->assertEquals(self::DOCUMENT_COUNT, $this->getAdapter()->count());
+        $this->assertEquals(self::DOCUMENT_COUNT, $this->getAdapter()->count(Query::create()));
     }
 
     public function testCountByQuery(): void
@@ -300,21 +292,9 @@ class ElasticaAdapterTest extends MockeryTestCase
         $this->getAdapter()->count($this->getInvalidQueryObject());
     }
 
-    public function testAggregate(): void
+    public function testAggregateWithEmptyQuery(): void
     {
-        $resultSetMock = Mockery::mock(ResultSet::class);
-        $resultSetMock
-            ->shouldReceive('getAggregations')
-            ->once()
-            ->andReturn(['foo' => 'bar']);
-
-        $this->typeMock
-            ->shouldReceive('search')
-            ->once()
-            ->with(null)
-            ->andReturn($resultSetMock);
-
-        $this->assertEquals(['foo' => 'bar'], $this->getAdapter()->aggregate());
+        $this->doTestAggregate(Query::create());
     }
 
     public function testAggregateByQuery(): void
@@ -324,6 +304,11 @@ class ElasticaAdapterTest extends MockeryTestCase
                 ->addMust((new Term())->setTerm('foo', 'bar'))
         );
 
+        $this->doTestAggregate($query);
+    }
+
+    protected function doTestAggregate(QueryInterface $query): void
+    {
         $resultSetMock = Mockery::mock(ResultSet::class);
         $resultSetMock
             ->shouldReceive('getAggregations')

@@ -165,7 +165,7 @@ class ElasticsearchAdapterTest extends MockeryTestCase
      * @param array $esResult
      * @param array $endResult
      */
-    public function testSearchWithoutQuery(array $esResult, array $endResult): void
+    public function testSearchWithEmptyQuery(array $esResult, array $endResult): void
     {
         $this->clientMock
             ->shouldReceive('search')
@@ -174,11 +174,16 @@ class ElasticsearchAdapterTest extends MockeryTestCase
                 [
                     'index' => self::INDEX,
                     'type' => self::TYPE,
+                    'body' => [
+                        'query' => [
+                            'match_all' => new \stdClass(),
+                        ],
+                    ],
                 ]
             )
             ->andReturn($esResult);
 
-        $result = $this->getAdapter()->search();
+        $result = $this->getAdapter()->search(Query::create());
 
         $this->assertEquals($endResult, $result->asArray());
         $this->assertEquals(self::DOCUMENT_COUNT, $result->getTotal());
@@ -230,14 +235,14 @@ class ElasticsearchAdapterTest extends MockeryTestCase
         $this->assertEquals(self::DOCUMENT_COUNT, $result->getTotal());
     }
 
-    public function testCount(): void
+    public function testCountWithEmptyQuery(): void
     {
         $this->clientMock
             ->shouldReceive('count')
             ->once()
             ->andReturn(['count' => self::DOCUMENT_COUNT]);
 
-        $this->assertEquals(self::DOCUMENT_COUNT, $this->getAdapter()->count());
+        $this->assertEquals(self::DOCUMENT_COUNT, $this->getAdapter()->count(Query::create()));
     }
 
     public function testCountByQuery(): void
@@ -275,5 +280,52 @@ class ElasticsearchAdapterTest extends MockeryTestCase
             ->andReturn(['count' => self::DOCUMENT_COUNT]);
 
         $this->assertEquals(self::DOCUMENT_COUNT, $this->getAdapter()->count($query));
+    }
+
+    public function testAggregateWithEmptyQuery(): void
+    {
+        $this->clientMock
+            ->shouldReceive('search')
+            ->once()
+            ->andReturn(['aggregations' => ['foo' => 'bar']]);
+
+        $this->assertEquals(['foo' => 'bar'], $this->getAdapter()->aggregate(Query::create()));
+    }
+
+    public function testAggregateByQuery(): void
+    {
+        $query = Query::create(
+            (new BoolQuery())
+                ->addMust((new Term())->setTerm('foo', 'bar'))
+        );
+
+        $this->clientMock
+            ->shouldReceive('search')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX,
+                    'type' => self::TYPE,
+                    'body' => [
+                        'query' => [
+                            'bool' => [
+                                'must' => [
+                                    [
+                                        'term' => [
+                                            'foo' => [
+                                                'value' => 'bar',
+                                                'boost' => 1.0,
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ]
+            )
+            ->andReturn(['aggregations' => ['foo' => 'bar']]);
+
+        $this->assertEquals(['foo' => 'bar'], $this->getAdapter()->aggregate($query));
     }
 }
