@@ -182,18 +182,12 @@ class ResultIterator implements \Iterator, \ArrayAccess, ResultIteratorInterface
     /**
      * Returns the first result in this iterator for which the given callable returns a true-ish value.
      *
-     * @param callable|null $fn (result)
+     * @param callable $fn (result)
      *
      * @return array|null
      */
-    public function first(?callable $fn): ?array
+    public function first(callable $fn): ?array
     {
-        if ($fn === null) {
-            $fn = function ($result) {
-                return true;
-            };
-        }
-
         foreach ($this->results as $result) {
             if ($fn($result)) {
                 return $result;

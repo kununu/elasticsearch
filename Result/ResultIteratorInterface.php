@@ -56,11 +56,11 @@ interface ResultIteratorInterface
     /**
      * Returns the first result in this iterator for which the given callable returns a true-ish value.
      *
-     * @param callable|null $fn (result)
+     * @param callable $fn (result)
      *
      * @return array|null
      */
-    public function first(?callable $fn): ?array;
+    public function first(callable $fn): ?array;
 
     /**
      * Returns true, if for at least one result in this iterator the given callable returns a true-ish value.
