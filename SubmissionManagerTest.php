@@ -2,6 +2,7 @@
 
 namespace App\Tests\Unit\Services\Elasticsearch;
 
+use App\Entity\Submission;
 use App\Services\Elasticsearch\Exception\ElasticsearchException;
 use App\Services\Elasticsearch\SubmissionManager;
 use App\Services\Elasticsearch\SubmissionManagerInterface;
@@ -76,10 +77,17 @@ class SubmissionManagerTest extends MockeryTestCase
             if ($hasQuery) {
                 $expectedQuery['body']['query'] = [
                     'bool' => [
-                        'should' => [
+                        'must' => [
                             [
                                 'match' => [
                                     $expectedMatchField => $matchValue,
+                                ],
+                            ],
+                            [
+                                'range' => [
+                                    'dimensions_completed' => [
+                                        'gte' => Submission::CONSIDER_FOR_AGGREGATIONS_WHEN_NUMBER_OF_DIMENSIONS,
+                                    ],
                                 ],
                             ],
                         ],
@@ -91,9 +99,21 @@ class SubmissionManagerTest extends MockeryTestCase
         };
 
         return [
-            ['profile_id', 12345, $buildExpectedQuery(true, 'profile_id', 12345)],
-            ['profile_uuid', self::PROFILE_UUID, $buildExpectedQuery(true, 'profile_uuid.keyword', self::PROFILE_UUID)],
-            ['profile_id', null, $buildExpectedQuery(false)],
+            'filter on numeric field' => [
+                'field' => 'profile_id',
+                'value' => 12345,
+                'expected_query' => $buildExpectedQuery(true, 'profile_id', 12345),
+            ],
+            'filter on alphanumeric field' => [
+                'field' => 'profile_uuid',
+                'value' => self::PROFILE_UUID,
+                'expected_query' => $buildExpectedQuery(true, 'profile_uuid.keyword', self::PROFILE_UUID),
+            ],
+            'empty filter' => [
+                'field' => 'profile_id',
+                'value' => null,
+                'expected_query' => $buildExpectedQuery(false),
+            ],
         ];
     }
 
@@ -141,8 +161,21 @@ class SubmissionManagerTest extends MockeryTestCase
             'index' => self::INDEX,
             'body' => [
                 'query' => [
-                    'term' => [
-                        'profile_uuid.keyword' => self::PROFILE_UUID,
+                    'bool' => [
+                        'must' => [
+                            [
+                                'term' => [
+                                    'profile_uuid.keyword' => self::PROFILE_UUID,
+                                ],
+                            ],
+                            [
+                                'range' => [
+                                    'dimensions_completed' => [
+                                        'gte' => Submission::CONSIDER_FOR_AGGREGATIONS_WHEN_NUMBER_OF_DIMENSIONS,
+                                    ],
+                                ],
+                            ],
+                        ],
                     ],
                 ],
             ],
