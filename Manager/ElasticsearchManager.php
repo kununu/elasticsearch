@@ -87,18 +87,6 @@ class ElasticsearchManager implements ElasticsearchManagerInterface
     /**
      * @inheritdoc
      */
-    public function findAll(): array
-    {
-        try {
-            return $this->client->search();
-        } catch (\Exception $e) {
-            $this->logErrorAndThrowException($e);
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function findByQuery(QueryInterface $query): ResultIteratorInterface
     {
         try {

@@ -26,11 +26,6 @@ interface ElasticsearchManagerInterface
     public function deleteIndex(): void;
 
     /**
-     * @return array
-     */
-    public function findAll(): array;
-
-    /**
      * @param \App\Services\Elasticsearch\Query\QueryInterface $query
      *
      * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
