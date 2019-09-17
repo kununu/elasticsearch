@@ -12,7 +12,7 @@ use Mockery\Adapter\Phpunit\MockeryTestCase;
 /**
  * @group unit
  */
-class AbstractElasticsearchManagerTest extends MockeryTestCase
+class ElasticsearchManagerTest extends MockeryTestCase
 {
     use ElasticsearchManagerTestTrait;
 
