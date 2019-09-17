@@ -122,8 +122,6 @@ class ElasticsearchAdapter extends AbstractAdapter implements AdapterInterface
         $rawQuery = $this->buildRawQuery($query);
         $rawQuery['body']['script'] = $this->sanitizeUpdateScript($updateScript)['script'];
 
-        dump($rawQuery);
-
         return $this->client->updateByQuery($rawQuery);
     }
 
