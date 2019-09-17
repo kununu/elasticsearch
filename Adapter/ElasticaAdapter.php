@@ -92,6 +92,8 @@ class ElasticaAdapter extends AbstractAdapter implements AdapterInterface
         } catch (NotFoundException $e) {
             // ignore this
         }
+
+        return $iterator;
     }
 
     /**
