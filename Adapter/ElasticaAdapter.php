@@ -10,6 +10,7 @@ use App\Services\Elasticsearch\Result\ResultIteratorInterface;
 use Elastica\Client;
 use Elastica\Index;
 use Elastica\Result;
+use Elastica\Script\Script;
 use Elastica\Type;
 
 class ElasticaAdapter extends AbstractAdapter implements AdapterInterface
@@ -126,6 +127,20 @@ class ElasticaAdapter extends AbstractAdapter implements AdapterInterface
         return $this->getType()->search(
             $this->ensureElasticaQueryObject($query)
         )->getAggregations();
+    }
+
+    /**
+     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
+     * @param array                                            $updateScript Must have 'lang' and 'source' keys set
+     *
+     * @return array
+     */
+    public function update(QueryInterface $query, array $updateScript): array
+    {
+        return $this->getIndex()->updateByQuery(
+            $this->ensureElasticaQueryObject($query),
+            Script::create($this->sanitizeUpdateScript($updateScript))
+        )->getData();
     }
 
     public function deleteIndex(): void

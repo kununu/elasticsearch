@@ -50,4 +50,12 @@ interface ElasticsearchManagerInterface
      * @return array
      */
     public function aggregateByQuery(QueryInterface $query): array;
+
+    /**
+     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
+     * @param array                                            $updateScript
+     *
+     * @return array
+     */
+    public function updateByQuery(QueryInterface $query, array $updateScript): array;
 }

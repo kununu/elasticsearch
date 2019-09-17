@@ -111,6 +111,22 @@ class ElasticsearchAdapter extends AbstractAdapter implements AdapterInterface
         return $result['aggregations'] ?? [];
     }
 
+    /**
+     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
+     * @param array                                            $updateScript
+     *
+     * @return array
+     */
+    public function update(QueryInterface $query, array $updateScript): array
+    {
+        $rawQuery = $this->buildRawQuery($query);
+        $rawQuery['body']['script'] = $this->sanitizeUpdateScript($updateScript)['script'];
+
+        dump($rawQuery);
+
+        return $this->client->updateByQuery($rawQuery);
+    }
+
     public function deleteIndex(): void
     {
         $this->client->indices()->delete(['index' => $this->indexName]);

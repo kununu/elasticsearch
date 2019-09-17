@@ -40,5 +40,13 @@ interface AdapterInterface
      */
     public function aggregate(QueryInterface $query): array;
 
+    /**
+     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
+     * @param array                                            $updateScript
+     *
+     * @return array
+     */
+    public function update(QueryInterface $query, array $updateScript): array;
+
     public function deleteIndex(): void;
 }

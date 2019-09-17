@@ -27,4 +27,26 @@ abstract class AbstractAdapter
             throw new AdapterConfigurationException('no valid type name defined');
         }
     }
+
+    /**
+     * @param array $updateScript
+     *
+     * @return array
+     */
+    protected function sanitizeUpdateScript(array $updateScript): array
+    {
+        if (!isset($updateScript['script']) && count($updateScript) > 1) {
+            $sanitizedUpdateScript = [
+                'script' => [
+                    'lang' => $updateScript['lang'] ?? null,
+                    'source' => $updateScript['source'] ?? [],
+                    'params' => $updateScript['params'] ?? [],
+                ],
+            ];
+        } else {
+            $sanitizedUpdateScript = $updateScript;
+        }
+
+        return $sanitizedUpdateScript;
+    }
 }
