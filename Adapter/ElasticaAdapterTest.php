@@ -137,12 +137,12 @@ class ElasticaAdapterTest extends MockeryTestCase
     public function searchResultData(): array
     {
         return [
-            [
-                [],
-                [],
+            'no results' => [
+                'es_result' => [],
+                'adapter_result' => [],
             ],
-            [
-                [
+            'one result' => [
+                'es_result' => [
                     new Result(
                         [
                             '_source' => ['foo' => 'bar'],
@@ -153,12 +153,12 @@ class ElasticaAdapterTest extends MockeryTestCase
                         ]
                     ),
                 ],
-                [
+                'adapter_result' => [
                     ['foo' => 'bar'],
                 ],
             ],
-            [
-                [
+            'two results' => [
+                'es_result' => [
                     new Result(
                         [
                             '_source' => ['foo' => 'bar'],
@@ -181,7 +181,7 @@ class ElasticaAdapterTest extends MockeryTestCase
                         ]
                     ),
                 ],
-                [
+                'adapter_result' => [
                     [
                         'foo' => 'bar',
                     ],
@@ -198,15 +198,20 @@ class ElasticaAdapterTest extends MockeryTestCase
      * @dataProvider searchResultData
      *
      * @param array $esResult
-     * @param array $endResult
+     * @param array $expectedEndResult
      */
-    public function testSearchWithoutQuery(array $esResult, array $endResult): void
+    public function testSearchWithoutQuery(array $esResult, array $expectedEndResult): void
     {
         $resultSetMock = Mockery::mock(ResultSet::class);
         $resultSetMock
             ->shouldReceive('getResults')
             ->once()
             ->andReturn($esResult);
+
+        $resultSetMock
+            ->shouldReceive('getTotalHits')
+            ->once()
+            ->andReturn(self::DOCUMENT_COUNT);
 
         $this->typeMock
             ->shouldReceive('search')
@@ -215,16 +220,17 @@ class ElasticaAdapterTest extends MockeryTestCase
 
         $result = $this->getAdapter()->search();
 
-        $this->assertEquals($endResult, $result);
+        $this->assertEquals($expectedEndResult, $result->asArray());
+        $this->assertEquals(self::DOCUMENT_COUNT, $result->getTotal());
     }
 
     /**
      * @dataProvider searchResultData
      *
      * @param array $esResult
-     * @param array $endResult
+     * @param array $expectedEndResult
      */
-    public function testSearchByQuery(array $esResult, array $endResult): void
+    public function testSearchByQuery(array $esResult, array $expectedEndResult): void
     {
         $query = Query::create(
             (new BoolQuery())
@@ -237,6 +243,11 @@ class ElasticaAdapterTest extends MockeryTestCase
             ->once()
             ->andReturn($esResult);
 
+        $resultSetMock
+            ->shouldReceive('getTotalHits')
+            ->once()
+            ->andReturn(self::DOCUMENT_COUNT);
+
         $this->typeMock
             ->shouldReceive('search')
             ->once()
@@ -245,7 +256,8 @@ class ElasticaAdapterTest extends MockeryTestCase
 
         $result = $this->getAdapter()->search($query);
 
-        $this->assertEquals($endResult, $result);
+        $this->assertEquals($expectedEndResult, $result->asArray());
+        $this->assertEquals(self::DOCUMENT_COUNT, $result->getTotal());
     }
 
     public function testSearchWithInvalidQuery(): void

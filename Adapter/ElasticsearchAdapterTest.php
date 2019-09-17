@@ -107,8 +107,8 @@ class ElasticsearchAdapterTest extends MockeryTestCase
         return [
             'no results' => [
                 'es_result' => [
-                    'count' => 0,
                     'hits' => [
+                        'total' => self::DOCUMENT_COUNT,
                         'hits' => [
 
                         ],
@@ -118,8 +118,8 @@ class ElasticsearchAdapterTest extends MockeryTestCase
             ],
             'one result' => [
                 'es_result' => [
-                    'count' => 1,
                     'hits' => [
+                        'total' => self::DOCUMENT_COUNT,
                         'hits' => [
                             [
                                 'foo' => 'bar',
@@ -133,8 +133,8 @@ class ElasticsearchAdapterTest extends MockeryTestCase
             ],
             'two results' => [
                 'es_result' => [
-                    'count' => 2,
                     'hits' => [
+                        'total' => self::DOCUMENT_COUNT,
                         'hits' => [
                             [
                                 'foo' => 'bar',
@@ -178,7 +178,10 @@ class ElasticsearchAdapterTest extends MockeryTestCase
             )
             ->andReturn($esResult);
 
-        $this->assertEquals($endResult, $this->getAdapter()->search());
+        $result = $this->getAdapter()->search();
+
+        $this->assertEquals($endResult, $result->asArray());
+        $this->assertEquals(self::DOCUMENT_COUNT, $result->getTotal());
     }
 
     /**
@@ -221,7 +224,10 @@ class ElasticsearchAdapterTest extends MockeryTestCase
             )
             ->andReturn($esResult);
 
-        $this->assertEquals($endResult, $this->getAdapter()->search($query));
+        $result = $this->getAdapter()->search($query);
+
+        $this->assertEquals($endResult, $result->asArray());
+        $this->assertEquals(self::DOCUMENT_COUNT, $result->getTotal());
     }
 
     public function testCount(): void
