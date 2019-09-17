@@ -440,7 +440,6 @@ class ElasticsearchAdapterTest extends MockeryTestCase
     {
         $fullRawQuery = $rawQuery;
         $fullRawQuery['body']['script'] = $updateScript['script'] ?? $updateScript;
-        dump($fullRawQuery);
 
         $this->clientMock
             ->shouldReceive('updateByQuery')
@@ -449,6 +448,5 @@ class ElasticsearchAdapterTest extends MockeryTestCase
             ->andReturn(self::UPDATE_RESPONSE_BODY);
 
         $this->assertEquals(self::UPDATE_RESPONSE_BODY, $this->getAdapter()->update($query, $updateScript));
-        dump("##");
     }
 }
