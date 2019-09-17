@@ -43,11 +43,11 @@ class ElasticsearchAdapter extends AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * @param \App\Services\Elasticsearch\Query\QueryInterface|null $query
+     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
      *
      * @return array
      */
-    protected function buildRawQuery(?QueryInterface $query = null): array
+    protected function buildRawQuery(QueryInterface $query): array
     {
         return array_merge(
             $this->buildRequestBase(),
@@ -56,11 +56,11 @@ class ElasticsearchAdapter extends AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * @param \App\Services\Elasticsearch\Query\QueryInterface|null $query
+     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
      *
      * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
      */
-    public function search(?QueryInterface $query = null): ResultIteratorInterface
+    public function search(?QueryInterface $query): ResultIteratorInterface
     {
         $rawResult = $this->client->search(
             $this->buildRawQuery($query)
@@ -71,11 +71,11 @@ class ElasticsearchAdapter extends AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * @param \App\Services\Elasticsearch\Query\QueryInterface|null $query
+     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
      *
      * @return int
      */
-    public function count(?QueryInterface $query = null): int
+    public function count(QueryInterface $query): int
     {
         return $this->client->count($this->buildRawQuery($query))['count'];
     }
@@ -98,15 +98,17 @@ class ElasticsearchAdapter extends AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * @param \App\Services\Elasticsearch\Query\QueryInterface|null $query
+     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
      *
      * @return array
      */
-    public function aggregate(?QueryInterface $query = null): array
+    public function aggregate(QueryInterface $query): array
     {
-        return $this->client->search(
+        $result = $this->client->search(
             $this->buildRawQuery($query)
-        )['aggregations'];
+        );
+
+        return $result['aggregations'] ?? [];
     }
 
     public function deleteIndex(): void

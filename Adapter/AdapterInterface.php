@@ -9,18 +9,18 @@ use App\Services\Elasticsearch\Result\ResultIteratorInterface;
 interface AdapterInterface
 {
     /**
-     * @param \App\Services\Elasticsearch\Query\QueryInterface|null $query
+     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
      *
      * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
      */
-    public function search(?QueryInterface $query = null): ResultIteratorInterface;
+    public function search(QueryInterface $query): ResultIteratorInterface;
 
     /**
-     * @param \App\Services\Elasticsearch\Query\QueryInterface|null $query
+     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
      *
      * @return int
      */
-    public function count(?QueryInterface $query = null): int;
+    public function count(QueryInterface $query): int;
 
     /**
      * @param string $id
@@ -34,11 +34,11 @@ interface AdapterInterface
     public function index(string $id, array $data): void;
 
     /**
-     * @param \App\Services\Elasticsearch\Query\QueryInterface|null $query
+     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
      *
      * @return array
      */
-    public function aggregate(?QueryInterface $query = null): array;
+    public function aggregate(QueryInterface $query): array;
 
     public function deleteIndex(): void;
 }

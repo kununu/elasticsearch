@@ -54,11 +54,11 @@ class ElasticaAdapter extends AbstractAdapter implements AdapterInterface
     /**
      * @param \App\Services\Elasticsearch\Query\QueryInterface|null $query
      *
-     * @return \Elastica\Query|null
+     * @return \Elastica\Query
      */
-    protected function verifyElasticaQueryObject(?QueryInterface $query = null): ?\Elastica\Query
+    protected function ensureElasticaQueryObject(QueryInterface $query): \Elastica\Query
     {
-        if ($query === null || $query instanceof \Elastica\Query) {
+        if ($query instanceof \Elastica\Query) {
             return $query;
         }
 
@@ -66,14 +66,14 @@ class ElasticaAdapter extends AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * @param \App\Services\Elasticsearch\Query\QueryInterface|null $query
+     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
      *
      * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
      */
-    public function search(?QueryInterface $query = null): ResultIteratorInterface
+    public function search(QueryInterface $query): ResultIteratorInterface
     {
         $elasticaResults = $this->getType()->search(
-            $this->verifyElasticaQueryObject($query)
+            $this->ensureElasticaQueryObject($query)
         );
 
         return ResultIterator::create(
@@ -87,14 +87,14 @@ class ElasticaAdapter extends AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * @param \App\Services\Elasticsearch\Query\QueryInterface|null $query
+     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
      *
      * @return int
      */
-    public function count(?QueryInterface $query = null): int
+    public function count(QueryInterface $query): int
     {
         return $this->getType()->count(
-            $this->verifyElasticaQueryObject($query)
+            $this->ensureElasticaQueryObject($query)
         );
     }
 
@@ -117,14 +117,14 @@ class ElasticaAdapter extends AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * @param \App\Services\Elasticsearch\Query\QueryInterface|null $query
+     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
      *
      * @return array
      */
-    public function aggregate(?QueryInterface $query = null): array
+    public function aggregate(QueryInterface $query): array
     {
         return $this->getType()->search(
-            $this->verifyElasticaQueryObject($query)
+            $this->ensureElasticaQueryObject($query)
         )->getAggregations();
     }
 

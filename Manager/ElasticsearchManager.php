@@ -5,6 +5,7 @@ namespace App\Services\Elasticsearch\Manager;
 
 use App\Services\Elasticsearch\Adapter\AdapterInterface;
 use App\Services\Elasticsearch\Exception\ElasticsearchException;
+use App\Services\Elasticsearch\Query\Query;
 use App\Services\Elasticsearch\Query\QueryInterface;
 use App\Services\Elasticsearch\Result\ResultIteratorInterface;
 use Psr\Log\LoggerInterface;
@@ -101,11 +102,7 @@ class ElasticsearchManager implements ElasticsearchManagerInterface
      */
     public function count(): int
     {
-        try {
-            return $this->client->count();
-        } catch (\Exception $e) {
-            $this->logErrorAndThrowException($e);
-        }
+        return $this->countByQuery(Query::create());
     }
 
     /**
@@ -131,4 +128,13 @@ class ElasticsearchManager implements ElasticsearchManagerInterface
             $this->logErrorAndThrowException($e);
         }
     }
+
+//    public function updateByQuery(QueryInterface $query, array $updateScript): void
+//    {
+//        try {
+//            return $this->client->upd($query);
+//        } catch (\Exception $e) {
+//            $this->logErrorAndThrowException($e);
+//        }
+//    }
 }
