@@ -9,6 +9,7 @@ use App\Services\Elasticsearch\Query\Query;
 use App\Services\Elasticsearch\Query\QueryInterface;
 use Elastica\Client;
 use Elastica\Document;
+use Elastica\Exception\NotFoundException;
 use Elastica\Index;
 use Elastica\Query\BoolQuery;
 use Elastica\Query\Term;
@@ -86,22 +87,11 @@ class ElasticaAdapterTest extends MockeryTestCase
     }
 
     /**
-     * @return \App\Services\Elasticsearch\Query\QueryInterface
+     * @return \App\Services\Elasticsearch\Query\QueryInterface|\Mockery\MockInterface
      */
     protected function getInvalidQueryObject()
     {
-        return new class() implements QueryInterface
-        {
-            public function toArray(): array
-            {
-                return [];
-            }
-
-            public static function create($query)
-            {
-                return new self();
-            }
-        };
+        return Mockery::mock(QueryInterface::class);
     }
 
     public function testIndex(): void
@@ -259,10 +249,22 @@ class ElasticaAdapterTest extends MockeryTestCase
             ->once()
             ->andReturn(self::DOCUMENT_COUNT);
 
+        $responseMock = Mockery::mock(Response::class);
+
+        $responseMock
+            ->shouldReceive('getScrollId')
+            ->once()
+            ->andThrow(NotFoundException::class);
+
+        $resultSetMock
+            ->shouldReceive('getResponse')
+            ->once()
+            ->andReturn($responseMock);
+
         $this->typeMock
             ->shouldReceive('search')
             ->once()
-            ->with($query)
+            ->with($query, [])
             ->andReturn($resultSetMock);
 
         $result = $this->getAdapter()->search($query);
