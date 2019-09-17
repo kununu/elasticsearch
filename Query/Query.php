@@ -13,14 +13,6 @@ use Elastica\Suggest\AbstractSuggest;
 class Query extends \Elastica\Query implements QueryInterface
 {
     /**
-     * @inheritdoc
-     */
-    public function toArray(): array
-    {
-        return parent::toArray();
-    }
-
-    /**
      * Need to override this method from \Elastica\Query to make use of late static binding.
      *
      * @inheritdoc
@@ -52,5 +44,37 @@ class Query extends \Elastica\Query implements QueryInterface
         }
 
         return $ret;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function toArray(): array
+    {
+        return parent::toArray();
+    }
+
+    /**
+     * @param int $offset
+     *
+     * @return \App\Services\Elasticsearch\Query\QueryInterface
+     */
+    public function skip(int $offset): QueryInterface
+    {
+        parent::setFrom($offset);
+
+        return $this;
+    }
+
+    /**
+     * @param int $size
+     *
+     * @return \App\Services\Elasticsearch\Query\QueryInterface
+     */
+    public function limit(int $size): QueryInterface
+    {
+        parent::setSize($size);
+
+        return $this;
     }
 }
