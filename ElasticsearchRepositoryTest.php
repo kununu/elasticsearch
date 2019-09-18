@@ -21,6 +21,25 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
     protected const ERROR_PREFIX = 'Elasticsearch exception: ';
     protected const ERROR_MESSAGE = 'Any error, for example: missing type';
     protected const ID = 'can_be_anything';
+    protected const UPDATE_RESPONSE_BODY = [
+        'took' => 147,
+        'timed_out' => false,
+        'total' => 5,
+        'updated' => 5,
+        'deleted' => 0,
+        'batches' => 1,
+        'version_conflicts' => 0,
+        'noops' => 0,
+        'retries' => [
+            'bulk' => 0,
+            'search' => 0,
+        ],
+        'throttled_millis' => 0,
+        'requests_per_second' => -1.0,
+        'throttled_until_millis' => 0,
+        'failures' => [],
+    ];
+    protected const SCROLL_ID = 'DnF1ZXJ5VGhlbkZldGNoBQAAAAAAAAFbFkJVNEdjZWVjU';
 
     public function testNoIndexDefined(): void
     {
@@ -55,7 +74,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
         $this->loggerMock
             ->shouldNotReceive('error');
 
-        $this->getManager()->save(
+        $this->getRepository()->save(
             self::ID,
             $data
         );
@@ -72,7 +91,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
         $this->expectException(ElasticsearchException::class);
-        $this->getManager()->save(
+        $this->getRepository()->save(
             self::ID,
             ['some data']
         );
@@ -95,7 +114,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
         $this->loggerMock
             ->shouldNotReceive('error');
 
-        $this->getManager()->delete(
+        $this->getRepository()->delete(
             self::ID
         );
     }
@@ -111,7 +130,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
         $this->expectException(ElasticsearchException::class);
-        $this->getManager()->delete(
+        $this->getRepository()->delete(
             self::ID
         );
     }
@@ -135,7 +154,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
         $this->loggerMock
             ->shouldNotReceive('error');
 
-        $this->getManager()->deleteIndex();
+        $this->getRepository()->deleteIndex();
     }
 
     public function testDeleteIndexFails(): void
@@ -153,7 +172,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
         $this->expectException(ElasticsearchException::class);
-        $this->getManager()->deleteIndex();
+        $this->getRepository()->deleteIndex();
     }
 
     public function testFindAll(): void
@@ -173,7 +192,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
                     'hits' => [
                         'actual needed data',
                     ],
-                    'scroll_id' => null,
+                    '_scroll_id' => self::SCROLL_ID,
                     'total' => 1,
                 ]
             );
@@ -181,11 +200,11 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
         $this->loggerMock
             ->shouldNotReceive('error');
 
-        $response = $this->getManager()->findAll();
+        $response = $this->getRepository()->findAll();
 
         $this->assertArrayHasKey('hits', $response);
-        $this->assertArrayHasKey('scroll_id', $response);
-        $this->assertArrayHasKey('total', $response);
+        $this->assertEquals(self::SCROLL_ID, $response['scroll_id']);
+        $this->assertEquals(1, $response['total']);
     }
 
     public function testFindAllFails(): void
@@ -200,13 +219,64 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
         $this->expectException(ElasticsearchException::class);
-        $this->getManager()->findAll();
+        $this->getRepository()->findAll();
+    }
+
+    public function testFindByScrollId(): void
+    {
+        $this->elasticsearchClientMock
+            ->shouldReceive('scroll')
+            ->once()
+            ->with(['scroll_id' => self::SCROLL_ID, 'scroll' => ElasticsearchRepository::SCROLL_CONTEXT_KEEPALIVE])
+            ->andReturn(
+                [
+                    'hits' => [
+                        'actual needed data',
+                    ],
+                    '_scroll_id' => self::SCROLL_ID,
+                    'total' => 1,
+                ]
+            );
+
+        $response = $this->getRepository()->findByScrollId(self::SCROLL_ID);
+
+        $this->assertArrayHasKey('hits', $response);
+        $this->assertEquals(self::SCROLL_ID, $response['scroll_id']);
+        $this->assertEquals(1, $response['total']);
+    }
+
+    public function testUpdateByQuery(): void
+    {
+        $query = [
+            'query' => [
+                'term' => [
+                    'foo' => 'bar',
+                ],
+            ],
+            'script' => [
+                'lang' => 'painless',
+                'source' => 'ctx._source.dimensions_completed=4',
+            ],
+        ];
+
+        $this->elasticsearchClientMock
+            ->shouldReceive('updateByQuery')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX,
+                    'body' => $query,
+                ]
+            )
+            ->andReturn(self::UPDATE_RESPONSE_BODY);
+
+        $this->assertEquals(self::UPDATE_RESPONSE_BODY, $this->getRepository()->updateByQuery($query));
     }
 
     /**
      * @return \App\Services\Elasticsearch\ElasticsearchRepositoryInterface
      */
-    private function getManager(): ElasticsearchRepositoryInterface
+    private function getRepository(): ElasticsearchRepositoryInterface
     {
         return new ElasticsearchRepository($this->elasticsearchClientMock, $this->loggerMock, self::INDEX);
     }
