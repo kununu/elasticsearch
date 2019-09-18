@@ -245,6 +245,21 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
         $this->assertEquals(1, $response['total']);
     }
 
+    public function testFindByScrollIdFails(): void
+    {
+        $this->elasticsearchClientMock
+            ->shouldReceive('scroll')
+            ->once()
+            ->andThrow(new \Exception(self::ERROR_MESSAGE));
+
+        $this->loggerMock
+            ->shouldReceive('error')
+            ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
+
+        $this->expectException(ElasticsearchException::class);
+        $this->getRepository()->findByScrollId(self::SCROLL_ID);
+    }
+
     public function testUpdateByQuery(): void
     {
         $query = [
@@ -271,6 +286,21 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
             ->andReturn(self::UPDATE_RESPONSE_BODY);
 
         $this->assertEquals(self::UPDATE_RESPONSE_BODY, $this->getRepository()->updateByQuery($query));
+    }
+
+    public function testUpdateByQueryFails(): void
+    {
+        $this->elasticsearchClientMock
+            ->shouldReceive('updateByQuery')
+            ->once()
+            ->andThrow(new \Exception(self::ERROR_MESSAGE));
+
+        $this->loggerMock
+            ->shouldReceive('error')
+            ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
+
+        $this->expectException(ElasticsearchException::class);
+        $this->getRepository()->updateByQuery([]);
     }
 
     /**
