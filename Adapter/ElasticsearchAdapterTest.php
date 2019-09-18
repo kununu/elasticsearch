@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Services\Elasticsearch\Manager;
 
+use App\Services\Elasticsearch\Adapter\AbstractAdapter;
 use App\Services\Elasticsearch\Adapter\ElasticsearchAdapter;
 use App\Services\Elasticsearch\Query\Query;
 use App\Services\Elasticsearch\Query\QueryInterface;
@@ -43,6 +44,7 @@ class ElasticsearchAdapterTest extends MockeryTestCase
         'throttled_until_millis' => 0,
         'failures' => [],
     ];
+    protected const SCROLL_ID = 'DnF1ZXJ5VGhlbkZldGNoBQAAAAAAAAFbFkJVNEdjZWVjU';
 
     /** @var \Elasticsearch\Client|\Mockery\MockInterface */
     protected $clientMock;
@@ -123,7 +125,7 @@ class ElasticsearchAdapterTest extends MockeryTestCase
      */
     public function searchResultData(): array
     {
-        return [
+        $cases = [
             'no results' => [
                 'es_result' => [
                     'hits' => [
@@ -176,6 +178,22 @@ class ElasticsearchAdapterTest extends MockeryTestCase
                 ],
             ],
         ];
+
+        $allCaseVariations = [];
+        foreach ($cases as $caseName => $case) {
+            foreach ([true, false] as $scroll) {
+                $newCase = $case;
+                $fullCaseName = $caseName . '; scroll: ' . ($scroll ? 'true' : 'false');
+                if ($scroll) {
+                    $newCase['es_result']['_scroll_id'] = self::SCROLL_ID;
+                }
+                $newCase['scroll'] = $scroll;
+
+                $allCaseVariations[$fullCaseName] = $newCase;
+            }
+        }
+
+        return $allCaseVariations;
     }
 
     /**
@@ -183,29 +201,39 @@ class ElasticsearchAdapterTest extends MockeryTestCase
      *
      * @param array $esResult
      * @param array $endResult
+     * @param bool  $scroll
      */
-    public function testSearchWithEmptyQuery(array $esResult, array $endResult): void
+    public function testSearchWithEmptyQuery(array $esResult, array $endResult, bool $scroll): void
     {
+        $rawParams = [
+            'index' => self::INDEX,
+            'type' => self::TYPE,
+            'body' => [
+                'query' => [
+                    'match_all' => new \stdClass(),
+                ],
+            ],
+        ];
+
+        if ($scroll) {
+            $rawParams['scroll'] = AbstractAdapter::SCROLL_CONTEXT_KEEPALIVE;
+        }
+
         $this->clientMock
             ->shouldReceive('search')
             ->once()
-            ->with(
-                [
-                    'index' => self::INDEX,
-                    'type' => self::TYPE,
-                    'body' => [
-                        'query' => [
-                            'match_all' => new \stdClass(),
-                        ],
-                    ],
-                ]
-            )
+            ->with($rawParams)
             ->andReturn($esResult);
 
-        $result = $this->getAdapter()->search(Query::create());
+        $result = $this->getAdapter()->search(Query::create(), $scroll);
 
         $this->assertEquals($endResult, $result->asArray());
         $this->assertEquals(self::DOCUMENT_COUNT, $result->getTotal());
+        if ($scroll) {
+            $this->assertEquals(self::SCROLL_ID, $result->getScrollId());
+        } else {
+            $this->assertNull($result->getScrollId());
+        }
     }
 
     /**
@@ -213,45 +241,55 @@ class ElasticsearchAdapterTest extends MockeryTestCase
      *
      * @param array $esResult
      * @param array $endResult
+     * @param bool  $scroll
      */
-    public function testSearchByQuery(array $esResult, array $endResult): void
+    public function testSearchByQuery(array $esResult, array $endResult, bool $scroll): void
     {
         $query = Query::create(
             (new BoolQuery())
                 ->addMust((new Term())->setTerm('foo', 'bar'))
         );
 
-        $this->clientMock
-            ->shouldReceive('search')
-            ->once()
-            ->with(
-                [
-                    'index' => self::INDEX,
-                    'type' => self::TYPE,
-                    'body' => [
-                        'query' => [
-                            'bool' => [
-                                'must' => [
-                                    [
-                                        'term' => [
-                                            'foo' => [
-                                                'value' => 'bar',
-                                                'boost' => 1.0,
-                                            ],
-                                        ],
+        $rawParams = [
+            'index' => self::INDEX,
+            'type' => self::TYPE,
+            'body' => [
+                'query' => [
+                    'bool' => [
+                        'must' => [
+                            [
+                                'term' => [
+                                    'foo' => [
+                                        'value' => 'bar',
+                                        'boost' => 1.0,
                                     ],
                                 ],
                             ],
                         ],
                     ],
-                ]
-            )
+                ],
+            ],
+        ];
+
+        if ($scroll) {
+            $rawParams['scroll'] = AbstractAdapter::SCROLL_CONTEXT_KEEPALIVE;
+        }
+
+        $this->clientMock
+            ->shouldReceive('search')
+            ->once()
+            ->with($rawParams)
             ->andReturn($esResult);
 
-        $result = $this->getAdapter()->search($query);
+        $result = $this->getAdapter()->search($query, $scroll);
 
         $this->assertEquals($endResult, $result->asArray());
         $this->assertEquals(self::DOCUMENT_COUNT, $result->getTotal());
+        if ($scroll) {
+            $this->assertEquals(self::SCROLL_ID, $result->getScrollId());
+        } else {
+            $this->assertNull($result->getScrollId());
+        }
     }
 
     public function testCountWithEmptyQuery(): void
