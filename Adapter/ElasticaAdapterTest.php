@@ -467,4 +467,48 @@ class ElasticaAdapterTest extends MockeryTestCase
 
         $this->assertEquals(self::UPDATE_RESPONSE_BODY, $this->getAdapter()->update($query, $updateScript));
     }
+
+    /**
+     * @dataProvider searchResultData
+     *
+     * @param array $esResult
+     * @param array $expectedEndResult
+     */
+    public function testScroll(array $esResult, array $expectedEndResult): void
+    {
+        $resultSetMock = Mockery::mock(ResultSet::class);
+        $resultSetMock
+            ->shouldReceive('getResults')
+            ->once()
+            ->andReturn($esResult);
+
+        $resultSetMock
+            ->shouldReceive('getTotalHits')
+            ->once()
+            ->andReturn(self::DOCUMENT_COUNT);
+
+        $responseMock = Mockery::mock(Response::class);
+
+        $responseMock
+            ->shouldReceive('getScrollId')
+            ->once()
+            ->andReturn(self::SCROLL_ID);
+
+        $resultSetMock
+            ->shouldReceive('getResponse')
+            ->once()
+            ->andReturn($responseMock);
+
+        $this->typeMock
+            ->shouldReceive('search')
+            ->once()
+            ->with([], ['scroll_id' => self::SCROLL_ID, 'scroll' => AbstractAdapter::SCROLL_CONTEXT_KEEPALIVE])
+            ->andReturn($resultSetMock);
+
+        $result = $this->getAdapter()->scroll(self::SCROLL_ID);
+
+        $this->assertEquals($expectedEndResult, $result->asArray());
+        $this->assertEquals(self::DOCUMENT_COUNT, $result->getTotal());
+        $this->assertEquals(self::SCROLL_ID, $result->getScrollId());
+    }
 }
