@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace App\Services\Elasticsearch;
 
 use App\Services\Elasticsearch\Exception\ElasticsearchException;
-use App\Services\Elasticsearch\Exception\ManagerConfigurationException;
+use App\Services\Elasticsearch\Exception\RepositoryConfigurationException;
 use Elasticsearch\Client;
 use Psr\Log\LoggerInterface;
 
@@ -13,7 +13,7 @@ use Psr\Log\LoggerInterface;
  *
  * @package App\Services\Elasticsearch
  */
-class ElasticsearchManager implements ElasticsearchManagerInterface
+class ElasticsearchRepository implements ElasticsearchRepositoryInterface
 {
     protected const EXCEPTION_PREFIX = 'Elasticsearch exception: ';
     public const SCROLL_CONTEXT_KEEPALIVE = '1m'; // 1 minute (see https://www.elastic.co/guide/en/elasticsearch/reference/6.5/search-request-scroll.html#scroll-search-context)
@@ -41,7 +41,7 @@ class ElasticsearchManager implements ElasticsearchManagerInterface
         $this->index = $index;
 
         if (empty($this->index)) {
-            throw new ManagerConfigurationException('no index defined');
+            throw new RepositoryConfigurationException('no index defined');
         }
     }
 

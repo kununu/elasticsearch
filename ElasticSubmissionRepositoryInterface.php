@@ -7,7 +7,7 @@ namespace App\Services\Elasticsearch;
  *
  * @package App\Services\Elasticsearch
  */
-interface SubmissionManagerInterface extends ElasticsearchManagerInterface
+interface ElasticSubmissionRepositoryInterface extends ElasticsearchRepositoryInterface
 {
     /**
      * @inheritdoc

@@ -7,7 +7,7 @@ namespace App\Services\Elasticsearch;
  *
  * @package App\Services\Elasticsearch
  */
-interface ElasticsearchManagerInterface
+interface ElasticsearchRepositoryInterface
 {
     /**
      * @param string $id

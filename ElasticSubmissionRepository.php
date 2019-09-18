@@ -12,7 +12,7 @@ use App\Services\FactorService;
  *
  * @package App\Services\Elasticsearch
  */
-class SubmissionManager extends ElasticsearchManager implements SubmissionManagerInterface
+class ElasticSubmissionRepository extends ElasticsearchRepository implements ElasticSubmissionRepositoryInterface
 {
     /**
      * @inheritdoc
