@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace App\Tests\Unit\Services\Elasticsearch\Manager;
 
 use App\Services\Elasticsearch\Exception\ElasticsearchException;
+use App\Services\Elasticsearch\Manager\ElasticsearchManager;
+use App\Services\Elasticsearch\Manager\ElasticsearchManagerInterface;
 use App\Services\Elasticsearch\Query\Query;
 use App\Tests\Unit\Services\Elasticsearch\ElasticsearchManagerTestTrait;
 use Elastica\Query\BoolQuery;
@@ -350,9 +352,9 @@ class ElasticsearchManagerTest extends MockeryTestCase
     /**
      * @return \App\Services\Elasticsearch\Manager\ElasticsearchManagerInterface
      */
-    private function getManager(): \App\Services\Elasticsearch\Manager\ElasticsearchManagerInterface
+    private function getManager(): ElasticsearchManagerInterface
     {
-        return new \App\Services\Elasticsearch\Manager\ElasticsearchManager(
+        return new ElasticsearchManager(
             $this->elasticaAdapterMock,
             $this->loggerMock
         );
