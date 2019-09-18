@@ -47,6 +47,7 @@ class ElasticaAdapterTest extends MockeryTestCase
         'throttled_until_millis' => 0,
         'failures' => [],
     ];
+    protected const SCROLL_ID = 'DnF1ZXJ5VGhlbkZldGNoBQAAAAAAAAFbFkJVNEdjZWVjU';
 
     /** @var \Elastica\Client|\Mockery\MockInterface */
     protected $clientMock;
@@ -236,7 +237,45 @@ class ElasticaAdapterTest extends MockeryTestCase
         $this->doTestSearch($esResult, $expectedEndResult, $query);
     }
 
-    protected function doTestSearch(array $esResult, array $expectedEndResult, QueryInterface $query): void
+    /**
+     * @dataProvider searchResultData
+     *
+     * @param array $esResult
+     * @param array $expectedEndResult
+     */
+    public function testSearchScrollableWithEmptyQuery(array $esResult, array $expectedEndResult): void
+    {
+        $this->doTestSearch($esResult, $expectedEndResult, Query::create(), true);
+    }
+
+    /**
+     * @dataProvider searchResultData
+     *
+     * @param array $esResult
+     * @param array $expectedEndResult
+     */
+    public function testSearchScrollableByQuery(array $esResult, array $expectedEndResult): void
+    {
+        $query = Query::create(
+            (new BoolQuery())
+                ->addMust((new Term())->setTerm('foo', 'bar'))
+        );
+
+        $this->doTestSearch($esResult, $expectedEndResult, $query, true);
+    }
+
+    /**
+     * @param array                                            $esResult
+     * @param array                                            $expectedEndResult
+     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
+     * @param bool                                             $scroll
+     */
+    protected function doTestSearch(
+        array $esResult,
+        array $expectedEndResult,
+        QueryInterface $query,
+        bool $scroll = false
+    ): void
     {
         $resultSetMock = Mockery::mock(ResultSet::class);
         $resultSetMock
@@ -251,10 +290,17 @@ class ElasticaAdapterTest extends MockeryTestCase
 
         $responseMock = Mockery::mock(Response::class);
 
-        $responseMock
-            ->shouldReceive('getScrollId')
-            ->once()
-            ->andThrow(NotFoundException::class);
+        if ($scroll) {
+            $responseMock
+                ->shouldReceive('getScrollId')
+                ->once()
+                ->andReturn(self::SCROLL_ID);
+        } else {
+            $responseMock
+                ->shouldReceive('getScrollId')
+                ->once()
+                ->andThrow(NotFoundException::class);
+        }
 
         $resultSetMock
             ->shouldReceive('getResponse')
@@ -271,6 +317,11 @@ class ElasticaAdapterTest extends MockeryTestCase
 
         $this->assertEquals($expectedEndResult, $result->asArray());
         $this->assertEquals(self::DOCUMENT_COUNT, $result->getTotal());
+        if ($scroll) {
+            $this->assertEquals(self::SCROLL_ID, $result->getScrollId());
+        } else {
+            $this->assertNull($result->getScrollId());
+        }
     }
 
     public function testSearchWithInvalidQuery(): void
@@ -342,6 +393,13 @@ class ElasticaAdapterTest extends MockeryTestCase
         $this->assertEquals(['foo' => 'bar'], $this->getAdapter()->aggregate($query));
     }
 
+    public function testAggregateWithInvalidQuery(): void
+    {
+        $this->expectException(InvalidQueryException::class);
+
+        $this->getAdapter()->aggregate($this->getInvalidQueryObject());
+    }
+
     /**
      * @return array
      */
@@ -404,12 +462,5 @@ class ElasticaAdapterTest extends MockeryTestCase
             ->andReturn($responseMock);
 
         $this->assertEquals(self::UPDATE_RESPONSE_BODY, $this->getAdapter()->update($query, $updateScript));
-    }
-
-    public function testAggregateWithInvalidQuery(): void
-    {
-        $this->expectException(InvalidQueryException::class);
-
-        $this->getAdapter()->aggregate($this->getInvalidQueryObject());
     }
 }
