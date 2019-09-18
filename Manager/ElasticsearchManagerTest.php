@@ -279,6 +279,74 @@ class ElasticsearchManagerTest extends MockeryTestCase
         $this->getManager()->updateByQuery(Query::create(), []);
     }
 
+    public function testFindScrollableByQuery(): void
+    {
+        $query = Query::create();
+
+        $this->elasticaAdapterMock
+            ->shouldReceive('search')
+            ->once()
+            ->with($query, true);
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $this->getManager()->findScrollableByQuery($query);
+    }
+
+    public function testFindScrollableByQueryFails(): void
+    {
+        $query = Query::create();
+
+        $this->elasticaAdapterMock
+            ->shouldReceive('search')
+            ->once()
+            ->with($query, true)
+            ->andThrow(new \Exception(self::ERROR_MESSAGE));
+
+        $this->loggerMock
+            ->shouldReceive('error')
+            ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
+
+        $this->expectException(ElasticsearchException::class);
+
+        $this->getManager()->findScrollableByQuery($query);
+    }
+
+    public function testFindByScrollId(): void
+    {
+        $scrollId = 'foobar';
+
+        $this->elasticaAdapterMock
+            ->shouldReceive('scroll')
+            ->once()
+            ->with($scrollId);
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $this->getManager()->findByScrollId($scrollId);
+    }
+
+    public function testFindByScrollIdFails(): void
+    {
+        $scrollId = 'foobar';
+
+        $this->elasticaAdapterMock
+            ->shouldReceive('scroll')
+            ->once()
+            ->with($scrollId)
+            ->andThrow(new \Exception(self::ERROR_MESSAGE));
+
+        $this->loggerMock
+            ->shouldReceive('error')
+            ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
+
+        $this->expectException(ElasticsearchException::class);
+
+        $this->getManager()->findByScrollId($scrollId);
+    }
+
     /**
      * @return \App\Services\Elasticsearch\Manager\ElasticsearchManagerInterface
      */
