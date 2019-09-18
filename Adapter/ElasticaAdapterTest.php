@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Services\Elasticsearch\Manager;
 
+use App\Services\Elasticsearch\Adapter\AbstractAdapter;
 use App\Services\Elasticsearch\Adapter\ElasticaAdapter;
 use App\Services\Elasticsearch\Exception\InvalidQueryException;
 use App\Services\Elasticsearch\Query\Query;
@@ -275,8 +276,7 @@ class ElasticaAdapterTest extends MockeryTestCase
         array $expectedEndResult,
         QueryInterface $query,
         bool $scroll = false
-    ): void
-    {
+    ): void {
         $resultSetMock = Mockery::mock(ResultSet::class);
         $resultSetMock
             ->shouldReceive('getResults')
@@ -307,13 +307,17 @@ class ElasticaAdapterTest extends MockeryTestCase
             ->once()
             ->andReturn($responseMock);
 
+        $options = $scroll
+            ? ['scroll' => AbstractAdapter::SCROLL_CONTEXT_KEEPALIVE]
+            : [];
+
         $this->typeMock
             ->shouldReceive('search')
             ->once()
-            ->with($query, [])
+            ->with($query, $options)
             ->andReturn($resultSetMock);
 
-        $result = $this->getAdapter()->search($query);
+        $result = $this->getAdapter()->search($query, $scroll);
 
         $this->assertEquals($expectedEndResult, $result->asArray());
         $this->assertEquals(self::DOCUMENT_COUNT, $result->getTotal());
