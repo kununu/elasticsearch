@@ -79,7 +79,11 @@ class Query extends \Elastica\Query implements QueryInterface
      */
     public function getOffset(): ?int
     {
-        return parent::getParam('from');
+        try {
+            return parent::getParam('from');
+        } catch (InvalidException $e) {
+            return null;
+        }
     }
 
     /**
@@ -87,7 +91,11 @@ class Query extends \Elastica\Query implements QueryInterface
      */
     public function getLimit(): ?int
     {
-        return parent::getParam('size');
+        try {
+            return parent::getParam('size');
+        } catch (InvalidException $e) {
+            return null;
+        }
     }
 
     /**
@@ -95,6 +103,10 @@ class Query extends \Elastica\Query implements QueryInterface
      */
     public function sort(string $field, string $direction): QueryInterface
     {
+        if (!in_array($direction, SortDirection::all(), true)) {
+            throw new \InvalidArgumentException('Unknown $direction given');
+        }
+
         parent::addSort([$field => $direction]);
 
         return $this;
@@ -105,6 +117,10 @@ class Query extends \Elastica\Query implements QueryInterface
      */
     public function getSort(): array
     {
-        return parent::getParam('sort');
+        try {
+            return parent::getParam('sort');
+        } catch (InvalidException $e) {
+            return [];
+        }
     }
 }

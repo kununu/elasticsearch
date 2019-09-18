@@ -7,4 +7,12 @@ final class SortDirection
 {
     public const ASC = 'asc';
     public const DESC = 'desc';
+
+    /**
+     * @return array
+     */
+    public static function all(): array
+    {
+        return [static::ASC, static::DESC];
+    }
 }
