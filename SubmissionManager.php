@@ -4,12 +4,15 @@ declare(strict_types=1);
 namespace App\Services\Elasticsearch;
 
 use App\Entity\Dimension;
+use App\Entity\Submission;
 use App\Services\Elasticsearch\Manager\ElasticsearchManager;
 use App\Services\Elasticsearch\Query\Query;
 use App\Services\FactorService;
 use Elastica\Aggregation\Sum;
+use Elastica\Query\AbstractQuery;
 use Elastica\Query\BoolQuery;
 use Elastica\Query\Match;
+use Elastica\Query\Range;
 use Elastica\Query\Term;
 
 /**
@@ -22,30 +25,30 @@ class SubmissionManager extends ElasticsearchManager implements SubmissionManage
     /**
      * @inheritdoc
      */
-    public function aggregateCultureDataByField(?string $field = null, ?string $value = null): array
+    public function aggregateCultureDataByField(?string $filterField = null, ?string $filterValue = null): array
     {
-        return $this->aggregateByQuery($this->buildSumAggregationQuery($field, $value));
+        return $this->aggregateByQuery($this->buildSumAggregationQuery($filterField, $filterValue));
     }
 
     /**
      * This method is public for testing purposes only.
      *
-     * @param string|null $field
-     * @param string|null $value
+     * @param string|null $filterField
+     * @param string|null $filterValue
      *
      * @return \App\Services\Elasticsearch\Query\Query
      */
-    public function buildSumAggregationQuery(?string $field, ?string $value): Query
+    public function buildSumAggregationQuery(?string $filterField, ?string $filterValue): Query
     {
-        if (!is_numeric($value)) {
-            $field = $field . '.keyword';
+        if (!is_numeric($filterValue)) {
+            $filterField = $filterField . '.keyword';
         }
 
-        $query = Query::create(
-            $field && $value
-                ? (new BoolQuery())->addShould(new Match($field, $value))
-                : null
-        );
+        $boolQuery = (new BoolQuery())->addMust($this->buildQueryPartToConsiderOnlyCompletedSubmissions());
+        if ($filterField && $filterValue) {
+            $boolQuery->addMust(new Match($filterField, $filterValue));
+        }
+        $query = Query::create($boolQuery);
 
         foreach (FactorService::TYPES as $type) {
             foreach (Dimension::DIMENSIONS as $dimension) {
@@ -85,7 +88,20 @@ class SubmissionManager extends ElasticsearchManager implements SubmissionManage
     public function buildCountByProfileUuidQuery(string $profileUuid): Query
     {
         return Query::create(
-            (new Term())->setTerm('profile_uuid.keyword', $profileUuid)
+            (new BoolQuery())
+                ->addMust($this->buildQueryPartToConsiderOnlyCompletedSubmissions())
+                ->addMust((new Term())->setTerm('profile_uuid.keyword', $profileUuid))
         );
+    }
+
+    /**
+     * @return \Elastica\Query\AbstractQuery
+     */
+    protected function buildQueryPartToConsiderOnlyCompletedSubmissions(): AbstractQuery
+    {
+        return (new Range(
+            'dimensions_completed',
+            ['gte' => Submission::CONSIDER_FOR_AGGREGATIONS_WHEN_NUMBER_OF_DIMENSIONS]
+        ));
     }
 }

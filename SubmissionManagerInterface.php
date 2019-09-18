@@ -14,22 +14,22 @@ use App\Services\Elasticsearch\Query\Query;
 interface SubmissionManagerInterface extends ElasticsearchManagerInterface
 {
     /**
-     * @param string|null $field
-     * @param string|null $value
+     * @param string|null $filterField
+     * @param string|null $filterValue
      *
      * @return array
      */
-    public function aggregateCultureDataByField(?string $field = null, ?string $value = null): array;
+    public function aggregateCultureDataByField(?string $filterField = null, ?string $filterValue = null): array;
 
     /**
      * This method is public for testing purposes only.
      *
-     * @param string|null $field
-     * @param string|null $value
+     * @param string|null $filterField
+     * @param string|null $filterValue
      *
      * @return \App\Services\Elasticsearch\Query\Query
      */
-    public function buildSumAggregationQuery(?string $field, ?string $value): Query;
+    public function buildSumAggregationQuery(?string $filterField, ?string $filterValue): Query;
 
     /**
      * @param string $profileUuid
