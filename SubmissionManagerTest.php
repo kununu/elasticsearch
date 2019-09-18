@@ -3,9 +3,9 @@
 namespace App\Tests\Unit\Services\Elasticsearch;
 
 use App\Entity\Submission;
+use App\Services\Elasticsearch\ElasticSubmissionRepository;
+use App\Services\Elasticsearch\ElasticSubmissionRepositoryInterface;
 use App\Services\Elasticsearch\Exception\ElasticsearchException;
-use App\Services\Elasticsearch\SubmissionManager;
-use App\Services\Elasticsearch\SubmissionManagerInterface;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 /**
@@ -13,7 +13,7 @@ use Mockery\Adapter\Phpunit\MockeryTestCase;
  */
 class SubmissionManagerTest extends MockeryTestCase
 {
-    use ElasticsearchManagerTestTrait;
+    use ElasticsearchRepositoryTestTrait;
 
     protected const INDEX = 'some_index';
     protected const ERROR_PREFIX = 'Elasticsearch exception: ';
@@ -209,10 +209,10 @@ class SubmissionManagerTest extends MockeryTestCase
     }
 
     /**
-     * @return \App\Services\Elasticsearch\SubmissionManagerInterface
+     * @return \App\Services\Elasticsearch\ElasticSubmissionRepositoryInterface
      */
-    private function getManager(): SubmissionManagerInterface
+    private function getManager(): ElasticSubmissionRepositoryInterface
     {
-        return new SubmissionManager($this->elasticsearchClientMock, $this->loggerMock, self::INDEX);
+        return new ElasticSubmissionRepository($this->elasticsearchClientMock, $this->loggerMock, self::INDEX);
     }
 }

@@ -3,18 +3,18 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Services\Elasticsearch;
 
-use App\Services\Elasticsearch\ElasticsearchManager;
-use App\Services\Elasticsearch\ElasticsearchManagerInterface;
+use App\Services\Elasticsearch\ElasticsearchRepository;
+use App\Services\Elasticsearch\ElasticsearchRepositoryInterface;
 use App\Services\Elasticsearch\Exception\ElasticsearchException;
-use App\Services\Elasticsearch\Exception\ManagerConfigurationException;
+use App\Services\Elasticsearch\Exception\RepositoryConfigurationException;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 /**
  * @group unit
  */
-class ElasticsearchManagerTest extends MockeryTestCase
+class ElasticsearchRepositoryTest extends MockeryTestCase
 {
-    use ElasticsearchManagerTestTrait;
+    use ElasticsearchRepositoryTestTrait;
 
     protected const INDEX = 'some_index';
     protected const TYPE = '_doc';
@@ -24,9 +24,9 @@ class ElasticsearchManagerTest extends MockeryTestCase
 
     public function testNoIndexDefined(): void
     {
-        $this->expectException(ManagerConfigurationException::class);
+        $this->expectException(RepositoryConfigurationException::class);
 
-        $manager = new ElasticsearchManager(
+        $manager = new ElasticsearchRepository(
             $this->elasticsearchClientMock,
             $this->loggerMock,
             ''
@@ -160,7 +160,7 @@ class ElasticsearchManagerTest extends MockeryTestCase
     {
         $params = [
             'index' => self::INDEX,
-            'scroll' => ElasticsearchManager::SCROLL_CONTEXT_KEEPALIVE,
+            'scroll' => ElasticsearchRepository::SCROLL_CONTEXT_KEEPALIVE,
             'size' => 100,
         ];
 
@@ -204,10 +204,10 @@ class ElasticsearchManagerTest extends MockeryTestCase
     }
 
     /**
-     * @return \App\Services\Elasticsearch\ElasticsearchManagerInterface
+     * @return \App\Services\Elasticsearch\ElasticsearchRepositoryInterface
      */
-    private function getManager(): ElasticsearchManagerInterface
+    private function getManager(): ElasticsearchRepositoryInterface
     {
-        return new ElasticsearchManager($this->elasticsearchClientMock, $this->loggerMock, self::INDEX);
+        return new ElasticsearchRepository($this->elasticsearchClientMock, $this->loggerMock, self::INDEX);
     }
 }

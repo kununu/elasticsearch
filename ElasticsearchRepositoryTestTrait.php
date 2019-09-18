@@ -8,12 +8,7 @@ use Elasticsearch\Namespaces\IndicesNamespace;
 use Mockery;
 use Psr\Log\LoggerInterface;
 
-/**
- * Trait ElasticsearchManagerTestTrait
- *
- * @package App\Tests\Unit\Services\Elasticsearch
- */
-trait ElasticsearchManagerTestTrait
+trait ElasticsearchRepositoryTestTrait
 {
     /** @var \Elasticsearch\Client|MockInterface */
     protected $elasticsearchClientMock;
