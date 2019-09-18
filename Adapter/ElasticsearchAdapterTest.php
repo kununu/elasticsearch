@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Services\Elasticsearch\Manager;
 
-use App\Services\Elasticsearch\Adapter\AbstractAdapter;
 use App\Services\Elasticsearch\Adapter\ElasticsearchAdapter;
 use App\Services\Elasticsearch\Query\Query;
 use App\Services\Elasticsearch\Query\QueryInterface;
@@ -125,7 +124,7 @@ class ElasticsearchAdapterTest extends MockeryTestCase
      */
     public function searchResultData(): array
     {
-        $cases = [
+        return [
             'no results' => [
                 'es_result' => [
                     'hits' => [
@@ -178,9 +177,15 @@ class ElasticsearchAdapterTest extends MockeryTestCase
                 ],
             ],
         ];
+    }
 
+    /**
+     * @return array
+     */
+    public function searchResultVariationsData(): array
+    {
         $allCaseVariations = [];
-        foreach ($cases as $caseName => $case) {
+        foreach ($this->searchResultData() as $caseName => $case) {
             foreach ([true, false] as $scroll) {
                 $newCase = $case;
                 $fullCaseName = $caseName . '; scroll: ' . ($scroll ? 'true' : 'false');
@@ -197,7 +202,7 @@ class ElasticsearchAdapterTest extends MockeryTestCase
     }
 
     /**
-     * @dataProvider searchResultData
+     * @dataProvider searchResultVariationsData
      *
      * @param array $esResult
      * @param array $endResult
@@ -216,7 +221,7 @@ class ElasticsearchAdapterTest extends MockeryTestCase
         ];
 
         if ($scroll) {
-            $rawParams['scroll'] = AbstractAdapter::SCROLL_CONTEXT_KEEPALIVE;
+            $rawParams['scroll'] = ElasticsearchAdapter::SCROLL_CONTEXT_KEEPALIVE;
         }
 
         $this->clientMock
@@ -237,7 +242,7 @@ class ElasticsearchAdapterTest extends MockeryTestCase
     }
 
     /**
-     * @dataProvider searchResultData
+     * @dataProvider searchResultVariationsData
      *
      * @param array $esResult
      * @param array $endResult
@@ -272,7 +277,7 @@ class ElasticsearchAdapterTest extends MockeryTestCase
         ];
 
         if ($scroll) {
-            $rawParams['scroll'] = AbstractAdapter::SCROLL_CONTEXT_KEEPALIVE;
+            $rawParams['scroll'] = ElasticsearchAdapter::SCROLL_CONTEXT_KEEPALIVE;
         }
 
         $this->clientMock
@@ -486,5 +491,28 @@ class ElasticsearchAdapterTest extends MockeryTestCase
             ->andReturn(self::UPDATE_RESPONSE_BODY);
 
         $this->assertEquals(self::UPDATE_RESPONSE_BODY, $this->getAdapter()->update($query, $updateScript));
+    }
+
+    /**
+     * @dataProvider searchResultData
+     *
+     * @param array $esResult
+     * @param array $endResult
+     */
+    public function testScroll(array $esResult, array $endResult): void
+    {
+        $esResult['_scroll_id'] = self::SCROLL_ID;
+
+        $this->clientMock
+            ->shouldReceive('scroll')
+            ->once()
+            ->with(['scroll_id' => self::SCROLL_ID, 'scroll' => ElasticsearchAdapter::SCROLL_CONTEXT_KEEPALIVE])
+            ->andReturn($esResult);
+
+        $result = $this->getAdapter()->scroll(self::SCROLL_ID);
+
+        $this->assertEquals($endResult, $result->asArray());
+        $this->assertEquals(self::DOCUMENT_COUNT, $result->getTotal());
+        $this->assertEquals(self::SCROLL_ID, $result->getScrollId());
     }
 }
