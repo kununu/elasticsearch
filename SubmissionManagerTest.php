@@ -2,6 +2,7 @@
 
 namespace App\Tests\Unit\Services\Elasticsearch;
 
+use App\Entity\Submission;
 use App\Services\Elasticsearch\Exception\ElasticsearchException;
 use App\Services\Elasticsearch\SubmissionManager;
 use App\Services\Elasticsearch\SubmissionManagerInterface;
@@ -97,21 +98,25 @@ class SubmissionManagerTest extends MockeryTestCase
                 ],
             ];
 
-            if ($hasQuery) {
-                $expectedQuery['query'] = [
-                    'bool' => [
-                        'should' => [
-                            [
-                                'match' => [
-                                    $expectedMatchField => $matchValue,
+            $expectedQuery['query'] = [
+                'bool' => [
+                    'must' => [
+                        [
+                            'range' => [
+                                'dimensions_completed' => [
+                                    'gte' => Submission::CONSIDER_FOR_AGGREGATIONS_WHEN_NUMBER_OF_DIMENSIONS,
                                 ],
                             ],
                         ],
                     ],
-                ];
-            } else {
-                $expectedQuery['query'] = [
-                    'match_all' => new \stdClass(),
+                ],
+            ];
+
+            if ($hasQuery) {
+                $expectedQuery['query']['bool']['must'][] = [
+                    'match' => [
+                        $expectedMatchField => $matchValue,
+                    ],
                 ];
             }
 
@@ -172,12 +177,26 @@ class SubmissionManagerTest extends MockeryTestCase
 
         $expected = [
             'query' => [
-                'term' => [
-                    'profile_uuid.keyword' => [
-                        'value' => self::PROFILE_UUID,
-                        'boost' => 1.0,
+                'bool' => [
+                    'must' => [
+                        [
+                            'range' => [
+                                'dimensions_completed' => [
+                                    'gte' => Submission::CONSIDER_FOR_AGGREGATIONS_WHEN_NUMBER_OF_DIMENSIONS,
+                                ],
+                            ],
+                        ],
+                        [
+                            'term' => [
+                                'profile_uuid.keyword' => [
+                                    'value' => self::PROFILE_UUID,
+                                    'boost' => 1.0,
+                                ],
+                            ],
+                        ],
                     ],
                 ],
+
             ],
         ];
 
