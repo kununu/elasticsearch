@@ -3,27 +3,38 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Services\Elasticsearch\Repository;
 
+use App\Services\Elasticsearch\Adapter\AdapterInterface;
 use App\Services\Elasticsearch\Exception\ElasticsearchException;
 use App\Services\Elasticsearch\Query\Query;
 use App\Services\Elasticsearch\Repository\ElasticsearchRepository;
 use App\Services\Elasticsearch\Repository\ElasticsearchRepositoryInterface;
-use App\Tests\Unit\Services\Elasticsearch\ElasticsearchManagerTestTrait;
-use App\Tests\Unit\Services\Elasticsearch\ElasticsearchRepositoryTestTrait;
 use Elastica\Query\BoolQuery;
 use Elastica\Query\Term;
+use Mockery;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
+use Psr\Log\LoggerInterface;
 
 /**
  * @group unit
  */
 class ElasticsearchRepositoryTest extends MockeryTestCase
 {
-    use ElasticsearchRepositoryTestTrait;
-
     protected const ERROR_PREFIX = 'Elasticsearch exception: ';
     protected const ERROR_MESSAGE = 'Any error, for example: missing type';
     protected const ID = 'can_be_anything';
     protected const DOCUMENT_COUNT = 42;
+
+    /** @var \App\Services\Elasticsearch\Adapter\AdapterInterface|\Mockery\MockInterface */
+    protected $adapterMock;
+
+    /** @var \Psr\Log\LoggerInterface|\Mockery\MockInterface */
+    protected $loggerMock;
+
+    protected function setUp(): void
+    {
+        $this->adapterMock = Mockery::mock(AdapterInterface::class);
+        $this->loggerMock = Mockery::mock(LoggerInterface::class);
+    }
 
     public function testSave(): void
     {

@@ -6,7 +6,6 @@ namespace App\Tests\Unit\Services\Elasticsearch\Repository;
 use App\Services\Elasticsearch\Adapter\ElasticsearchAdapter;
 use App\Services\Elasticsearch\Query\Query;
 use App\Services\Elasticsearch\Query\QueryInterface;
-use App\Tests\Unit\Services\Elasticsearch\ElasticsearchManagerTestTrait;
 use Elastica\Query\BoolQuery;
 use Elastica\Query\Term;
 use Elasticsearch\Client;
