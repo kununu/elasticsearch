@@ -8,11 +8,6 @@ use App\Services\Elasticsearch\Exception\RepositoryConfigurationException;
 use Elasticsearch\Client;
 use Psr\Log\LoggerInterface;
 
-/**
- * Class ElasticsearchManager
- *
- * @package App\Services\Elasticsearch
- */
 class ElasticsearchRepository implements ElasticsearchRepositoryInterface
 {
     protected const EXCEPTION_PREFIX = 'Elasticsearch exception: ';
@@ -28,7 +23,7 @@ class ElasticsearchRepository implements ElasticsearchRepositoryInterface
     protected $index;
 
     /**
-     * AbstractElasticsearchManager constructor.
+     * ElasticsearchRepository constructor.
      *
      * @param \Elasticsearch\Client    $elasticsearchClient
      * @param \Psr\Log\LoggerInterface $logger

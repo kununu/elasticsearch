@@ -7,11 +7,6 @@ use App\Entity\Dimension;
 use App\Entity\Submission;
 use App\Services\FactorService;
 
-/**
- * Class SubmissionManager
- *
- * @package App\Services\Elasticsearch
- */
 class ElasticSubmissionRepository extends ElasticsearchRepository implements ElasticSubmissionRepositoryInterface
 {
     /**

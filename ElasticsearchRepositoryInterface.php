@@ -2,11 +2,6 @@
 
 namespace App\Services\Elasticsearch;
 
-/**
- * Interface ElasticsearchManagerInterface
- *
- * @package App\Services\Elasticsearch
- */
 interface ElasticsearchRepositoryInterface
 {
     /**
