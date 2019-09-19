@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Tests\Unit\Services\Elasticsearch\Manager;
+namespace App\Tests\Unit\Services\Elasticsearch\Repository;
 
 use App\Services\Elasticsearch\Adapter\ElasticsearchAdapter;
 use App\Services\Elasticsearch\Query\Query;
@@ -19,8 +19,6 @@ use Mockery\Adapter\Phpunit\MockeryTestCase;
  */
 class ElasticsearchAdapterTest extends MockeryTestCase
 {
-    use ElasticsearchManagerTestTrait;
-
     protected const INDEX = 'some_index';
     protected const TYPE = '_doc';
     protected const ID = 'can_be_anything';
@@ -116,7 +114,28 @@ class ElasticsearchAdapterTest extends MockeryTestCase
             ->shouldReceive('indices')
             ->andReturn($indicesMock);
 
-        $this->getAdapter()->deleteIndex();
+        $this->getAdapter()->deleteIndex(self::INDEX);
+    }
+
+    public function testDeleteIndexOtherIndex(): void
+    {
+        $indexToDelete = self::INDEX . '_2';
+
+        $indicesMock = Mockery::mock(IndicesNamespace::class);
+        $indicesMock
+            ->shouldReceive('delete')
+            ->once()
+            ->with(
+                [
+                    'index' => $indexToDelete,
+                ]
+            );
+
+        $this->clientMock
+            ->shouldReceive('indices')
+            ->andReturn($indicesMock);
+
+        $this->getAdapter()->deleteIndex($indexToDelete);
     }
 
     /**

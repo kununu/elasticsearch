@@ -3,9 +3,9 @@
 namespace App\Tests\Unit\Services\Elasticsearch;
 
 use App\Entity\Submission;
+use App\Services\Elasticsearch\ElasticSubmissionRepository;
+use App\Services\Elasticsearch\ElasticSubmissionRepositoryInterface;
 use App\Services\Elasticsearch\Exception\ElasticsearchException;
-use App\Services\Elasticsearch\SubmissionManager;
-use App\Services\Elasticsearch\SubmissionManagerInterface;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 /**
@@ -13,7 +13,7 @@ use Mockery\Adapter\Phpunit\MockeryTestCase;
  */
 class SubmissionManagerTest extends MockeryTestCase
 {
-    use ElasticsearchManagerTestTrait;
+    use ElasticsearchRepositoryTestTrait;
 
     protected const ERROR_PREFIX = 'Elasticsearch exception: ';
     protected const PROFILE_UUID = 'd547f967-523c-4788-a038-d7b9a3f2d5f6';
@@ -22,7 +22,7 @@ class SubmissionManagerTest extends MockeryTestCase
 
     public function testAggregateCultureDataByField(): void
     {
-        $this->elasticaAdapterMock
+        $this->adapterMock
             ->shouldReceive('aggregate')
             ->once();
 
@@ -34,7 +34,7 @@ class SubmissionManagerTest extends MockeryTestCase
 
     public function testAggregateCultureDataByFieldFails(): void
     {
-        $this->elasticaAdapterMock
+        $this->adapterMock
             ->shouldReceive('aggregate')
             ->once()
             ->andThrow(new \Exception(self::ERROR_MESSAGE));
@@ -145,7 +145,7 @@ class SubmissionManagerTest extends MockeryTestCase
 
     public function testCountSubmissionsByProfileUuid(): void
     {
-        $this->elasticaAdapterMock
+        $this->adapterMock
             ->shouldReceive('count')
             ->once()
             ->andReturn(self::DOCUMENT_COUNT);
@@ -158,7 +158,7 @@ class SubmissionManagerTest extends MockeryTestCase
 
     public function testCountSubmissionsByProfileUuidFails(): void
     {
-        $this->elasticaAdapterMock
+        $this->adapterMock
             ->shouldReceive('count')
             ->once()
             ->andThrow(new \Exception(self::ERROR_MESSAGE));
@@ -204,10 +204,10 @@ class SubmissionManagerTest extends MockeryTestCase
     }
 
     /**
-     * @return \App\Services\Elasticsearch\SubmissionManagerInterface
+     * @return \App\Services\Elasticsearch\ElasticSubmissionRepositoryInterface
      */
-    private function getManager(): SubmissionManagerInterface
+    private function getManager(): ElasticSubmissionRepositoryInterface
     {
-        return new SubmissionManager($this->elasticaAdapterMock, $this->loggerMock);
+        return new ElasticSubmissionRepository($this->adapterMock, $this->loggerMock);
     }
 }

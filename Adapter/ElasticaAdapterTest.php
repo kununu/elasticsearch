@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Tests\Unit\Services\Elasticsearch\Manager;
+namespace App\Tests\Unit\Services\Elasticsearch\Repository;
 
 use App\Services\Elasticsearch\Adapter\ElasticaAdapter;
 use App\Services\Elasticsearch\Exception\InvalidQueryException;
@@ -142,9 +142,10 @@ class ElasticaAdapterTest extends MockeryTestCase
         $this->indexMock
             ->shouldReceive('delete')
             ->once()
+            ->with()
             ->andReturn();
 
-        $this->getAdapter()->deleteIndex();
+        $this->getAdapter()->deleteIndex(self::INDEX);
     }
 
     /**

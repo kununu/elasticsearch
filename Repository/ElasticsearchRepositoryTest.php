@@ -1,13 +1,14 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Tests\Unit\Services\Elasticsearch\Manager;
+namespace App\Tests\Unit\Services\Elasticsearch\Repository;
 
 use App\Services\Elasticsearch\Exception\ElasticsearchException;
-use App\Services\Elasticsearch\Manager\ElasticsearchManager;
-use App\Services\Elasticsearch\Manager\ElasticsearchManagerInterface;
 use App\Services\Elasticsearch\Query\Query;
+use App\Services\Elasticsearch\Repository\ElasticsearchRepository;
+use App\Services\Elasticsearch\Repository\ElasticsearchRepositoryInterface;
 use App\Tests\Unit\Services\Elasticsearch\ElasticsearchManagerTestTrait;
+use App\Tests\Unit\Services\Elasticsearch\ElasticsearchRepositoryTestTrait;
 use Elastica\Query\BoolQuery;
 use Elastica\Query\Term;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
@@ -15,9 +16,9 @@ use Mockery\Adapter\Phpunit\MockeryTestCase;
 /**
  * @group unit
  */
-class ElasticsearchManagerTest extends MockeryTestCase
+class ElasticsearchRepositoryTest extends MockeryTestCase
 {
-    use ElasticsearchManagerTestTrait;
+    use ElasticsearchRepositoryTestTrait;
 
     protected const ERROR_PREFIX = 'Elasticsearch exception: ';
     protected const ERROR_MESSAGE = 'Any error, for example: missing type';
@@ -30,7 +31,7 @@ class ElasticsearchManagerTest extends MockeryTestCase
             'whatever' => 'just some data',
         ];
 
-        $this->elasticaAdapterMock
+        $this->adapterMock
             ->shouldReceive('index')
             ->once()
             ->with(self::ID, $data);
@@ -50,7 +51,7 @@ class ElasticsearchManagerTest extends MockeryTestCase
             'foo' => 'bar',
         ];
 
-        $this->elasticaAdapterMock
+        $this->adapterMock
             ->shouldReceive('index')
             ->once()
             ->with(self::ID, $data)
@@ -69,7 +70,7 @@ class ElasticsearchManagerTest extends MockeryTestCase
 
     public function testDelete(): void
     {
-        $this->elasticaAdapterMock
+        $this->adapterMock
             ->shouldReceive('delete')
             ->once()
             ->with(self::ID)
@@ -85,7 +86,7 @@ class ElasticsearchManagerTest extends MockeryTestCase
 
     public function testDeleteFails(): void
     {
-        $this->elasticaAdapterMock
+        $this->adapterMock
             ->shouldReceive('delete')
             ->once()
             ->with(self::ID)
@@ -103,20 +104,26 @@ class ElasticsearchManagerTest extends MockeryTestCase
 
     public function testDeleteIndex(): void
     {
-        $this->elasticaAdapterMock->shouldReceive('deleteIndex')
+        $indexName = 'my_index';
+
+        $this->adapterMock->shouldReceive('deleteIndex')
             ->once()
+            ->with($indexName)
             ->andReturn();
 
         $this->loggerMock
             ->shouldNotReceive('error');
 
-        $this->getManager()->deleteIndex();
+        $this->getManager()->deleteIndex($indexName);
     }
 
     public function testDeleteIndexFails(): void
     {
-        $this->elasticaAdapterMock->shouldReceive('deleteIndex')
+        $indexName = 'my_index';
+
+        $this->adapterMock->shouldReceive('deleteIndex')
             ->once()
+            ->with($indexName)
             ->andThrow(new \Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
@@ -124,14 +131,14 @@ class ElasticsearchManagerTest extends MockeryTestCase
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
         $this->expectException(ElasticsearchException::class);
-        $this->getManager()->deleteIndex();
+        $this->getManager()->deleteIndex($indexName);
     }
 
     public function testFindByQuery(): void
     {
         $query = Query::create();
 
-        $this->elasticaAdapterMock
+        $this->adapterMock
             ->shouldReceive('search')
             ->once()
             ->with($query);
@@ -144,7 +151,7 @@ class ElasticsearchManagerTest extends MockeryTestCase
 
     public function testFindByQueryFails(): void
     {
-        $this->elasticaAdapterMock
+        $this->adapterMock
             ->shouldReceive('search')
             ->once()
             ->andThrow(new \Exception(self::ERROR_MESSAGE));
@@ -160,7 +167,7 @@ class ElasticsearchManagerTest extends MockeryTestCase
 
     public function testCount(): void
     {
-        $this->elasticaAdapterMock
+        $this->adapterMock
             ->shouldReceive('count')
             ->once()
             ->andReturn(self::DOCUMENT_COUNT);
@@ -173,7 +180,7 @@ class ElasticsearchManagerTest extends MockeryTestCase
 
     public function testCountFails(): void
     {
-        $this->elasticaAdapterMock
+        $this->adapterMock
             ->shouldReceive('count')
             ->once()
             ->andThrow(new \Exception(self::ERROR_MESSAGE));
@@ -194,7 +201,7 @@ class ElasticsearchManagerTest extends MockeryTestCase
                 ->addMust((new Term())->setTerm('foo', 'bar'))
         );
 
-        $this->elasticaAdapterMock
+        $this->adapterMock
             ->shouldReceive('count')
             ->once()
             ->with($query)
@@ -208,7 +215,7 @@ class ElasticsearchManagerTest extends MockeryTestCase
 
     public function testCountByQueryFails(): void
     {
-        $this->elasticaAdapterMock
+        $this->adapterMock
             ->shouldReceive('count')
             ->once()
             ->andThrow(new \Exception(self::ERROR_MESSAGE));
@@ -253,7 +260,7 @@ class ElasticsearchManagerTest extends MockeryTestCase
             'failures' => [],
         ];
 
-        $this->elasticaAdapterMock
+        $this->adapterMock
             ->shouldReceive('update')
             ->once()
             ->with($query, $updateScript)
@@ -267,7 +274,7 @@ class ElasticsearchManagerTest extends MockeryTestCase
 
     public function testUpdateByQueryFails(): void
     {
-        $this->elasticaAdapterMock
+        $this->adapterMock
             ->shouldReceive('update')
             ->once()
             ->andThrow(new \Exception(self::ERROR_MESSAGE));
@@ -285,7 +292,7 @@ class ElasticsearchManagerTest extends MockeryTestCase
     {
         $query = Query::create();
 
-        $this->elasticaAdapterMock
+        $this->adapterMock
             ->shouldReceive('search')
             ->once()
             ->with($query, true);
@@ -300,7 +307,7 @@ class ElasticsearchManagerTest extends MockeryTestCase
     {
         $query = Query::create();
 
-        $this->elasticaAdapterMock
+        $this->adapterMock
             ->shouldReceive('search')
             ->once()
             ->with($query, true)
@@ -319,7 +326,7 @@ class ElasticsearchManagerTest extends MockeryTestCase
     {
         $scrollId = 'foobar';
 
-        $this->elasticaAdapterMock
+        $this->adapterMock
             ->shouldReceive('scroll')
             ->once()
             ->with($scrollId);
@@ -334,7 +341,7 @@ class ElasticsearchManagerTest extends MockeryTestCase
     {
         $scrollId = 'foobar';
 
-        $this->elasticaAdapterMock
+        $this->adapterMock
             ->shouldReceive('scroll')
             ->once()
             ->with($scrollId)
@@ -350,12 +357,12 @@ class ElasticsearchManagerTest extends MockeryTestCase
     }
 
     /**
-     * @return \App\Services\Elasticsearch\Manager\ElasticsearchManagerInterface
+     * @return \App\Services\Elasticsearch\Repository\ElasticsearchRepositoryInterface
      */
-    private function getManager(): ElasticsearchManagerInterface
+    private function getManager(): ElasticsearchRepositoryInterface
     {
-        return new ElasticsearchManager(
-            $this->elasticaAdapterMock,
+        return new ElasticsearchRepository(
+            $this->adapterMock,
             $this->loggerMock
         );
     }
