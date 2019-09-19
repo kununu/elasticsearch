@@ -154,7 +154,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
         $this->loggerMock
             ->shouldNotReceive('error');
 
-        $this->getRepository()->deleteIndex();
+        $this->getRepository()->deleteIndex(self::INDEX);
     }
 
     public function testDeleteIndexFails(): void
@@ -172,7 +172,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
         $this->expectException(ElasticsearchException::class);
-        $this->getRepository()->deleteIndex();
+        $this->getRepository()->deleteIndex(self::INDEX);
     }
 
     public function testFindAll(): void
