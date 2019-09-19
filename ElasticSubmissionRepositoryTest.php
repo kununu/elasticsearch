@@ -103,17 +103,17 @@ class ElasticSubmissionRepositoryTest extends MockeryTestCase
         };
 
         return [
-            'filter on numeric field' => [
+            'filter on profile_id with integer' => [
                 'field' => 'profile_id',
                 'value' => 12345,
                 'expected_query' => $buildExpectedQuery(true, 'profile_id', 12345),
             ],
-            'filter on numeric field with numeric string' => [
+            'filter on profile_id numeric string' => [
                 'field' => 'profile_id',
                 'value' => '12345',
                 'expected_query' => $buildExpectedQuery(true, 'profile_id', '12345'),
             ],
-            'filter on alphanumeric field' => [
+            'filter on profile_uuid' => [
                 'field' => 'profile_uuid',
                 'value' => self::PROFILE_UUID,
                 'expected_query' => $buildExpectedQuery(true, 'profile_uuid.keyword', self::PROFILE_UUID),
@@ -123,7 +123,7 @@ class ElasticSubmissionRepositoryTest extends MockeryTestCase
                 'value' => null,
                 'expected_query' => $buildExpectedQuery(false),
             ],
-            'filter on the uuid/_id field' => [
+            'filter on the uuid/_id' => [
                 'field' => 'uuid',
                 'value' => self::PROFILE_UUID,
                 'expected_query' => $buildExpectedQuery(true, '_id', self::PROFILE_UUID),
