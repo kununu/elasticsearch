@@ -25,7 +25,7 @@ interface ElasticsearchRepositoryInterface
      *
      * @return array
      */
-    public function findAll(int $size): array;
+    public function findAll(int $size = 100): array;
 
     /**
      * @param string $scrollId

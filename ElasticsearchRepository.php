@@ -170,7 +170,7 @@ class ElasticsearchRepository implements ElasticsearchRepositoryInterface
         return [
             'hits' => $result['hits']['hits'] ?? [],
             'scroll_id' => $result['_scroll_id'] ?? null,
-            'total' => $result['total'] ?? 0,
+            'total' => $result['hits']['total'] ?? 0,
         ];
     }
 
