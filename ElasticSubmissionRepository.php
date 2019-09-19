@@ -43,7 +43,7 @@ class ElasticSubmissionRepository extends ElasticsearchRepository implements Ela
                 'bool' => [
                     'must' => [
                         [
-                            'match' => [
+                            'term' => [
                                 $field => $value,
                             ],
                         ],
