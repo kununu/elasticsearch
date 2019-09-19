@@ -5,8 +5,8 @@ namespace App\Services\Elasticsearch;
 
 use App\Entity\Dimension;
 use App\Entity\Submission;
-use App\Services\Elasticsearch\Manager\ElasticsearchManager;
 use App\Services\Elasticsearch\Query\Query;
+use App\Services\Elasticsearch\Repository\ElasticsearchRepository;
 use App\Services\FactorService;
 use Elastica\Aggregation\Sum;
 use Elastica\Query\AbstractQuery;
@@ -15,12 +15,7 @@ use Elastica\Query\Match;
 use Elastica\Query\Range;
 use Elastica\Query\Term;
 
-/**
- * Class SubmissionManager
- *
- * @package App\Services\Elasticsearch
- */
-class SubmissionManager extends ElasticsearchManager implements SubmissionManagerInterface
+class ElasticSubmissionRepository extends ElasticsearchRepository implements ElasticSubmissionRepositoryInterface
 {
     /**
      * @inheritdoc

@@ -158,8 +158,11 @@ class ElasticsearchAdapter extends AbstractAdapter implements AdapterInterface
         return $this->client->updateByQuery($rawQuery);
     }
 
-    public function deleteIndex(): void
+    /**
+     * @param string $indexName
+     */
+    public function deleteIndex(string $indexName): void
     {
-        $this->client->indices()->delete(['index' => $this->indexName]);
+        $this->client->indices()->delete(['index' => $indexName]);
     }
 }

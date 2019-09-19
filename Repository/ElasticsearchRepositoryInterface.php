@@ -1,16 +1,11 @@
 <?php
 
-namespace App\Services\Elasticsearch\Manager;
+namespace App\Services\Elasticsearch\Repository;
 
 use App\Services\Elasticsearch\Query\QueryInterface;
 use App\Services\Elasticsearch\Result\ResultIteratorInterface;
 
-/**
- * Interface ElasticsearchManagerInterface
- *
- * @package App\Services\Elasticsearch
- */
-interface ElasticsearchManagerInterface
+interface ElasticsearchRepositoryInterface
 {
     /**
      * @param string $id
@@ -23,7 +18,10 @@ interface ElasticsearchManagerInterface
      */
     public function delete(string $id): void;
 
-    public function deleteIndex(): void;
+    /**
+     * @param string $indexName
+     */
+    public function deleteIndex(string $indexName): void;
 
     /**
      * @param \App\Services\Elasticsearch\Query\QueryInterface $query

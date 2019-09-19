@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Manager;
+namespace App\Services\Elasticsearch\Repository;
 
 use App\Services\Elasticsearch\Adapter\AdapterInterface;
 use App\Services\Elasticsearch\Exception\ElasticsearchException;
@@ -10,12 +10,7 @@ use App\Services\Elasticsearch\Query\QueryInterface;
 use App\Services\Elasticsearch\Result\ResultIteratorInterface;
 use Psr\Log\LoggerInterface;
 
-/**
- * Class ElasticsearchManager
- *
- * @package App\Services\Elasticsearch
- */
-class ElasticsearchManager implements ElasticsearchManagerInterface
+class ElasticsearchRepository implements ElasticsearchRepositoryInterface
 {
     protected const EXCEPTION_PREFIX = 'Elasticsearch exception: ';
 
@@ -76,10 +71,10 @@ class ElasticsearchManager implements ElasticsearchManagerInterface
     /**
      * @inheritdoc
      */
-    public function deleteIndex(): void
+    public function deleteIndex(string $indexName): void
     {
         try {
-            $this->client->deleteIndex();
+            $this->client->deleteIndex($indexName);
         } catch (\Exception $e) {
             $this->logErrorAndThrowException($e);
         }

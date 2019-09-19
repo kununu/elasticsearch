@@ -57,5 +57,8 @@ interface AdapterInterface
      */
     public function update(QueryInterface $query, array $updateScript): array;
 
-    public function deleteIndex(): void;
+    /**
+     * @param string $indexName
+     */
+    public function deleteIndex(string $indexName): void;
 }

@@ -191,8 +191,11 @@ class ElasticaAdapter extends AbstractAdapter implements AdapterInterface
         )->getData();
     }
 
-    public function deleteIndex(): void
+    /**
+     * @param string $indexName
+     */
+    public function deleteIndex(string $indexName): void
     {
-        $this->getIndex()->delete();
+        $this->client->getIndex($indexName)->delete();
     }
 }

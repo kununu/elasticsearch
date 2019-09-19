@@ -3,15 +3,10 @@ declare(strict_types=1);
 
 namespace App\Services\Elasticsearch;
 
-use App\Services\Elasticsearch\Manager\ElasticsearchManagerInterface;
 use App\Services\Elasticsearch\Query\Query;
+use App\Services\Elasticsearch\Repository\ElasticsearchRepositoryInterface;
 
-/**
- * Interface SubmissionManagerInterface
- *
- * @package App\Services\Elasticsearch
- */
-interface SubmissionManagerInterface extends ElasticsearchManagerInterface
+interface ElasticSubmissionRepositoryInterface extends ElasticsearchRepositoryInterface
 {
     /**
      * @param string|null $filterField
