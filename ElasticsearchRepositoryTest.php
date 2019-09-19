@@ -190,10 +190,14 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
             ->andReturn(
                 [
                     'hits' => [
-                        'actual needed data',
+                        'total' => 1,
+                        'hits' => [
+                            [
+                                'foo' => 'bar',
+                            ],
+                        ],
                     ],
                     '_scroll_id' => self::SCROLL_ID,
-                    'total' => 1,
                 ]
             );
 
@@ -231,10 +235,14 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
             ->andReturn(
                 [
                     'hits' => [
-                        'actual needed data',
+                        'total' => 1,
+                        'hits' => [
+                            [
+                                'foo' => 'bar',
+                            ],
+                        ],
                     ],
                     '_scroll_id' => self::SCROLL_ID,
-                    'total' => 1,
                 ]
             );
 
