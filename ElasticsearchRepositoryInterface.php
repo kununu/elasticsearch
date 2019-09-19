@@ -15,7 +15,10 @@ interface ElasticsearchRepositoryInterface
      */
     public function delete(string $id): void;
 
-    public function deleteIndex(): void;
+    /**
+     * @param string $indexName
+     */
+    public function deleteIndex(string $indexName): void;
 
     /**
      * @param int $size

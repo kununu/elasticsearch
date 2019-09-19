@@ -108,12 +108,12 @@ class ElasticsearchRepository implements ElasticsearchRepositoryInterface
     /**
      * @inheritdoc
      */
-    public function deleteIndex(): void
+    public function deleteIndex(string $indexName): void
     {
         try {
             $this->elasticsearchClient->indices()->delete(
                 [
-                    'index' => $this->getIndex(),
+                    'index' => $indexName,
                 ]
             );
         } catch (\Exception $e) {
