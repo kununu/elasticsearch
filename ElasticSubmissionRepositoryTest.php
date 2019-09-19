@@ -79,7 +79,7 @@ class ElasticSubmissionRepositoryTest extends MockeryTestCase
                     'bool' => [
                         'must' => [
                             [
-                                'match' => [
+                                'term' => [
                                     $expectedMatchField => $matchValue,
                                 ],
                             ],
