@@ -7,17 +7,12 @@ use App\Services\Elasticsearch\Adapter\ElasticaAdapter;
 use Mockery;
 use Psr\Log\LoggerInterface;
 
-/**
- * Trait ElasticsearchManagerTestTrait
- *
- * @package App\Tests\Unit\Services\Elasticsearch
- */
-trait ElasticsearchManagerTestTrait
+trait ElasticsearchRepositoryTestTrait
 {
     /** @var \App\Services\Elasticsearch\Adapter\ElasticaAdapter|\Mockery\MockInterface */
     protected $elasticaAdapterMock;
 
-    /** @var LoggerInterface|\Mockery\MockInterface */
+    /** @var \Psr\Log\LoggerInterface|\Mockery\MockInterface */
     protected $loggerMock;
 
     protected function setUp(): void
