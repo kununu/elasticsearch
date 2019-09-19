@@ -10,13 +10,13 @@ use Psr\Log\LoggerInterface;
 
 trait ElasticsearchRepositoryTestTrait
 {
-    /** @var \Elasticsearch\Client|MockInterface */
+    /** @var \Elasticsearch\Client|\Mockery\MockInterface */
     protected $elasticsearchClientMock;
 
-    /** @var LoggerInterface|MockInterface */
+    /** @var \Psr\Log\LoggerInterface|\Mockery\MockInterface */
     protected $loggerMock;
 
-    /** @var IndicesNamespace|MockInterface */
+    /** @var \Elasticsearch\Namespaces\IndicesNamespace|\Mockery\MockInterface */
     protected $indices;
 
     protected function setUp(): void
