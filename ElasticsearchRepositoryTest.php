@@ -45,7 +45,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
     {
         $this->expectException(RepositoryConfigurationException::class);
 
-        $manager = new ElasticsearchRepository(
+        $repo = new ElasticsearchRepository(
             $this->elasticsearchClientMock,
             $this->loggerMock,
             ''

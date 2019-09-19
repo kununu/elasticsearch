@@ -11,7 +11,7 @@ use Mockery\Adapter\Phpunit\MockeryTestCase;
 /**
  * @group unit
  */
-class SubmissionManagerTest extends MockeryTestCase
+class ElasticSubmissionRepositoryTest extends MockeryTestCase
 {
     use ElasticsearchRepositoryTestTrait;
 
