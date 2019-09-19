@@ -13,10 +13,10 @@ class ElasticsearchRepository implements ElasticsearchRepositoryInterface
     protected const EXCEPTION_PREFIX = 'Elasticsearch exception: ';
     public const SCROLL_CONTEXT_KEEPALIVE = '1m'; // 1 minute (see https://www.elastic.co/guide/en/elasticsearch/reference/6.5/search-request-scroll.html#scroll-search-context)
 
-    /** @var Client */
+    /** @var \Elasticsearch\Client */
     protected $elasticsearchClient;
 
-    /** @var LoggerInterface */
+    /** @var \Psr\Log\LoggerInterface */
     protected $logger;
 
     /** @var string */
