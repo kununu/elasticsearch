@@ -28,28 +28,15 @@ class ElasticSubmissionRepository extends ElasticsearchRepository implements Ela
 
     /**
      * @param string|null $field
-     *
-     * @return string|null
-     */
-    protected function getTermFilterFieldName(?string $field): ?string
-    {
-        $map = [
-            'uuid' => '_id', // special handling for the uuid (which is stored in the _id field in ES)
-            'profile_uuid' => 'profile_uuid.keyword', // make sure to query on the non-analyzed sub-field
-        ];
-
-        return $map[$field] ?? $field;
-    }
-
-    /**
-     * @param string|null $field
      * @param string|null $value
      *
      * @return array
      */
     protected function getSumAggregationQuery(?string $field, ?string $value): array
     {
-        $field = $this->getTermFilterFieldName($field);
+        if (!is_numeric($value)) {
+            $field = $field . '.keyword';
+        }
 
         $query = [
             'query' => [
