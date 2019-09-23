@@ -25,7 +25,11 @@ class ElasticSubmissionRepositoryTest extends MockeryTestCase
      */
     public function aggregationData(): array
     {
-        $buildExpectedQuery = function (bool $hasQuery, ?string $expectedMatchField = null, $matchValue = null): array {
+        $buildExpectedQuery = function (
+            bool $hasQuery,
+            ?string $expectedFilterField = null,
+            $filterValue = null
+        ): array {
             $expectedQuery = [
                 'index' => self::INDEX,
                 'body' => [
@@ -80,7 +84,7 @@ class ElasticSubmissionRepositoryTest extends MockeryTestCase
                         'must' => [
                             [
                                 'term' => [
-                                    $expectedMatchField => $matchValue,
+                                    $expectedFilterField => $filterValue,
                                 ],
                             ],
                             [
@@ -99,12 +103,17 @@ class ElasticSubmissionRepositoryTest extends MockeryTestCase
         };
 
         return [
-            'filter on numeric field' => [
+            'filter on profile_id with integer' => [
                 'field' => 'profile_id',
                 'value' => 12345,
                 'expected_query' => $buildExpectedQuery(true, 'profile_id', 12345),
             ],
-            'filter on alphanumeric field' => [
+            'filter on profile_id numeric string' => [
+                'field' => 'profile_id',
+                'value' => '12345',
+                'expected_query' => $buildExpectedQuery(true, 'profile_id', '12345'),
+            ],
+            'filter on profile_uuid' => [
                 'field' => 'profile_uuid',
                 'value' => self::PROFILE_UUID,
                 'expected_query' => $buildExpectedQuery(true, 'profile_uuid.keyword', self::PROFILE_UUID),
@@ -113,6 +122,11 @@ class ElasticSubmissionRepositoryTest extends MockeryTestCase
                 'field' => 'profile_id',
                 'value' => null,
                 'expected_query' => $buildExpectedQuery(false),
+            ],
+            'filter on the uuid/_id' => [
+                'field' => 'uuid',
+                'value' => self::PROFILE_UUID,
+                'expected_query' => $buildExpectedQuery(true, '_id', self::PROFILE_UUID),
             ],
         ];
     }
