@@ -4,6 +4,11 @@ declare(strict_types=1);
 namespace App\Services\Elasticsearch\Query\Criteria;
 
 use App\Services\Elasticsearch\Exception\QueryException;
+use App\Services\Elasticsearch\Query\Criteria\Search\Match;
+use App\Services\Elasticsearch\Query\Criteria\Search\MatchPhrase;
+use App\Services\Elasticsearch\Query\Criteria\Search\MatchPhrasePrefix;
+use App\Services\Elasticsearch\Query\Criteria\Search\QueryString;
+use App\Services\Elasticsearch\Util\ConstantContainerTrait;
 use InvalidArgumentException;
 
 /**
@@ -13,6 +18,13 @@ use InvalidArgumentException;
  */
 class Search implements SearchInterface
 {
+    use ConstantContainerTrait;
+
+    public const MATCH = '__match';
+    public const MATCH_PHRASE = '__match_phrase';
+    public const MATCH_PHRASE_PREFIX = '__match_phrase_prefix';
+    public const QUERY_STRING = '__query_string';
+
     /** @var array */
     protected $fields = [];
 
@@ -36,7 +48,7 @@ class Search implements SearchInterface
     public function __construct(
         array $fields,
         string $queryString,
-        string $type = FullTextSearch::QUERY_STRING,
+        string $type = self::QUERY_STRING,
         array $options = []
     ) {
         if (empty($fields)) {
@@ -46,7 +58,7 @@ class Search implements SearchInterface
         $this->fields = $fields;
         $this->queryString = $queryString;
 
-        if (!FullTextSearch::hasConstant($type)) {
+        if (!static::hasConstant($type)) {
             throw new InvalidArgumentException('unknown full text search type "' . $type . '" given');
         }
 
@@ -66,7 +78,7 @@ class Search implements SearchInterface
     public static function create(
         array $fields,
         string $queryString,
-        string $type = FullTextSearch::QUERY_STRING,
+        string $type = self::QUERY_STRING,
         array $options = []
     ): Search {
         return new static($fields, $queryString, $type, $options);
@@ -88,113 +100,22 @@ class Search implements SearchInterface
     protected function mapType(): array
     {
         switch ($this->type) {
-            case FullTextSearch::QUERY_STRING:
-                $query = [
-                    'query_string' => array_merge(
-                        $this->options,
-                        [
-                            'fields' => $this->prepareFields($this->fields),
-                            'query' => $this->queryString,
-                        ]
-                    ),
-                ];
+            case static::QUERY_STRING:
+                $query = QueryString::asArray($this->fields, $this->queryString, $this->options);
                 break;
-            case FullTextSearch::MATCH:
-                if (count($this->fields) > 1) {
-                    $query = [
-                        'multi_match' => array_merge(
-                            $this->options,
-                            [
-                                'fields' => $this->prepareFields($this->fields),
-                                'query' => $this->queryString,
-                            ]
-                        ),
-                    ];
-                } else {
-                    $query = [
-                        'match' => [
-                            $this->fields[0] => array_merge(
-                                $this->options,
-                                [
-                                    'query' => $this->queryString,
-                                ]
-                            ),
-                        ],
-                    ];
-                }
+            case static::MATCH:
+                $query = Match::asArray($this->fields, $this->queryString, $this->options);
                 break;
-            case FullTextSearch::MATCH_PHRASE:
-                $query = [
-                    'match_phrase' => [
-                        $this->fields[0] => array_merge(
-                            $this->options,
-                            [
-                                'query' => $this->queryString,
-                            ]
-                        ),
-                    ],
-                ];
+            case static::MATCH_PHRASE:
+                $query = MatchPhrase::asArray($this->fields, $this->queryString, $this->options);
                 break;
-            case FullTextSearch::MATCH_PHRASE_PREFIX:
-                $query = [
-                    'match_phrase_prefix' => [
-                        $this->fields[0] => array_merge(
-                            $this->options,
-                            [
-                                'query' => $this->queryString,
-                            ]
-                        ),
-                    ],
-                ];
+            case static::MATCH_PHRASE_PREFIX:
+                $query = MatchPhrasePrefix::asArray($this->fields, $this->queryString, $this->options);
                 break;
             default:
                 throw new QueryException('Unhandled full text search type "' . $this->type . '"');
         }
 
         return $query;
-    }
-
-    /**
-     * @param array $fields
-     *
-     * @return array
-     */
-    protected function prepareFields(array $fields): array
-    {
-        $prepared = [];
-        foreach ($fields as $key => $value) {
-            if (is_array($value)) {
-                switch ($this->type) {
-                    case FullTextSearch::QUERY_STRING:
-                    case FullTextSearch::MATCH:
-                        $fieldNames = [];
-                        $fieldName = $key;
-
-                        if (isset($value['boost'])) {
-                            $boost = '^' . $value['boost'];
-                        } else {
-                            $boost = '';
-                        }
-
-                        if (isset($value['subfields'])) {
-                            foreach ($value['subfields'] as $subField) {
-                                $fieldNames[] = $fieldName . (strlen($subField) ? ('.' . $subField) : '') . $boost;
-                            }
-                        } else {
-                            $fieldNames[] = $fieldName . $boost;
-                        }
-
-                        $prepared = array_merge($prepared, $fieldNames);
-                        break;
-                    default:
-                        $prepared[] = $key;
-                        break;
-                }
-            } else {
-                $prepared[] = $value;
-            }
-        }
-
-        return $prepared;
     }
 }

@@ -8,11 +8,11 @@ use DateTime;
 use InvalidArgumentException;
 
 /**
- * Class Where
+ * Class Filter
  *
  * @package App\Services\Elasticsearch\Query\Criteria
  */
-class Where implements FilterInterface
+class Filter implements FilterInterface
 {
     /** @var string */
     protected $field;
