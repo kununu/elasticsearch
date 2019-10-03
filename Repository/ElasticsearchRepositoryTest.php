@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace App\Tests\Unit\Services\Elasticsearch\Repository;
 
 use App\Services\Elasticsearch\Adapter\AdapterInterface;
-use App\Services\Elasticsearch\Exception\ElasticsearchException;
-use App\Services\Elasticsearch\Query\Query;
+use App\Services\Elasticsearch\Exception\RepositoryException;
+use App\Services\Elasticsearch\Query\ElasticaQuery;
 use App\Services\Elasticsearch\Repository\ElasticsearchRepository;
 use App\Services\Elasticsearch\Repository\ElasticsearchRepositoryInterface;
 use Elastica\Query\BoolQuery;
@@ -72,7 +72,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
             ->shouldReceive('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
-        $this->expectException(ElasticsearchException::class);
+        $this->expectException(RepositoryException::class);
         $this->getManager()->save(
             self::ID,
             $data
@@ -107,7 +107,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
             ->shouldReceive('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
-        $this->expectException(ElasticsearchException::class);
+        $this->expectException(RepositoryException::class);
         $this->getManager()->delete(
             self::ID
         );
@@ -141,13 +141,13 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
             ->shouldReceive('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
-        $this->expectException(ElasticsearchException::class);
+        $this->expectException(RepositoryException::class);
         $this->getManager()->deleteIndex($indexName);
     }
 
     public function testFindByQuery(): void
     {
-        $query = Query::create();
+        $query = ElasticaQuery::create();
 
         $this->adapterMock
             ->shouldReceive('search')
@@ -171,9 +171,9 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
             ->shouldReceive('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
-        $this->expectException(ElasticsearchException::class);
+        $this->expectException(RepositoryException::class);
 
-        $this->getManager()->findByQuery(Query::create());
+        $this->getManager()->findByQuery(ElasticaQuery::create());
     }
 
     public function testCount(): void
@@ -200,14 +200,14 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
             ->shouldReceive('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
-        $this->expectException(ElasticsearchException::class);
+        $this->expectException(RepositoryException::class);
 
         $this->getManager()->count();
     }
 
     public function testCountByQuery(): void
     {
-        $query = Query::create(
+        $query = ElasticaQuery::create(
             (new BoolQuery())
                 ->addMust((new Term())->setTerm('foo', 'bar'))
         );
@@ -235,14 +235,14 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
             ->shouldReceive('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
-        $this->expectException(ElasticsearchException::class);
+        $this->expectException(RepositoryException::class);
 
-        $this->getManager()->countByQuery(Query::create());
+        $this->getManager()->countByQuery(ElasticaQuery::create());
     }
 
     public function testUpdateByQuery(): void
     {
-        $query = Query::create(
+        $query = ElasticaQuery::create(
             (new BoolQuery())
                 ->addMust((new Term())->setTerm('foo', 'bar'))
         );
@@ -294,14 +294,14 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
             ->shouldReceive('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
-        $this->expectException(ElasticsearchException::class);
+        $this->expectException(RepositoryException::class);
 
-        $this->getManager()->updateByQuery(Query::create(), []);
+        $this->getManager()->updateByQuery(ElasticaQuery::create(), []);
     }
 
     public function testFindScrollableByQuery(): void
     {
-        $query = Query::create();
+        $query = ElasticaQuery::create();
 
         $this->adapterMock
             ->shouldReceive('search')
@@ -316,7 +316,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
 
     public function testFindScrollableByQueryFails(): void
     {
-        $query = Query::create();
+        $query = ElasticaQuery::create();
 
         $this->adapterMock
             ->shouldReceive('search')
@@ -328,7 +328,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
             ->shouldReceive('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
-        $this->expectException(ElasticsearchException::class);
+        $this->expectException(RepositoryException::class);
 
         $this->getManager()->findScrollableByQuery($query);
     }
@@ -362,7 +362,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
             ->shouldReceive('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
-        $this->expectException(ElasticsearchException::class);
+        $this->expectException(RepositoryException::class);
 
         $this->getManager()->findByScrollId($scrollId);
     }

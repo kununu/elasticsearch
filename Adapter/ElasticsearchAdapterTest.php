@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace App\Tests\Unit\Services\Elasticsearch\Repository;
 
 use App\Services\Elasticsearch\Adapter\ElasticsearchAdapter;
-use App\Services\Elasticsearch\Query\Query;
+use App\Services\Elasticsearch\Query\ElasticaQuery;
 use App\Services\Elasticsearch\Query\QueryInterface;
 use Elastica\Query\BoolQuery;
 use Elastica\Query\Term;
@@ -248,7 +248,7 @@ class ElasticsearchAdapterTest extends MockeryTestCase
             ->with($rawParams)
             ->andReturn($esResult);
 
-        $result = $this->getAdapter()->search(Query::create(), $scroll);
+        $result = $this->getAdapter()->search(ElasticaQuery::create(), $scroll);
 
         $this->assertEquals($endResult, $result->asArray());
         $this->assertEquals(self::DOCUMENT_COUNT, $result->getTotal());
@@ -268,7 +268,7 @@ class ElasticsearchAdapterTest extends MockeryTestCase
      */
     public function testSearchByQuery(array $esResult, array $endResult, bool $scroll): void
     {
-        $query = Query::create(
+        $query = ElasticaQuery::create(
             (new BoolQuery())
                 ->addMust((new Term())->setTerm('foo', 'bar'))
         );
@@ -322,12 +322,12 @@ class ElasticsearchAdapterTest extends MockeryTestCase
             ->once()
             ->andReturn(['count' => self::DOCUMENT_COUNT]);
 
-        $this->assertEquals(self::DOCUMENT_COUNT, $this->getAdapter()->count(Query::create()));
+        $this->assertEquals(self::DOCUMENT_COUNT, $this->getAdapter()->count(ElasticaQuery::create()));
     }
 
     public function testCountByQuery(): void
     {
-        $query = Query::create(
+        $query = ElasticaQuery::create(
             (new BoolQuery())
                 ->addMust((new Term())->setTerm('foo', 'bar'))
         );
@@ -380,12 +380,12 @@ class ElasticsearchAdapterTest extends MockeryTestCase
             )
             ->andReturn(['aggregations' => ['foo' => 'bar']]);
 
-        $this->assertEquals(['foo' => 'bar'], $this->getAdapter()->aggregate(Query::create()));
+        $this->assertEquals(['foo' => 'bar'], $this->getAdapter()->aggregate(ElasticaQuery::create()));
     }
 
     public function testAggregateByQuery(): void
     {
-        $query = Query::create(
+        $query = ElasticaQuery::create(
             (new BoolQuery())
                 ->addMust((new Term())->setTerm('foo', 'bar'))
         );
@@ -425,13 +425,13 @@ class ElasticsearchAdapterTest extends MockeryTestCase
      */
     public function updateData(): array
     {
-        $emptyQuery = Query::create();
+        $emptyQuery = ElasticaQuery::create();
         $emptyRawQuery = [
             'index' => self::INDEX,
             'type' => self::TYPE,
             'body' => $emptyQuery->toArray(),
         ];
-        $termQuery = Query::create(
+        $termQuery = ElasticaQuery::create(
             (new BoolQuery())
                 ->addMust((new Term())->setTerm('foo', 'bar'))
         );

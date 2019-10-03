@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Services\Elasticsearch\Query;
 
-use App\Services\Elasticsearch\Query\Query;
+use App\Services\Elasticsearch\Query\ElasticaQuery;
 use App\Services\Elasticsearch\Query\QueryInterface;
 use App\Services\Elasticsearch\Query\SortDirection;
 use Elastica\Exception\InvalidException;
@@ -12,22 +12,22 @@ use Mockery\Adapter\Phpunit\MockeryTestCase;
 /**
  * @group unit
  */
-class QueryTest extends MockeryTestCase
+class ElasticaQueryTest extends MockeryTestCase
 {
     public function createEmptyData(): array
     {
         return [
             'implicit null' => [
-                'query' => Query::create(),
+                'query' => ElasticaQuery::create(),
             ],
             'explicit null' => [
-                'query' => Query::create(null),
+                'query' => ElasticaQuery::create(null),
             ],
             'empty int' => [
-                'query' => Query::create(0),
+                'query' => ElasticaQuery::create(0),
             ],
             'empty string' => [
-                'query' => Query::create(''),
+                'query' => ElasticaQuery::create(''),
             ],
         ];
     }
@@ -49,10 +49,10 @@ class QueryTest extends MockeryTestCase
     {
         return [
             'empty string' => [
-                'query' => Query::create(''),
+                'query' => ElasticaQuery::create(''),
             ],
             'non-empty string' => [
-                'query' => Query::create('some searchterm'),
+                'query' => ElasticaQuery::create('some searchterm'),
             ],
         ];
     }
@@ -69,26 +69,26 @@ class QueryTest extends MockeryTestCase
                     ],
                 ],
             ],
-            Query::create($searchTerm)->toArray()
+            ElasticaQuery::create($searchTerm)->toArray()
         );
     }
 
     public function testCreateSelf(): void
     {
-        $query = Query::create();
-        $this->assertEquals($query, Query::create($query));
+        $query = ElasticaQuery::create();
+        $this->assertEquals($query, ElasticaQuery::create($query));
     }
 
     public function testCreateInvalid(): void
     {
         $this->expectException(InvalidException::class);
 
-        Query::create(42);
+        ElasticaQuery::create(42);
     }
 
     public function testSkip(): void
     {
-        $query = Query::create()->skip(10);
+        $query = ElasticaQuery::create()->skip(10);
 
         $this->assertEquals(10, $query->getOffset());
         $this->assertNull($query->getLimit());
@@ -97,7 +97,7 @@ class QueryTest extends MockeryTestCase
 
     public function testLimit(): void
     {
-        $query = Query::create()->limit(10);
+        $query = ElasticaQuery::create()->limit(10);
 
         $this->assertEquals(10, $query->getLimit());
         $this->assertNull($query->getOffset());
@@ -161,7 +161,7 @@ class QueryTest extends MockeryTestCase
      */
     public function testSort(array $input, array $expectedOutput): void
     {
-        $query = Query::create();
+        $query = ElasticaQuery::create();
         foreach ($input as $command) {
             $query->sort($command['key'], $command['direction']);
         }
@@ -175,14 +175,67 @@ class QueryTest extends MockeryTestCase
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        Query::create()->sort('foo', 'bar');
+        ElasticaQuery::create()->sort('foo', 'bar');
     }
 
     public function testElasticaExceptionHandling(): void
     {
-        $query = Query::create();
+        $query = ElasticaQuery::create();
         $this->assertNull($query->getOffset());
         $this->assertNull($query->getLimit());
         $this->assertEquals([], $query->getSort());
+    }
+
+    public function selectData(): array
+    {
+        return [
+            'no field' => [
+                'input' => [],
+                'expected_output' => false,
+            ],
+            'one field' => [
+                'input' => [
+                    'foo',
+                ],
+                'expected_output' => [
+                    'foo',
+                ],
+            ],
+            'two fields' => [
+                'input' => [
+                    'foo',
+                    'bar',
+                ],
+                'expected_output' => [
+                    'foo',
+                    'bar',
+                ],
+            ],
+            'same field twice' => [
+                'input' => [
+                    'foo',
+                    'foo',
+                ],
+                'expected_output' => [
+                    'foo',
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider selectData
+     *
+     * @param $input
+     * @param $expectedOutput
+     */
+    public function testSelect($input, $expectedOutput): void
+    {
+        $query = ElasticaQuery::create();
+        $query->select($input);
+        $this->assertEquals($expectedOutput, $query->getParam('_source'));
+        $serialized = $query->toArray();
+        $this->assertArrayHasKey('_source', $serialized);
+        $this->assertEquals($expectedOutput, $serialized['_source']);
     }
 }

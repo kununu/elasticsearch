@@ -5,7 +5,7 @@ namespace App\Tests\Unit\Services\Elasticsearch\Repository;
 
 use App\Services\Elasticsearch\Adapter\ElasticaAdapter;
 use App\Services\Elasticsearch\Exception\InvalidQueryException;
-use App\Services\Elasticsearch\Query\Query;
+use App\Services\Elasticsearch\Query\ElasticaQuery;
 use App\Services\Elasticsearch\Query\QueryInterface;
 use Elastica\Client;
 use Elastica\Document;
@@ -219,7 +219,7 @@ class ElasticaAdapterTest extends MockeryTestCase
      */
     public function testSearchWithEmptyQuery(array $esResult, array $expectedEndResult): void
     {
-        $this->doTestSearch($esResult, $expectedEndResult, Query::create());
+        $this->doTestSearch($esResult, $expectedEndResult, ElasticaQuery::create());
     }
 
     /**
@@ -230,7 +230,7 @@ class ElasticaAdapterTest extends MockeryTestCase
      */
     public function testSearchByQuery(array $esResult, array $expectedEndResult): void
     {
-        $query = Query::create(
+        $query = ElasticaQuery::create(
             (new BoolQuery())
                 ->addMust((new Term())->setTerm('foo', 'bar'))
         );
@@ -246,7 +246,7 @@ class ElasticaAdapterTest extends MockeryTestCase
      */
     public function testSearchScrollableWithEmptyQuery(array $esResult, array $expectedEndResult): void
     {
-        $this->doTestSearch($esResult, $expectedEndResult, Query::create(), true);
+        $this->doTestSearch($esResult, $expectedEndResult, ElasticaQuery::create(), true);
     }
 
     /**
@@ -257,7 +257,7 @@ class ElasticaAdapterTest extends MockeryTestCase
      */
     public function testSearchScrollableByQuery(array $esResult, array $expectedEndResult): void
     {
-        $query = Query::create(
+        $query = ElasticaQuery::create(
             (new BoolQuery())
                 ->addMust((new Term())->setTerm('foo', 'bar'))
         );
@@ -342,10 +342,10 @@ class ElasticaAdapterTest extends MockeryTestCase
     {
         return [
             'empty query' => [
-                'query' => Query::create(),
+                'query' => ElasticaQuery::create(),
             ],
             'some term query' => [
-                'query' => Query::create(
+                'query' => ElasticaQuery::create(
                     (new BoolQuery())
                         ->addMust((new Term())->setTerm('foo', 'bar'))
                 ),
@@ -409,8 +409,8 @@ class ElasticaAdapterTest extends MockeryTestCase
      */
     public function updateData(): array
     {
-        $emptyQuery = Query::create();
-        $termQuery = Query::create(
+        $emptyQuery = ElasticaQuery::create();
+        $termQuery = ElasticaQuery::create(
             (new BoolQuery())
                 ->addMust((new Term())->setTerm('foo', 'bar'))
         );
