@@ -44,9 +44,7 @@ abstract class AbstractQuery implements QueryInterface
         }
 
         if (is_array($this->select)) {
-            if (!empty($this->select)) {
-                $body['_source'] = count($this->select) ? array_values(array_unique($this->select)) : false;
-            }
+            $body['_source'] = count($this->select) ? array_values(array_unique($this->select)) : false;
         }
 
         return $body;
