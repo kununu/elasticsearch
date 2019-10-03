@@ -112,6 +112,7 @@ class Query extends AbstractQuery
                     $body['query'] = ['bool' => ['must' => $preparedSearches]];
                     break;
                 case Should::OPERATOR:
+                default:
                     $body['query'] = [
                         'bool' => [
                             'should' => $preparedSearches,
