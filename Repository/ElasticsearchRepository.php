@@ -4,12 +4,18 @@ declare(strict_types=1);
 namespace App\Services\Elasticsearch\Repository;
 
 use App\Services\Elasticsearch\Adapter\AdapterInterface;
-use App\Services\Elasticsearch\Exception\ElasticsearchException;
-use App\Services\Elasticsearch\Query\Query;
+use App\Services\Elasticsearch\Exception\RepositoryException;
+use App\Services\Elasticsearch\Query\ElasticaQuery;
 use App\Services\Elasticsearch\Query\QueryInterface;
 use App\Services\Elasticsearch\Result\ResultIteratorInterface;
+use Exception;
 use Psr\Log\LoggerInterface;
 
+/**
+ * Class ElasticsearchRepository
+ *
+ * @package App\Services\Elasticsearch\Repository
+ */
 class ElasticsearchRepository implements ElasticsearchRepositoryInterface
 {
     protected const EXCEPTION_PREFIX = 'Elasticsearch exception: ';
@@ -35,13 +41,13 @@ class ElasticsearchRepository implements ElasticsearchRepositoryInterface
     /**
      * @param \Exception $e
      *
-     * @throws \App\Services\Elasticsearch\Exception\ElasticsearchException
+     * @throws \App\Services\Elasticsearch\Exception\RepositoryException
      */
-    protected function logErrorAndThrowException(\Exception $e): void
+    protected function logErrorAndThrowException(Exception $e): void
     {
         $this->logger->error(self::EXCEPTION_PREFIX . $e->getMessage());
 
-        throw new ElasticsearchException($e->getMessage());
+        throw new RepositoryException($e->getMessage(), $e);
     }
 
     /**
@@ -51,7 +57,7 @@ class ElasticsearchRepository implements ElasticsearchRepositoryInterface
     {
         try {
             $this->client->index($id, $document);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logErrorAndThrowException($e);
         }
     }
@@ -63,7 +69,7 @@ class ElasticsearchRepository implements ElasticsearchRepositoryInterface
     {
         try {
             $this->client->delete($id);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logErrorAndThrowException($e);
         }
     }
@@ -75,7 +81,7 @@ class ElasticsearchRepository implements ElasticsearchRepositoryInterface
     {
         try {
             $this->client->deleteIndex($indexName);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logErrorAndThrowException($e);
         }
     }
@@ -87,7 +93,7 @@ class ElasticsearchRepository implements ElasticsearchRepositoryInterface
     {
         try {
             return $this->client->search($query);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logErrorAndThrowException($e);
         }
     }
@@ -101,7 +107,7 @@ class ElasticsearchRepository implements ElasticsearchRepositoryInterface
     {
         try {
             return $this->client->search($query, true);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logErrorAndThrowException($e);
         }
     }
@@ -113,7 +119,7 @@ class ElasticsearchRepository implements ElasticsearchRepositoryInterface
     {
         try {
             return $this->client->scroll($scrollId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logErrorAndThrowException($e);
         }
     }
@@ -123,7 +129,7 @@ class ElasticsearchRepository implements ElasticsearchRepositoryInterface
      */
     public function count(): int
     {
-        return $this->countByQuery(Query::create());
+        return $this->countByQuery(ElasticaQuery::create());
     }
 
     /**
@@ -133,7 +139,7 @@ class ElasticsearchRepository implements ElasticsearchRepositoryInterface
     {
         try {
             return $this->client->count($query);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logErrorAndThrowException($e);
         }
     }
@@ -145,7 +151,7 @@ class ElasticsearchRepository implements ElasticsearchRepositoryInterface
     {
         try {
             return $this->client->aggregate($query);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logErrorAndThrowException($e);
         }
     }
@@ -157,7 +163,7 @@ class ElasticsearchRepository implements ElasticsearchRepositoryInterface
     {
         try {
             return $this->client->update($query, $updateScript);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logErrorAndThrowException($e);
         }
     }

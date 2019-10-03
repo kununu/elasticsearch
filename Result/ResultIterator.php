@@ -3,6 +3,11 @@ declare(strict_types=1);
 
 namespace App\Services\Elasticsearch\Result;
 
+/**
+ * Class ResultIterator
+ *
+ * @package App\Services\Elasticsearch\Result
+ */
 class ResultIterator implements \Iterator, \ArrayAccess, ResultIteratorInterface
 {
     /** @var int */

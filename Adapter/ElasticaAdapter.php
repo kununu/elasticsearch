@@ -16,6 +16,11 @@ use Elastica\Script\Script;
 use Elastica\Search;
 use Elastica\Type;
 
+/**
+ * Class ElasticaAdapter
+ *
+ * @package App\Services\Elasticsearch\Adapter
+ */
 class ElasticaAdapter extends AbstractAdapter implements AdapterInterface
 {
     /**

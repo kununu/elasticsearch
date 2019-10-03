@@ -5,6 +5,11 @@ namespace App\Services\Elasticsearch\Adapter;
 
 use App\Services\Elasticsearch\Exception\AdapterConfigurationException;
 
+/**
+ * Class AbstractAdapter
+ *
+ * @package App\Services\Elasticsearch\Adapter
+ */
 abstract class AbstractAdapter
 {
     /**

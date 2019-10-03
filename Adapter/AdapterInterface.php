@@ -6,6 +6,11 @@ namespace App\Services\Elasticsearch\Adapter;
 use App\Services\Elasticsearch\Query\QueryInterface;
 use App\Services\Elasticsearch\Result\ResultIteratorInterface;
 
+/**
+ * Interface AdapterInterface
+ *
+ * @package App\Services\Elasticsearch\Adapter
+ */
 interface AdapterInterface
 {
     /**

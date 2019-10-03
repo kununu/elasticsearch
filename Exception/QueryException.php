@@ -3,13 +3,13 @@ declare(strict_types=1);
 
 namespace App\Services\Elasticsearch\Exception;
 
-use RuntimeException;
+use Exception;
 
 /**
- * Class RepositoryConfigurationException
+ * Class QueryException
  *
  * @package App\Services\Elasticsearch\Exception
  */
-class RepositoryConfigurationException extends RuntimeException
+class QueryException extends Exception
 {
 }

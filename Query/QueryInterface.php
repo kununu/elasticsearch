@@ -3,15 +3,13 @@ declare(strict_types=1);
 
 namespace App\Services\Elasticsearch\Query;
 
+/**
+ * Interface QueryInterface
+ *
+ * @package App\Services\Elasticsearch\Query
+ */
 interface QueryInterface
 {
-    /**
-     * @param mixed $query
-     *
-     * @return \App\Services\Elasticsearch\Query\QueryInterface
-     */
-    public static function create($query);
-
     /**
      * @return array
      */
@@ -53,4 +51,11 @@ interface QueryInterface
      * @return array
      */
     public function getSort(): array;
+
+    /**
+     * @param array $selectFields
+     *
+     * @return \App\Services\Elasticsearch\Query\QueryInterface
+     */
+    public function select(array $selectFields): QueryInterface;
 }

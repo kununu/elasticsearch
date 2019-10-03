@@ -1,10 +1,16 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Services\Elasticsearch\Repository;
 
 use App\Services\Elasticsearch\Query\QueryInterface;
 use App\Services\Elasticsearch\Result\ResultIteratorInterface;
 
+/**
+ * Interface ElasticsearchRepositoryInterface
+ *
+ * @package App\Services\Elasticsearch\Repository
+ */
 interface ElasticsearchRepositoryInterface
 {
     /**

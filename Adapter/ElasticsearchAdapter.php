@@ -8,6 +8,11 @@ use App\Services\Elasticsearch\Result\ResultIterator;
 use App\Services\Elasticsearch\Result\ResultIteratorInterface;
 use Elasticsearch\Client;
 
+/**
+ * Class ElasticsearchAdapter
+ *
+ * @package App\Services\Elasticsearch\Adapter
+ */
 class ElasticsearchAdapter extends AbstractAdapter implements AdapterInterface
 {
     /**

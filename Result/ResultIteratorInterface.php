@@ -3,6 +3,11 @@ declare(strict_types=1);
 
 namespace App\Services\Elasticsearch\Result;
 
+/**
+ * Interface ResultIteratorInterface
+ *
+ * @package App\Services\Elasticsearch\Result
+ */
 interface ResultIteratorInterface
 {
     /**
