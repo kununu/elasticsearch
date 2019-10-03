@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace App\Services\Elasticsearch\Query\Criteria\Bool;
 
+use App\Services\Elasticsearch\Exception\QueryException;
 use App\Services\Elasticsearch\Query\Criteria\FilterInterface;
-use RuntimeException;
 
 /**
  * Class AbstractBoolQuery
@@ -19,12 +19,12 @@ abstract class AbstractBoolQuery implements BoolQueryInterface
 
     /**
      * @return string
-     * @throws \RuntimeException
+     * @throws \App\Services\Elasticsearch\Exception\QueryException
      */
     protected function getOperator(): string
     {
         if (!static::OPERATOR) {
-            throw new RuntimeException('no operator defined');
+            throw new QueryException('no operator defined');
         }
 
         return static::OPERATOR;

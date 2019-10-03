@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace App\Services\Elasticsearch\Query\Criteria;
 
+use App\Services\Elasticsearch\Exception\QueryException;
 use InvalidArgumentException;
-use RuntimeException;
 
 /**
  * Class Search
@@ -74,6 +74,7 @@ class Search implements SearchInterface
 
     /**
      * @return array
+     * @throws \App\Services\Elasticsearch\Exception\QueryException
      */
     public function toArray(): array
     {
@@ -82,6 +83,7 @@ class Search implements SearchInterface
 
     /**
      * @return array
+     * @throws \App\Services\Elasticsearch\Exception\QueryException
      */
     protected function mapType(): array
     {
@@ -146,7 +148,7 @@ class Search implements SearchInterface
                 ];
                 break;
             default:
-                throw new RuntimeException('Unhandled full text search type "' . $this->type . '"');
+                throw new QueryException('Unhandled full text search type "' . $this->type . '"');
         }
 
         return $query;

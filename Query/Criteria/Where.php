@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace App\Services\Elasticsearch\Query\Criteria;
 
+use App\Services\Elasticsearch\Exception\QueryException;
 use DateTime;
 use InvalidArgumentException;
-use RuntimeException;
 
 /**
  * Class Where
@@ -57,6 +57,7 @@ class Where implements FilterInterface
 
     /**
      * @return array
+     * @throws \App\Services\Elasticsearch\Exception\QueryException
      */
     public function toArray(): array
     {
@@ -65,6 +66,7 @@ class Where implements FilterInterface
 
     /**
      * @return array
+     * @throws \App\Services\Elasticsearch\Exception\QueryException
      */
     protected function mapOperator(): array
     {
@@ -134,7 +136,7 @@ class Where implements FilterInterface
                 ];
                 break;
             default:
-                throw new RuntimeException('Unhandled operator "' . $this->operator . '"');
+                throw new QueryException('Unhandled operator "' . $this->operator . '"');
         }
 
         return $filter;
