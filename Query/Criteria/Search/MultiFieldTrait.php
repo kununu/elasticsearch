@@ -20,24 +20,8 @@ trait MultiFieldTrait
         $prepared = [];
         foreach ($fields as $key => $value) {
             if (is_array($value)) {
-                $fieldNames = [];
-                $fieldName = $key;
-
-                if (isset($value['boost'])) {
-                    $boost = '^' . $value['boost'];
-                } else {
-                    $boost = '';
-                }
-
-                if (isset($value['subfields'])) {
-                    foreach ($value['subfields'] as $subField) {
-                        $fieldNames[] = $fieldName . (strlen($subField) ? ('.' . $subField) : '') . $boost;
-                    }
-                } else {
-                    $fieldNames[] = $fieldName . $boost;
-                }
-
-                $prepared = array_merge($prepared, $fieldNames);
+                $boost = isset($value['boost']) ? '^' . $value['boost'] : '';
+                $prepared[] = $key . $boost;
             } else {
                 $prepared[] = $value;
             }
