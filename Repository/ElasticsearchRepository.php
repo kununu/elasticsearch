@@ -6,7 +6,7 @@ namespace App\Services\Elasticsearch\Repository;
 use App\Services\Elasticsearch\Adapter\AdapterFactoryInterface;
 use App\Services\Elasticsearch\Exception\RepositoryException;
 use App\Services\Elasticsearch\Logging\LoggerAwareTrait;
-use App\Services\Elasticsearch\Query\ElasticaQuery;
+use App\Services\Elasticsearch\Query\Query;
 use App\Services\Elasticsearch\Query\QueryInterface;
 use App\Services\Elasticsearch\Result\ResultIteratorInterface;
 use Exception;
@@ -132,7 +132,7 @@ class ElasticsearchRepository implements ElasticsearchRepositoryInterface, Logge
      */
     public function count(): int
     {
-        return $this->countByQuery(ElasticaQuery::create());
+        return $this->countByQuery(Query::create());
     }
 
     /**
