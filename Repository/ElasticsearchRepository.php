@@ -3,39 +3,42 @@ declare(strict_types=1);
 
 namespace App\Services\Elasticsearch\Repository;
 
-use App\Services\Elasticsearch\Adapter\AdapterInterface;
+use App\Services\Elasticsearch\Adapter\AdapterFactoryInterface;
 use App\Services\Elasticsearch\Exception\RepositoryException;
+use App\Services\Elasticsearch\Logging\LoggerAwareTrait;
 use App\Services\Elasticsearch\Query\ElasticaQuery;
 use App\Services\Elasticsearch\Query\QueryInterface;
 use App\Services\Elasticsearch\Result\ResultIteratorInterface;
 use Exception;
-use Psr\Log\LoggerInterface;
+use Psr\Log\LoggerAwareInterface;
 
 /**
  * Class ElasticsearchRepository
  *
  * @package App\Services\Elasticsearch\Repository
  */
-class ElasticsearchRepository implements ElasticsearchRepositoryInterface
+class ElasticsearchRepository implements ElasticsearchRepositoryInterface, LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     protected const EXCEPTION_PREFIX = 'Elasticsearch exception: ';
 
     /** @var \App\Services\Elasticsearch\Adapter\AdapterInterface */
     protected $client;
 
-    /** @var \Psr\Log\LoggerInterface */
-    protected $logger;
+    /** @var array */
+    protected $connectionConfig;
 
     /**
      * AbstractElasticsearchManager constructor.
      *
-     * @param \App\Services\Elasticsearch\Adapter\AdapterInterface $client
-     * @param \Psr\Log\LoggerInterface                             $logger
+     * @param \App\Services\Elasticsearch\Adapter\AdapterFactoryInterface $adapterFactory
+     * @param array                                                       $connectionConfig
      */
-    public function __construct(AdapterInterface $client, LoggerInterface $logger)
+    public function __construct(AdapterFactoryInterface $adapterFactory, array $connectionConfig)
     {
-        $this->client = $client;
-        $this->logger = $logger;
+        $this->client = $adapterFactory->build($connectionConfig['adapter_class'] ?? '', $connectionConfig);
+        $this->connectionConfig = $connectionConfig;
     }
 
     /**
@@ -45,7 +48,7 @@ class ElasticsearchRepository implements ElasticsearchRepositoryInterface
      */
     protected function logErrorAndThrowException(Exception $e): void
     {
-        $this->logger->error(self::EXCEPTION_PREFIX . $e->getMessage());
+        $this->getLogger()->error(self::EXCEPTION_PREFIX . $e->getMessage());
 
         throw new RepositoryException($e->getMessage(), $e);
     }
