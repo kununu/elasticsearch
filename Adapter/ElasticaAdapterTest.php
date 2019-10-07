@@ -224,7 +224,7 @@ class ElasticaAdapterTest extends MockeryTestCase
                 'query' => Query::create(),
             ],
             'some kununu term query' => [
-                'query' => $query = Query::create(
+                'query' => Query::create(
                     Filter::create('foo', 'bar')
                 ),
             ],
