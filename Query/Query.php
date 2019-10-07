@@ -6,6 +6,7 @@ use App\Services\Elasticsearch\Query\Criteria\Bool\Must;
 use App\Services\Elasticsearch\Query\Criteria\Bool\Should;
 use App\Services\Elasticsearch\Query\Criteria\FilterInterface;
 use App\Services\Elasticsearch\Query\Criteria\SearchInterface;
+use InvalidArgumentException;
 
 class Query extends AbstractQuery
 {
@@ -21,6 +22,9 @@ class Query extends AbstractQuery
     /** @var string */
     protected $searchOperator = Should::OPERATOR;
 
+    /** @var \App\Services\Elasticsearch\Query\AggregationInterface[] */
+    protected $aggregations = [];
+
     /**
      * @param mixed ...$children
      */
@@ -35,9 +39,9 @@ class Query extends AbstractQuery
     /**
      * @param mixed ...$children
      *
-     * @return \App\Services\Elasticsearch\Query\QueryInterface
+     * @return \App\Services\Elasticsearch\Query\Query
      */
-    public static function create(...$children): QueryInterface
+    public static function create(...$children): Query
     {
         return new static(...$children);
     }
@@ -45,9 +49,9 @@ class Query extends AbstractQuery
     /**
      * @param mixed $child
      *
-     * @return \App\Services\Elasticsearch\Query\QueryInterface
+     * @return \App\Services\Elasticsearch\Query\Query
      */
-    public function add($child): QueryInterface
+    public function add($child): Query
     {
         $this->addChild($child);
 
@@ -57,9 +61,9 @@ class Query extends AbstractQuery
     /**
      * @param \App\Services\Elasticsearch\Query\Criteria\SearchInterface $search
      *
-     * @return \App\Services\Elasticsearch\Query\QueryInterface
+     * @return \App\Services\Elasticsearch\Query\Query
      */
-    public function search(SearchInterface $search): QueryInterface
+    public function search(SearchInterface $search): Query
     {
         return $this->add($search);
     }
@@ -67,11 +71,21 @@ class Query extends AbstractQuery
     /**
      * @param \App\Services\Elasticsearch\Query\Criteria\FilterInterface $filter
      *
-     * @return \App\Services\Elasticsearch\Query\QueryInterface
+     * @return \App\Services\Elasticsearch\Query\Query
      */
-    public function filter(FilterInterface $filter): QueryInterface
+    public function filter(FilterInterface $filter): Query
     {
         return $this->add($filter);
+    }
+
+    /**
+     * @param \App\Services\Elasticsearch\Query\AggregationInterface $aggregation
+     *
+     * @return \App\Services\Elasticsearch\Query\Query
+     */
+    public function aggregate(AggregationInterface $aggregation): Query
+    {
+        return $this->add($aggregation);
     }
 
     /**
@@ -87,8 +101,11 @@ class Query extends AbstractQuery
             case $child instanceof SearchInterface:
                 $this->searches[] = $child;
                 break;
+            case $child instanceof AggregationInterface:
+                $this->aggregations[] = $child;
+                break;
             default:
-                throw new \InvalidArgumentException('Argument #' . $argumentIndex . ' is of unknown type');
+                throw new InvalidArgumentException('Argument #' . $argumentIndex . ' is of unknown type');
         }
     }
 
@@ -131,6 +148,15 @@ class Query extends AbstractQuery
             $body['query']['bool']['filter'] = Must::create(...$this->filters)->toArray();
         }
 
+        if (!empty($this->aggregations)) {
+            $body['aggs'] = array_map(
+                function (AggregationInterface $aggregation): array {
+                    return $aggregation->toArray();
+                },
+                $this->aggregations
+            );
+        }
+
         return $body;
     }
 
@@ -170,7 +196,7 @@ class Query extends AbstractQuery
     public function setSearchOperator(string $logicalOperator): QueryInterface
     {
         if (!\in_array($logicalOperator, [Must::OPERATOR, Should::OPERATOR], true)) {
-            throw new \InvalidArgumentException("The value $logicalOperator is not valid.");
+            throw new InvalidArgumentException("The value $logicalOperator is not valid.");
         }
 
         $this->searchOperator = $logicalOperator;
