@@ -4,10 +4,9 @@ declare(strict_types=1);
 namespace App\Tests\Unit\Services\Elasticsearch\Repository;
 
 use App\Services\Elasticsearch\Adapter\ElasticsearchAdapter;
-use App\Services\Elasticsearch\Query\ElasticaQuery;
+use App\Services\Elasticsearch\Query\Criteria\Filter;
+use App\Services\Elasticsearch\Query\Query;
 use App\Services\Elasticsearch\Query\QueryInterface;
-use Elastica\Query\BoolQuery;
-use Elastica\Query\Term;
 use Elasticsearch\Client;
 use Elasticsearch\Namespaces\IndicesNamespace;
 use Mockery;
@@ -231,11 +230,7 @@ class ElasticsearchAdapterTest extends MockeryTestCase
         $rawParams = [
             'index' => self::INDEX,
             'type' => self::TYPE,
-            'body' => [
-                'query' => [
-                    'match_all' => new \stdClass(),
-                ],
-            ],
+            'body' => [],
         ];
 
         if ($scroll) {
@@ -248,7 +243,7 @@ class ElasticsearchAdapterTest extends MockeryTestCase
             ->with($rawParams)
             ->andReturn($esResult);
 
-        $result = $this->getAdapter()->search(ElasticaQuery::create(), $scroll);
+        $result = $this->getAdapter()->search(Query::create(), $scroll);
 
         $this->assertEquals($endResult, $result->asArray());
         $this->assertEquals(self::DOCUMENT_COUNT, $result->getTotal());
@@ -265,12 +260,13 @@ class ElasticsearchAdapterTest extends MockeryTestCase
      * @param array $esResult
      * @param array $endResult
      * @param bool  $scroll
+     *
+     * @throws \ReflectionException
      */
     public function testSearchByQuery(array $esResult, array $endResult, bool $scroll): void
     {
-        $query = ElasticaQuery::create(
-            (new BoolQuery())
-                ->addMust((new Term())->setTerm('foo', 'bar'))
+        $query = Query::create(
+            Filter::create('foo', 'bar')
         );
 
         $rawParams = [
@@ -279,12 +275,13 @@ class ElasticsearchAdapterTest extends MockeryTestCase
             'body' => [
                 'query' => [
                     'bool' => [
-                        'must' => [
-                            [
-                                'term' => [
-                                    'foo' => [
-                                        'value' => 'bar',
-                                        'boost' => 1.0,
+                        'filter' => [
+                            'bool' => [
+                                'must' => [
+                                    [
+                                        'term' => [
+                                            'foo' => 'bar',
+                                        ],
                                     ],
                                 ],
                             ],
@@ -322,14 +319,13 @@ class ElasticsearchAdapterTest extends MockeryTestCase
             ->once()
             ->andReturn(['count' => self::DOCUMENT_COUNT]);
 
-        $this->assertEquals(self::DOCUMENT_COUNT, $this->getAdapter()->count(ElasticaQuery::create()));
+        $this->assertEquals(self::DOCUMENT_COUNT, $this->getAdapter()->count(Query::create()));
     }
 
     public function testCountByQuery(): void
     {
-        $query = ElasticaQuery::create(
-            (new BoolQuery())
-                ->addMust((new Term())->setTerm('foo', 'bar'))
+        $query = Query::create(
+            Filter::create('foo', 'bar')
         );
 
         $this->clientMock
@@ -342,12 +338,13 @@ class ElasticsearchAdapterTest extends MockeryTestCase
                     'body' => [
                         'query' => [
                             'bool' => [
-                                'must' => [
-                                    [
-                                        'term' => [
-                                            'foo' => [
-                                                'value' => 'bar',
-                                                'boost' => 1.0,
+                                'filter' => [
+                                    'bool' => [
+                                        'must' => [
+                                            [
+                                                'term' => [
+                                                    'foo' => 'bar',
+                                                ],
                                             ],
                                         ],
                                     ],
@@ -371,23 +368,18 @@ class ElasticsearchAdapterTest extends MockeryTestCase
                 [
                     'index' => self::INDEX,
                     'type' => self::TYPE,
-                    'body' => [
-                        'query' => [
-                            'match_all' => new \stdClass(),
-                        ],
-                    ],
+                    'body' => [],
                 ]
             )
             ->andReturn(['aggregations' => ['foo' => 'bar']]);
 
-        $this->assertEquals(['foo' => 'bar'], $this->getAdapter()->aggregate(ElasticaQuery::create()));
+        $this->assertEquals(['foo' => 'bar'], $this->getAdapter()->aggregate(Query::create()));
     }
 
     public function testAggregateByQuery(): void
     {
-        $query = ElasticaQuery::create(
-            (new BoolQuery())
-                ->addMust((new Term())->setTerm('foo', 'bar'))
+        $query = Query::create(
+            Filter::create('foo', 'bar')
         );
 
         $this->clientMock
@@ -400,12 +392,13 @@ class ElasticsearchAdapterTest extends MockeryTestCase
                     'body' => [
                         'query' => [
                             'bool' => [
-                                'must' => [
-                                    [
-                                        'term' => [
-                                            'foo' => [
-                                                'value' => 'bar',
-                                                'boost' => 1.0,
+                                'filter' => [
+                                    'bool' => [
+                                        'must' => [
+                                            [
+                                                'term' => [
+                                                    'foo' => 'bar',
+                                                ],
                                             ],
                                         ],
                                     ],
@@ -422,18 +415,18 @@ class ElasticsearchAdapterTest extends MockeryTestCase
 
     /**
      * @return array
+     * @throws \ReflectionException
      */
     public function updateData(): array
     {
-        $emptyQuery = ElasticaQuery::create();
+        $emptyQuery = Query::create();
         $emptyRawQuery = [
             'index' => self::INDEX,
             'type' => self::TYPE,
-            'body' => $emptyQuery->toArray(),
+            'body' => [],
         ];
-        $termQuery = ElasticaQuery::create(
-            (new BoolQuery())
-                ->addMust((new Term())->setTerm('foo', 'bar'))
+        $termQuery = Query::create(
+            Filter::create('foo', 'bar')
         );
         $termRawQuery = [
             'index' => self::INDEX,
@@ -441,12 +434,13 @@ class ElasticsearchAdapterTest extends MockeryTestCase
             'body' => [
                 'query' => [
                     'bool' => [
-                        'must' => [
-                            [
-                                'term' => [
-                                    'foo' => [
-                                        'value' => 'bar',
-                                        'boost' => 1.0,
+                        'filter' => [
+                            'bool' => [
+                                'must' => [
+                                    [
+                                        'term' => [
+                                            'foo' => 'bar',
+                                        ],
                                     ],
                                 ],
                             ],
