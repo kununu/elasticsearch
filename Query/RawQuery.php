@@ -42,13 +42,13 @@ class RawQuery extends AbstractQuery
      */
     public function toArray(): array
     {
-        $body = array_merge($this->buildBaseBody(), $this->body);
+        $result = array_merge($this->buildBaseBody(), $this->body);
 
         if (!empty($this->aggregations)) {
-            $body = array_merge($body, ['aggs' => $this->aggregations]);
+            $result = array_merge($result, ['aggs' => $this->aggregations]);
         }
 
-        return $body;
+        return $result;
     }
 
     /**
