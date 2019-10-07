@@ -72,31 +72,33 @@ class Filter implements FilterInterface
     {
         $preparedValue = $this->prepareDateTimeField($this->value);
 
+        $this->validateExpectedValueType($preparedValue);
+
         switch ($this->operator) {
             case Operator::TERM:
             case null:
-                $filter = ['term' => [$this->field => $preparedValue]];
+                $filter = [Operator::TERM => [$this->field => $preparedValue]];
                 break;
             case Operator::TERMS:
-                $filter = ['terms' => [$this->field => $preparedValue]];
-                break;
             case Operator::PREFIX:
-                $filter = ['prefix' => [$this->field => $preparedValue]];
+            case Operator::REGEX:
+                $filter = [$this->operator => [$this->field => $preparedValue]];
                 break;
             case Operator::LESS_THAN:
-                $filter = ['range' => [$this->field => ['lt' => $preparedValue]]];
-                break;
             case Operator::LESS_THAN_EQUALS:
-                $filter = ['range' => [$this->field => ['lte' => $preparedValue]]];
-                break;
             case Operator::GREATER_THAN:
-                $filter = ['range' => [$this->field => ['gt' => $preparedValue]]];
-                break;
             case Operator::GREATER_THAN_EQUALS:
-                $filter = ['range' => [$this->field => ['gte' => $preparedValue]]];
+                $filter = ['range' => [$this->field => [$this->operator => $preparedValue]]];
                 break;
             case Operator::BETWEEN:
-                $filter = ['range' => [$this->field => ['gte' => $preparedValue[0], 'lte' => $preparedValue[1]]]];
+                $filter = [
+                    'range' => [
+                        $this->field => [
+                            Operator::GREATER_THAN_EQUALS => $preparedValue[0],
+                            Operator::LESS_THAN_EQUALS => $preparedValue[1],
+                        ],
+                    ],
+                ];
                 break;
             case Operator::EXISTS:
                 if ($this->value) {
@@ -105,30 +107,17 @@ class Filter implements FilterInterface
                     $filter = ['bool' => ['must_not' => [['exists' => ['field' => $this->field]]]]];
                 }
                 break;
-            case Operator::REGEX:
-                $filter = ['regexp' => [$this->field => $preparedValue]];
-                break;
             case Operator::GEO_DISTANCE:
-                if (!($preparedValue instanceof GeoDistanceInterface)) {
-                    throw new InvalidArgumentException(
-                        'Type of filter must be \App\Services\Elasticsearch\Query\Criteria\GeoDistanceInterface for geo_distance Queries.'
-                    );
-                }
                 $filter = [
-                    'geo_distance' => [
+                    $this->operator => [
                         'distance' => $preparedValue->getDistance(),
                         $this->field => $preparedValue->getLocation(),
                     ],
                 ];
                 break;
             case Operator::GEO_SHAPE:
-                if (!($preparedValue instanceof GeoShapeInterface)) {
-                    throw new InvalidArgumentException(
-                        'Type of filter must be \App\Services\Elasticsearch\Query\Criteria\GeoShapeInterface for geo_shape Queries.'
-                    );
-                }
                 $filter = [
-                    'geo_shape' => [
+                    $this->operator => [
                         $this->field => [
                             'shape' => $preparedValue->toArray(),
                         ],
@@ -140,6 +129,23 @@ class Filter implements FilterInterface
         }
 
         return $filter;
+    }
+
+    /**
+     * @param mixed $value
+     */
+    protected function validateExpectedValueType($value): void
+    {
+        $expectedTypes = [
+            Operator::GEO_DISTANCE => GeoDistanceInterface::class,
+            Operator::GEO_SHAPE => GeoShapeInterface::class,
+        ];
+
+        if (isset($expectedTypes[$this->operator]) && !($value instanceof $expectedTypes[$this->operator])) {
+            throw new InvalidArgumentException(
+                'Type of filter must be "' . $expectedTypes[$this->operator] . '" for "' . $this->operator . '" Queries.'
+            );
+        }
     }
 
     /**
