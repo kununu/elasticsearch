@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Services\Elasticsearch\Repository;
 
+use App\Services\Elasticsearch\Adapter\AdapterFactoryInterface;
 use App\Services\Elasticsearch\Adapter\AdapterInterface;
 use App\Services\Elasticsearch\Exception\RepositoryException;
 use App\Services\Elasticsearch\Query\ElasticaQuery;
@@ -24,6 +25,9 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
     protected const ID = 'can_be_anything';
     protected const DOCUMENT_COUNT = 42;
 
+    /** @var \App\Services\Elasticsearch\Adapter\AdapterFactoryInterface|\Mockery\MockInterface */
+    protected $adapterFactoryMock;
+
     /** @var \App\Services\Elasticsearch\Adapter\AdapterInterface|\Mockery\MockInterface */
     protected $adapterMock;
 
@@ -32,8 +36,28 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
 
     protected function setUp(): void
     {
+        $this->adapterFactoryMock = Mockery::mock(AdapterFactoryInterface::class);
         $this->adapterMock = Mockery::mock(AdapterInterface::class);
         $this->loggerMock = Mockery::mock(LoggerInterface::class);
+
+        $this->adapterFactoryMock
+            ->shouldReceive('build')
+            ->andReturn($this->adapterMock);
+    }
+
+    /**
+     * @return \App\Services\Elasticsearch\Repository\ElasticsearchRepositoryInterface
+     */
+    private function getManager(): ElasticsearchRepositoryInterface
+    {
+        $repo = new ElasticsearchRepository(
+            $this->adapterFactoryMock,
+            []
+        );
+
+        $repo->setLogger($this->loggerMock);
+
+        return $repo;
     }
 
     public function testSave(): void
@@ -365,16 +389,5 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
         $this->expectException(RepositoryException::class);
 
         $this->getManager()->findByScrollId($scrollId);
-    }
-
-    /**
-     * @return \App\Services\Elasticsearch\Repository\ElasticsearchRepositoryInterface
-     */
-    private function getManager(): ElasticsearchRepositoryInterface
-    {
-        return new ElasticsearchRepository(
-            $this->adapterMock,
-            $this->loggerMock
-        );
     }
 }
