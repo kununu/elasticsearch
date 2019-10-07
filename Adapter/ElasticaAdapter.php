@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Services\Elasticsearch\Adapter;
 
-use App\Services\Elasticsearch\Exception\InvalidQueryException;
 use App\Services\Elasticsearch\Query\QueryInterface;
 use App\Services\Elasticsearch\Result\ResultIterator;
 use App\Services\Elasticsearch\Result\ResultIteratorInterface;
@@ -61,17 +60,15 @@ class ElasticaAdapter extends AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * @param \App\Services\Elasticsearch\Query\QueryInterface|null $query
+     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
      *
-     * @return \Elastica\Query
+     * @return \Elastica\Query|array
      */
-    protected function ensureElasticaQueryObject(QueryInterface $query): \Elastica\Query
+    protected function ensureElasticaCompatibleQueryObject(QueryInterface $query)
     {
-        if ($query instanceof \Elastica\Query) {
-            return $query;
-        }
-
-        throw new InvalidQueryException('cannot use given query object with elastica');
+        return $query instanceof \Elastica\Query
+            ? $query
+            : $query->toArray();
     }
 
     /**
@@ -116,7 +113,7 @@ class ElasticaAdapter extends AbstractAdapter implements AdapterInterface
 
         return $this->parseResultSet(
             $this->getType()->search(
-                $this->ensureElasticaQueryObject($query),
+                $this->ensureElasticaCompatibleQueryObject($query),
                 $options
             )
         );
@@ -148,7 +145,7 @@ class ElasticaAdapter extends AbstractAdapter implements AdapterInterface
     public function count(QueryInterface $query): int
     {
         return $this->getType()->count(
-            $this->ensureElasticaQueryObject($query)
+            $this->ensureElasticaCompatibleQueryObject($query)
         );
     }
 
@@ -178,7 +175,7 @@ class ElasticaAdapter extends AbstractAdapter implements AdapterInterface
     public function aggregate(QueryInterface $query): array
     {
         return $this->getType()->search(
-            $this->ensureElasticaQueryObject($query)
+            $this->ensureElasticaCompatibleQueryObject($query)
         )->getAggregations();
     }
 
@@ -191,7 +188,7 @@ class ElasticaAdapter extends AbstractAdapter implements AdapterInterface
     public function update(QueryInterface $query, array $updateScript): array
     {
         return $this->getIndex()->updateByQuery(
-            $this->ensureElasticaQueryObject($query),
+            $this->ensureElasticaCompatibleQueryObject($query),
             Script::create($this->sanitizeUpdateScript($updateScript))
         )->getData();
     }
