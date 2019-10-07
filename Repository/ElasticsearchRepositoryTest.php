@@ -6,11 +6,10 @@ namespace App\Tests\Unit\Services\Elasticsearch\Repository;
 use App\Services\Elasticsearch\Adapter\AdapterFactoryInterface;
 use App\Services\Elasticsearch\Adapter\AdapterInterface;
 use App\Services\Elasticsearch\Exception\RepositoryException;
-use App\Services\Elasticsearch\Query\ElasticaQuery;
+use App\Services\Elasticsearch\Query\Criteria\Filter;
+use App\Services\Elasticsearch\Query\Query;
 use App\Services\Elasticsearch\Repository\ElasticsearchRepository;
 use App\Services\Elasticsearch\Repository\ElasticsearchRepositoryInterface;
-use Elastica\Query\BoolQuery;
-use Elastica\Query\Term;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Psr\Log\LoggerInterface;
@@ -171,7 +170,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
 
     public function testFindByQuery(): void
     {
-        $query = ElasticaQuery::create();
+        $query = Query::create();
 
         $this->adapterMock
             ->shouldReceive('search')
@@ -197,7 +196,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
 
         $this->expectException(RepositoryException::class);
 
-        $this->getManager()->findByQuery(ElasticaQuery::create());
+        $this->getManager()->findByQuery(Query::create());
     }
 
     public function testCount(): void
@@ -231,9 +230,8 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
 
     public function testCountByQuery(): void
     {
-        $query = ElasticaQuery::create(
-            (new BoolQuery())
-                ->addMust((new Term())->setTerm('foo', 'bar'))
+        $query = Query::create(
+            Filter::create('foo', 'bar')
         );
 
         $this->adapterMock
@@ -261,14 +259,13 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
 
         $this->expectException(RepositoryException::class);
 
-        $this->getManager()->countByQuery(ElasticaQuery::create());
+        $this->getManager()->countByQuery(Query::create());
     }
 
     public function testUpdateByQuery(): void
     {
-        $query = ElasticaQuery::create(
-            (new BoolQuery())
-                ->addMust((new Term())->setTerm('foo', 'bar'))
+        $query = Query::create(
+            Filter::create('foo', 'bar')
         );
 
         $updateScript = [
@@ -320,12 +317,12 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
 
         $this->expectException(RepositoryException::class);
 
-        $this->getManager()->updateByQuery(ElasticaQuery::create(), []);
+        $this->getManager()->updateByQuery(Query::create(), []);
     }
 
     public function testFindScrollableByQuery(): void
     {
-        $query = ElasticaQuery::create();
+        $query = Query::create();
 
         $this->adapterMock
             ->shouldReceive('search')
@@ -340,7 +337,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
 
     public function testFindScrollableByQueryFails(): void
     {
-        $query = ElasticaQuery::create();
+        $query = Query::create();
 
         $this->adapterMock
             ->shouldReceive('search')
