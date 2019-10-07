@@ -4,9 +4,11 @@ declare(strict_types=1);
 namespace App\Tests\Unit\Services\Elasticsearch\Repository;
 
 use App\Services\Elasticsearch\Adapter\ElasticaAdapter;
-use App\Services\Elasticsearch\Exception\InvalidQueryException;
+use App\Services\Elasticsearch\Query\Criteria\Filter;
 use App\Services\Elasticsearch\Query\ElasticaQuery;
+use App\Services\Elasticsearch\Query\Query;
 use App\Services\Elasticsearch\Query\QueryInterface;
+use App\Services\Elasticsearch\Query\RawQuery;
 use Elastica\Client;
 use Elastica\Document;
 use Elastica\Exception\NotFoundException;
@@ -212,56 +214,78 @@ class ElasticaAdapterTest extends MockeryTestCase
     }
 
     /**
-     * @dataProvider searchResultData
-     *
-     * @param array $esResult
-     * @param array $expectedEndResult
+     * @return array
+     * @throws \ReflectionException
      */
-    public function testSearchWithEmptyQuery(array $esResult, array $expectedEndResult): void
+    public function queriesData(): array
     {
-        $this->doTestSearch($esResult, $expectedEndResult, ElasticaQuery::create());
+        return [
+            'empty kununu query' => [
+                'query' => Query::create(),
+            ],
+            'some kununu term query' => [
+                'query' => $query = Query::create(
+                    Filter::create('foo', 'bar')
+                ),
+            ],
+            'empty elastica query' => [
+                'query' => ElasticaQuery::create(),
+            ],
+            'some elastica term query' => [
+                'query' => ElasticaQuery::create(
+                    (new BoolQuery())
+                        ->addMust((new Term())->setTerm('foo', 'bar'))
+                ),
+            ],
+            'empty raw query' => [
+                'query' => RawQuery::create(),
+            ],
+            'some raw term query' => [
+                'query' => RawQuery::create(['query' => ['bool' => ['must' => [['term' => ['foo' => 'bar']]]]]]),
+            ],
+        ];
     }
 
     /**
-     * @dataProvider searchResultData
-     *
-     * @param array $esResult
-     * @param array $expectedEndResult
+     * @return array
+     * @throws \ReflectionException
      */
-    public function testSearchByQuery(array $esResult, array $expectedEndResult): void
+    public function queryAndSearchResultData(): array
     {
-        $query = ElasticaQuery::create(
-            (new BoolQuery())
-                ->addMust((new Term())->setTerm('foo', 'bar'))
-        );
+        $queryVariations = $this->queriesData();
+        $resultsVariations = $this->searchResultData();
 
+        $allVariations = [];
+        foreach ($queryVariations as $queryName => $queryVariation) {
+            foreach ($resultsVariations as $resultsName => $resultsVariation) {
+                $allVariations[$queryName . ', ' . $resultsName] = array_merge($queryVariation, $resultsVariation);
+            }
+        }
+
+        return $allVariations;
+    }
+
+    /**
+     * @dataProvider queryAndSearchResultData
+     *
+     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
+     * @param array                                            $esResult
+     * @param array                                            $expectedEndResult
+     */
+    public function testSearchByQuery(QueryInterface $query, array $esResult, array $expectedEndResult): void
+    {
         $this->doTestSearch($esResult, $expectedEndResult, $query);
     }
 
     /**
-     * @dataProvider searchResultData
+     * @dataProvider queryAndSearchResultData
      *
-     * @param array $esResult
-     * @param array $expectedEndResult
+     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
+     * @param array                                            $esResult
+     * @param array                                            $expectedEndResult
      */
-    public function testSearchScrollableWithEmptyQuery(array $esResult, array $expectedEndResult): void
+    public function testSearchScrollableByQuery(QueryInterface $query, array $esResult, array $expectedEndResult): void
     {
-        $this->doTestSearch($esResult, $expectedEndResult, ElasticaQuery::create(), true);
-    }
-
-    /**
-     * @dataProvider searchResultData
-     *
-     * @param array $esResult
-     * @param array $expectedEndResult
-     */
-    public function testSearchScrollableByQuery(array $esResult, array $expectedEndResult): void
-    {
-        $query = ElasticaQuery::create(
-            (new BoolQuery())
-                ->addMust((new Term())->setTerm('foo', 'bar'))
-        );
-
         $this->doTestSearch($esResult, $expectedEndResult, $query, true);
     }
 
@@ -314,7 +338,14 @@ class ElasticaAdapterTest extends MockeryTestCase
         $this->typeMock
             ->shouldReceive('search')
             ->once()
-            ->with($query, $options)
+            ->with(
+                Mockery::on(
+                    function ($argument) use ($query) {
+                        return $argument === $query || $argument === $query->toArray();
+                    }
+                ),
+                $options
+            )
             ->andReturn($resultSetMock);
 
         $result = $this->getAdapter()->search($query, $scroll);
@@ -326,31 +357,6 @@ class ElasticaAdapterTest extends MockeryTestCase
         } else {
             $this->assertNull($result->getScrollId());
         }
-    }
-
-    public function testSearchWithInvalidQuery(): void
-    {
-        $this->expectException(InvalidQueryException::class);
-
-        $this->getAdapter()->search($this->getInvalidQueryObject());
-    }
-
-    /**
-     * @return array
-     */
-    public function queriesData(): array
-    {
-        return [
-            'empty query' => [
-                'query' => ElasticaQuery::create(),
-            ],
-            'some term query' => [
-                'query' => ElasticaQuery::create(
-                    (new BoolQuery())
-                        ->addMust((new Term())->setTerm('foo', 'bar'))
-                ),
-            ],
-        ];
     }
 
     /**
@@ -366,13 +372,6 @@ class ElasticaAdapterTest extends MockeryTestCase
             ->andReturn(self::DOCUMENT_COUNT);
 
         $this->assertEquals(self::DOCUMENT_COUNT, $this->getAdapter()->count($query));
-    }
-
-    public function testCountWithInvalidQuery(): void
-    {
-        $this->expectException(InvalidQueryException::class);
-
-        $this->getAdapter()->count($this->getInvalidQueryObject());
     }
 
     /**
@@ -391,28 +390,27 @@ class ElasticaAdapterTest extends MockeryTestCase
         $this->typeMock
             ->shouldReceive('search')
             ->once()
-            ->with($query)
+            ->with(
+                Mockery::on(
+                    function ($argument) use ($query) {
+                        return $argument === $query || $argument === $query->toArray();
+                    }
+                )
+            )
             ->andReturn($resultSetMock);
 
         $this->assertEquals(['foo' => 'bar'], $this->getAdapter()->aggregate($query));
     }
 
-    public function testAggregateWithInvalidQuery(): void
-    {
-        $this->expectException(InvalidQueryException::class);
-
-        $this->getAdapter()->aggregate($this->getInvalidQueryObject());
-    }
-
     /**
      * @return array
+     * @throws \ReflectionException
      */
     public function updateData(): array
     {
-        $emptyQuery = ElasticaQuery::create();
-        $termQuery = ElasticaQuery::create(
-            (new BoolQuery())
-                ->addMust((new Term())->setTerm('foo', 'bar'))
+        $emptyQuery = Query::create();
+        $termQuery = $query = Query::create(
+            Filter::create('foo', 'bar')
         );
         $updateScript = [
             'lang' => 'painless',
