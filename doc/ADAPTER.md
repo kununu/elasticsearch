@@ -1,11 +1,11 @@
 # Adapter
-Adapters are wrappers for third-party clients, introducing a layer of abstraction which makes `Repository` and `Query` independent from the client(s) used.
+Adapters are wrappers for third-party clients (pieces of code which handle the communication with Elastic), introducing a layer of abstraction which makes `Repository` and `Query` independent from the client(s) used.
 
-A Client is a piece of code which takes care of communicating with Elastic. This package includes Adapters for the following clients
+This package includes Adapters for the following clients
  - [elasticsearch-php](https://www.elastic.co/guide/en/elasticsearch/client/php-api/current/index.html)
  - [elastica](https://elastica.io/)
 
-All Adapters share a common `AdapterInterface` which serves as the contract between `Adapter` and `Repository`.
+All Adapters implement a common `AdapterInterface` which serves as the contract between `Adapter` and `Repository`.
 
 It is possible to use multiple clients/adapters together within the same project (even though this is not recommended).
 
@@ -29,3 +29,5 @@ App\Services\Elasticsearch\Adapter\AdapterFactory:
     - '@Elasticsearch\Client'
     - '@Elastica\Client'
 ```
+
+Check the [Repository documentation](REPOSITORY.md) to see the `AdapterFactory` in use.
