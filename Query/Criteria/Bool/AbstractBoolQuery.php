@@ -69,6 +69,7 @@ abstract class AbstractBoolQuery implements BoolQueryInterface
 
     /**
      * @return array
+     * @throws \App\Services\Elasticsearch\Exception\QueryException
      */
     public function toArray(): array
     {

@@ -20,10 +20,10 @@ class Search implements SearchInterface
 {
     use ConstantContainerTrait;
 
-    public const MATCH = '__match';
-    public const MATCH_PHRASE = '__match_phrase';
-    public const MATCH_PHRASE_PREFIX = '__match_phrase_prefix';
-    public const QUERY_STRING = '__query_string';
+    public const MATCH = 'match';
+    public const MATCH_PHRASE = 'match_phrase';
+    public const MATCH_PHRASE_PREFIX = 'match_phrase_prefix';
+    public const QUERY_STRING = 'query_string';
 
     /** @var array */
     protected $fields = [];

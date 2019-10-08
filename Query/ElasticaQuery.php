@@ -106,6 +106,7 @@ class ElasticaQuery extends \Elastica\Query implements QueryInterface
 
     /**
      * @inheritdoc
+     * @throws \ReflectionException
      */
     public function sort(string $field, string $direction): QueryInterface
     {

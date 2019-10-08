@@ -81,7 +81,7 @@ class Filter implements FilterInterface
                 break;
             case Operator::TERMS:
             case Operator::PREFIX:
-            case Operator::REGEX:
+            case Operator::REGEXP:
                 $filter = [$this->operator => [$this->field => $preparedValue]];
                 break;
             case Operator::LESS_THAN:
