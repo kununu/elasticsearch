@@ -10,7 +10,7 @@ The default `ElasticsearchRepository` shipped with this package includes standar
  - updating documents (with update scripts)
  - aggregations
 
-A common practice is to extend the `ElasticsearchRepository` and create dedicated `Repository` classes per entity. This is a good way of keeping all your Elastic-related code together in a central place. For example:
+A good practice is to extend the `ElasticsearchRepository` and create dedicated `Repository` classes per entity. This is a good way of keeping all your Elastic-related code together in a central place. For example:
 ```php
 class ElasticSubmissionRepository extends ElasticsearchRepository {
     public function findSomethingSpecific() {
@@ -34,8 +34,8 @@ App\Repository\ElasticSubmissionRepository:
   arguments:
     - '@App\Services\Elasticsearch\Adapter\AdapterFactory'
     - adapter_class: 'App\Services\Elasticsearch\Adapter\ElasticaAdapter'
-      index: 'culture_submissions' # @todo put this in env variable?!
-      type: '_doc' # @todo put this in env variable?!
+      index: 'culture_submissions'
+      type: '_doc'
   calls:
     - method: setLogger
       arguments:
@@ -43,6 +43,35 @@ App\Repository\ElasticSubmissionRepository:
 ```
 
 The above example also takes advantage of the logging capabilities of the `Repository` by injecting a logger implementing `Psr\Log\LoggerInterface`.
+
+Example with minimal configuration:
+```yaml
+App\Service\Elasticsearch\Repository\ElasticsearchRepository:
+  arguments:
+    - '@App\Services\Elasticsearch\Adapter\AdapterFactory'
+    - adapter_class: 'App\Services\Elasticsearch\Adapter\ElasticaAdapter'
+      index: 'my_index'
+      type: '_doc'
+```
+
+Multiple indexes/repositories in one project:
+```yaml
+my_first_repo:
+  class: App\Service\Elasticsearch\Repository\ElasticsearchRepository
+  arguments:
+    - '@App\Services\Elasticsearch\Adapter\AdapterFactory'
+    - adapter_class: 'App\Services\Elasticsearch\Adapter\ElasticsearchAdapter'
+      index: 'some_index'
+      type: '_doc'
+
+my_second_repo:
+  class: App\Service\Elasticsearch\Repository\ElasticsearchRepository
+  arguments:
+    - '@App\Services\Elasticsearch\Adapter\AdapterFactory'
+    - adapter_class: 'App\Services\Elasticsearch\Adapter\ElasticaAdapter'
+      index: 'some_other_index'
+      type: '_doc'
+```
 
 #### Connection configuration
 The second constructor argument for every `Repository` is an object containing all relevant configuration values for the Elastic connection.
