@@ -73,7 +73,7 @@ class Query extends AbstractQuery
      *
      * @return \App\Services\Elasticsearch\Query\Query
      */
-    public function filter(FilterInterface $filter): Query
+    public function where(FilterInterface $filter): Query
     {
         return $this->add($filter);
     }

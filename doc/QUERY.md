@@ -330,12 +330,12 @@ Will produce
 ### Building query fluently
 ```php
 Query::create()
-    ->search(Search::create(['field_a'], 'my query', Search::MATCH))
-    ->filter(Filter::create('field_x', ['value1', 'value2'], Operator::TERMS))
-    ->limit(10)
-    ->skip(100)
     ->select(['a', 'b])
-    ->sort('a', SortDirection::DESC');
+    ->search(Search::create(['field_a'], 'my query', Search::MATCH))
+    ->where(Filter::create('field_x', ['value1', 'value2'], Operator::TERMS))
+    ->sort('a', SortDirection::DESC')
+    ->limit(10)
+    ->skip(100);
 );
 ```
 
