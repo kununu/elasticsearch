@@ -94,9 +94,10 @@ class Aggregation implements AggregationInterface
     {
         $body = [
             $this->name => [
-                $this->type => [
-                    'field' => $this->field,
-                ],
+                $this->type => array_merge(
+                    ['field' => $this->field],
+                    $this->options
+                ),
             ],
         ];
 
