@@ -45,7 +45,13 @@ class AdapterFactory implements LoggerAwareInterface, AdapterFactoryInterface
         switch ($class) {
             case ElasticsearchAdapter::class:
             case ElasticaAdapter::class:
-                return new $class($this->clients[$class], $connectionConfig['index'], $connectionConfig['type']);
+                /** @var \App\Services\Elasticsearch\Adapter\AdapterInterface $adapter */
+                $adapter = new $class($this->clients[$class], $connectionConfig['index'], $connectionConfig['type']);
+                if ($adapter instanceof LoggerAwareInterface) {
+                    $adapter->setLogger($this->logger);
+                }
+
+                return $adapter;
             default:
                 throw new \InvalidArgumentException('Unknown adapter class "' . $class . '"');
         }
