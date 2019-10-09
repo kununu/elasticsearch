@@ -10,7 +10,7 @@ The default `ElasticsearchRepository` shipped with this package includes standar
  - updating documents (with update scripts)
  - aggregations
 
-A good practice is to extend the `ElasticsearchRepository` and create dedicated `Repository` classes per entity. This is a good way of keeping all your Elastic-related code together in a central place. For example:
+A good practice is to create a dedicated `Repository` class for every entity by extending the `ElasticsearchRepository` class. This is a good way of keeping all your Elastic-related code for an entity together in a central place. For example:
 ```php
 class ElasticSubmissionRepository extends ElasticsearchRepository {
     public function findSomethingSpecific() {
