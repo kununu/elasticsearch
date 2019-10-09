@@ -22,6 +22,8 @@ trait LoggerAwareTrait
      * Sets a logger.
      *
      * @param \Psr\Log\LoggerInterface $logger
+     *
+     * @required
      */
     public function setLogger(LoggerInterface $logger): void
     {
