@@ -149,12 +149,10 @@ class Query extends AbstractQuery
         }
 
         if (!empty($this->aggregations)) {
-            $body['aggs'] = array_map(
-                function (AggregationInterface $aggregation): array {
-                    return $aggregation->toArray();
-                },
-                $this->aggregations
-            );
+            $body['aggs'] = [];
+            foreach ($this->aggregations as $aggregation) {
+                $body['aggs'] = array_merge($body['aggs'], $aggregation->toArray());
+            }
         }
 
         return $body;
