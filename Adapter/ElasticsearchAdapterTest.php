@@ -5,8 +5,12 @@ namespace App\Tests\Unit\Services\Elasticsearch\Repository;
 
 use App\Services\Elasticsearch\Adapter\ElasticsearchAdapter;
 use App\Services\Elasticsearch\Query\Criteria\Filter;
+use App\Services\Elasticsearch\Query\ElasticaQuery;
 use App\Services\Elasticsearch\Query\Query;
 use App\Services\Elasticsearch\Query\QueryInterface;
+use App\Services\Elasticsearch\Query\RawQuery;
+use Elastica\Query\BoolQuery;
+use Elastica\Query\Term;
 use Elasticsearch\Client;
 use Elasticsearch\Namespaces\IndicesNamespace;
 use Mockery;
@@ -199,9 +203,75 @@ class ElasticsearchAdapterTest extends MockeryTestCase
     /**
      * @return array
      */
+    public function queriesData(): array
+    {
+        return [
+            'empty kununu query' => [
+                'query' => Query::create(),
+            ],
+            'some kununu term query' => [
+                'query' => Query::create(
+                    Filter::create('foo', 'bar')
+                ),
+            ],
+            'empty elastica query' => [
+                'query' => ElasticaQuery::create(),
+            ],
+            'some elastica term query' => [
+                'query' => ElasticaQuery::create(
+                    (new BoolQuery())
+                        ->addMust((new Term())->setTerm('foo', 'bar'))
+                ),
+            ],
+            'empty raw query' => [
+                'query' => RawQuery::create(),
+            ],
+            'some raw term query' => [
+                'query' => RawQuery::create(['query' => ['bool' => ['must' => [['term' => ['foo' => 'bar']]]]]]),
+            ],
+        ];
+    }
+
+    /**
+     * @param array $queryVariations
+     * @param array $resultsVariations
+     *
+     * @return array
+     */
+    protected function mergeQueryAndResultsVariations(array $queryVariations, array $resultsVariations): array
+    {
+        $allVariations = [];
+        foreach ($queryVariations as $queryName => $queryVariation) {
+            foreach ($resultsVariations as $resultsName => $resultsVariation) {
+                $allVariations[$queryName . ', ' . $resultsName] = array_merge($queryVariation, $resultsVariation);
+            }
+        }
+
+        return $allVariations;
+    }
+
+    /**
+     * @return array
+     */
+    public function queryAndSearchResultData(): array
+    {
+        return $this->mergeQueryAndResultsVariations($this->queriesData(), $this->searchResultData());
+    }
+
+    /**
+     * @return array
+     */
+    public function queryAndSearchResultVariationsData(): array
+    {
+        return $this->mergeQueryAndResultsVariations($this->queriesData(), $this->searchResultVariationsData());
+    }
+
+    /**
+     * @return array
+     */
     public function searchResultVariationsData(): array
     {
-        $allCaseVariations = [];
+        $allVariations = [];
         foreach ($this->searchResultData() as $caseName => $case) {
             foreach ([true, false] as $scroll) {
                 $newCase = $case;
@@ -211,84 +281,27 @@ class ElasticsearchAdapterTest extends MockeryTestCase
                 }
                 $newCase['scroll'] = $scroll;
 
-                $allCaseVariations[$fullCaseName] = $newCase;
+                $allVariations[$fullCaseName] = $newCase;
             }
         }
 
-        return $allCaseVariations;
+        return $allVariations;
     }
 
     /**
-     * @dataProvider searchResultVariationsData
+     * @dataProvider queryAndSearchResultVariationsData
      *
-     * @param array $esResult
-     * @param array $endResult
-     * @param bool  $scroll
+     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
+     * @param array                                            $esResult
+     * @param array                                            $endResult
+     * @param bool                                             $scroll
      */
-    public function testSearchWithEmptyQuery(array $esResult, array $endResult, bool $scroll): void
+    public function testSearchByQuery(QueryInterface $query, array $esResult, array $endResult, bool $scroll): void
     {
         $rawParams = [
             'index' => self::INDEX,
             'type' => self::TYPE,
-            'body' => [],
-        ];
-
-        if ($scroll) {
-            $rawParams['scroll'] = ElasticsearchAdapter::SCROLL_CONTEXT_KEEPALIVE;
-        }
-
-        $this->clientMock
-            ->shouldReceive('search')
-            ->once()
-            ->with($rawParams)
-            ->andReturn($esResult);
-
-        $result = $this->getAdapter()->search(Query::create(), $scroll);
-
-        $this->assertEquals($endResult, $result->asArray());
-        $this->assertEquals(self::DOCUMENT_COUNT, $result->getTotal());
-        if ($scroll) {
-            $this->assertEquals(self::SCROLL_ID, $result->getScrollId());
-        } else {
-            $this->assertNull($result->getScrollId());
-        }
-    }
-
-    /**
-     * @dataProvider searchResultVariationsData
-     *
-     * @param array $esResult
-     * @param array $endResult
-     * @param bool  $scroll
-     *
-     * @throws \ReflectionException
-     */
-    public function testSearchByQuery(array $esResult, array $endResult, bool $scroll): void
-    {
-        $query = Query::create(
-            Filter::create('foo', 'bar')
-        );
-
-        $rawParams = [
-            'index' => self::INDEX,
-            'type' => self::TYPE,
-            'body' => [
-                'query' => [
-                    'bool' => [
-                        'filter' => [
-                            'bool' => [
-                                'must' => [
-                                    [
-                                        'term' => [
-                                            'foo' => 'bar',
-                                        ],
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
+            'body' => $query->toArray(),
         ];
 
         if ($scroll) {
@@ -312,22 +325,13 @@ class ElasticsearchAdapterTest extends MockeryTestCase
         }
     }
 
-    public function testCountWithEmptyQuery(): void
+    /**
+     * @dataProvider queriesData
+     *
+     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
+     */
+    public function testCount(QueryInterface $query): void
     {
-        $this->clientMock
-            ->shouldReceive('count')
-            ->once()
-            ->andReturn(['count' => self::DOCUMENT_COUNT]);
-
-        $this->assertEquals(self::DOCUMENT_COUNT, $this->getAdapter()->count(Query::create()));
-    }
-
-    public function testCountByQuery(): void
-    {
-        $query = Query::create(
-            Filter::create('foo', 'bar')
-        );
-
         $this->clientMock
             ->shouldReceive('count')
             ->once()
@@ -335,23 +339,7 @@ class ElasticsearchAdapterTest extends MockeryTestCase
                 [
                     'index' => self::INDEX,
                     'type' => self::TYPE,
-                    'body' => [
-                        'query' => [
-                            'bool' => [
-                                'filter' => [
-                                    'bool' => [
-                                        'must' => [
-                                            [
-                                                'term' => [
-                                                    'foo' => 'bar',
-                                                ],
-                                            ],
-                                        ],
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
+                    'body' => $query->toArray(),
                 ]
             )
             ->andReturn(['count' => self::DOCUMENT_COUNT]);
@@ -359,7 +347,14 @@ class ElasticsearchAdapterTest extends MockeryTestCase
         $this->assertEquals(self::DOCUMENT_COUNT, $this->getAdapter()->count($query));
     }
 
-    public function testAggregateWithEmptyQuery(): void
+    /**
+     * @dataProvider queryAndSearchResultData
+     *
+     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
+     * @param array                                            $esResult
+     * @param array                                            $endResult
+     */
+    public function testAggregate(QueryInterface $query, array $esResult, array $endResult): void
     {
         $this->clientMock
             ->shouldReceive('search')
@@ -368,54 +363,26 @@ class ElasticsearchAdapterTest extends MockeryTestCase
                 [
                     'index' => self::INDEX,
                     'type' => self::TYPE,
-                    'body' => [],
+                    'body' => $query->toArray(),
                 ]
             )
-            ->andReturn(['aggregations' => ['foo' => 'bar']]);
+            ->andReturn(array_merge($esResult, ['aggregations' => ['my_aggregation' => ['value' => 0.1]]]));
 
-        $this->assertEquals(['foo' => 'bar'], $this->getAdapter()->aggregate(Query::create()));
-    }
+        $aggregationResult = $this->getAdapter()->aggregate($query);
 
-    public function testAggregateByQuery(): void
-    {
-        $query = Query::create(
-            Filter::create('foo', 'bar')
-        );
+        $this->assertEquals(count($esResult['hits']['hits']), $aggregationResult->getDocuments()->getCount());
+        $this->assertEquals(self::DOCUMENT_COUNT, $aggregationResult->getDocuments()->getTotal());
+        $this->assertCount(count($esResult['hits']['hits']), $aggregationResult->getDocuments());
+        $this->assertNull($aggregationResult->getDocuments()->getScrollId());
+        $this->assertEquals($esResult['hits']['hits'], $aggregationResult->getDocuments()->asArray());
 
-        $this->clientMock
-            ->shouldReceive('search')
-            ->once()
-            ->with(
-                [
-                    'index' => self::INDEX,
-                    'type' => self::TYPE,
-                    'body' => [
-                        'query' => [
-                            'bool' => [
-                                'filter' => [
-                                    'bool' => [
-                                        'must' => [
-                                            [
-                                                'term' => [
-                                                    'foo' => 'bar',
-                                                ],
-                                            ],
-                                        ],
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
-                ]
-            )
-            ->andReturn(['aggregations' => ['foo' => 'bar']]);
-
-        $this->assertEquals(['foo' => 'bar'], $this->getAdapter()->aggregate($query));
+        $this->assertEquals(1, count($aggregationResult->getResults()));
+        $this->assertEquals('my_aggregation', $aggregationResult->getResultByName('my_aggregation')->getName());
+        $this->assertEquals(0.1, $aggregationResult->getResultByName('my_aggregation')->getValue());
     }
 
     /**
      * @return array
-     * @throws \ReflectionException
      */
     public function updateData(): array
     {

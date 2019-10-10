@@ -215,7 +215,6 @@ class ElasticaAdapterTest extends MockeryTestCase
 
     /**
      * @return array
-     * @throws \ReflectionException
      */
     public function queriesData(): array
     {
@@ -248,7 +247,6 @@ class ElasticaAdapterTest extends MockeryTestCase
 
     /**
      * @return array
-     * @throws \ReflectionException
      */
     public function queryAndSearchResultData(): array
     {
@@ -383,9 +381,31 @@ class ElasticaAdapterTest extends MockeryTestCase
     {
         $resultSetMock = Mockery::mock(ResultSet::class);
         $resultSetMock
+            ->shouldReceive('getResults')
+            ->once()
+            ->andReturn([]);
+
+        $resultSetMock
+            ->shouldReceive('getTotalHits')
+            ->once()
+            ->andReturn(self::DOCUMENT_COUNT);
+
+        $responseMock = Mockery::mock(Response::class);
+
+        $responseMock
+            ->shouldReceive('getScrollId')
+            ->once()
+            ->andThrow(NotFoundException::class);
+
+        $resultSetMock
+            ->shouldReceive('getResponse')
+            ->once()
+            ->andReturn($responseMock);
+
+        $resultSetMock
             ->shouldReceive('getAggregations')
             ->once()
-            ->andReturn(['foo' => 'bar']);
+            ->andReturn(['my_aggregation' => ['value' => 0.1]]);
 
         $this->typeMock
             ->shouldReceive('search')
@@ -399,12 +419,21 @@ class ElasticaAdapterTest extends MockeryTestCase
             )
             ->andReturn($resultSetMock);
 
-        $this->assertEquals(['foo' => 'bar'], $this->getAdapter()->aggregate($query));
+        $aggregationResult = $this->getAdapter()->aggregate($query);
+
+        $this->assertEquals(0, $aggregationResult->getDocuments()->getCount());
+        $this->assertEquals(self::DOCUMENT_COUNT, $aggregationResult->getDocuments()->getTotal());
+        $this->assertCount(0, $aggregationResult->getDocuments());
+        $this->assertNull($aggregationResult->getDocuments()->getScrollId());
+        $this->assertEquals([], $aggregationResult->getDocuments()->asArray());
+
+        $this->assertEquals(1, count($aggregationResult->getResults()));
+        $this->assertEquals('my_aggregation', $aggregationResult->getResultByName('my_aggregation')->getName());
+        $this->assertEquals(0.1, $aggregationResult->getResultByName('my_aggregation')->getValue());
     }
 
     /**
      * @return array
-     * @throws \ReflectionException
      */
     public function updateData(): array
     {
