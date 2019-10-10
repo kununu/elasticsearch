@@ -27,8 +27,6 @@ class Filter implements FilterInterface
      * @param string      $field
      * @param mixed       $value
      * @param string|null $operator
-     *
-     * @throws \ReflectionException
      */
     public function __construct(string $field, $value, ?string $operator = null)
     {
@@ -48,7 +46,6 @@ class Filter implements FilterInterface
      * @param string|null $operator
      *
      * @return static
-     * @throws \ReflectionException
      */
     public static function create(string $field, $value, ?string $operator = null): self
     {

@@ -68,7 +68,6 @@ abstract class AbstractQuery implements QueryInterface
      * @param array        $options
      *
      * @return \App\Services\Elasticsearch\Query\QueryInterface
-     * @throws \ReflectionException
      */
     public function sort($sort, $direction = SortDirection::ASC, array $options = []): QueryInterface
     {

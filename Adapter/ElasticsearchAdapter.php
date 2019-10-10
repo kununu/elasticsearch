@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Services\Elasticsearch\Adapter;
 
 use App\Services\Elasticsearch\Query\QueryInterface;
+use App\Services\Elasticsearch\Result\AggregationResultSet;
 use App\Services\Elasticsearch\Result\ResultIterator;
 use App\Services\Elasticsearch\Result\ResultIteratorInterface;
 use Elasticsearch\Client;
@@ -67,7 +68,7 @@ class ElasticsearchAdapter extends AbstractAdapter implements AdapterInterface
      */
     protected function parseRawSearchResponse(array $rawResult): ResultIteratorInterface
     {
-        return ResultIterator::create($rawResult['hits']['hits'])
+        return ResultIterator::create($rawResult['hits']['hits'] ?? [])
             ->setTotal($rawResult['hits']['total'] ?? 0)
             ->setScrollId($rawResult['_scroll_id'] ?? null);
     }
@@ -138,15 +139,16 @@ class ElasticsearchAdapter extends AbstractAdapter implements AdapterInterface
     /**
      * @param \App\Services\Elasticsearch\Query\QueryInterface $query
      *
-     * @return array
+     * @return \App\Services\Elasticsearch\Result\AggregationResultSet
      */
-    public function aggregate(QueryInterface $query): array
+    public function aggregate(QueryInterface $query): AggregationResultSet
     {
         $result = $this->client->search(
             $this->buildRawQuery($query)
         );
 
-        return $result['aggregations'] ?? [];
+        return AggregationResultSet::create($result['aggregations'] ?? [])
+            ->setDocuments($this->parseRawSearchResponse($result));
     }
 
     /**

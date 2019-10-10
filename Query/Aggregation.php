@@ -34,8 +34,6 @@ class Aggregation implements AggregationInterface
      * @param string $type
      * @param string $name
      * @param array  $options
-     *
-     * @throws \ReflectionException
      */
     public function __construct(string $field, string $type, string $name = '', array $options = [])
     {
@@ -60,7 +58,6 @@ class Aggregation implements AggregationInterface
      * @param array  $options
      *
      * @return \App\Services\Elasticsearch\Query\Aggregation
-     * @throws \ReflectionException
      */
     public static function create(string $field, string $type, string $name = '', array $options = [])
     {

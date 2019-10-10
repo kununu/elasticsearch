@@ -68,6 +68,15 @@ interface ResultIteratorInterface
     public function first(callable $fn): ?array;
 
     /**
+     * Returns all results in this iterator for which the given callable returns a true-ish value.
+     *
+     * @param callable $fn (result)
+     *
+     * @return array
+     */
+    public function filter(callable $fn): array;
+
+    /**
      * Returns true, if for at least one result in this iterator the given callable returns a true-ish value.
      *
      * @param callable $fn (result, key)

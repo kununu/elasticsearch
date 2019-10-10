@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Services\Elasticsearch\Repository;
 
 use App\Services\Elasticsearch\Query\QueryInterface;
+use App\Services\Elasticsearch\Result\AggregationResultSet;
 use App\Services\Elasticsearch\Result\ResultIteratorInterface;
 
 /**
@@ -65,9 +66,9 @@ interface ElasticsearchRepositoryInterface
     /**
      * @param \App\Services\Elasticsearch\Query\QueryInterface $query
      *
-     * @return array
+     * @return \App\Services\Elasticsearch\Result\AggregationResultSet
      */
-    public function aggregateByQuery(QueryInterface $query): array;
+    public function aggregateByQuery(QueryInterface $query): AggregationResultSet;
 
     /**
      * @param \App\Services\Elasticsearch\Query\QueryInterface $query

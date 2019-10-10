@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Services\Elasticsearch\Adapter;
 
 use App\Services\Elasticsearch\Query\QueryInterface;
+use App\Services\Elasticsearch\Result\AggregationResultSet;
 use App\Services\Elasticsearch\Result\ResultIterator;
 use App\Services\Elasticsearch\Result\ResultIteratorInterface;
 use Elastica\Client;
@@ -170,13 +171,16 @@ class ElasticaAdapter extends AbstractAdapter implements AdapterInterface
     /**
      * @param \App\Services\Elasticsearch\Query\QueryInterface $query
      *
-     * @return array
+     * @return \App\Services\Elasticsearch\Result\AggregationResultSet
      */
-    public function aggregate(QueryInterface $query): array
+    public function aggregate(QueryInterface $query): AggregationResultSet
     {
-        return $this->getType()->search(
+        $fullResult = $this->getType()->search(
             $this->ensureElasticaCompatibleQueryObject($query)
-        )->getAggregations();
+        );
+
+        return AggregationResultSet::create($fullResult->getAggregations())
+            ->setDocuments($this->parseResultSet($fullResult));
     }
 
     /**

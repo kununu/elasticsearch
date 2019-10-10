@@ -8,7 +8,6 @@ trait ConstantContainerTrait
      * @param bool $preserveKeys
      *
      * @return array
-     * @throws \ReflectionException
      */
     public static function all($preserveKeys = false): array
     {
@@ -21,7 +20,6 @@ trait ConstantContainerTrait
      * @param string $constant
      *
      * @return bool
-     * @throws \ReflectionException
      */
     public static function hasConstant(string $constant): bool
     {

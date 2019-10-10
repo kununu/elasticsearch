@@ -203,6 +203,18 @@ class ResultIterator implements \Iterator, \ArrayAccess, ResultIteratorInterface
     }
 
     /**
+     * Returns all results in this iterator for which the given callable returns a true-ish value.
+     *
+     * @param callable $fn (result)
+     *
+     * @return array|null
+     */
+    public function filter(callable $fn): array
+    {
+        return array_filter($this->results, $fn);
+    }
+
+    /**
      * Returns true, if for at least one result in this iterator the given callable returns a true-ish value.
      *
      * @param callable $fn (result, key)

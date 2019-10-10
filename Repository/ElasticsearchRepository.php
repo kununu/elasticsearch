@@ -8,6 +8,7 @@ use App\Services\Elasticsearch\Exception\RepositoryException;
 use App\Services\Elasticsearch\Logging\LoggerAwareTrait;
 use App\Services\Elasticsearch\Query\Query;
 use App\Services\Elasticsearch\Query\QueryInterface;
+use App\Services\Elasticsearch\Result\AggregationResultSet;
 use App\Services\Elasticsearch\Result\ResultIteratorInterface;
 use Exception;
 use Psr\Log\LoggerAwareInterface;
@@ -150,7 +151,7 @@ class ElasticsearchRepository implements ElasticsearchRepositoryInterface, Logge
     /**
      * @inheritdoc
      */
-    public function aggregateByQuery(QueryInterface $query): array
+    public function aggregateByQuery(QueryInterface $query): AggregationResultSet
     {
         try {
             return $this->client->aggregate($query);

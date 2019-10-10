@@ -25,6 +25,9 @@ class ElasticSubmissionRepository extends ElasticsearchRepository {
 
 Repositories are `LoggerAware` (see `\Psr\Log\LoggerAwareInterface`).
 
+## Return values
+This package includes a few objects for non-scalar return values of `ElasticsearchRepository`. Those are: `ResultIterator` and `AggregationResultSet`. See [Results](RESULTS.md) for details.
+
 ## Usage
 It's possible to either use the standard `ElasticsearchRepository` directly or to extend this class and use dedicated Repositories for each entity.
 

@@ -42,8 +42,6 @@ class Search implements SearchInterface
      * @param string $queryString
      * @param string $type
      * @param array  $options
-     *
-     * @throws \ReflectionException
      */
     public function __construct(
         array $fields,
@@ -73,7 +71,6 @@ class Search implements SearchInterface
      * @param array  $options
      *
      * @return \App\Services\Elasticsearch\Query\Criteria\Search
-     * @throws \ReflectionException
      */
     public static function create(
         array $fields,
