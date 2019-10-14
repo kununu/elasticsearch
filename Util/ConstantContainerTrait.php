@@ -9,7 +9,7 @@ trait ConstantContainerTrait
      *
      * @return array
      */
-    public static function all($preserveKeys = false): array
+    public static function all(bool $preserveKeys = false): array
     {
         $constants = (new \ReflectionClass(__CLASS__))->getConstants();
 
