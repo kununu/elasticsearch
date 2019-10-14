@@ -5,11 +5,11 @@ namespace App\Services\Elasticsearch\Repository;
 
 use App\Services\Elasticsearch\Adapter\AdapterFactoryInterface;
 use App\Services\Elasticsearch\Exception\RepositoryException;
-use App\Services\Elasticsearch\Logging\LoggerAwareTrait;
 use App\Services\Elasticsearch\Query\Query;
 use App\Services\Elasticsearch\Query\QueryInterface;
 use App\Services\Elasticsearch\Result\AggregationResultSet;
 use App\Services\Elasticsearch\Result\ResultIteratorInterface;
+use App\Services\Elasticsearch\Util\LoggerAwareTrait;
 use Exception;
 use Psr\Log\LoggerAwareInterface;
 

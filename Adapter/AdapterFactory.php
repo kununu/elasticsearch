@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace App\Services\Elasticsearch\Adapter;
 
 use App\Services\Elasticsearch\Exception\AdapterConfigurationException;
-use App\Services\Elasticsearch\Logging\LoggerAwareTrait;
+use App\Services\Elasticsearch\Util\LoggerAwareTrait;
 use Elastica\Client as ElasticaClient;
 use Elasticsearch\Client as ElasticsearchClient;
 use InvalidArgumentException;

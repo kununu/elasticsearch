@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Logging;
+namespace App\Services\Elasticsearch\Util;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
