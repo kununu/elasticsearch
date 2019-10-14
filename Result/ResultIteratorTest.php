@@ -130,7 +130,7 @@ class ResultIteratorTest extends MockeryTestCase
         $this->assertEquals(1, $iterator->getCount());
     }
 
-    public function testFirst(): void
+    public function testFirst_Match(): void
     {
         $iterator = ResultIterator::create(
             [
@@ -146,6 +146,24 @@ class ResultIteratorTest extends MockeryTestCase
         );
 
         $this->assertEquals(['foo' => 'bar', 'num' => 0], $firstFooBar);
+    }
+
+    public function testFirst_NoMatch(): void
+    {
+        $iterator = ResultIterator::create(
+            [
+                ['foo' => 'bar', 'num' => 0],
+                ['foo' => 'bar', 'num' => 1],
+            ]
+        );
+
+        $firstBarFoo = $iterator->first(
+            function ($element) {
+                return isset($element['bar']) && $element['bar'] === 'foo';
+            }
+        );
+
+        $this->assertNull($firstBarFoo);
     }
 
     public function testFilter(): void
