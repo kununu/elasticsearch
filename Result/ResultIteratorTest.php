@@ -80,6 +80,16 @@ class ResultIteratorTest extends MockeryTestCase
         $iterator->offsetUnset(0);
         $this->assertCount($initialCount - 1, $iterator);
         $this->assertEquals(null, $iterator[0]);
+
+        unset($iterator[1]);
+        $this->assertCount($initialCount - 2, $iterator);
+        $this->assertEquals(null, $iterator[1]);
+
+        $iterator->offsetSet(2, ['two' => 2.2]);
+        $this->assertEquals(['two' => 2.2], $iterator[2]);
+
+        $iterator[2] = ['two' => 2.3];
+        $this->assertEquals(['two' => 2.3], $iterator[2]);
     }
 
     public function testTotal(): void
