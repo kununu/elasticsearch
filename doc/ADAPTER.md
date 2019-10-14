@@ -22,12 +22,17 @@ This package comes with two implementations of the `AdapterInterface`:
  - `ElasticaAdapter` for `\Elastica\Client`
 
 Adapters should be created by the `AdapterFactory`. This is to make sure that every `Repository` instance works on top of a new `Adapter` instance. Sharing `Adapter` instances could cause problems when working with multiple indexes.
- 
+
+Clients/Adapters have to be made available explicitly by calling `addClient()` in the factory. For example:
 ```yaml
 App\Services\Elasticsearch\Adapter\AdapterFactory:
-  arguments:
-    - '@Elasticsearch\Client'
-    - '@Elastica\Client'
+  calls:
+    - method: addClient
+      arguments:
+        - '@Elasticsearch\Client'
+    - method: addClient
+      arguments:
+        - '@Elastica\Client'
 ```
 
 Check the [Repository documentation](REPOSITORY.md) to see the `AdapterFactory` in use.
