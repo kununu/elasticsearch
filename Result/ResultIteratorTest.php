@@ -90,6 +90,9 @@ class ResultIteratorTest extends MockeryTestCase
 
         $iterator[2] = ['two' => 2.3];
         $this->assertEquals(['two' => 2.3], $iterator[2]);
+
+        $iterator[6] = ['five' => 5];
+        $this->assertEquals(['five' => 5], $iterator[6]);
     }
 
     public function testTotal(): void
