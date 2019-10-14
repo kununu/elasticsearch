@@ -169,7 +169,7 @@ class ResultIterator implements \Iterator, \ArrayAccess, ResultIteratorInterface
      */
     public function asArray(): array
     {
-        return iterator_to_array($this);
+        return $this->results;
     }
 
     /**
