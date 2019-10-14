@@ -93,6 +93,9 @@ class ResultIteratorTest extends MockeryTestCase
 
         $iterator[6] = ['five' => 5];
         $this->assertEquals(['five' => 5], $iterator[6]);
+
+        $iterator[] = ['six' => 6];
+        $this->assertEquals(['six' => 6], $iterator[7]);
     }
 
     public function testTotal(): void
@@ -307,9 +310,7 @@ class ResultIteratorTest extends MockeryTestCase
 
         $numberOfFooBars = $iterator->reduce(
             function ($carry, $element) {
-                $carry += isset($element['foo']) && $element['foo'] === 'bar' ? 1 : 0;
-
-                return $carry;
+                return $carry += isset($element['foo']) && $element['foo'] === 'bar' ? 1 : 0;
             },
             0
         );
