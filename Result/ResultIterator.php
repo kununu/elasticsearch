@@ -8,7 +8,7 @@ namespace App\Services\Elasticsearch\Result;
  *
  * @package App\Services\Elasticsearch\Result
  */
-class ResultIterator implements \Iterator, \ArrayAccess, ResultIteratorInterface
+class ResultIterator implements \Iterator, \ArrayAccess, \Countable, ResultIteratorInterface
 {
     /** @var int */
     protected $position = 0;
@@ -139,9 +139,17 @@ class ResultIterator implements \Iterator, \ArrayAccess, ResultIteratorInterface
     /**
      * @return int
      */
-    public function getCount(): int
+    public function count()
     {
         return count($this->results);
+    }
+
+    /**
+     * @return int
+     */
+    public function getCount(): int
+    {
+        return $this->count();
     }
 
     /**
