@@ -29,6 +29,22 @@ abstract class AbstractAdapter
      */
     protected $typeName;
 
+    /**
+     * @return string
+     */
+    public function getIndexName(): string
+    {
+        return $this->indexName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTypeName(): string
+    {
+        return $this->typeName;
+    }
+
     protected function validateIndexAndType(): void
     {
         if (empty($this->indexName)) {

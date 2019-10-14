@@ -5,6 +5,8 @@ namespace App\Services\Elasticsearch\Adapter;
 
 use App\Services\Elasticsearch\Exception\AdapterConfigurationException;
 use App\Services\Elasticsearch\Logging\LoggerAwareTrait;
+use Elastica\Client as ElasticaClient;
+use Elasticsearch\Client as ElasticsearchClient;
 use InvalidArgumentException;
 use Psr\Log\LoggerAwareInterface;
 
@@ -17,16 +19,24 @@ class AdapterFactory implements LoggerAwareInterface, AdapterFactoryInterface
 {
     use LoggerAwareTrait;
 
-    protected $clients;
+    protected $clients = [];
+
+    /**
+     * @return array
+     */
+    public function getRegisteredClients(): array
+    {
+        return $this->clients;
+    }
 
     /**
      * @param object $client
      */
     public function addClient(object $client): void
     {
-        if ($client instanceof \Elasticsearch\Client) {
+        if ($client instanceof ElasticsearchClient) {
             $this->clients[ElasticsearchAdapter::class] = $client;
-        } elseif ($client instanceof \Elastica\Client) {
+        } elseif ($client instanceof ElasticaClient) {
             $this->clients[ElasticaAdapter::class] = $client;
         } else {
             throw new InvalidArgumentException('Unsupported client class "' . get_class($client) . '"');

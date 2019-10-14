@@ -15,6 +15,16 @@ use App\Services\Elasticsearch\Result\ResultIteratorInterface;
 interface AdapterInterface
 {
     /**
+     * @return string
+     */
+    public function getIndexName(): string;
+
+    /**
+     * @return string
+     */
+    public function getTypeName(): string;
+
+    /**
      * @param \App\Services\Elasticsearch\Query\QueryInterface $query
      *
      * @param bool                                             $scroll
