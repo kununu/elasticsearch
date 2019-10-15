@@ -31,7 +31,7 @@ class AggregationResultSet implements AggregationResultSetInterface
      *
      * @return \App\Services\Elasticsearch\Result\AggregationResultSet
      */
-    public static function create(array $rawResult): AggregationResultSet
+    public static function create(array $rawResult = []): AggregationResultSet
     {
         return new static($rawResult);
     }
