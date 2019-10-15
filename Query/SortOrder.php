@@ -6,11 +6,11 @@ namespace App\Services\Elasticsearch\Query;
 use App\Services\Elasticsearch\Util\ConstantContainerTrait;
 
 /**
- * Class SortDirection
+ * Class SortOrder
  *
  * @package App\Services\Elasticsearch\Query
  */
-final class SortDirection
+final class SortOrder
 {
     use ConstantContainerTrait;
 

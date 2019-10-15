@@ -35,17 +35,22 @@ interface QueryInterface
     public function getOffset(): ?int;
 
     /**
+     * @return array|bool|null
+     */
+    public function getSelect();
+
+    /**
      * @return int|null
      */
     public function getLimit(): ?int;
 
     /**
      * @param string $field
-     * @param string $direction
+     * @param string $order
      *
      * @return \App\Services\Elasticsearch\Query\QueryInterface
      */
-    public function sort(string $field, string $direction): QueryInterface;
+    public function sort(string $field, string $order): QueryInterface;
 
     /**
      * @return array

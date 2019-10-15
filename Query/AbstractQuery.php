@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Services\Elasticsearch\Query;
 
-use App\Services\Elasticsearch\Exception\QueryException;
 use InvalidArgumentException;
 
 /**
@@ -64,25 +63,25 @@ abstract class AbstractQuery implements QueryInterface
 
     /**
      * @param string|array $sort
-     * @param string       $direction
+     * @param string       $order
      * @param array        $options
      *
      * @return \App\Services\Elasticsearch\Query\QueryInterface
      */
-    public function sort($sort, $direction = SortDirection::ASC, array $options = []): QueryInterface
+    public function sort($sort, $order = SortOrder::ASC, array $options = []): QueryInterface
     {
         if (is_string($sort)) {
-            if (!in_array($direction, SortDirection::all(), true)) {
+            if (!in_array($order, SortOrder::all(), true)) {
                 throw new InvalidArgumentException('Invalid sort direction given');
             }
-            $this->sort[$sort] = ['order' => $direction];
+            $this->sort[$sort] = ['order' => $order];
         } elseif (is_array($sort)) {
             array_walk(
                 $sort,
                 function ($value, $key) {
                     $this->sort(
                         $key,
-                        $value['order'] ?? SortDirection::ASC,
+                        $value['order'] ?? SortOrder::ASC,
                         $value['options'] ?? []
                     );
                 }
@@ -100,25 +99,10 @@ abstract class AbstractQuery implements QueryInterface
      * @param int $limit
      *
      * @return \App\Services\Elasticsearch\Query\QueryInterface
-     * @throws \App\Services\Elasticsearch\Exception\QueryException
      */
     public function limit(int $limit): QueryInterface
     {
-        if ($this->limit !== null) {
-            throw new QueryException('Cannot limit more than once.');
-        }
-
         $this->limit = $limit;
-
-        return $this;
-    }
-
-    /**
-     * @return \App\Services\Elasticsearch\Query\QueryInterface
-     */
-    public function resetLimit(): QueryInterface
-    {
-        $this->limit = null;
 
         return $this;
     }
@@ -136,9 +120,9 @@ abstract class AbstractQuery implements QueryInterface
     }
 
     /**
-     * @return array
+     * @return array|bool|null
      */
-    public function getSelect(): array
+    public function getSelect()
     {
         return $this->select;
     }

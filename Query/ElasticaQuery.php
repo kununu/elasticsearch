@@ -107,13 +107,13 @@ class ElasticaQuery extends \Elastica\Query implements QueryInterface
     /**
      * @inheritdoc
      */
-    public function sort(string $field, string $direction): QueryInterface
+    public function sort(string $field, string $order): QueryInterface
     {
-        if (!in_array($direction, SortDirection::all(), true)) {
+        if (!in_array($order, SortOrder::all(), true)) {
             throw new InvalidArgumentException('Unknown $direction given');
         }
 
-        parent::addSort([$field => $direction]);
+        parent::addSort([$field => $order]);
 
         return $this;
     }
@@ -138,5 +138,13 @@ class ElasticaQuery extends \Elastica\Query implements QueryInterface
         parent::setSource(count($selectFields) ? array_values(array_unique($selectFields)) : false);
 
         return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getSelect()
+    {
+        return parent::getParam('_source');
     }
 }
