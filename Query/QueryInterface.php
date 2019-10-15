@@ -50,7 +50,7 @@ interface QueryInterface
      *
      * @return \App\Services\Elasticsearch\Query\QueryInterface
      */
-    public function sort(string $field, string $order): QueryInterface;
+    public function sort(string $field, string $order = SortOrder::ASC): QueryInterface;
 
     /**
      * @return array

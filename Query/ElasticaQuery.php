@@ -107,7 +107,7 @@ class ElasticaQuery extends \Elastica\Query implements QueryInterface
     /**
      * @inheritdoc
      */
-    public function sort(string $field, string $order): QueryInterface
+    public function sort(string $field, string $order = SortOrder::ASC): QueryInterface
     {
         if (!in_array($order, SortOrder::all(), true)) {
             throw new InvalidArgumentException('Unknown $direction given');
