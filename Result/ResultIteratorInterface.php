@@ -11,13 +11,6 @@ namespace App\Services\Elasticsearch\Result;
 interface ResultIteratorInterface
 {
     /**
-     * @param array $results
-     *
-     * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
-     */
-    public static function create(array $results = []): ResultIteratorInterface;
-
-    /**
      * @param int $total
      *
      * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface

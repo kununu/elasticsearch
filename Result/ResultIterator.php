@@ -33,9 +33,9 @@ class ResultIterator implements \Iterator, \ArrayAccess, \Countable, ResultItera
     /**
      * @param array $results
      *
-     * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
+     * @return \App\Services\Elasticsearch\Result\ResultIterator
      */
-    public static function create(array $results = []): ResultIteratorInterface
+    public static function create(array $results = []): ResultIterator
     {
         return new static($results);
     }
