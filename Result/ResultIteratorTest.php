@@ -31,7 +31,6 @@ class ResultIteratorTest extends MockeryTestCase
     public function testCreate(array $input): void
     {
         $iterator = ResultIterator::create($input);
-        $this->assertInstanceOf(ResultIterator::class, $iterator);
         $this->assertEquals($input, $iterator->asArray());
     }
 
