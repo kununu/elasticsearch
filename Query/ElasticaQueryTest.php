@@ -14,6 +14,9 @@ use Mockery\Adapter\Phpunit\MockeryTestCase;
  */
 class ElasticaQueryTest extends MockeryTestCase
 {
+    /**
+     * @return array
+     */
     public function createEmptyData(): array
     {
         return [
@@ -45,6 +48,9 @@ class ElasticaQueryTest extends MockeryTestCase
         $this->assertArrayHasKey('match_all', $queryAsArray['query']);
     }
 
+    /**
+     * @return array
+     */
     public function createQueryStringData(): array
     {
         return [
@@ -122,6 +128,9 @@ class ElasticaQueryTest extends MockeryTestCase
         $this->assertEquals(20, $query->getLimit());
     }
 
+    /**
+     * @return array
+     */
     public function sortData(): array
     {
         return [
@@ -204,6 +213,9 @@ class ElasticaQueryTest extends MockeryTestCase
         $this->assertEquals([], $query->getSort());
     }
 
+    /**
+     * @return array
+     */
     public function selectData(): array
     {
         return [

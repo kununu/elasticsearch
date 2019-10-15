@@ -37,6 +37,9 @@ class AbstractQueryTest extends MockeryTestCase
         $this->assertEquals([], $query->toArray());
     }
 
+    /**
+     * @return array
+     */
     public function selectData(): array
     {
         return [
@@ -137,6 +140,9 @@ class AbstractQueryTest extends MockeryTestCase
         $this->assertEquals(['size' => 20], $query->toArray());
     }
 
+    /**
+     * @return array
+     */
     public function sortData(): array
     {
         return [
