@@ -10,20 +10,20 @@ use InvalidArgumentException;
 
 class Query extends AbstractQuery
 {
-    /** @var array */
+    /** @var \App\Services\Elasticsearch\Query\Criteria\SearchInterface[] */
     protected $searches = [];
 
-    /** @var array */
+    /** @var \App\Services\Elasticsearch\Query\Criteria\FilterInterface[] */
     protected $filters = [];
+
+    /** @var \App\Services\Elasticsearch\Query\AggregationInterface[] */
+    protected $aggregations = [];
 
     /** @var float */
     protected $minScore;
 
     /** @var string */
     protected $searchOperator = Should::OPERATOR;
-
-    /** @var \App\Services\Elasticsearch\Query\AggregationInterface[] */
-    protected $aggregations = [];
 
     /**
      * @param mixed ...$children
@@ -141,11 +141,11 @@ class Query extends AbstractQuery
         }
 
         if (!empty($this->filters)) {
-            if ($this->minScore !== null) {
-                $body['min_score'] = $this->minScore;
-            }
-
             $body['query']['bool']['filter'] = Must::create(...$this->filters)->toArray();
+        }
+
+        if ($this->minScore !== null) {
+            $body['min_score'] = $this->minScore;
         }
 
         if (!empty($this->aggregations)) {
@@ -194,7 +194,7 @@ class Query extends AbstractQuery
     public function setSearchOperator(string $logicalOperator): QueryInterface
     {
         if (!\in_array($logicalOperator, [Must::OPERATOR, Should::OPERATOR], true)) {
-            throw new InvalidArgumentException("The value $logicalOperator is not valid.");
+            throw new InvalidArgumentException("The value '$logicalOperator' is not valid.");
         }
 
         $this->searchOperator = $logicalOperator;
