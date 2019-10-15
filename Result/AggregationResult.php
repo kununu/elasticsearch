@@ -76,11 +76,11 @@ class AggregationResult implements AggregationResultInterface
     /**
      * Shortcut for bucket aggregations to directly retrieve the buckets list.
      *
-     * @return array
+     * @return array|null
      */
-    public function getBuckets(): array
+    public function getBuckets(): ?array
     {
-        return $this->get('buckets') ?: [];
+        return $this->get('buckets');
     }
 
     /**
