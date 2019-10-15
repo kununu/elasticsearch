@@ -129,7 +129,7 @@ class ElasticaQueryTest extends MockeryTestCase
                 'input' => [
                     [
                         'key' => 'foo',
-                        'direction' => SortOrder::ASC,
+                        'order' => SortOrder::ASC,
                     ],
                 ],
                 'expected_output' => [
@@ -140,11 +140,11 @@ class ElasticaQueryTest extends MockeryTestCase
                 'input' => [
                     [
                         'key' => 'foo',
-                        'direction' => SortOrder::ASC,
+                        'order' => SortOrder::ASC,
                     ],
                     [
                         'key' => 'bar',
-                        'direction' => SortOrder::DESC,
+                        'order' => SortOrder::DESC,
                     ],
                 ],
                 'expected_output' => [
@@ -156,11 +156,11 @@ class ElasticaQueryTest extends MockeryTestCase
                 'input' => [
                     [
                         'key' => 'foo',
-                        'direction' => SortOrder::ASC,
+                        'order' => SortOrder::ASC,
                     ],
                     [
                         'key' => 'foo',
-                        'direction' => SortOrder::DESC,
+                        'order' => SortOrder::DESC,
                     ],
                 ],
                 'expected_output' => [
@@ -181,7 +181,7 @@ class ElasticaQueryTest extends MockeryTestCase
     {
         $query = ElasticaQuery::create();
         foreach ($input as $command) {
-            $query->sort($command['key'], $command['direction']);
+            $query->sort($command['key'], $command['order']);
         }
 
         $this->assertNull($query->getOffset());
@@ -189,7 +189,7 @@ class ElasticaQueryTest extends MockeryTestCase
         $this->assertEquals($expectedOutput, $query->getSort());
     }
 
-    public function testSortInvalidDirection(): void
+    public function testSortInvalidOrder(): void
     {
         $this->expectException(\InvalidArgumentException::class);
 
