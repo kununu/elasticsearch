@@ -5,7 +5,7 @@ namespace App\Tests\Unit\Services\Elasticsearch\Query;
 
 use App\Services\Elasticsearch\Query\ElasticaQuery;
 use App\Services\Elasticsearch\Query\QueryInterface;
-use App\Services\Elasticsearch\Query\SortDirection;
+use App\Services\Elasticsearch\Query\SortOrder;
 use Elastica\Exception\InvalidException;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
@@ -88,20 +88,38 @@ class ElasticaQueryTest extends MockeryTestCase
 
     public function testSkip(): void
     {
-        $query = ElasticaQuery::create()->skip(10);
+        $query = ElasticaQuery::create();
+
+        $this->assertNull($query->getOffset());
+
+        $query->skip(10);
 
         $this->assertEquals(10, $query->getOffset());
         $this->assertNull($query->getLimit());
         $this->assertEquals([], $query->getSort());
+
+        // override offset
+        $query->skip(20);
+
+        $this->assertEquals(20, $query->getOffset());
     }
 
     public function testLimit(): void
     {
-        $query = ElasticaQuery::create()->limit(10);
+        $query = ElasticaQuery::create();
+
+        $this->assertNull($query->getLimit());
+
+        $query->limit(10);
 
         $this->assertEquals(10, $query->getLimit());
         $this->assertNull($query->getOffset());
         $this->assertEquals([], $query->getSort());
+
+        // override limit
+        $query->limit(20);
+
+        $this->assertEquals(20, $query->getLimit());
     }
 
     public function sortData(): array
@@ -111,43 +129,43 @@ class ElasticaQueryTest extends MockeryTestCase
                 'input' => [
                     [
                         'key' => 'foo',
-                        'direction' => SortDirection::ASC,
+                        'direction' => SortOrder::ASC,
                     ],
                 ],
                 'expected_output' => [
-                    ['foo' => SortDirection::ASC],
+                    ['foo' => SortOrder::ASC],
                 ],
             ],
             'two fields' => [
                 'input' => [
                     [
                         'key' => 'foo',
-                        'direction' => SortDirection::ASC,
+                        'direction' => SortOrder::ASC,
                     ],
                     [
                         'key' => 'bar',
-                        'direction' => SortDirection::DESC,
+                        'direction' => SortOrder::DESC,
                     ],
                 ],
                 'expected_output' => [
-                    ['foo' => SortDirection::ASC],
-                    ['bar' => SortDirection::DESC],
+                    ['foo' => SortOrder::ASC],
+                    ['bar' => SortOrder::DESC],
                 ],
             ],
             'override one field (works unexpected in elastica)' => [
                 'input' => [
                     [
                         'key' => 'foo',
-                        'direction' => SortDirection::ASC,
+                        'direction' => SortOrder::ASC,
                     ],
                     [
                         'key' => 'foo',
-                        'direction' => SortDirection::DESC,
+                        'direction' => SortOrder::DESC,
                     ],
                 ],
                 'expected_output' => [
-                    ['foo' => SortDirection::ASC],
-                    ['foo' => SortDirection::DESC],
+                    ['foo' => SortOrder::ASC],
+                    ['foo' => SortOrder::DESC],
                 ],
             ],
         ];
@@ -234,6 +252,7 @@ class ElasticaQueryTest extends MockeryTestCase
         $query = ElasticaQuery::create();
         $query->select($input);
         $this->assertEquals($expectedOutput, $query->getParam('_source'));
+        $this->assertEquals($expectedOutput, $query->getSelect());
         $serialized = $query->toArray();
         $this->assertArrayHasKey('_source', $serialized);
         $this->assertEquals($expectedOutput, $serialized['_source']);
