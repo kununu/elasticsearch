@@ -88,6 +88,14 @@ class AggregationTest extends MockeryTestCase
         $this->assertNotNull($aggregation->getName());
     }
 
+    public function testCreateWithInvalidType(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('unknown type "my_made_up_type" given');
+
+        Aggregation::create('foo', 'my_made_up_type');
+    }
+
     public function testNestOne(): void
     {
         $aggregation = Aggregation::create('my_field', Bucket::TERMS, 'my_term_buckets')
