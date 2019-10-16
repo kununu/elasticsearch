@@ -38,7 +38,7 @@ class Aggregation implements AggregationInterface
     public function __construct(string $field, string $type, string $name = '', array $options = [])
     {
         if (!Metric::hasConstant($type) && !Bucket::hasConstant($type)) {
-            throw new InvalidArgumentException('unknown type "' . $type . '" given');
+            throw new InvalidArgumentException('Unknown type "' . $type . '" given');
         }
 
         if (empty($name)) {
@@ -75,9 +75,9 @@ class Aggregation implements AggregationInterface
     /**
      * @param \App\Services\Elasticsearch\Query\AggregationInterface $aggregation
      *
-     * @return \App\Services\Elasticsearch\Query\AggregationInterface
+     * @return \App\Services\Elasticsearch\Query\Aggregation
      */
-    public function nest(AggregationInterface $aggregation): AggregationInterface
+    public function nest(AggregationInterface $aggregation): Aggregation
     {
         $this->nestedAggregations[] = $aggregation;
 

@@ -57,7 +57,7 @@ class Search implements SearchInterface
         $this->queryString = $queryString;
 
         if (!static::hasConstant($type)) {
-            throw new InvalidArgumentException('unknown full text search type "' . $type . '" given');
+            throw new InvalidArgumentException('Unknown full text search type "' . $type . '" given');
         }
 
         $this->type = $type;
@@ -110,7 +110,9 @@ class Search implements SearchInterface
                 $query = MatchPhrasePrefix::asArray($this->fields, $this->queryString, $this->options);
                 break;
             default:
-                throw new QueryException('Unhandled full text search type "' . $this->type . '"');
+                throw new QueryException(
+                    'Unhandled full text search type "' . $this->type . '". Please add an appropriate switch case.'
+                );
         }
 
         return $query;
