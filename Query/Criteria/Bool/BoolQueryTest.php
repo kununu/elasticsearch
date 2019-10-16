@@ -7,6 +7,7 @@ use App\Services\Elasticsearch\Exception\QueryException;
 use App\Services\Elasticsearch\Query\Criteria\Bool\AbstractBoolQuery;
 use App\Services\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface;
 use App\Services\Elasticsearch\Query\Criteria\Filter;
+use InvalidArgumentException;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 /**
@@ -75,6 +76,14 @@ class BoolQueryTest extends MockeryTestCase
     public function testCreate(array $input): void
     {
         $this->assertEquals($input, $this->getConcreteBoolQuery($input)->getChildren());
+    }
+
+    public function testCreateWithOnlyInvalid(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Argument #0 is of unknown type');
+
+        $this->getConcreteBoolQuery(['foo']);
     }
 
     /**
