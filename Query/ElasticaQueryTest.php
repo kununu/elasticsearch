@@ -85,6 +85,30 @@ class ElasticaQueryTest extends MockeryTestCase
         $this->assertEquals($query, ElasticaQuery::create($query));
     }
 
+    public function testCreateArray(): void
+    {
+        $searchTerm = 'some searchterm';
+
+        $this->assertEquals(
+            [
+                'query' => [
+                    'query_string' => [
+                        'query' => $searchTerm,
+                    ],
+                ],
+            ],
+            ElasticaQuery::create(
+                [
+                    'query' => [
+                        'query_string' => [
+                            'query' => $searchTerm,
+                        ],
+                    ],
+                ]
+            )->toArray()
+        );
+    }
+
     public function testCreateInvalid(): void
     {
         $this->expectException(InvalidException::class);
