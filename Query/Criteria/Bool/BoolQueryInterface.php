@@ -18,13 +18,6 @@ interface BoolQueryInterface extends FilterInterface
     public function __construct(...$children);
 
     /**
-     * @param \App\Services\Elasticsearch\Query\Criteria\FilterInterface[] $children
-     *
-     * @return \App\Services\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface
-     */
-    public static function create(...$children): BoolQueryInterface;
-
-    /**
      * @param \App\Services\Elasticsearch\Query\Criteria\FilterInterface $child
      *
      * @return \App\Services\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface

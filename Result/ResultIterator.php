@@ -10,16 +10,24 @@ namespace App\Services\Elasticsearch\Result;
  */
 class ResultIterator implements \Iterator, \ArrayAccess, \Countable, ResultIteratorInterface
 {
-    /** @var int */
+    /**
+     * @var int
+     */
     protected $position = 0;
 
-    /** @var array */
+    /**
+     * @var array
+     */
     protected $results = [];
 
-    /** @var int */
+    /**
+     * @var int
+     */
     protected $total = 0;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $scrollId;
 
     /**

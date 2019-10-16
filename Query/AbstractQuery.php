@@ -12,16 +12,24 @@ use InvalidArgumentException;
  */
 abstract class AbstractQuery implements QueryInterface
 {
-    /** @var array|null */
+    /**
+     * @var array|null
+     */
     protected $select;
 
-    /** @var int */
+    /**
+     * @var int
+     */
     protected $limit;
 
-    /** @var int */
+    /**
+     * @var int
+     */
     protected $offset;
 
-    /** @var array */
+    /**
+     * @var array
+     */
     protected $sort = [];
 
     /**

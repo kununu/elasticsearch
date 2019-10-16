@@ -10,10 +10,14 @@ namespace App\Services\Elasticsearch\Result;
  */
 class AggregationResultSet implements AggregationResultSetInterface
 {
-    /** @var \App\Services\Elasticsearch\Result\ResultIterator */
+    /**
+     * @var \App\Services\Elasticsearch\Result\ResultIterator
+     */
     protected $documents;
 
-    /** @var \App\Services\Elasticsearch\Result\AggregationResult[] */
+    /**
+     * @var \App\Services\Elasticsearch\Result\AggregationResult[]
+     */
     protected $aggregationResults = [];
 
     /**

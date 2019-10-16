@@ -10,10 +10,14 @@ namespace App\Services\Elasticsearch\Result;
  */
 class AggregationResult implements AggregationResultInterface
 {
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $name;
 
-    /** @var array */
+    /**
+     * @var array
+     */
     protected $fields = [];
 
     /**

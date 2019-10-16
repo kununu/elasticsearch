@@ -14,19 +14,29 @@ use InvalidArgumentException;
  */
 class Aggregation implements AggregationInterface
 {
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $name;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $type;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $field;
 
-    /** @var array */
+    /**
+     * @var array
+     */
     protected $options = [];
 
-    /** @var AggregationInterface[] */
+    /**
+     * @var \App\Services\Elasticsearch\Query\AggregationInterface[]
+     */
     protected $nestedAggregations = [];
 
     /**

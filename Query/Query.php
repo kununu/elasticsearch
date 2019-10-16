@@ -10,19 +10,29 @@ use InvalidArgumentException;
 
 class Query extends AbstractQuery
 {
-    /** @var \App\Services\Elasticsearch\Query\Criteria\SearchInterface[] */
+    /**
+     * @var \App\Services\Elasticsearch\Query\Criteria\SearchInterface[]
+     */
     protected $searches = [];
 
-    /** @var \App\Services\Elasticsearch\Query\Criteria\FilterInterface[] */
+    /**
+     * @var \App\Services\Elasticsearch\Query\Criteria\FilterInterface[]
+     */
     protected $filters = [];
 
-    /** @var \App\Services\Elasticsearch\Query\AggregationInterface[] */
+    /**
+     * @var \App\Services\Elasticsearch\Query\AggregationInterface[]
+     */
     protected $aggregations = [];
 
-    /** @var float */
+    /**
+     * @var float
+     */
     protected $minScore;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $searchOperator = Should::OPERATOR;
 
     /**

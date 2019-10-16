@@ -10,7 +10,9 @@ namespace App\Services\Elasticsearch\Query;
  */
 class RawQuery extends AbstractQuery
 {
-    /** @var array */
+    /**
+     * @var array
+     */
     protected $body = [];
 
     /**

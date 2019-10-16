@@ -19,6 +19,9 @@ class AdapterFactory implements LoggerAwareInterface, AdapterFactoryInterface
 {
     use LoggerAwareTrait;
 
+    /**
+     * @var array
+     */
     protected $clients = [];
 
     /**

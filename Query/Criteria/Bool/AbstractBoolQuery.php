@@ -5,6 +5,7 @@ namespace App\Services\Elasticsearch\Query\Criteria\Bool;
 
 use App\Services\Elasticsearch\Exception\QueryException;
 use App\Services\Elasticsearch\Query\Criteria\FilterInterface;
+use InvalidArgumentException;
 
 /**
  * Class AbstractBoolQuery
@@ -15,6 +16,9 @@ abstract class AbstractBoolQuery implements BoolQueryInterface
 {
     public const OPERATOR = null;
 
+    /**
+     * @var array
+     */
     protected $children = [];
 
     /**
@@ -24,7 +28,7 @@ abstract class AbstractBoolQuery implements BoolQueryInterface
     protected function getOperator(): string
     {
         if (!static::OPERATOR) {
-            throw new QueryException('no operator defined');
+            throw new QueryException('No operator defined');
         }
 
         return static::OPERATOR;
@@ -38,7 +42,7 @@ abstract class AbstractBoolQuery implements BoolQueryInterface
         $children = array_filter($children);
         foreach ($children as $ii => $child) {
             if (!($child instanceof FilterInterface)) {
-                throw new \InvalidArgumentException('Argument #' . $ii . ' is of unknown type');
+                throw new InvalidArgumentException('Argument #' . $ii . ' is of unknown type');
             }
         }
 

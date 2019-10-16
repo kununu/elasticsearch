@@ -24,10 +24,14 @@ class ElasticsearchRepository implements ElasticsearchRepositoryInterface, Logge
 
     protected const EXCEPTION_PREFIX = 'Elasticsearch exception: ';
 
-    /** @var \App\Services\Elasticsearch\Adapter\AdapterInterface */
+    /**
+     * @var \App\Services\Elasticsearch\Adapter\AdapterInterface
+     */
     protected $client;
 
-    /** @var array */
+    /**
+     * @var array
+     */
     protected $connectionConfig;
 
     /**
