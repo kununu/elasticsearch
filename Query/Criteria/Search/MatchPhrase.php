@@ -10,6 +10,8 @@ namespace App\Services\Elasticsearch\Query\Criteria\Search;
  */
 class MatchPhrase
 {
+    public const KEYWORD = 'match_phrase';
+
     /**
      * @param array  $fields
      * @param string $queryString
@@ -20,7 +22,7 @@ class MatchPhrase
     public static function asArray(array $fields, string $queryString, array $options = []): array
     {
         return [
-            'match_phrase' => [
+            static::KEYWORD => [
                 $fields[0] => array_merge(
                     $options,
                     [

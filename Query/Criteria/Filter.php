@@ -4,7 +4,14 @@ declare(strict_types=1);
 namespace App\Services\Elasticsearch\Query\Criteria;
 
 use App\Services\Elasticsearch\Exception\QueryException;
-use DateTime;
+use App\Services\Elasticsearch\Query\Criteria\Filter\Exists;
+use App\Services\Elasticsearch\Query\Criteria\Filter\GeoDistance;
+use App\Services\Elasticsearch\Query\Criteria\Filter\GeoShape;
+use App\Services\Elasticsearch\Query\Criteria\Filter\Prefix;
+use App\Services\Elasticsearch\Query\Criteria\Filter\Range;
+use App\Services\Elasticsearch\Query\Criteria\Filter\Regexp;
+use App\Services\Elasticsearch\Query\Criteria\Filter\Term;
+use App\Services\Elasticsearch\Query\Criteria\Filter\Terms;
 use InvalidArgumentException;
 
 /**
@@ -14,42 +21,55 @@ use InvalidArgumentException;
  */
 class Filter implements FilterInterface
 {
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $field;
 
-    /** @var mixed */
+    /**
+     * @var mixed
+     */
     protected $value;
 
-    /** @var string|null */
+    /**
+     * @var string|null
+     */
     protected $operator;
+
+    /**
+     * @var array
+     */
+    protected $options = [];
 
     /**
      * @param string      $field
      * @param mixed       $value
      * @param string|null $operator
+     * @param array       $options
      */
-    public function __construct(string $field, $value, ?string $operator = null)
+    public function __construct(string $field, $value, ?string $operator = null, array $options = [])
     {
-        $this->field = $field;
-        $this->value = $value;
-
         if ($operator !== null && !Operator::hasConstant($operator)) {
-            throw new InvalidArgumentException('unknown operator "' . $operator . '" given');
+            throw new InvalidArgumentException('Unknown operator "' . $operator . '" given');
         }
 
+        $this->field = $field;
+        $this->value = $value;
         $this->operator = $operator;
+        $this->options = $options;
     }
 
     /**
      * @param string      $field
      * @param mixed       $value
      * @param string|null $operator
+     * @param array       $options
      *
-     * @return static
+     * @return \App\Services\Elasticsearch\Query\Criteria\Filter
      */
-    public static function create(string $field, $value, ?string $operator = null): self
+    public static function create(string $field, $value, ?string $operator = null, array $options = []): Filter
     {
-        return new static($field, $value, $operator);
+        return new static($field, $value, $operator, $options);
     }
 
     /**
@@ -67,93 +87,50 @@ class Filter implements FilterInterface
      */
     protected function mapOperator(): array
     {
-        $preparedValue = $this->prepareDateTimeField($this->value);
-
-        $this->validateExpectedValueType($preparedValue);
-
         switch ($this->operator) {
             case Operator::TERM:
             case null:
-                $filter = [Operator::TERM => [$this->field => $preparedValue]];
+                $filter = Term::asArray($this->field, $this->value, $this->options);
                 break;
             case Operator::TERMS:
+                $filter = Terms::asArray($this->field, $this->value, $this->options);
+                break;
             case Operator::PREFIX:
+                $filter = Prefix::asArray($this->field, $this->value, $this->options);
+                break;
             case Operator::REGEXP:
-                $filter = [$this->operator => [$this->field => $preparedValue]];
+                $filter = Regexp::asArray($this->field, $this->value, $this->options);
+                break;
                 break;
             case Operator::LESS_THAN:
             case Operator::LESS_THAN_EQUALS:
             case Operator::GREATER_THAN:
             case Operator::GREATER_THAN_EQUALS:
-                $filter = ['range' => [$this->field => [$this->operator => $preparedValue]]];
+                $filter = Range::asArray($this->field, [$this->operator => $this->value], $this->options);
                 break;
             case Operator::BETWEEN:
-                $filter = [
-                    'range' => [
-                        $this->field => [
-                            Operator::GREATER_THAN_EQUALS => $preparedValue[0],
-                            Operator::LESS_THAN_EQUALS => $preparedValue[1],
-                        ],
+                $filter = Range::asArray(
+                    $this->field,
+                    [
+                        Operator::GREATER_THAN_EQUALS => $this->value[0],
+                        Operator::LESS_THAN_EQUALS => $this->value[1],
                     ],
-                ];
+                    $this->options
+                );
                 break;
             case Operator::EXISTS:
-                if ($this->value) {
-                    $filter = ['exists' => ['field' => $this->field]];
-                } else {
-                    $filter = ['bool' => ['must_not' => [['exists' => ['field' => $this->field]]]]];
-                }
+                $filter = Exists::asArray($this->field, $this->value);
                 break;
             case Operator::GEO_DISTANCE:
-                $filter = [
-                    $this->operator => [
-                        'distance' => $preparedValue->getDistance(),
-                        $this->field => $preparedValue->getLocation(),
-                    ],
-                ];
+                $filter = GeoDistance::asArray($this->field, $this->value, $this->options);
                 break;
             case Operator::GEO_SHAPE:
-                $filter = [
-                    $this->operator => [
-                        $this->field => [
-                            'shape' => $preparedValue->toArray(),
-                        ],
-                    ],
-                ];
+                $filter = GeoShape::asArray($this->field, $this->value, $this->options);
                 break;
             default:
                 throw new QueryException('Unhandled operator "' . $this->operator . '"');
         }
 
         return $filter;
-    }
-
-    /**
-     * @param mixed $value
-     */
-    protected function validateExpectedValueType($value): void
-    {
-        $expectedTypes = [
-            Operator::GEO_DISTANCE => GeoDistanceInterface::class,
-            Operator::GEO_SHAPE => GeoShapeInterface::class,
-        ];
-
-        if (isset($expectedTypes[$this->operator]) && !($value instanceof $expectedTypes[$this->operator])) {
-            throw new InvalidArgumentException(
-                'Type of filter must be "' . $expectedTypes[$this->operator] . '" for "' . $this->operator . '" Queries.'
-            );
-        }
-    }
-
-    /**
-     * Converts \DateTime to timestamps and returns every other $value as is.
-     *
-     * @param mixed $value
-     *
-     * @return int|mixed
-     */
-    protected function prepareDateTimeField($value)
-    {
-        return $value instanceof DateTime ? $value->getTimestamp() : $value;
     }
 }

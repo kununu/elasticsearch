@@ -20,21 +20,29 @@ class Search implements SearchInterface
 {
     use ConstantContainerTrait;
 
-    public const MATCH = 'match';
-    public const MATCH_PHRASE = 'match_phrase';
-    public const MATCH_PHRASE_PREFIX = 'match_phrase_prefix';
-    public const QUERY_STRING = 'query_string';
+    public const MATCH = Match::KEYWORD;
+    public const MATCH_PHRASE = MatchPhrase::KEYWORD;
+    public const MATCH_PHRASE_PREFIX = MatchPhrasePrefix::KEYWORD;
+    public const QUERY_STRING = QueryString::KEYWORD;
 
-    /** @var array */
+    /**
+     * @var array
+     */
     protected $fields = [];
 
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $queryString;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $type;
 
-    /** @var array */
+    /**
+     * @var array
+     */
     protected $options = [];
 
     /**
@@ -53,13 +61,12 @@ class Search implements SearchInterface
             throw new InvalidArgumentException('No fields given');
         }
 
-        $this->fields = $fields;
-        $this->queryString = $queryString;
-
         if (!static::hasConstant($type)) {
             throw new InvalidArgumentException('Unknown full text search type "' . $type . '" given');
         }
 
+        $this->fields = $fields;
+        $this->queryString = $queryString;
         $this->type = $type;
         $this->options = $options;
     }

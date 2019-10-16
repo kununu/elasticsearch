@@ -12,6 +12,8 @@ class QueryString
 {
     use MultiFieldTrait;
 
+    public const KEYWORD = 'query_string';
+
     /**
      * @param array  $fields
      * @param string $queryString
@@ -22,7 +24,7 @@ class QueryString
     public static function asArray(array $fields, string $queryString, array $options = []): array
     {
         return [
-            'query_string' => array_merge(
+            static::KEYWORD => array_merge(
                 $options,
                 [
                     'fields' => self::prepareFields($fields),

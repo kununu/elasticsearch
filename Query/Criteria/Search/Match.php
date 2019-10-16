@@ -12,6 +12,8 @@ class Match
 {
     use MultiFieldTrait;
 
+    public const KEYWORD = 'match';
+
     /**
      * @param array  $fields
      * @param string $queryString
@@ -33,7 +35,7 @@ class Match
             ];
         } else {
             $query = [
-                'match' => [
+                static::KEYWORD => [
                     $fields[0] => array_merge(
                         $options,
                         [
