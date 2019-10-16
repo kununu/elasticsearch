@@ -6,6 +6,7 @@ namespace App\Tests\Unit\Services\Elasticsearch\Query;
 use App\Services\Elasticsearch\Query\Aggregation;
 use App\Services\Elasticsearch\Query\Aggregation\Bucket;
 use App\Services\Elasticsearch\Query\Aggregation\Metric;
+use InvalidArgumentException;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 /**
@@ -90,8 +91,8 @@ class AggregationTest extends MockeryTestCase
 
     public function testCreateWithInvalidType(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('unknown type "my_made_up_type" given');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Unknown type "my_made_up_type" given');
 
         Aggregation::create('foo', 'my_made_up_type');
     }
