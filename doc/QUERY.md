@@ -56,9 +56,18 @@ $nestedBoolQuery = Query::create(
 );
 ```
 
-Important note: all `Filter` instances will be placed in the [filter context](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-filter-context.html) of the query body sent to Elastic. This means they will not contribute to the score of matching documents. All `Search` instances on the other hand will be placed in the [query context](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-filter-context.html).
+## Understanding Filter vs. Query Context
+When querying for documents Elastic differentiates [two contexts](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-filter-context.html):
+ - filter context: does not contribute to the score of matching documents
+ - query context: does indeed contribute to the score
 
-Currently its only possible to set a "global" boolean operator for all `Search` instances within a query (`Query::setSearchOperator()`), while `Filter` instances can be combined at will with instances of `BoolQueryInterface`.
+When using the factory method (`Query::create()`) to build a query, all `Search` objects will be put into the query context, while all `Filter` objects (this includes all bool queries `Must`, `Should` and `MustNot`!) will be put in the filter context.
+
+This should support the vast majority of use-cases while keeping query creation simple.
+
+For use-cases which require more advanced boolean combination of `Search` objects it's possible to use the `Query::search()` method. This method accepts objects of type `SearchInterface` as well as `BoolQueryInterface`.
+
+See examples below.
 
 ## Usage
 ### Common Functionality
@@ -322,6 +331,125 @@ Will produce
           ]
         }
       }
+    }
+  }
+}
+```
+
+#### Advanced boolean searching
+Note that the Search will contribute to the document score while the Filter won't.
+```php 
+$query = Query::create(Filter::create('field', 'value'))
+    ->search(
+        Should::create(
+            Search::create(['field_a'], 'foo', Search::QUERY_STRING, ['boost' => 4]),
+            Search::create(['field_a'], 'foo', Search::MATCH, ['boost' => 10])
+        )
+    )
+    ->search(
+        Should::create(
+            Search::create(['field_b'], 'foo', Search::QUERY_STRING, ['boost' => 2]),
+            Search::create(['field_b'], 'foo', Search::MATCH, ['boost' => 5])
+        )
+    )
+    ->setSearchOperator(Must::OPERATOR)
+    ->setMinScore(42);
+```
+Will produce
+```json
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "bool": {
+            "should": [
+              {
+                "query_string": {
+                  "boost": 4,
+                  "fields": [
+                    "field_a"
+                  ],
+                  "query": "foo"
+                }
+              },
+              {
+                "match": {
+                  "field_a": {
+                    "boost": 10,
+                    "query": "foo"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "bool": {
+            "should": [
+              {
+                "query_string": {
+                  "boost": 2,
+                  "fields": [
+                    "field_b"
+                  ],
+                  "query": "foo"
+                }
+              },
+              {
+                "match": {
+                  "field_b": {
+                    "boost": 5,
+                    "query": "foo"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "filter": {
+        "bool": {
+          "must": [
+            {
+              "term": {
+                "field": "value"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "min_score": 42
+}
+```
+
+#### Multi-field searches
+Some ES full-text queries (f.e. [Query String Query](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/query-dsl-query-string-query.html)) can operate on multiple fields. It's possible to boost separate fields individually.
+
+```php
+$query = Query::create(
+    Search::create(['field_a' => ['boost' => 2], 'field_b'], 'my query', Search::QUERY_STRING)
+);
+```
+Will produce
+```json
+{
+  "query": {
+    "bool": {
+      "should": [
+        {
+          "query_string": {
+            "fields": [
+              "field_a^2",
+              "field_b"
+            ],
+            "query": "my query"
+          }
+        }
+      ],
+      "minimum_should_match": 1
     }
   }
 }
