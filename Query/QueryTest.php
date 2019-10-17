@@ -145,16 +145,6 @@ class QueryTest extends MockeryTestCase
         Query::create(Filter::create('field', 'value'), 'foo');
     }
 
-    public function testAddInvalid(): void
-    {
-        $query = Query::create();
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Argument #0 is of unknown type');
-
-        $query->add('foo');
-    }
-
     public function testSearch(): void
     {
         $query = Query::create();
@@ -334,6 +324,71 @@ class QueryTest extends MockeryTestCase
                     'aggs' => [
                         'my_agg' => [
                             'sum' => ['field' => 'field_a'],
+                        ],
+                    ],
+                    'min_score' => 42,
+                ],
+            ],
+            'advanced full text queries combined with bool queries' => [
+                'query' => Query::create(
+                    Filter::create('field', 'value')
+                )
+                    ->search(
+                        Must::create(
+                            Should::create(
+                                Search::create(['field_a'], 'foo', Search::QUERY_STRING),
+                                Search::create(['field_a'], 'foo', Search::MATCH)
+                            ),
+                            Should::create(
+                                Search::create(['field_b'], 'foo', Search::QUERY_STRING),
+                                Search::create(['field_b'], 'foo', Search::MATCH)
+                            )
+                        )
+                    )
+                    ->setSearchOperator(Must::OPERATOR)
+                    ->setMinScore(42),
+                'expected' => [
+                    'query' => [
+                        'bool' => [
+                            'must' => [
+                                [
+                                    'bool' => [
+                                        'must' => [
+                                            [
+                                                'bool' => [
+                                                    'should' => [
+                                                        [
+                                                            'query_string' => [
+                                                                'fields' => ['field_a'],
+                                                                'query' => 'foo',
+                                                            ],
+                                                        ],
+                                                        [
+                                                            'match' => ['field_a' => ['query' => 'foo']],
+                                                        ],
+                                                    ],
+                                                ],
+                                            ],
+                                            [
+                                                'bool' => [
+                                                    'should' => [
+                                                        [
+                                                            'query_string' => [
+                                                                'fields' => ['field_b'],
+                                                                'query' => 'foo',
+                                                            ],
+                                                        ],
+                                                        [
+                                                            'match' => ['field_b' => ['query' => 'foo']],
+                                                        ],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            'filter' => ['bool' => ['must' => [['term' => ['field' => 'value']]]]],
                         ],
                     ],
                     'min_score' => 42,
