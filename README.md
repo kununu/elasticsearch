@@ -5,8 +5,6 @@ This package aims to
  1. reduce cognitive load when interacting with Elastic by providing an intuitive query language with a fluent interface while staying very close to Elastic terminology
  2. make the user independent of the underlying client library
 
-When starting to work with Elastic it's handy to 
-
 ## Technical Concept
 The key ingredients of this package are:
  - Adapters
