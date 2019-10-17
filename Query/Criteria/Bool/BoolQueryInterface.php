@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Services\Elasticsearch\Query\Criteria\Bool;
 
+use App\Services\Elasticsearch\Query\Criteria\CriteriaInterface;
 use App\Services\Elasticsearch\Query\Criteria\FilterInterface;
 
 /**
@@ -13,14 +14,9 @@ use App\Services\Elasticsearch\Query\Criteria\FilterInterface;
 interface BoolQueryInterface extends FilterInterface
 {
     /**
-     * @param \App\Services\Elasticsearch\Query\Criteria\FilterInterface[] $children
-     */
-    public function __construct(...$children);
-
-    /**
-     * @param \App\Services\Elasticsearch\Query\Criteria\FilterInterface $child
+     * @param \App\Services\Elasticsearch\Query\Criteria\CriteriaInterface $child
      *
      * @return \App\Services\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface
      */
-    public function add(FilterInterface $child): BoolQueryInterface;
+    public function add(CriteriaInterface $child): BoolQueryInterface;
 }

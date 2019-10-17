@@ -4,10 +4,14 @@ declare(strict_types=1);
 namespace App\Services\Elasticsearch\Query\Criteria;
 
 /**
- * Interface SearchInterface
+ * Interface CriteriaInterface
  *
  * @package App\Services\Elasticsearch\Query\Criteria
  */
-interface SearchInterface extends CriteriaInterface
+interface CriteriaInterface
 {
+    /**
+     * @return array
+     */
+    public function toArray(): array;
 }

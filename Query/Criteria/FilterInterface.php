@@ -8,10 +8,6 @@ namespace App\Services\Elasticsearch\Query\Criteria;
  *
  * @package App\Services\Elasticsearch\Query\Criteria
  */
-interface FilterInterface
+interface FilterInterface extends CriteriaInterface
 {
-    /**
-     * @return array
-     */
-    public function toArray(): array;
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace App\Services\Elasticsearch\Query\Criteria\Bool;
 
 use App\Services\Elasticsearch\Exception\QueryException;
-use App\Services\Elasticsearch\Query\Criteria\FilterInterface;
+use App\Services\Elasticsearch\Query\Criteria\CriteriaInterface;
 use InvalidArgumentException;
 
 /**
@@ -35,13 +35,13 @@ abstract class AbstractBoolQuery implements BoolQueryInterface
     }
 
     /**
-     * @param mixed ...$children
+     * @param \App\Services\Elasticsearch\Query\Criteria\CriteriaInterface[] ...$children
      */
     public function __construct(...$children)
     {
         $children = array_filter($children);
         foreach ($children as $ii => $child) {
-            if (!($child instanceof FilterInterface)) {
+            if (!($child instanceof CriteriaInterface)) {
                 throw new InvalidArgumentException('Argument #' . $ii . ' is of unknown type');
             }
         }
@@ -50,7 +50,7 @@ abstract class AbstractBoolQuery implements BoolQueryInterface
     }
 
     /**
-     * @param mixed ...$children
+     * @param \App\Services\Elasticsearch\Query\Criteria\CriteriaInterface[] ...$children
      *
      * @return \App\Services\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface
      */
@@ -60,11 +60,11 @@ abstract class AbstractBoolQuery implements BoolQueryInterface
     }
 
     /**
-     * @param \App\Services\Elasticsearch\Query\Criteria\FilterInterface $child
+     * @param \App\Services\Elasticsearch\Query\Criteria\CriteriaInterface $child
      *
      * @return \App\Services\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface
      */
-    public function add(FilterInterface $child): BoolQueryInterface
+    public function add(CriteriaInterface $child): BoolQueryInterface
     {
         $this->children[] = $child;
 
@@ -81,7 +81,7 @@ abstract class AbstractBoolQuery implements BoolQueryInterface
             'bool' => [
                 $this->getOperator() =>
                     array_map(
-                        function (FilterInterface $child): array {
+                        function (CriteriaInterface $child): array {
                             return $child->toArray();
                         },
                         $this->children

@@ -2,14 +2,18 @@
 
 namespace App\Services\Elasticsearch\Query;
 
+use App\Services\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface;
 use App\Services\Elasticsearch\Query\Criteria\Bool\Must;
 use App\Services\Elasticsearch\Query\Criteria\Bool\Should;
+use App\Services\Elasticsearch\Query\Criteria\CriteriaInterface;
 use App\Services\Elasticsearch\Query\Criteria\FilterInterface;
 use App\Services\Elasticsearch\Query\Criteria\SearchInterface;
 use InvalidArgumentException;
 
 class Query extends AbstractQuery
 {
+    protected const MINIMUM_SHOULD_MATCH = 1; // relevant when $searchOperator === 'should'
+
     /**
      * @var \App\Services\Elasticsearch\Query\Criteria\SearchInterface[]
      */
@@ -36,7 +40,7 @@ class Query extends AbstractQuery
     protected $searchOperator = Should::OPERATOR;
 
     /**
-     * @param mixed ...$children
+     * @param \App\Services\Elasticsearch\Query\Criteria\CriteriaInterface[] ...$children
      */
     public function __construct(...$children)
     {
@@ -47,7 +51,7 @@ class Query extends AbstractQuery
     }
 
     /**
-     * @param mixed ...$children
+     * @param \App\Services\Elasticsearch\Query\Criteria\CriteriaInterface[] ...$children
      *
      * @return \App\Services\Elasticsearch\Query\Query
      */
@@ -57,7 +61,7 @@ class Query extends AbstractQuery
     }
 
     /**
-     * @param mixed $child
+     * @param \App\Services\Elasticsearch\Query\Criteria\CriteriaInterface|\App\Services\Elasticsearch\Query\AggregationInterface $child
      *
      * @return \App\Services\Elasticsearch\Query\Query
      */
@@ -69,13 +73,21 @@ class Query extends AbstractQuery
     }
 
     /**
-     * @param \App\Services\Elasticsearch\Query\Criteria\SearchInterface $search
+     * @param \App\Services\Elasticsearch\Query\Criteria\SearchInterface|\App\Services\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface $search
      *
      * @return \App\Services\Elasticsearch\Query\Query
      */
-    public function search(SearchInterface $search): Query
+    public function search(CriteriaInterface $search): Query
     {
-        return $this->add($search);
+        if (!($search instanceof SearchInterface) && !($search instanceof BoolQueryInterface)) {
+            throw new InvalidArgumentException(
+                'Argument $search must implement \App\Services\Elasticsearch\Query\Criteria\SearchInterface or \App\Services\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface'
+            );
+        }
+
+        $this->searches[] = $search;
+
+        return $this;
     }
 
     /**
@@ -95,7 +107,9 @@ class Query extends AbstractQuery
      */
     public function aggregate(AggregationInterface $aggregation): Query
     {
-        return $this->add($aggregation);
+        $this->addChild($aggregation);
+
+        return $this;
     }
 
     /**
@@ -128,7 +142,7 @@ class Query extends AbstractQuery
 
         if (!empty($this->searches)) {
             $preparedSearches = array_map(
-                function (SearchInterface $search): array {
+                function (CriteriaInterface $search): array {
                     return $search->toArray();
                 },
                 $this->searches
@@ -143,7 +157,7 @@ class Query extends AbstractQuery
                     $body['query'] = [
                         'bool' => [
                             'should' => $preparedSearches,
-                            'minimum_should_match' => 1,
+                            'minimum_should_match' => static::MINIMUM_SHOULD_MATCH,
                         ],
                     ];
                     break;
