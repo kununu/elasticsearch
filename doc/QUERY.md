@@ -509,3 +509,14 @@ Will produce
 ```
 
 Please find all available aggregation types in `Query\Aggregation\Metric` and `Query\Aggregation\Bucket`, respectively.
+
+#### Global Aggregations
+Global aggregations work as defined [here](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-global-aggregation.html).
+
+To create a global aggregation simply use the dedicated factory method and nest other aggregations within, just as usual.
+
+For example:
+```php
+Aggregation::createGlobal('all_products')
+    ->nest(Aggregation::create('price', Metric::AVG, 'avg_price'));
+```
