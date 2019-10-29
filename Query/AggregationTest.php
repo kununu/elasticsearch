@@ -187,7 +187,7 @@ class AggregationTest extends MockeryTestCase
     public function testNestOneInGlobal(): void
     {
         $aggregation = Aggregation::createGlobal('all_products')
-            ->nest(Aggregation::create('price', Aggregation\Metric::AVG, 'avg_price'));
+            ->nest(Aggregation::create('price', Metric::AVG, 'avg_price'));
 
         $this->assertEquals(
             json_encode(
