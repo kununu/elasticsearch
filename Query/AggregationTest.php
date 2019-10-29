@@ -150,4 +150,61 @@ class AggregationTest extends MockeryTestCase
             $aggregation->toArray()
         );
     }
+
+    public function testCreateGlobalWithoutOptions(): void
+    {
+        $aggregation = Aggregation::createGlobal('my_global_agg');
+
+        $this->assertEquals(
+            json_encode(
+                [
+                    'my_global_agg' => [
+                        'global' => new \stdClass(),
+                    ],
+                ]
+            ),
+            json_encode($aggregation->toArray())
+        );
+    }
+
+    public function testCreateGlobalWithOptions(): void
+    {
+        $aggregation = Aggregation::createGlobal('my_global_agg', ['my_option' => 'foobar']);
+
+        $this->assertEquals(
+            json_encode(
+                [
+                    'my_global_agg' => [
+                        'global' => new \stdClass(),
+                        'my_option' => 'foobar',
+                    ],
+                ]
+            ),
+            json_encode($aggregation->toArray())
+        );
+    }
+
+    public function testNestOneInGlobal(): void
+    {
+        $aggregation = Aggregation::createGlobal('all_products')
+            ->nest(Aggregation::create('price', Aggregation\Metric::AVG, 'avg_price'));
+
+        $this->assertEquals(
+            json_encode(
+                [
+                    'all_products' => [
+                        'global' => new \stdClass(),
+                        'aggs' => [
+                            'avg_price' => [
+                                'avg' => [
+                                    'field' => 'price',
+                                ],
+                            ],
+                        ],
+                    ],
+                ]
+            ),
+            json_encode($aggregation->toArray())
+        );
+    }
 }
