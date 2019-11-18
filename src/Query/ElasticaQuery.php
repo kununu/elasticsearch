@@ -53,6 +53,8 @@ class ElasticaQuery extends \Elastica\Query implements QueryInterface
     }
 
     /**
+     * Inherit this method to comply with type hints in \Kununu\Elasticsearch\Query\QueryInterface
+     *
      * @inheritdoc
      */
     public function toArray(): array
