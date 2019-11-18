@@ -1,0 +1,35 @@
+{
+    "name": "kununu/elasticsearch",
+    "description": "Library for simplified querying and usage of Elasticsearch @ Kununu",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": ">=7.2",
+        "ext-ctype": "*",
+        "ext-iconv": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "elasticsearch/elasticsearch": "^6.7",
+        "ruflin/elastica": "^6.1"
+    },
+    "require-dev": {
+        "mockery/mockery": "^1.2",
+        "phpunit/phpunit": "^8.1"
+    },
+    "config": {
+        "preferred-install": {
+            "*": "dist"
+        },
+        "sort-packages": true
+    },
+    "autoload": {
+        "psr-4": {
+            "Kununu\\Elasticsearch\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Kununu\\Elasticsearch\\Tests\\": "tests/"
+        }
+    }
+}
