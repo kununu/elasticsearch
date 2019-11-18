@@ -9,3 +9,4 @@ log/
 .env
 .env.test
 .phpunit.result.cache
+tests/.results
