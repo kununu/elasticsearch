@@ -122,6 +122,7 @@ class AdapterFactoryTest extends MockeryTestCase
         $factory = new AdapterFactory();
 
         $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Unknown adapter class "' . $adapterClass . '"');
         $factory->build($adapterClass, self::CONNECTION_CONFIG);
     }
 

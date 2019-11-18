@@ -6,6 +6,7 @@ namespace Kununu\Elasticsearch\Tests\Repository;
 use Kununu\Elasticsearch\Adapter\AdapterFactoryInterface;
 use Kununu\Elasticsearch\Adapter\AdapterInterface;
 use Kununu\Elasticsearch\Exception\RepositoryException;
+use Kununu\Elasticsearch\Query\Aggregation;
 use Kununu\Elasticsearch\Query\Criteria\Filter;
 use Kununu\Elasticsearch\Query\Query;
 use Kununu\Elasticsearch\Repository\ElasticsearchRepository;
@@ -260,6 +261,45 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
         $this->expectException(RepositoryException::class);
 
         $this->getManager()->countByQuery(Query::create());
+    }
+
+    public function testAggregateByQuery(): void
+    {
+        $query = Query::create(
+            Filter::create('foo', 'bar'),
+            Aggregation::create('foo', Aggregation\Metric::EXTENDED_STATS)
+        );
+
+        $this->adapterMock
+            ->shouldReceive('search')
+            ->once()
+            ->with($query);
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $this->getManager()->aggregateByQuery($query);
+    }
+
+    public function testAggregateByQueryFails(): void
+    {
+        $query = Query::create(
+            Filter::create('foo', 'bar'),
+            Aggregation::create('foo', Aggregation\Metric::EXTENDED_STATS)
+        );
+
+        $this->adapterMock
+            ->shouldReceive('search')
+            ->once()
+            ->andThrow(new \Exception(self::ERROR_MESSAGE));
+
+        $this->loggerMock
+            ->shouldReceive('error')
+            ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
+
+        $this->expectException(RepositoryException::class);
+
+        $this->getManager()->findByQuery($query);
     }
 
     public function testUpdateByQuery(): void

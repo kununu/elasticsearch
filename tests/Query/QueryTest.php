@@ -161,6 +161,16 @@ class QueryTest extends MockeryTestCase
         $this->assertChildren($query, self::FIELD_NAME_AGGREGATIONS, []);
     }
 
+    public function testSearchWithInvalidCriteria(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            'Argument $search must implement \Kununu\Elasticsearch\Query\Criteria\SearchInterface or \Kununu\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface'
+        );
+
+        Query::create()->search(Filter::create('field', 'value'));
+    }
+
     public function testWhere(): void
     {
         $query = Query::create();
