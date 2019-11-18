@@ -1,18 +1,18 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Adapter;
+namespace Kununu\Elasticsearch\Adapter;
 
-use App\Services\Elasticsearch\Query\QueryInterface;
-use App\Services\Elasticsearch\Result\AggregationResultSet;
-use App\Services\Elasticsearch\Result\ResultIterator;
-use App\Services\Elasticsearch\Result\ResultIteratorInterface;
 use Elasticsearch\Client;
+use Kununu\Elasticsearch\Query\QueryInterface;
+use Kununu\Elasticsearch\Result\AggregationResultSet;
+use Kununu\Elasticsearch\Result\ResultIterator;
+use Kununu\Elasticsearch\Result\ResultIteratorInterface;
 
 /**
  * Class ElasticsearchAdapter
  *
- * @package App\Services\Elasticsearch\Adapter
+ * @package Kununu\Elasticsearch\Adapter
  */
 class ElasticsearchAdapter extends AbstractAdapter implements AdapterInterface
 {
@@ -49,7 +49,7 @@ class ElasticsearchAdapter extends AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
+     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
      *
      * @return array
      */
@@ -64,7 +64,7 @@ class ElasticsearchAdapter extends AbstractAdapter implements AdapterInterface
     /**
      * @param array $rawResult
      *
-     * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
+     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
      */
     protected function parseRawSearchResponse(array $rawResult): ResultIteratorInterface
     {
@@ -74,11 +74,11 @@ class ElasticsearchAdapter extends AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
+     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
      *
-     * @param bool                                             $scroll
+     * @param bool                                       $scroll
      *
-     * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
+     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
      */
     public function search(?QueryInterface $query, bool $scroll = false): ResultIteratorInterface
     {
@@ -95,7 +95,7 @@ class ElasticsearchAdapter extends AbstractAdapter implements AdapterInterface
     /**
      * @param string $scrollId
      *
-     * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
+     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
      */
     public function scroll(string $scrollId): ResultIteratorInterface
     {
@@ -110,7 +110,7 @@ class ElasticsearchAdapter extends AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
+     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
      *
      * @return int
      */
@@ -137,9 +137,9 @@ class ElasticsearchAdapter extends AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
+     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
      *
-     * @return \App\Services\Elasticsearch\Result\AggregationResultSet
+     * @return \Kununu\Elasticsearch\Result\AggregationResultSet
      */
     public function aggregate(QueryInterface $query): AggregationResultSet
     {
@@ -152,8 +152,8 @@ class ElasticsearchAdapter extends AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
-     * @param array                                            $updateScript
+     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
+     * @param array                                      $updateScript
      *
      * @return array
      */

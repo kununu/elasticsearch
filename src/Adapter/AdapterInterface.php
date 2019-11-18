@@ -1,16 +1,16 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Adapter;
+namespace Kununu\Elasticsearch\Adapter;
 
-use App\Services\Elasticsearch\Query\QueryInterface;
-use App\Services\Elasticsearch\Result\AggregationResultSet;
-use App\Services\Elasticsearch\Result\ResultIteratorInterface;
+use Kununu\Elasticsearch\Query\QueryInterface;
+use Kununu\Elasticsearch\Result\AggregationResultSet;
+use Kununu\Elasticsearch\Result\ResultIteratorInterface;
 
 /**
  * Interface AdapterInterface
  *
- * @package App\Services\Elasticsearch\Adapter
+ * @package Kununu\Elasticsearch\Adapter
  */
 interface AdapterInterface
 {
@@ -25,23 +25,23 @@ interface AdapterInterface
     public function getTypeName(): string;
 
     /**
-     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
+     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
      *
-     * @param bool                                             $scroll
+     * @param bool                                       $scroll
      *
-     * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
+     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
      */
     public function search(QueryInterface $query, bool $scroll = false): ResultIteratorInterface;
 
     /**
      * @param string $scrollId
      *
-     * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
+     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
      */
     public function scroll(string $scrollId): ResultIteratorInterface;
 
     /**
-     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
+     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
      *
      * @return int
      */
@@ -59,15 +59,15 @@ interface AdapterInterface
     public function index(string $id, array $data): void;
 
     /**
-     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
+     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
      *
-     * @return \App\Services\Elasticsearch\Result\AggregationResultSet
+     * @return \Kununu\Elasticsearch\Result\AggregationResultSet
      */
     public function aggregate(QueryInterface $query): AggregationResultSet;
 
     /**
-     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
-     * @param array                                            $updateScript
+     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
+     * @param array                                      $updateScript
      *
      * @return array
      */

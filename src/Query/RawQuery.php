@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Query;
+namespace Kununu\Elasticsearch\Query;
 
 /**
  * Class RawQuery
  *
- * @package App\Services\Elasticsearch\Query
+ * @package Kununu\Elasticsearch\Query
  */
 class RawQuery extends AbstractQuery
 {
@@ -26,7 +26,7 @@ class RawQuery extends AbstractQuery
     /**
      * @param array $rawQuery
      *
-     * @return \App\Services\Elasticsearch\Query\RawQuery
+     * @return \Kununu\Elasticsearch\Query\RawQuery
      */
     public static function create(array $rawQuery = []): RawQuery
     {

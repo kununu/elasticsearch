@@ -1,14 +1,14 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Query\Aggregation;
+namespace Kununu\Elasticsearch\Query\Aggregation;
 
-use App\Services\Elasticsearch\Util\ConstantContainerTrait;
+use Kununu\Elasticsearch\Util\ConstantContainerTrait;
 
 /**
  * Class Bucket
  *
- * @package App\Services\Elasticsearch\Query\Aggregation
+ * @package Kununu\Elasticsearch\Query\Aggregation
  */
 final class Bucket
 {

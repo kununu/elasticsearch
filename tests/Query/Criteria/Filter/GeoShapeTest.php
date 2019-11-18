@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Services\Elasticsearch\Query\Criteria\Filter;
 
-use App\Services\Elasticsearch\Query\Criteria\Filter\GeoShape;
-use App\Services\Elasticsearch\Query\Criteria\GeoShapeInterface;
+use Kununu\Elasticsearch\Query\Criteria\Filter\GeoShape;
+use Kununu\Elasticsearch\Query\Criteria\GeoShapeInterface;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 /**
@@ -13,7 +13,7 @@ use Mockery\Adapter\Phpunit\MockeryTestCase;
 class GeoShapeTest extends MockeryTestCase
 {
     /**
-     * @var \App\Services\Elasticsearch\Query\Criteria\GeoShapeInterface|\Mockery\MockInterface
+     * @var \Kununu\Elasticsearch\Query\Criteria\GeoShapeInterface|\Mockery\MockInterface
      */
     protected $geoShape;
 

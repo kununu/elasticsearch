@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Services\Elasticsearch\Adapter;
 
-use App\Services\Elasticsearch\Result\AggregationResult;
+use Kununu\Elasticsearch\Result\AggregationResult;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 /**

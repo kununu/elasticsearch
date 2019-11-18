@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Adapter;
+namespace Kununu\Elasticsearch\Adapter;
 
 /**
  * Interface AdapterFactoryInterface
  *
- * @package App\Services\Elasticsearch\Adapter
+ * @package Kununu\Elasticsearch\Adapter
  */
 interface AdapterFactoryInterface
 {
@@ -14,7 +14,7 @@ interface AdapterFactoryInterface
      * @param string $class
      * @param array  $connectionConfig
      *
-     * @return \App\Services\Elasticsearch\Adapter\AdapterInterface
+     * @return \Kununu\Elasticsearch\Adapter\AdapterInterface
      */
     public function build(string $class, array $connectionConfig): AdapterInterface;
 }

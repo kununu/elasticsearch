@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Services\Elasticsearch\Query;
 
-use App\Services\Elasticsearch\Query\ElasticaQuery;
-use App\Services\Elasticsearch\Query\QueryInterface;
-use App\Services\Elasticsearch\Query\SortOrder;
 use Elastica\Exception\InvalidException;
+use Kununu\Elasticsearch\Query\ElasticaQuery;
+use Kununu\Elasticsearch\Query\QueryInterface;
+use Kununu\Elasticsearch\Query\SortOrder;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 /**
@@ -38,7 +38,7 @@ class ElasticaQueryTest extends MockeryTestCase
     /**
      * @dataProvider createEmptyData
      *
-     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
+     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
      */
     public function testCreateEmpty(QueryInterface $query): void
     {

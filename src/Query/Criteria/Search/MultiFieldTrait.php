@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Query\Criteria\Search;
+namespace Kununu\Elasticsearch\Query\Criteria\Search;
 
 /**
  * Trait MultiFieldTrait
  *
- * @package App\Services\Elasticsearch\Query\Criteria\Search
+ * @package Kununu\Elasticsearch\Query\Criteria\Search
  */
 trait MultiFieldTrait
 {

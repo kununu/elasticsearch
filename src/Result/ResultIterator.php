@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Result;
+namespace Kununu\Elasticsearch\Result;
 
 /**
  * Class ResultIterator
  *
- * @package App\Services\Elasticsearch\Result
+ * @package Kununu\Elasticsearch\Result
  */
 class ResultIterator implements \Iterator, \ArrayAccess, \Countable, ResultIteratorInterface
 {
@@ -41,7 +41,7 @@ class ResultIterator implements \Iterator, \ArrayAccess, \Countable, ResultItera
     /**
      * @param array $results
      *
-     * @return \App\Services\Elasticsearch\Result\ResultIterator
+     * @return \Kununu\Elasticsearch\Result\ResultIterator
      */
     public static function create(array $results = []): ResultIterator
     {
@@ -127,7 +127,7 @@ class ResultIterator implements \Iterator, \ArrayAccess, \Countable, ResultItera
     /**
      * @param int $total
      *
-     * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
+     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
      */
     public function setTotal(int $total): ResultIteratorInterface
     {
@@ -171,7 +171,7 @@ class ResultIterator implements \Iterator, \ArrayAccess, \Countable, ResultItera
     /**
      * @param string|null $scrollId
      *
-     * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
+     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
      */
     public function setScrollId(?string $scrollId): ResultIteratorInterface
     {
@@ -191,7 +191,7 @@ class ResultIterator implements \Iterator, \ArrayAccess, \Countable, ResultItera
     /**
      * @param array $result
      *
-     * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
+     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
      */
     public function push(array $result): ResultIteratorInterface
     {

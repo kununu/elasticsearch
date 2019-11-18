@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Services\Elasticsearch\Util;
 
-use App\Services\Elasticsearch\Util\ConstantContainerTrait;
+use Kununu\Elasticsearch\Util\ConstantContainerTrait;
 use PHPUnit\Framework\TestCase;
 
 class ConstantContainerTraitTest extends TestCase

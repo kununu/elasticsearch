@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Services\Elasticsearch\Util;
 
-use App\Services\Elasticsearch\Util\LoggerAwareTrait;
+use Kununu\Elasticsearch\Util\LoggerAwareTrait;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;

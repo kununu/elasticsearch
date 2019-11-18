@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Util;
+namespace Kununu\Elasticsearch\Util;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -9,7 +9,7 @@ use Psr\Log\NullLogger;
 /**
  * Trait LoggerAwareTrait
  *
- * @package App\Services\Elasticsearch\Logging
+ * @package Kununu\Elasticsearch\Logging
  */
 trait LoggerAwareTrait
 {

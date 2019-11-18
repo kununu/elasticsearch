@@ -1,16 +1,16 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Query\Criteria\Bool;
+namespace Kununu\Elasticsearch\Query\Criteria\Bool;
 
-use App\Services\Elasticsearch\Exception\QueryException;
-use App\Services\Elasticsearch\Query\Criteria\CriteriaInterface;
 use InvalidArgumentException;
+use Kununu\Elasticsearch\Exception\QueryException;
+use Kununu\Elasticsearch\Query\Criteria\CriteriaInterface;
 
 /**
  * Class AbstractBoolQuery
  *
- * @package App\Services\Elasticsearch\Query\Criteria\Bool
+ * @package Kununu\Elasticsearch\Query\Criteria\Bool
  */
 abstract class AbstractBoolQuery implements BoolQueryInterface
 {
@@ -23,7 +23,7 @@ abstract class AbstractBoolQuery implements BoolQueryInterface
 
     /**
      * @return string
-     * @throws \App\Services\Elasticsearch\Exception\QueryException
+     * @throws \Kununu\Elasticsearch\Exception\QueryException
      */
     protected function getOperator(): string
     {
@@ -35,7 +35,7 @@ abstract class AbstractBoolQuery implements BoolQueryInterface
     }
 
     /**
-     * @param \App\Services\Elasticsearch\Query\Criteria\CriteriaInterface[] ...$children
+     * @param \Kununu\Elasticsearch\Query\Criteria\CriteriaInterface[] ...$children
      */
     public function __construct(...$children)
     {
@@ -50,9 +50,9 @@ abstract class AbstractBoolQuery implements BoolQueryInterface
     }
 
     /**
-     * @param \App\Services\Elasticsearch\Query\Criteria\CriteriaInterface[] ...$children
+     * @param \Kununu\Elasticsearch\Query\Criteria\CriteriaInterface[] ...$children
      *
-     * @return \App\Services\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface
+     * @return \Kununu\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface
      */
     public static function create(...$children): BoolQueryInterface
     {
@@ -60,9 +60,9 @@ abstract class AbstractBoolQuery implements BoolQueryInterface
     }
 
     /**
-     * @param \App\Services\Elasticsearch\Query\Criteria\CriteriaInterface $child
+     * @param \Kununu\Elasticsearch\Query\Criteria\CriteriaInterface $child
      *
-     * @return \App\Services\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface
+     * @return \Kununu\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface
      */
     public function add(CriteriaInterface $child): BoolQueryInterface
     {
@@ -73,7 +73,7 @@ abstract class AbstractBoolQuery implements BoolQueryInterface
 
     /**
      * @return array
-     * @throws \App\Services\Elasticsearch\Exception\QueryException
+     * @throws \Kununu\Elasticsearch\Exception\QueryException
      */
     public function toArray(): array
     {

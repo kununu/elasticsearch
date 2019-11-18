@@ -1,31 +1,31 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Result;
+namespace Kununu\Elasticsearch\Result;
 
 /**
  * Interface AggregationResultSetInterface
  *
- * @package App\Services\Elasticsearch\Result
+ * @package Kununu\Elasticsearch\Result
  */
 interface AggregationResultSetInterface
 {
     /**
-     * @param \App\Services\Elasticsearch\Result\ResultIteratorInterface $resultIterator
+     * @param \Kununu\Elasticsearch\Result\ResultIteratorInterface $resultIterator
      *
-     * @return \App\Services\Elasticsearch\Result\AggregationResultSetInterface
+     * @return \Kununu\Elasticsearch\Result\AggregationResultSetInterface
      */
     public function setDocuments(ResultIteratorInterface $resultIterator): AggregationResultSetInterface;
 
     /**
-     * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface|null
+     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface|null
      */
     public function getDocuments(): ?ResultIteratorInterface;
 
     /**
      * @param string $name
      *
-     * @return \App\Services\Elasticsearch\Result\AggregationResult|null
+     * @return \Kununu\Elasticsearch\Result\AggregationResult|null
      */
     public function getResultByName(string $name): ?AggregationResultInterface;
 

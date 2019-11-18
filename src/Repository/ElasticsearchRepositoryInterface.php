@@ -1,16 +1,16 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Repository;
+namespace Kununu\Elasticsearch\Repository;
 
-use App\Services\Elasticsearch\Query\QueryInterface;
-use App\Services\Elasticsearch\Result\AggregationResultSet;
-use App\Services\Elasticsearch\Result\ResultIteratorInterface;
+use Kununu\Elasticsearch\Query\QueryInterface;
+use Kununu\Elasticsearch\Result\AggregationResultSet;
+use Kununu\Elasticsearch\Result\ResultIteratorInterface;
 
 /**
  * Interface ElasticsearchRepositoryInterface
  *
- * @package App\Services\Elasticsearch\Repository
+ * @package Kununu\Elasticsearch\Repository
  */
 interface ElasticsearchRepositoryInterface
 {
@@ -31,23 +31,23 @@ interface ElasticsearchRepositoryInterface
     public function deleteIndex(string $indexName): void;
 
     /**
-     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
+     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
      *
-     * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
+     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
      */
     public function findByQuery(QueryInterface $query): ResultIteratorInterface;
 
     /**
-     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
+     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
      *
-     * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
+     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
      */
     public function findScrollableByQuery(QueryInterface $query): ResultIteratorInterface;
 
     /**
      * @param string $scrollId
      *
-     * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
+     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
      */
     public function findByScrollId(string $scrollId): ResultIteratorInterface;
 
@@ -57,22 +57,22 @@ interface ElasticsearchRepositoryInterface
     public function count(): int;
 
     /**
-     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
+     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
      *
      * @return int
      */
     public function countByQuery(QueryInterface $query): int;
 
     /**
-     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
+     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
      *
-     * @return \App\Services\Elasticsearch\Result\AggregationResultSet
+     * @return \Kununu\Elasticsearch\Result\AggregationResultSet
      */
     public function aggregateByQuery(QueryInterface $query): AggregationResultSet;
 
     /**
-     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
-     * @param array                                            $updateScript
+     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
+     * @param array                                      $updateScript
      *
      * @return array
      */

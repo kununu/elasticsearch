@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Query;
+namespace Kununu\Elasticsearch\Query;
 
 /**
  * Interface QueryInterface
  *
- * @package App\Services\Elasticsearch\Query
+ * @package Kununu\Elasticsearch\Query
  */
 interface QueryInterface
 {
@@ -18,14 +18,14 @@ interface QueryInterface
     /**
      * @param int $offset
      *
-     * @return \App\Services\Elasticsearch\Query\QueryInterface
+     * @return \Kununu\Elasticsearch\Query\QueryInterface
      */
     public function skip(int $offset): QueryInterface;
 
     /**
      * @param int $size
      *
-     * @return \App\Services\Elasticsearch\Query\QueryInterface
+     * @return \Kununu\Elasticsearch\Query\QueryInterface
      */
     public function limit(int $size): QueryInterface;
 
@@ -48,7 +48,7 @@ interface QueryInterface
      * @param string $field
      * @param string $order
      *
-     * @return \App\Services\Elasticsearch\Query\QueryInterface
+     * @return \Kununu\Elasticsearch\Query\QueryInterface
      */
     public function sort(string $field, string $order = SortOrder::ASC): QueryInterface;
 
@@ -60,7 +60,7 @@ interface QueryInterface
     /**
      * @param array $selectFields
      *
-     * @return \App\Services\Elasticsearch\Query\QueryInterface
+     * @return \Kununu\Elasticsearch\Query\QueryInterface
      */
     public function select(array $selectFields): QueryInterface;
 }

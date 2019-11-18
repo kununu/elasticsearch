@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Query\Criteria\Filter;
+namespace Kununu\Elasticsearch\Query\Criteria\Filter;
 
 /**
  * Class Terms
  *
- * @package App\Services\Elasticsearch\Query\Criteria\Filter
+ * @package Kununu\Elasticsearch\Query\Criteria\Filter
  */
 class Terms
 {

@@ -1,23 +1,23 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Query\Criteria\Filter;
+namespace Kununu\Elasticsearch\Query\Criteria\Filter;
 
-use App\Services\Elasticsearch\Query\Criteria\GeoShapeInterface;
+use Kununu\Elasticsearch\Query\Criteria\GeoShapeInterface;
 
 /**
  * Class GeoShape
  *
- * @package App\Services\Elasticsearch\Query\Criteria\Filter
+ * @package Kununu\Elasticsearch\Query\Criteria\Filter
  */
 class GeoShape
 {
     public const KEYWORD = 'geo_shape';
 
     /**
-     * @param string                                                       $field
-     * @param \App\Services\Elasticsearch\Query\Criteria\GeoShapeInterface $value
-     * @param array                                                        $options
+     * @param string                                                 $field
+     * @param \Kununu\Elasticsearch\Query\Criteria\GeoShapeInterface $value
+     * @param array                                                  $options
      *
      * @return array
      */

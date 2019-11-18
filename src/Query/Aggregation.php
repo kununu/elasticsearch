@@ -1,16 +1,16 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Query;
+namespace Kununu\Elasticsearch\Query;
 
-use App\Services\Elasticsearch\Query\Aggregation\Bucket;
-use App\Services\Elasticsearch\Query\Aggregation\Metric;
 use InvalidArgumentException;
+use Kununu\Elasticsearch\Query\Aggregation\Bucket;
+use Kununu\Elasticsearch\Query\Aggregation\Metric;
 
 /**
  * Class Aggregation
  *
- * @package App\Services\Elasticsearch\Query
+ * @package Kununu\Elasticsearch\Query
  */
 class Aggregation implements AggregationInterface
 {
@@ -40,7 +40,7 @@ class Aggregation implements AggregationInterface
     protected $options = [];
 
     /**
-     * @var \App\Services\Elasticsearch\Query\AggregationInterface[]
+     * @var \Kununu\Elasticsearch\Query\AggregationInterface[]
      */
     protected $nestedAggregations = [];
 
@@ -72,7 +72,7 @@ class Aggregation implements AggregationInterface
      * @param string $name
      * @param array  $options
      *
-     * @return \App\Services\Elasticsearch\Query\Aggregation
+     * @return \Kununu\Elasticsearch\Query\Aggregation
      */
     public static function create(string $field, string $type, string $name = '', array $options = []): Aggregation
     {
@@ -83,7 +83,7 @@ class Aggregation implements AggregationInterface
      * @param string $name
      * @param array  $options
      *
-     * @return \App\Services\Elasticsearch\Query\Aggregation
+     * @return \Kununu\Elasticsearch\Query\Aggregation
      */
     public static function createGlobal(string $name = '', array $options = []): Aggregation
     {
@@ -99,9 +99,9 @@ class Aggregation implements AggregationInterface
     }
 
     /**
-     * @param \App\Services\Elasticsearch\Query\AggregationInterface $aggregation
+     * @param \Kununu\Elasticsearch\Query\AggregationInterface $aggregation
      *
-     * @return \App\Services\Elasticsearch\Query\Aggregation
+     * @return \Kununu\Elasticsearch\Query\Aggregation
      */
     public function nest(AggregationInterface $aggregation): Aggregation
     {

@@ -1,14 +1,14 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Adapter;
+namespace Kununu\Elasticsearch\Adapter;
 
-use App\Services\Elasticsearch\Exception\AdapterConfigurationException;
+use Kununu\Elasticsearch\Exception\AdapterConfigurationException;
 
 /**
  * Class AbstractAdapter
  *
- * @package App\Services\Elasticsearch\Adapter
+ * @package Kununu\Elasticsearch\Adapter
  */
 abstract class AbstractAdapter
 {

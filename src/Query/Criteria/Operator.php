@@ -1,21 +1,21 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Query\Criteria;
+namespace Kununu\Elasticsearch\Query\Criteria;
 
-use App\Services\Elasticsearch\Query\Criteria\Filter\Exists;
-use App\Services\Elasticsearch\Query\Criteria\Filter\GeoDistance;
-use App\Services\Elasticsearch\Query\Criteria\Filter\GeoShape;
-use App\Services\Elasticsearch\Query\Criteria\Filter\Prefix;
-use App\Services\Elasticsearch\Query\Criteria\Filter\Regexp;
-use App\Services\Elasticsearch\Query\Criteria\Filter\Term;
-use App\Services\Elasticsearch\Query\Criteria\Filter\Terms;
-use App\Services\Elasticsearch\Util\ConstantContainerTrait;
+use Kununu\Elasticsearch\Query\Criteria\Filter\Exists;
+use Kununu\Elasticsearch\Query\Criteria\Filter\GeoDistance;
+use Kununu\Elasticsearch\Query\Criteria\Filter\GeoShape;
+use Kununu\Elasticsearch\Query\Criteria\Filter\Prefix;
+use Kununu\Elasticsearch\Query\Criteria\Filter\Regexp;
+use Kununu\Elasticsearch\Query\Criteria\Filter\Term;
+use Kununu\Elasticsearch\Query\Criteria\Filter\Terms;
+use Kununu\Elasticsearch\Util\ConstantContainerTrait;
 
 /**
  * Class Operator
  *
- * @package App\Services\Elasticsearch\Query\Criteria
+ * @package Kununu\Elasticsearch\Query\Criteria
  */
 final class Operator
 {

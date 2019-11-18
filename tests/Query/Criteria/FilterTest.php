@@ -3,11 +3,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Services\Elasticsearch\Query\Criteria;
 
-use App\Services\Elasticsearch\Query\Criteria\Filter;
-use App\Services\Elasticsearch\Query\Criteria\GeoDistanceInterface;
-use App\Services\Elasticsearch\Query\Criteria\GeoShapeInterface;
-use App\Services\Elasticsearch\Query\Criteria\Operator;
 use InvalidArgumentException;
+use Kununu\Elasticsearch\Query\Criteria\Filter;
+use Kununu\Elasticsearch\Query\Criteria\GeoDistanceInterface;
+use Kununu\Elasticsearch\Query\Criteria\GeoShapeInterface;
+use Kununu\Elasticsearch\Query\Criteria\Operator;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 /**

@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Services\Elasticsearch\Query\Criteria;
 
-use App\Services\Elasticsearch\Query\Criteria\Search;
 use InvalidArgumentException;
+use Kununu\Elasticsearch\Query\Criteria\Search;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 /**

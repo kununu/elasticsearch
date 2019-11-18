@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Services\Elasticsearch\Query\Criteria\Search;
 
-use App\Services\Elasticsearch\Query\Criteria\Search\MultiFieldTrait;
+use Kununu\Elasticsearch\Query\Criteria\Search\MultiFieldTrait;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 /**

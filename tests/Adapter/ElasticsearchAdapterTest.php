@@ -3,16 +3,16 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Services\Elasticsearch\Repository;
 
-use App\Services\Elasticsearch\Adapter\ElasticsearchAdapter;
-use App\Services\Elasticsearch\Query\Criteria\Filter;
-use App\Services\Elasticsearch\Query\ElasticaQuery;
-use App\Services\Elasticsearch\Query\Query;
-use App\Services\Elasticsearch\Query\QueryInterface;
-use App\Services\Elasticsearch\Query\RawQuery;
 use Elastica\Query\BoolQuery;
 use Elastica\Query\Term;
 use Elasticsearch\Client;
 use Elasticsearch\Namespaces\IndicesNamespace;
+use Kununu\Elasticsearch\Adapter\ElasticsearchAdapter;
+use Kununu\Elasticsearch\Query\Criteria\Filter;
+use Kununu\Elasticsearch\Query\ElasticaQuery;
+use Kununu\Elasticsearch\Query\Query;
+use Kununu\Elasticsearch\Query\QueryInterface;
+use Kununu\Elasticsearch\Query\RawQuery;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
@@ -291,10 +291,10 @@ class ElasticsearchAdapterTest extends MockeryTestCase
     /**
      * @dataProvider queryAndSearchResultVariationsData
      *
-     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
-     * @param array                                            $esResult
-     * @param array                                            $endResult
-     * @param bool                                             $scroll
+     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
+     * @param array                                      $esResult
+     * @param array                                      $endResult
+     * @param bool                                       $scroll
      */
     public function testSearchByQuery(QueryInterface $query, array $esResult, array $endResult, bool $scroll): void
     {
@@ -328,7 +328,7 @@ class ElasticsearchAdapterTest extends MockeryTestCase
     /**
      * @dataProvider queriesData
      *
-     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
+     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
      */
     public function testCount(QueryInterface $query): void
     {
@@ -350,9 +350,9 @@ class ElasticsearchAdapterTest extends MockeryTestCase
     /**
      * @dataProvider queryAndSearchResultData
      *
-     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
-     * @param array                                            $esResult
-     * @param array                                            $endResult
+     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
+     * @param array                                      $esResult
+     * @param array                                      $endResult
      */
     public function testAggregate(QueryInterface $query, array $esResult, array $endResult): void
     {
@@ -454,9 +454,9 @@ class ElasticsearchAdapterTest extends MockeryTestCase
     /**
      * @dataProvider updateData
      *
-     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
-     * @param array                                            $rawQuery
-     * @param array                                            $updateScript
+     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
+     * @param array                                      $rawQuery
+     * @param array                                      $updateScript
      */
     public function testUpdate(QueryInterface $query, array $rawQuery, array $updateScript): void
     {

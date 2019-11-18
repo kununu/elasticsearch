@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Result;
+namespace Kununu\Elasticsearch\Result;
 
 /**
  * Interface AggregationResultInterface
  *
- * @package App\Services\Elasticsearch\Result
+ * @package Kununu\Elasticsearch\Result
  */
 interface AggregationResultInterface
 {

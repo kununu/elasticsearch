@@ -3,13 +3,13 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Services\Elasticsearch\Repository;
 
-use App\Services\Elasticsearch\Adapter\AdapterFactoryInterface;
-use App\Services\Elasticsearch\Adapter\AdapterInterface;
-use App\Services\Elasticsearch\Exception\RepositoryException;
-use App\Services\Elasticsearch\Query\Criteria\Filter;
-use App\Services\Elasticsearch\Query\Query;
-use App\Services\Elasticsearch\Repository\ElasticsearchRepository;
-use App\Services\Elasticsearch\Repository\ElasticsearchRepositoryInterface;
+use Kununu\Elasticsearch\Adapter\AdapterFactoryInterface;
+use Kununu\Elasticsearch\Adapter\AdapterInterface;
+use Kununu\Elasticsearch\Exception\RepositoryException;
+use Kununu\Elasticsearch\Query\Criteria\Filter;
+use Kununu\Elasticsearch\Query\Query;
+use Kununu\Elasticsearch\Repository\ElasticsearchRepository;
+use Kununu\Elasticsearch\Repository\ElasticsearchRepositoryInterface;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Psr\Log\LoggerInterface;
@@ -24,10 +24,10 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
     protected const ID = 'can_be_anything';
     protected const DOCUMENT_COUNT = 42;
 
-    /** @var \App\Services\Elasticsearch\Adapter\AdapterFactoryInterface|\Mockery\MockInterface */
+    /** @var \Kununu\Elasticsearch\Adapter\AdapterFactoryInterface|\Mockery\MockInterface */
     protected $adapterFactoryMock;
 
-    /** @var \App\Services\Elasticsearch\Adapter\AdapterInterface|\Mockery\MockInterface */
+    /** @var \Kununu\Elasticsearch\Adapter\AdapterInterface|\Mockery\MockInterface */
     protected $adapterMock;
 
     /** @var \Psr\Log\LoggerInterface|\Mockery\MockInterface */
@@ -45,7 +45,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
     }
 
     /**
-     * @return \App\Services\Elasticsearch\Repository\ElasticsearchRepositoryInterface
+     * @return \Kununu\Elasticsearch\Repository\ElasticsearchRepositoryInterface
      */
     private function getManager(): ElasticsearchRepositoryInterface
     {

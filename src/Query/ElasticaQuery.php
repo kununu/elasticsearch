@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Query;
+namespace Kununu\Elasticsearch\Query;
 
 use Elastica\Exception\InvalidException;
 use Elastica\Query\AbstractQuery;
@@ -14,7 +14,7 @@ use InvalidArgumentException;
 /**
  * Class ElasticaQuery
  *
- * @package App\Services\Elasticsearch\Query
+ * @package Kununu\Elasticsearch\Query
  */
 class ElasticaQuery extends \Elastica\Query implements QueryInterface
 {
@@ -23,7 +23,7 @@ class ElasticaQuery extends \Elastica\Query implements QueryInterface
      *
      * @inheritdoc
      *
-     * @return \App\Services\Elasticsearch\Query\ElasticaQuery
+     * @return \Kununu\Elasticsearch\Query\ElasticaQuery
      */
     public static function create($query = null): ElasticaQuery
     {

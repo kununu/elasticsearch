@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Services\Elasticsearch\Adapter;
 
-use App\Services\Elasticsearch\Adapter\AbstractAdapter;
-use App\Services\Elasticsearch\Exception\AdapterConfigurationException;
+use Kununu\Elasticsearch\Adapter\AbstractAdapter;
+use Kununu\Elasticsearch\Exception\AdapterConfigurationException;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 /**
@@ -19,7 +19,7 @@ class AbstractAdapterTest extends MockeryTestCase
      * @param string|null $index
      * @param string|null $type
      *
-     * @return \App\Services\Elasticsearch\Adapter\AbstractAdapter
+     * @return \Kununu\Elasticsearch\Adapter\AbstractAdapter
      */
     protected function getInstance(?string $index, ?string $type)
     {

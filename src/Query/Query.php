@@ -1,31 +1,31 @@
 <?php
 
-namespace App\Services\Elasticsearch\Query;
+namespace Kununu\Elasticsearch\Query;
 
-use App\Services\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface;
-use App\Services\Elasticsearch\Query\Criteria\Bool\Must;
-use App\Services\Elasticsearch\Query\Criteria\Bool\Should;
-use App\Services\Elasticsearch\Query\Criteria\CriteriaInterface;
-use App\Services\Elasticsearch\Query\Criteria\FilterInterface;
-use App\Services\Elasticsearch\Query\Criteria\SearchInterface;
 use InvalidArgumentException;
+use Kununu\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface;
+use Kununu\Elasticsearch\Query\Criteria\Bool\Must;
+use Kununu\Elasticsearch\Query\Criteria\Bool\Should;
+use Kununu\Elasticsearch\Query\Criteria\CriteriaInterface;
+use Kununu\Elasticsearch\Query\Criteria\FilterInterface;
+use Kununu\Elasticsearch\Query\Criteria\SearchInterface;
 
 class Query extends AbstractQuery
 {
     protected const MINIMUM_SHOULD_MATCH = 1; // relevant when $searchOperator === 'should'
 
     /**
-     * @var \App\Services\Elasticsearch\Query\Criteria\SearchInterface[]
+     * @var \Kununu\Elasticsearch\Query\Criteria\SearchInterface[]
      */
     protected $searches = [];
 
     /**
-     * @var \App\Services\Elasticsearch\Query\Criteria\FilterInterface[]
+     * @var \Kununu\Elasticsearch\Query\Criteria\FilterInterface[]
      */
     protected $filters = [];
 
     /**
-     * @var \App\Services\Elasticsearch\Query\AggregationInterface[]
+     * @var \Kununu\Elasticsearch\Query\AggregationInterface[]
      */
     protected $aggregations = [];
 
@@ -40,7 +40,7 @@ class Query extends AbstractQuery
     protected $searchOperator = Should::OPERATOR;
 
     /**
-     * @param \App\Services\Elasticsearch\Query\Criteria\CriteriaInterface[] ...$children
+     * @param \Kununu\Elasticsearch\Query\Criteria\CriteriaInterface[] ...$children
      */
     public function __construct(...$children)
     {
@@ -51,9 +51,9 @@ class Query extends AbstractQuery
     }
 
     /**
-     * @param \App\Services\Elasticsearch\Query\Criteria\CriteriaInterface[] ...$children
+     * @param \Kununu\Elasticsearch\Query\Criteria\CriteriaInterface[] ...$children
      *
-     * @return \App\Services\Elasticsearch\Query\Query
+     * @return \Kununu\Elasticsearch\Query\Query
      */
     public static function create(...$children): Query
     {
@@ -61,9 +61,9 @@ class Query extends AbstractQuery
     }
 
     /**
-     * @param \App\Services\Elasticsearch\Query\Criteria\CriteriaInterface|\App\Services\Elasticsearch\Query\AggregationInterface $child
+     * @param \Kununu\Elasticsearch\Query\Criteria\CriteriaInterface|\Kununu\Elasticsearch\Query\AggregationInterface $child
      *
-     * @return \App\Services\Elasticsearch\Query\Query
+     * @return \Kununu\Elasticsearch\Query\Query
      */
     public function add($child): Query
     {
@@ -73,15 +73,15 @@ class Query extends AbstractQuery
     }
 
     /**
-     * @param \App\Services\Elasticsearch\Query\Criteria\SearchInterface|\App\Services\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface $search
+     * @param \Kununu\Elasticsearch\Query\Criteria\SearchInterface|\Kununu\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface $search
      *
-     * @return \App\Services\Elasticsearch\Query\Query
+     * @return \Kununu\Elasticsearch\Query\Query
      */
     public function search(CriteriaInterface $search): Query
     {
         if (!($search instanceof SearchInterface) && !($search instanceof BoolQueryInterface)) {
             throw new InvalidArgumentException(
-                'Argument $search must implement \App\Services\Elasticsearch\Query\Criteria\SearchInterface or \App\Services\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface'
+                'Argument $search must implement \Kununu\Elasticsearch\Query\Criteria\SearchInterface or \Kununu\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface'
             );
         }
 
@@ -91,9 +91,9 @@ class Query extends AbstractQuery
     }
 
     /**
-     * @param \App\Services\Elasticsearch\Query\Criteria\FilterInterface $filter
+     * @param \Kununu\Elasticsearch\Query\Criteria\FilterInterface $filter
      *
-     * @return \App\Services\Elasticsearch\Query\Query
+     * @return \Kununu\Elasticsearch\Query\Query
      */
     public function where(FilterInterface $filter): Query
     {
@@ -101,9 +101,9 @@ class Query extends AbstractQuery
     }
 
     /**
-     * @param \App\Services\Elasticsearch\Query\AggregationInterface $aggregation
+     * @param \Kununu\Elasticsearch\Query\AggregationInterface $aggregation
      *
-     * @return \App\Services\Elasticsearch\Query\Query
+     * @return \Kununu\Elasticsearch\Query\Query
      */
     public function aggregate(AggregationInterface $aggregation): Query
     {
@@ -193,7 +193,7 @@ class Query extends AbstractQuery
     /**
      * @param float $minScore
      *
-     * @return \App\Services\Elasticsearch\Query\QueryInterface
+     * @return \Kununu\Elasticsearch\Query\QueryInterface
      */
     public function setMinScore(float $minScore): QueryInterface
     {
@@ -213,7 +213,7 @@ class Query extends AbstractQuery
     /**
      * @param string $logicalOperator
      *
-     * @return \App\Services\Elasticsearch\Query\QueryInterface
+     * @return \Kununu\Elasticsearch\Query\QueryInterface
      */
     public function setSearchOperator(string $logicalOperator): QueryInterface
     {

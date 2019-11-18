@@ -3,11 +3,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Services\Elasticsearch\Query\Criteria\Bool;
 
-use App\Services\Elasticsearch\Exception\QueryException;
-use App\Services\Elasticsearch\Query\Criteria\Bool\AbstractBoolQuery;
-use App\Services\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface;
-use App\Services\Elasticsearch\Query\Criteria\Filter;
 use InvalidArgumentException;
+use Kununu\Elasticsearch\Exception\QueryException;
+use Kununu\Elasticsearch\Query\Criteria\Bool\AbstractBoolQuery;
+use Kununu\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface;
+use Kununu\Elasticsearch\Query\Criteria\Filter;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 /**

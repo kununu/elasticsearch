@@ -3,16 +3,16 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Services\Elasticsearch\Query;
 
-use App\Services\Elasticsearch\Query\Aggregation;
-use App\Services\Elasticsearch\Query\Aggregation\Metric;
-use App\Services\Elasticsearch\Query\Criteria\Bool\Must;
-use App\Services\Elasticsearch\Query\Criteria\Bool\MustNot;
-use App\Services\Elasticsearch\Query\Criteria\Bool\Should;
-use App\Services\Elasticsearch\Query\Criteria\Filter;
-use App\Services\Elasticsearch\Query\Criteria\Search;
-use App\Services\Elasticsearch\Query\Query;
-use App\Services\Elasticsearch\Query\SortOrder;
 use InvalidArgumentException;
+use Kununu\Elasticsearch\Query\Aggregation;
+use Kununu\Elasticsearch\Query\Aggregation\Metric;
+use Kununu\Elasticsearch\Query\Criteria\Bool\Must;
+use Kununu\Elasticsearch\Query\Criteria\Bool\MustNot;
+use Kununu\Elasticsearch\Query\Criteria\Bool\Should;
+use Kununu\Elasticsearch\Query\Criteria\Filter;
+use Kununu\Elasticsearch\Query\Criteria\Search;
+use Kununu\Elasticsearch\Query\Query;
+use Kununu\Elasticsearch\Query\SortOrder;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 /**
@@ -53,8 +53,8 @@ class QueryTest extends MockeryTestCase
     }
 
     /**
-     * @param \App\Services\Elasticsearch\Query\Query $query
-     * @param string                                  $fieldName
+     * @param \Kununu\Elasticsearch\Query\Query $query
+     * @param string                            $fieldName
      *
      * @return \ReflectionProperty
      */
@@ -67,9 +67,9 @@ class QueryTest extends MockeryTestCase
     }
 
     /**
-     * @param \App\Services\Elasticsearch\Query\Query $query
-     * @param string                                  $fieldName
-     * @param array                                   $expected
+     * @param \Kununu\Elasticsearch\Query\Query $query
+     * @param string                            $fieldName
+     * @param array                             $expected
      */
     protected function assertChildren(Query $query, string $fieldName, array $expected): void
     {
@@ -400,8 +400,8 @@ class QueryTest extends MockeryTestCase
     /**
      * @dataProvider toArrayData
      *
-     * @param \App\Services\Elasticsearch\Query\Query $query
-     * @param array                                   $expected
+     * @param \Kununu\Elasticsearch\Query\Query $query
+     * @param array                             $expected
      */
     public function testToArray(Query $query, array $expected): void
     {

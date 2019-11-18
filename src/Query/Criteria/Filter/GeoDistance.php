@@ -1,23 +1,23 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Query\Criteria\Filter;
+namespace Kununu\Elasticsearch\Query\Criteria\Filter;
 
-use App\Services\Elasticsearch\Query\Criteria\GeoDistanceInterface;
+use Kununu\Elasticsearch\Query\Criteria\GeoDistanceInterface;
 
 /**
  * Class GeoDistance
  *
- * @package App\Services\Elasticsearch\Query\Criteria\Filter
+ * @package Kununu\Elasticsearch\Query\Criteria\Filter
  */
 class GeoDistance
 {
     public const KEYWORD = 'geo_distance';
 
     /**
-     * @param string                                                          $field
-     * @param \App\Services\Elasticsearch\Query\Criteria\GeoDistanceInterface $value
-     * @param array                                                           $options
+     * @param string                                                    $field
+     * @param \Kununu\Elasticsearch\Query\Criteria\GeoDistanceInterface $value
+     * @param array                                                     $options
      *
      * @return array
      */

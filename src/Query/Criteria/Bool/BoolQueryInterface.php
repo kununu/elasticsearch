@@ -1,22 +1,22 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Query\Criteria\Bool;
+namespace Kununu\Elasticsearch\Query\Criteria\Bool;
 
-use App\Services\Elasticsearch\Query\Criteria\CriteriaInterface;
-use App\Services\Elasticsearch\Query\Criteria\FilterInterface;
+use Kununu\Elasticsearch\Query\Criteria\CriteriaInterface;
+use Kununu\Elasticsearch\Query\Criteria\FilterInterface;
 
 /**
  * Interface BoolQueryInterface
  *
- * @package App\Services\Elasticsearch\Query\Criteria\Bool
+ * @package Kununu\Elasticsearch\Query\Criteria\Bool
  */
 interface BoolQueryInterface extends FilterInterface
 {
     /**
-     * @param \App\Services\Elasticsearch\Query\Criteria\CriteriaInterface $child
+     * @param \Kununu\Elasticsearch\Query\Criteria\CriteriaInterface $child
      *
-     * @return \App\Services\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface
+     * @return \Kununu\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface
      */
     public function add(CriteriaInterface $child): BoolQueryInterface;
 }

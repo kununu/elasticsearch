@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Services\Elasticsearch\Query\Criteria\Search;
 
-use App\Services\Elasticsearch\Query\Criteria\Search\Match;
+use Kununu\Elasticsearch\Query\Criteria\Search\Match;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 /**

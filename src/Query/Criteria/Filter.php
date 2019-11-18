@@ -1,23 +1,23 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Query\Criteria;
+namespace Kununu\Elasticsearch\Query\Criteria;
 
-use App\Services\Elasticsearch\Exception\QueryException;
-use App\Services\Elasticsearch\Query\Criteria\Filter\Exists;
-use App\Services\Elasticsearch\Query\Criteria\Filter\GeoDistance;
-use App\Services\Elasticsearch\Query\Criteria\Filter\GeoShape;
-use App\Services\Elasticsearch\Query\Criteria\Filter\Prefix;
-use App\Services\Elasticsearch\Query\Criteria\Filter\Range;
-use App\Services\Elasticsearch\Query\Criteria\Filter\Regexp;
-use App\Services\Elasticsearch\Query\Criteria\Filter\Term;
-use App\Services\Elasticsearch\Query\Criteria\Filter\Terms;
 use InvalidArgumentException;
+use Kununu\Elasticsearch\Exception\QueryException;
+use Kununu\Elasticsearch\Query\Criteria\Filter\Exists;
+use Kununu\Elasticsearch\Query\Criteria\Filter\GeoDistance;
+use Kununu\Elasticsearch\Query\Criteria\Filter\GeoShape;
+use Kununu\Elasticsearch\Query\Criteria\Filter\Prefix;
+use Kununu\Elasticsearch\Query\Criteria\Filter\Range;
+use Kununu\Elasticsearch\Query\Criteria\Filter\Regexp;
+use Kununu\Elasticsearch\Query\Criteria\Filter\Term;
+use Kununu\Elasticsearch\Query\Criteria\Filter\Terms;
 
 /**
  * Class Filter
  *
- * @package App\Services\Elasticsearch\Query\Criteria
+ * @package Kununu\Elasticsearch\Query\Criteria
  */
 class Filter implements FilterInterface
 {
@@ -65,7 +65,7 @@ class Filter implements FilterInterface
      * @param string|null $operator
      * @param array       $options
      *
-     * @return \App\Services\Elasticsearch\Query\Criteria\Filter
+     * @return \Kununu\Elasticsearch\Query\Criteria\Filter
      */
     public static function create(string $field, $value, ?string $operator = null, array $options = []): Filter
     {
@@ -74,7 +74,7 @@ class Filter implements FilterInterface
 
     /**
      * @return array
-     * @throws \App\Services\Elasticsearch\Exception\QueryException
+     * @throws \Kununu\Elasticsearch\Exception\QueryException
      */
     public function toArray(): array
     {
@@ -83,7 +83,7 @@ class Filter implements FilterInterface
 
     /**
      * @return array
-     * @throws \App\Services\Elasticsearch\Exception\QueryException
+     * @throws \Kununu\Elasticsearch\Exception\QueryException
      */
     protected function mapOperator(): array
     {

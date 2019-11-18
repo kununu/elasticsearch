@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Services\Elasticsearch\Query;
 
-use App\Services\Elasticsearch\Query\RawQuery;
-use App\Services\Elasticsearch\Query\SortOrder;
+use Kununu\Elasticsearch\Query\RawQuery;
+use Kununu\Elasticsearch\Query\SortOrder;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 /**

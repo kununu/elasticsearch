@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Query;
+namespace Kununu\Elasticsearch\Query;
 
 /**
  * Interface AggregationInterface
  *
- * @package App\Services\Elasticsearch\Query
+ * @package Kununu\Elasticsearch\Query
  */
 interface AggregationInterface
 {

@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Services\Elasticsearch\Adapter;
 
-use App\Services\Elasticsearch\Result\AggregationResult;
-use App\Services\Elasticsearch\Result\AggregationResultSet;
-use App\Services\Elasticsearch\Result\ResultIterator;
+use Kununu\Elasticsearch\Result\AggregationResult;
+use Kununu\Elasticsearch\Result\AggregationResultSet;
+use Kununu\Elasticsearch\Result\ResultIterator;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 /**

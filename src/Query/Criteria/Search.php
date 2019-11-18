@@ -1,20 +1,20 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Query\Criteria;
+namespace Kununu\Elasticsearch\Query\Criteria;
 
-use App\Services\Elasticsearch\Exception\QueryException;
-use App\Services\Elasticsearch\Query\Criteria\Search\Match;
-use App\Services\Elasticsearch\Query\Criteria\Search\MatchPhrase;
-use App\Services\Elasticsearch\Query\Criteria\Search\MatchPhrasePrefix;
-use App\Services\Elasticsearch\Query\Criteria\Search\QueryString;
-use App\Services\Elasticsearch\Util\ConstantContainerTrait;
 use InvalidArgumentException;
+use Kununu\Elasticsearch\Exception\QueryException;
+use Kununu\Elasticsearch\Query\Criteria\Search\Match;
+use Kununu\Elasticsearch\Query\Criteria\Search\MatchPhrase;
+use Kununu\Elasticsearch\Query\Criteria\Search\MatchPhrasePrefix;
+use Kununu\Elasticsearch\Query\Criteria\Search\QueryString;
+use Kununu\Elasticsearch\Util\ConstantContainerTrait;
 
 /**
  * Class Search
  *
- * @package App\Services\Elasticsearch\Query\Criteria
+ * @package Kununu\Elasticsearch\Query\Criteria
  */
 class Search implements SearchInterface
 {
@@ -77,7 +77,7 @@ class Search implements SearchInterface
      * @param string $type
      * @param array  $options
      *
-     * @return \App\Services\Elasticsearch\Query\Criteria\Search
+     * @return \Kununu\Elasticsearch\Query\Criteria\Search
      */
     public static function create(
         array $fields,
@@ -90,7 +90,7 @@ class Search implements SearchInterface
 
     /**
      * @return array
-     * @throws \App\Services\Elasticsearch\Exception\QueryException
+     * @throws \Kununu\Elasticsearch\Exception\QueryException
      */
     public function toArray(): array
     {
@@ -99,7 +99,7 @@ class Search implements SearchInterface
 
     /**
      * @return array
-     * @throws \App\Services\Elasticsearch\Exception\QueryException
+     * @throws \Kununu\Elasticsearch\Exception\QueryException
      */
     protected function mapType(): array
     {

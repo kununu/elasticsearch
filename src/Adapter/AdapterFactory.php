@@ -1,19 +1,19 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Adapter;
+namespace Kununu\Elasticsearch\Adapter;
 
-use App\Services\Elasticsearch\Exception\AdapterConfigurationException;
-use App\Services\Elasticsearch\Util\LoggerAwareTrait;
 use Elastica\Client as ElasticaClient;
 use Elasticsearch\Client as ElasticsearchClient;
 use InvalidArgumentException;
+use Kununu\Elasticsearch\Exception\AdapterConfigurationException;
+use Kununu\Elasticsearch\Util\LoggerAwareTrait;
 use Psr\Log\LoggerAwareInterface;
 
 /**
  * Class AdapterFactory
  *
- * @package App\Services\Elasticsearch\Adapter
+ * @package Kununu\Elasticsearch\Adapter
  */
 class AdapterFactory implements LoggerAwareInterface, AdapterFactoryInterface
 {
@@ -50,7 +50,7 @@ class AdapterFactory implements LoggerAwareInterface, AdapterFactoryInterface
      * @param string $class
      * @param array  $connectionConfig
      *
-     * @return \App\Services\Elasticsearch\Adapter\AdapterInterface
+     * @return \Kununu\Elasticsearch\Adapter\AdapterInterface
      */
     public function build(string $class, array $connectionConfig): AdapterInterface
     {
@@ -59,7 +59,7 @@ class AdapterFactory implements LoggerAwareInterface, AdapterFactoryInterface
         switch ($class) {
             case ElasticsearchAdapter::class:
             case ElasticaAdapter::class:
-                /** @var \App\Services\Elasticsearch\Adapter\AdapterInterface $adapter */
+                /** @var \Kununu\Elasticsearch\Adapter\AdapterInterface $adapter */
                 $adapter = new $class($this->clients[$class], $connectionConfig['index'], $connectionConfig['type']);
                 if ($adapter instanceof LoggerAwareInterface) {
                     $adapter->setLogger($this->logger);

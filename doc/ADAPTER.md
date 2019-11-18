@@ -25,7 +25,7 @@ Adapters should be created by the `AdapterFactory`. This is to make sure that ev
 
 Clients/Adapters have to be made available explicitly by calling `addClient()` in the factory. For example:
 ```yaml
-App\Services\Elasticsearch\Adapter\AdapterFactory:
+Kununu\Elasticsearch\Adapter\AdapterFactory:
   calls:
     - method: addClient
       arguments:

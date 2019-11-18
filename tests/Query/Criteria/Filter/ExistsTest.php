@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Services\Elasticsearch\Query\Criteria\Filter;
 
-use App\Services\Elasticsearch\Query\Criteria\Filter\Exists;
+use Kununu\Elasticsearch\Query\Criteria\Filter\Exists;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 /**

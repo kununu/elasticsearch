@@ -3,13 +3,13 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Services\Elasticsearch\Repository;
 
-use App\Services\Elasticsearch\Adapter\AdapterFactory;
-use App\Services\Elasticsearch\Adapter\ElasticaAdapter;
-use App\Services\Elasticsearch\Adapter\ElasticsearchAdapter;
-use App\Services\Elasticsearch\Exception\AdapterConfigurationException;
 use Elastica\Client as ElasticaClient;
 use Elasticsearch\Client as ElasticsearchClient;
 use InvalidArgumentException;
+use Kununu\Elasticsearch\Adapter\AdapterFactory;
+use Kununu\Elasticsearch\Adapter\ElasticaAdapter;
+use Kununu\Elasticsearch\Adapter\ElasticsearchAdapter;
+use Kununu\Elasticsearch\Exception\AdapterConfigurationException;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 

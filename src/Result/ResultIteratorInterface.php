@@ -1,19 +1,19 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Result;
+namespace Kununu\Elasticsearch\Result;
 
 /**
  * Interface ResultIteratorInterface
  *
- * @package App\Services\Elasticsearch\Result
+ * @package Kununu\Elasticsearch\Result
  */
 interface ResultIteratorInterface
 {
     /**
      * @param int $total
      *
-     * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
+     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
      */
     public function setTotal(int $total): ResultIteratorInterface;
 
@@ -35,7 +35,7 @@ interface ResultIteratorInterface
     /**
      * @param string|null $scrollId
      *
-     * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
+     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
      */
     public function setScrollId(?string $scrollId): ResultIteratorInterface;
 
@@ -47,7 +47,7 @@ interface ResultIteratorInterface
     /**
      * @param array $result
      *
-     * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
+     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
      */
     public function push(array $result): ResultIteratorInterface;
 

@@ -1,14 +1,14 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Query;
+namespace Kununu\Elasticsearch\Query;
 
 use InvalidArgumentException;
 
 /**
  * Class AbstractQuery
  *
- * @package App\Services\Elasticsearch\Query
+ * @package Kununu\Elasticsearch\Query
  */
 abstract class AbstractQuery implements QueryInterface
 {
@@ -60,7 +60,7 @@ abstract class AbstractQuery implements QueryInterface
     /**
      * @param array $selectFields
      *
-     * @return \App\Services\Elasticsearch\Query\QueryInterface
+     * @return \Kununu\Elasticsearch\Query\QueryInterface
      */
     public function select(array $selectFields): QueryInterface
     {
@@ -74,7 +74,7 @@ abstract class AbstractQuery implements QueryInterface
      * @param string       $order
      * @param array        $options
      *
-     * @return \App\Services\Elasticsearch\Query\QueryInterface
+     * @return \Kununu\Elasticsearch\Query\QueryInterface
      */
     public function sort($sort, $order = SortOrder::ASC, array $options = []): QueryInterface
     {
@@ -106,7 +106,7 @@ abstract class AbstractQuery implements QueryInterface
     /**
      * @param int $limit
      *
-     * @return \App\Services\Elasticsearch\Query\QueryInterface
+     * @return \Kununu\Elasticsearch\Query\QueryInterface
      */
     public function limit(int $limit): QueryInterface
     {
@@ -118,7 +118,7 @@ abstract class AbstractQuery implements QueryInterface
     /**
      * @param int $offset
      *
-     * @return \App\Services\Elasticsearch\Query\QueryInterface
+     * @return \Kununu\Elasticsearch\Query\QueryInterface
      */
     public function skip(int $offset): QueryInterface
     {

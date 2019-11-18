@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Services\Elasticsearch\Query;
 
-use App\Services\Elasticsearch\Query\AbstractQuery;
-use App\Services\Elasticsearch\Query\QueryInterface;
-use App\Services\Elasticsearch\Query\SortOrder;
+use Kununu\Elasticsearch\Query\AbstractQuery;
+use Kununu\Elasticsearch\Query\QueryInterface;
+use Kununu\Elasticsearch\Query\SortOrder;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 /**
@@ -14,7 +14,7 @@ use Mockery\Adapter\Phpunit\MockeryTestCase;
 class AbstractQueryTest extends MockeryTestCase
 {
     /**
-     * @return \App\Services\Elasticsearch\Query\QueryInterface
+     * @return \Kununu\Elasticsearch\Query\QueryInterface
      */
     protected function getQuery(): QueryInterface
     {

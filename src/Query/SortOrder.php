@@ -1,14 +1,14 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Query;
+namespace Kununu\Elasticsearch\Query;
 
-use App\Services\Elasticsearch\Util\ConstantContainerTrait;
+use Kununu\Elasticsearch\Util\ConstantContainerTrait;
 
 /**
  * Class SortOrder
  *
- * @package App\Services\Elasticsearch\Query
+ * @package Kununu\Elasticsearch\Query
  */
 final class SortOrder
 {

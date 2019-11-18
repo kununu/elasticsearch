@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Result;
+namespace Kununu\Elasticsearch\Result;
 
 /**
  * Class AggregationResult
  *
- * @package App\Services\Elasticsearch\Result
+ * @package Kununu\Elasticsearch\Result
  */
 class AggregationResult implements AggregationResultInterface
 {
@@ -34,7 +34,7 @@ class AggregationResult implements AggregationResultInterface
      * @param string $name
      * @param array  $rawResult
      *
-     * @return \App\Services\Elasticsearch\Result\AggregationResult
+     * @return \Kununu\Elasticsearch\Result\AggregationResult
      */
     public static function create(string $name, array $rawResult): AggregationResult
     {

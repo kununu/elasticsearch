@@ -35,8 +35,8 @@ Example for service definition:
 ```yaml
 App\Repository\ElasticSubmissionRepository:
   arguments:
-    - '@App\Services\Elasticsearch\Adapter\AdapterFactory'
-    - adapter_class: 'App\Services\Elasticsearch\Adapter\ElasticaAdapter'
+    - '@Kununu\Elasticsearch\Adapter\AdapterFactory'
+    - adapter_class: 'Kununu\Elasticsearch\Adapter\ElasticaAdapter'
       index: 'culture_submissions'
       type: '_doc'
   calls:
@@ -51,8 +51,8 @@ Example with minimal configuration:
 ```yaml
 App\Service\Elasticsearch\Repository\ElasticsearchRepository:
   arguments:
-    - '@App\Services\Elasticsearch\Adapter\AdapterFactory'
-    - adapter_class: 'App\Services\Elasticsearch\Adapter\ElasticaAdapter'
+    - '@Kununu\Elasticsearch\Adapter\AdapterFactory'
+    - adapter_class: 'Kununu\Elasticsearch\Adapter\ElasticaAdapter'
       index: 'my_index'
       type: '_doc'
 ```
@@ -62,16 +62,16 @@ Multiple indexes/repositories in one project:
 my_first_repo:
   class: App\Service\Elasticsearch\Repository\ElasticsearchRepository
   arguments:
-    - '@App\Services\Elasticsearch\Adapter\AdapterFactory'
-    - adapter_class: 'App\Services\Elasticsearch\Adapter\ElasticsearchAdapter'
+    - '@Kununu\Elasticsearch\Adapter\AdapterFactory'
+    - adapter_class: 'Kununu\Elasticsearch\Adapter\ElasticsearchAdapter'
       index: 'some_index'
       type: '_doc'
 
 my_second_repo:
   class: App\Service\Elasticsearch\Repository\ElasticsearchRepository
   arguments:
-    - '@App\Services\Elasticsearch\Adapter\AdapterFactory'
-    - adapter_class: 'App\Services\Elasticsearch\Adapter\ElasticaAdapter'
+    - '@Kununu\Elasticsearch\Adapter\AdapterFactory'
+    - adapter_class: 'Kununu\Elasticsearch\Adapter\ElasticaAdapter'
       index: 'some_other_index'
       type: '_doc'
 ```

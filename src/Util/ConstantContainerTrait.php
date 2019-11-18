@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Elasticsearch\Util;
+namespace Kununu\Elasticsearch\Util;
 
 trait ConstantContainerTrait
 {

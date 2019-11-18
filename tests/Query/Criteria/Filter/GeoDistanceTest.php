@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Services\Elasticsearch\Query\Criteria\Filter;
 
-use App\Services\Elasticsearch\Query\Criteria\Filter\GeoDistance;
-use App\Services\Elasticsearch\Query\Criteria\GeoDistanceInterface;
+use Kununu\Elasticsearch\Query\Criteria\Filter\GeoDistance;
+use Kununu\Elasticsearch\Query\Criteria\GeoDistanceInterface;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 /**
@@ -13,7 +13,7 @@ use Mockery\Adapter\Phpunit\MockeryTestCase;
 class GeoDistanceTest extends MockeryTestCase
 {
     /**
-     * @var \App\Services\Elasticsearch\Query\Criteria\GeoDistanceInterface|\Mockery\MockInterface
+     * @var \Kununu\Elasticsearch\Query\Criteria\GeoDistanceInterface|\Mockery\MockInterface
      */
     protected $geoDistance;
 

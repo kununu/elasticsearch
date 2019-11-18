@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Exception;
+namespace Kununu\Elasticsearch\Exception;
 
 use Exception;
 use RuntimeException;
@@ -9,7 +9,7 @@ use RuntimeException;
 /**
  * Class RepositoryException
  *
- * @package App\Services\Elasticsearch\Exception
+ * @package Kununu\Elasticsearch\Exception
  */
 class RepositoryException extends RuntimeException
 {

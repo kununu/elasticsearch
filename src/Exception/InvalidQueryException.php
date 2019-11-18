@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Exception;
+namespace Kununu\Elasticsearch\Exception;
 
 /**
  * Class InvalidQueryException
  *
- * @package App\Services\Elasticsearch\Exception
+ * @package Kununu\Elasticsearch\Exception
  */
 class InvalidQueryException extends \InvalidArgumentException
 {

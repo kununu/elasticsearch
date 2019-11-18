@@ -1,22 +1,22 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Result;
+namespace Kununu\Elasticsearch\Result;
 
 /**
  * Class AggregationResultSet
  *
- * @package App\Services\Elasticsearch\Result
+ * @package Kununu\Elasticsearch\Result
  */
 class AggregationResultSet implements AggregationResultSetInterface
 {
     /**
-     * @var \App\Services\Elasticsearch\Result\ResultIterator
+     * @var \Kununu\Elasticsearch\Result\ResultIterator
      */
     protected $documents;
 
     /**
-     * @var \App\Services\Elasticsearch\Result\AggregationResult[]
+     * @var \Kununu\Elasticsearch\Result\AggregationResult[]
      */
     protected $aggregationResults = [];
 
@@ -33,7 +33,7 @@ class AggregationResultSet implements AggregationResultSetInterface
     /**
      * @param array $rawResult
      *
-     * @return \App\Services\Elasticsearch\Result\AggregationResultSet
+     * @return \Kununu\Elasticsearch\Result\AggregationResultSet
      */
     public static function create(array $rawResult = []): AggregationResultSet
     {
@@ -41,9 +41,9 @@ class AggregationResultSet implements AggregationResultSetInterface
     }
 
     /**
-     * @param \App\Services\Elasticsearch\Result\ResultIteratorInterface $resultIterator
+     * @param \Kununu\Elasticsearch\Result\ResultIteratorInterface $resultIterator
      *
-     * @return \App\Services\Elasticsearch\Result\AggregationResultSetInterface
+     * @return \Kununu\Elasticsearch\Result\AggregationResultSetInterface
      */
     public function setDocuments(ResultIteratorInterface $resultIterator): AggregationResultSetInterface
     {
@@ -53,7 +53,7 @@ class AggregationResultSet implements AggregationResultSetInterface
     }
 
     /**
-     * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface|null
+     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface|null
      */
     public function getDocuments(): ?ResultIteratorInterface
     {
@@ -63,7 +63,7 @@ class AggregationResultSet implements AggregationResultSetInterface
     /**
      * @param string $name
      *
-     * @return \App\Services\Elasticsearch\Result\AggregationResultInterface|null
+     * @return \Kununu\Elasticsearch\Result\AggregationResultInterface|null
      */
     public function getResultByName(string $name): ?AggregationResultInterface
     {

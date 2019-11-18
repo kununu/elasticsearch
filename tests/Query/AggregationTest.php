@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Services\Elasticsearch\Query;
 
-use App\Services\Elasticsearch\Query\Aggregation;
-use App\Services\Elasticsearch\Query\Aggregation\Bucket;
-use App\Services\Elasticsearch\Query\Aggregation\Metric;
 use InvalidArgumentException;
+use Kununu\Elasticsearch\Query\Aggregation;
+use Kununu\Elasticsearch\Query\Aggregation\Bucket;
+use Kununu\Elasticsearch\Query\Aggregation\Metric;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 /**

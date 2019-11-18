@@ -1,22 +1,22 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Repository;
+namespace Kununu\Elasticsearch\Repository;
 
-use App\Services\Elasticsearch\Adapter\AdapterFactoryInterface;
-use App\Services\Elasticsearch\Exception\RepositoryException;
-use App\Services\Elasticsearch\Query\Query;
-use App\Services\Elasticsearch\Query\QueryInterface;
-use App\Services\Elasticsearch\Result\AggregationResultSet;
-use App\Services\Elasticsearch\Result\ResultIteratorInterface;
-use App\Services\Elasticsearch\Util\LoggerAwareTrait;
 use Exception;
+use Kununu\Elasticsearch\Adapter\AdapterFactoryInterface;
+use Kununu\Elasticsearch\Exception\RepositoryException;
+use Kununu\Elasticsearch\Query\Query;
+use Kununu\Elasticsearch\Query\QueryInterface;
+use Kununu\Elasticsearch\Result\AggregationResultSet;
+use Kununu\Elasticsearch\Result\ResultIteratorInterface;
+use Kununu\Elasticsearch\Util\LoggerAwareTrait;
 use Psr\Log\LoggerAwareInterface;
 
 /**
  * Class ElasticsearchRepository
  *
- * @package App\Services\Elasticsearch\Repository
+ * @package Kununu\Elasticsearch\Repository
  */
 class ElasticsearchRepository implements ElasticsearchRepositoryInterface, LoggerAwareInterface
 {
@@ -25,7 +25,7 @@ class ElasticsearchRepository implements ElasticsearchRepositoryInterface, Logge
     protected const EXCEPTION_PREFIX = 'Elasticsearch exception: ';
 
     /**
-     * @var \App\Services\Elasticsearch\Adapter\AdapterInterface
+     * @var \Kununu\Elasticsearch\Adapter\AdapterInterface
      */
     protected $client;
 
@@ -37,8 +37,8 @@ class ElasticsearchRepository implements ElasticsearchRepositoryInterface, Logge
     /**
      * AbstractElasticsearchManager constructor.
      *
-     * @param \App\Services\Elasticsearch\Adapter\AdapterFactoryInterface $adapterFactory
-     * @param array                                                       $connectionConfig
+     * @param \Kununu\Elasticsearch\Adapter\AdapterFactoryInterface $adapterFactory
+     * @param array                                                 $connectionConfig
      */
     public function __construct(AdapterFactoryInterface $adapterFactory, array $connectionConfig)
     {
@@ -49,7 +49,7 @@ class ElasticsearchRepository implements ElasticsearchRepositoryInterface, Logge
     /**
      * @param \Exception $e
      *
-     * @throws \App\Services\Elasticsearch\Exception\RepositoryException
+     * @throws \Kununu\Elasticsearch\Exception\RepositoryException
      */
     protected function logErrorAndThrowException(Exception $e): void
     {
@@ -107,9 +107,9 @@ class ElasticsearchRepository implements ElasticsearchRepositoryInterface, Logge
     }
 
     /**
-     * @param \App\Services\Elasticsearch\Query\QueryInterface $query
+     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
      *
-     * @return \App\Services\Elasticsearch\Result\ResultIteratorInterface
+     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
      */
     public function findScrollableByQuery(QueryInterface $query): ResultIteratorInterface
     {

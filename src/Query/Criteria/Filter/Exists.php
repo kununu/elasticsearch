@@ -1,14 +1,14 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services\Elasticsearch\Query\Criteria\Filter;
+namespace Kununu\Elasticsearch\Query\Criteria\Filter;
 
-use App\Services\Elasticsearch\Query\Criteria\Bool\MustNot;
+use Kununu\Elasticsearch\Query\Criteria\Bool\MustNot;
 
 /**
  * Class Exists
  *
- * @package App\Services\Elasticsearch\Query\Criteria\Filter
+ * @package Kununu\Elasticsearch\Query\Criteria\Filter
  */
 class Exists
 {
