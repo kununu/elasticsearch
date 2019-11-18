@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Tests\Unit\Services\Elasticsearch\Query\Criteria\Bool;
+namespace Kununu\Elasticsearch\Tests\Query\Criteria\Bool;
 
 use InvalidArgumentException;
 use Kununu\Elasticsearch\Exception\QueryException;

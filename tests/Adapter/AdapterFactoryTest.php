@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Tests\Unit\Services\Elasticsearch\Repository;
+namespace Kununu\Elasticsearch\Tests\Repository;
 
 use Elastica\Client as ElasticaClient;
 use Elasticsearch\Client as ElasticsearchClient;

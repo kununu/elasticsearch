@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Tests\Unit\Services\Elasticsearch\Query\Criteria\Search;
+namespace Kununu\Elasticsearch\Tests\Query\Criteria\Search;
 
 use Kununu\Elasticsearch\Query\Criteria\Search\QueryString;
 use Mockery\Adapter\Phpunit\MockeryTestCase;

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Tests\Unit\Services\Elasticsearch\Util;
+namespace Kununu\Elasticsearch\Tests\Util;
 
 use Kununu\Elasticsearch\Util\LoggerAwareTrait;
 use PHPUnit\Framework\TestCase;

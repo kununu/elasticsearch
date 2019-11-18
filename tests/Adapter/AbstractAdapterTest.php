@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Tests\Unit\Services\Elasticsearch\Adapter;
+namespace Kununu\Elasticsearch\Tests\Adapter;
 
 use Kununu\Elasticsearch\Adapter\AbstractAdapter;
 use Kununu\Elasticsearch\Exception\AdapterConfigurationException;

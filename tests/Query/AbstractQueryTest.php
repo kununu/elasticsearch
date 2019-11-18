@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Tests\Unit\Services\Elasticsearch\Query;
+namespace Kununu\Elasticsearch\Tests\Query;
 
 use Kununu\Elasticsearch\Query\AbstractQuery;
 use Kununu\Elasticsearch\Query\QueryInterface;
