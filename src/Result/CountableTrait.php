@@ -13,7 +13,7 @@ trait CountableTrait
     /**
      * @var array
      */
-    protected $results;
+    protected $results = [];
 
     /**
      * @return int

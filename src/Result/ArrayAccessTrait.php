@@ -13,7 +13,7 @@ trait ArrayAccessTrait
     /**
      * @var array
      */
-    protected $results;
+    protected $results = [];
 
     /**
      * @inheritdoc

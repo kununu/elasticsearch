@@ -13,7 +13,7 @@ trait IterableTrait
     /**
      * @var array
      */
-    protected $results;
+    protected $results = [];
 
     /**
      * @var int
