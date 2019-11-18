@@ -1,0 +1,11 @@
+vendor/
+.idea/
+.DS_Store
+._.DS_Store
+.terraform/
+.terraform.tfstate*
+deploy.prop
+log/
+.env
+.env.test
+.phpunit.result.cache
