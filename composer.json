@@ -3,6 +3,7 @@
     "description": "Library for simplified querying and usage of Elasticsearch @ Kununu",
     "type": "library",
     "license": "proprietary",
+  "minimum-stability": "stable",
     "require": {
         "php": ">=7.2",
         "ext-ctype": "*",
