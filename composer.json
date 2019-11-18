@@ -10,11 +10,12 @@
         "ext-json": "*",
         "ext-mbstring": "*",
         "elasticsearch/elasticsearch": "^6.7",
+        "psr/log": "~1.0",
         "ruflin/elastica": "^6.1"
     },
     "require-dev": {
         "mockery/mockery": "^1.2",
-        "phpunit/phpunit": "^8.1"
+        "phpunit/phpunit": "^8.3"
     },
     "config": {
         "preferred-install": {
