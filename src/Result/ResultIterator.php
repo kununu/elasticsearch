@@ -10,10 +10,7 @@ namespace Kununu\Elasticsearch\Result;
  */
 class ResultIterator implements \Iterator, \ArrayAccess, \Countable, ResultIteratorInterface
 {
-    /**
-     * @var int
-     */
-    protected $position = 0;
+    use IterableTrait, ArrayAccessTrait, CountableTrait;
 
     /**
      * @var array
@@ -49,82 +46,6 @@ class ResultIterator implements \Iterator, \ArrayAccess, \Countable, ResultItera
     }
 
     /**
-     * @inheritdoc
-     */
-    public function current()
-    {
-        return $this->results[$this->position];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function next()
-    {
-        $this->position++;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function key()
-    {
-        return $this->position;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function valid()
-    {
-        return isset($this->results[$this->position]);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function rewind()
-    {
-        $this->position = 0;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function offsetExists($offset)
-    {
-        return isset($this->results[$offset]);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function offsetGet($offset)
-    {
-        return $this->results[$offset] ?? null;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function offsetSet($offset, $result)
-    {
-        if (is_null($offset)) {
-            $this->results[] = $result;
-        } else {
-            $this->results[$offset] = $result;
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function offsetUnset($offset)
-    {
-        unset($this->results[$offset]);
-    }
-
-    /**
      * @param int $total
      *
      * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
@@ -142,14 +63,6 @@ class ResultIterator implements \Iterator, \ArrayAccess, \Countable, ResultItera
     public function getTotal(): int
     {
         return $this->total;
-    }
-
-    /**
-     * @return int
-     */
-    public function count()
-    {
-        return count($this->results);
     }
 
     /**
