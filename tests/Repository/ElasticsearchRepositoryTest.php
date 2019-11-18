@@ -271,7 +271,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
         );
 
         $this->adapterMock
-            ->shouldReceive('search')
+            ->shouldReceive('aggregate')
             ->once()
             ->with($query);
 
@@ -289,7 +289,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
         );
 
         $this->adapterMock
-            ->shouldReceive('search')
+            ->shouldReceive('aggregate')
             ->once()
             ->andThrow(new \Exception(self::ERROR_MESSAGE));
 
@@ -299,7 +299,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
 
         $this->expectException(RepositoryException::class);
 
-        $this->getManager()->findByQuery($query);
+        $this->getManager()->aggregateByQuery($query);
     }
 
     public function testUpdateByQuery(): void
