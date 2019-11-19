@@ -1,5 +1,4 @@
 # kununu/elasticsearch
-https://img.shields.io/badge/author-@csizmazia-blue.svg?style=flat-square
 
 ## Purpose
 This package aims to
