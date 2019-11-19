@@ -1,5 +1,5 @@
 # Adapter
-Adapters are wrappers for third-party clients (pieces of code which handle the communication with Elastic), introducing a layer of abstraction which makes `Repository` and `Query` independent from the client(s) used.
+Adapters are wrappers for third-party clients (pieces of code which handle the communication with Elasticsearch), introducing a layer of abstraction which makes `Repository` and `Query` independent from the client(s) used.
 
 This package includes Adapters for the following clients
  - [elasticsearch-php](https://www.elastic.co/guide/en/elasticsearch/client/php-api/current/index.html)
@@ -23,7 +23,16 @@ This package comes with two implementations of the `AdapterInterface`:
 
 Adapters should be created by the `AdapterFactory`. This is to make sure that every `Repository` instance works on top of a new `Adapter` instance. Sharing `Adapter` instances could cause problems when working with multiple indexes.
 
-Clients/Adapters have to be made available explicitly by calling `addClient()` in the factory. For example:
+Clients/Adapters have to be made available explicitly by calling `addClient()` in the factory.
+
+Plain PHP:
+```php
+$adapterFactory = new AdapterFactory();
+$adapterFactory->addClient(\Elasticsearch\ClientBuilder::create()->build());
+$adapterFactory->call(new \Elastica\Client());
+```
+
+With Symfony Dependency Injection:
 ```yaml
 Kununu\Elasticsearch\Adapter\AdapterFactory:
   calls:

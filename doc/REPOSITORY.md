@@ -1,5 +1,5 @@
 # Repository
-Very similar to [Entity Repositories in Doctrine](https://www.doctrine-project.org/projects/doctrine-orm/en/2.6/reference/working-with-objects.html), a `Repository` in this package is a class which capsules Elastic specific logic - for a specific index.
+Very similar to [Entity Repositories in Doctrine](https://www.doctrine-project.org/projects/doctrine-orm/en/2.6/reference/working-with-objects.html), a `Repository` in this package is a class which capsules Elasticsearch specific logic - for a specific index.
 Every `Repository` instance is bound to an index (and a type).
 
 The default `ElasticsearchRepository` shipped with this package includes standard functionality such as
@@ -31,7 +31,7 @@ This package includes a few objects for non-scalar return values of `Elasticsear
 ## Usage
 It's possible to either use the standard `ElasticsearchRepository` directly or to extend this class and use dedicated Repositories for each entity.
 
-Example for service definition:
+Example for a Symfony DI service definition:
 ```yaml
 App\Repository\ElasticSubmissionRepository:
   arguments:
@@ -77,10 +77,10 @@ my_second_repo:
 ```
 
 #### Connection configuration
-The second constructor argument for every `Repository` is an object containing all relevant configuration values for the Elastic connection.
+The second constructor argument for every `Repository` is an object/associative array containing all relevant configuration values for the Elasticsearch connection.
 Mandatory fields are
  - `adapter_class`: the fully-qualified class name of the adapter to be built by the `AdapterFactory`
- - `index`: the name of the Elastic index the `Repository` should connect to
- - `type`: the name of the Elastic type the `Repository` should connect to
+ - `index`: the name of the Elasticsearch index the `Repository` should connect to
+ - `type`: the name of the Elasticsearch type the `Repository` should connect to
 
 In the future this object might be extended with additional (mandatory) fields.
