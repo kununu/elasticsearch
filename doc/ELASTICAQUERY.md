@@ -1,7 +1,7 @@
 # ElasticaQuery
 This class wraps the `\Elastica\Query` object, making it possible to use everything query-related provided by elastica.
 
-The advantage: Elastica provides classes for nearly every Elastic feature and is therefore more complete than the `Query` implementation in this package.
+The advantage: Elastica provides classes for nearly every Elasticsearch feature and is therefore more complete than the `Query` implementation in this package.
 
 On the other hand, it has poor documentation (though very good unit tests) and writing queries can be a hassle as there are no common interfaces for all query types.
 

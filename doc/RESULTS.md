@@ -1,12 +1,12 @@
 # Results
-To make working with Elastic responses more pleasant, this package introduces a few classes to wrap raw JSON responses.
+To make working with Elasticsearch responses more pleasant, this package introduces a few classes to wrap raw JSON responses.
 
 ## ResultIterator
-Requests to the Elastic `_search` endpoint usually return a list of "hits", i.e. documents that matched the given query.
+Requests to the Elasticsearch `_search` endpoint usually return a list of "hits", i.e. documents that matched the given query.
 
 This list of hits (plus some meta-information) is parsed and handled by the `ResultIterator` class.
 
-ResultIterators are iterable (hence the name) and array-accessible.
+ResultIterators are [iterable](https://www.php.net/manual/en/language.types.iterable.php) (hence the name) and [array-accessible](https://www.php.net/manual/en/class.arrayaccess.php).
 
 ### Basic Usage
 ```php
@@ -19,7 +19,7 @@ $resultIterator->getCount();
 // get how many documents matched the query in total:
 $resultIterator->getTotal();
 
-// to work with php-internal functions which accept arrays only, f.e. array_map:
+// get all results as plain array; f.e. to work with php-internal functions which accept arrays only, such as array_map:
 $resultIterator->asArray();
 
 // get the first document from the result:
@@ -152,7 +152,7 @@ foreach($result->getResults() as $aggregationName => $aggregationResult) {
 ```
 
 ## AggregationResult
-This class makes available the result of a single aggregation. It exposes the aggregation name and the result fields. Each field can be accessed individually by name. For the most common fields (`value` for [single-value numeric metrics aggregations](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics.html) and `buckets` for [bucket aggregations](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket.html))
+This class makes available the result of a single aggregation. It exposes the aggregation name and the result fields. Each field can be accessed individually by name. Additionally, there are dedicated getter methods for the most common fields (`value` for [single-value numeric metrics aggregations](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-metrics.html) and `buckets` for [bucket aggregations](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-bucket.html))
 
 ### Usage
 ```php
