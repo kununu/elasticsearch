@@ -1,4 +1,5 @@
 # kununu/elasticsearch
+https://img.shields.io/badge/author-@csizmazia-blue.svg?style=flat-square
 
 ## Purpose
 This package aims to
@@ -74,3 +75,6 @@ This package contains three implementations of the `QueryInterface`:
 
 ## Package Version vs. Elasticsearch Version 
 The package is developed and tested with [Elasticsearch version 6.4](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/index.html) only. Any other version may or may not work.
+
+## Contributing
+Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
