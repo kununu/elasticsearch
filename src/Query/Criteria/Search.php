@@ -4,12 +4,12 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\Query\Criteria;
 
 use InvalidArgumentException;
-use Kununu\Elasticsearch\Exception\QueryException;
 use Kununu\Elasticsearch\Query\Criteria\Search\Match;
 use Kununu\Elasticsearch\Query\Criteria\Search\MatchPhrase;
 use Kununu\Elasticsearch\Query\Criteria\Search\MatchPhrasePrefix;
 use Kununu\Elasticsearch\Query\Criteria\Search\QueryString;
 use Kununu\Elasticsearch\Util\ConstantContainerTrait;
+use LogicException;
 
 /**
  * Class Search
@@ -90,7 +90,6 @@ class Search implements SearchInterface
 
     /**
      * @return array
-     * @throws \Kununu\Elasticsearch\Exception\QueryException
      */
     public function toArray(): array
     {
@@ -99,7 +98,6 @@ class Search implements SearchInterface
 
     /**
      * @return array
-     * @throws \Kununu\Elasticsearch\Exception\QueryException
      */
     protected function mapType(): array
     {
@@ -117,7 +115,7 @@ class Search implements SearchInterface
                 $query = MatchPhrasePrefix::asArray($this->fields, $this->queryString, $this->options);
                 break;
             default:
-                throw new QueryException(
+                throw new LogicException(
                     'Unhandled full text search type "' . $this->type . '". Please add an appropriate switch case.'
                 );
         }

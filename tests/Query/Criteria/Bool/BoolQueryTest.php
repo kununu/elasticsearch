@@ -4,10 +4,10 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\Tests\Query\Criteria\Bool;
 
 use InvalidArgumentException;
-use Kununu\Elasticsearch\Exception\QueryException;
 use Kununu\Elasticsearch\Query\Criteria\Bool\AbstractBoolQuery;
 use Kununu\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface;
 use Kununu\Elasticsearch\Query\Criteria\Filter;
+use LogicException;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 /**
@@ -17,7 +17,7 @@ class BoolQueryTest extends MockeryTestCase
 {
     public function testInvalidOperator(): void
     {
-        $this->expectException(QueryException::class);
+        $this->expectException(LogicException::class);
         $this->expectExceptionMessage('No operator defined');
 
         $myBoolFilter = new class extends AbstractBoolQuery

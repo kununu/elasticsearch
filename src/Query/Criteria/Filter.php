@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\Query\Criteria;
 
 use InvalidArgumentException;
-use Kununu\Elasticsearch\Exception\QueryException;
 use Kununu\Elasticsearch\Query\Criteria\Filter\Exists;
 use Kununu\Elasticsearch\Query\Criteria\Filter\GeoDistance;
 use Kununu\Elasticsearch\Query\Criteria\Filter\GeoShape;
@@ -13,6 +12,7 @@ use Kununu\Elasticsearch\Query\Criteria\Filter\Range;
 use Kununu\Elasticsearch\Query\Criteria\Filter\Regexp;
 use Kununu\Elasticsearch\Query\Criteria\Filter\Term;
 use Kununu\Elasticsearch\Query\Criteria\Filter\Terms;
+use LogicException;
 
 /**
  * Class Filter
@@ -74,7 +74,6 @@ class Filter implements FilterInterface
 
     /**
      * @return array
-     * @throws \Kununu\Elasticsearch\Exception\QueryException
      */
     public function toArray(): array
     {
@@ -83,7 +82,6 @@ class Filter implements FilterInterface
 
     /**
      * @return array
-     * @throws \Kununu\Elasticsearch\Exception\QueryException
      */
     protected function mapOperator(): array
     {
@@ -128,7 +126,7 @@ class Filter implements FilterInterface
                 $filter = GeoShape::asArray($this->field, $this->value, $this->options);
                 break;
             default:
-                throw new QueryException('Unhandled operator "' . $this->operator . '"');
+                throw new LogicException('Unhandled operator "' . $this->operator . '"');
         }
 
         return $filter;
