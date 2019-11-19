@@ -10,7 +10,7 @@
         "ext-iconv": "*",
         "ext-json": "*",
         "ext-mbstring": "*",
-        "elasticsearch/elasticsearch": "^6.7",
+        "elasticsearch/elasticsearch": "^6.5",
         "psr/log": "~1.0",
         "ruflin/elastica": "^6.1"
     },
