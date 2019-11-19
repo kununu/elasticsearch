@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\Query\Criteria\Bool;
 
 use InvalidArgumentException;
-use Kununu\Elasticsearch\Exception\QueryException;
 use Kununu\Elasticsearch\Query\Criteria\CriteriaInterface;
+use LogicException;
 
 /**
  * Class AbstractBoolQuery
@@ -23,12 +23,11 @@ abstract class AbstractBoolQuery implements BoolQueryInterface
 
     /**
      * @return string
-     * @throws \Kununu\Elasticsearch\Exception\QueryException
      */
     protected function getOperator(): string
     {
         if (!static::OPERATOR) {
-            throw new QueryException('No operator defined');
+            throw new LogicException('No operator defined');
         }
 
         return static::OPERATOR;
@@ -73,7 +72,6 @@ abstract class AbstractBoolQuery implements BoolQueryInterface
 
     /**
      * @return array
-     * @throws \Kununu\Elasticsearch\Exception\QueryException
      */
     public function toArray(): array
     {
