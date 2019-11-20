@@ -74,7 +74,7 @@ my_second_repo:
       type: '_doc'
 ```
 
-#### Configuration
+### Configuration
 The second constructor argument for every `Repository` is an object/associative array containing all relevant configuration values for the repository.
 Mandatory fields are
  - `index_read`: the name of the Elasticsearch index the `Repository` should connect to for any read operation (search, count, aggregate)
@@ -85,3 +85,10 @@ Optional fields are
 - `index`: the name of the Elasticsearch index the `Repository` should connect to for for any operation. Useful if you are not using aliases. This **does not** override `index_read` and `index_write` if given.
 
 In the future this object might be extended with additional (mandatory) fields.
+
+### Hooks
+`ElasticsearchRepository::postSave()` is called directly after every index operation (i.e. when a document is upserted to Elasticsearch). `ElasticsearchRepository::postDelete()` is called after every delete operation.
+Overwrite these methods in your own Repository classes to hook into these events.
+
+
+Example use case: If you want to write the data to two indexes (when migrating index mappings). 

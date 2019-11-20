@@ -30,7 +30,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
     protected const TYPE = '_doc';
     protected const ERROR_PREFIX = 'Elasticsearch exception: ';
     protected const ERROR_MESSAGE = 'Any error, for example: missing type';
-    protected const ID = 'can_be_anything';
+    public const ID = 'can_be_anything';
     protected const DOCUMENT_COUNT = 42;
     protected const SCROLL_ID = 'DnF1ZXJ5VGhlbkZldGNoBQAAAAAAAAFbFkJVNEdjZWVjU';
 
@@ -673,5 +673,101 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
         $this->expectException(RepositoryException::class);
 
         $this->getManager()->updateByQuery(Query::create(), ['script' => []]);
+    }
+
+    public function testPostSaveIsCalled(): void
+    {
+        $document = [
+            'whatever' => 'just some data',
+        ];
+
+        $this->clientMock
+            ->shouldReceive('index')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX['write'],
+                    'type' => self::TYPE,
+                    'id' => self::ID,
+                    'body' => $document,
+                ]
+            );
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $manager = new class($this->clientMock, [
+            'index_write' => self::INDEX['write'],
+            'type' => self::TYPE,
+        ], $this) extends ElasticsearchRepository
+        {
+            /**
+             * @var \Mockery\Adapter\Phpunit\MockeryTestCase
+             */
+            protected $test;
+
+            public function __construct(Client $client, array $config, MockeryTestCase $test)
+            {
+                parent::__construct($client, $config);
+                $this->test = $test;
+            }
+
+            protected function postSave(string $id, array $document): void
+            {
+                $this->test->assertEquals($this->test::ID, $id);
+                $this->test->assertEquals(
+                    [
+                        'whatever' => 'just some data',
+                    ],
+                    $document
+                );
+            }
+        };
+
+        $manager->save(
+            self::ID,
+            $document
+        );
+    }
+
+    public function testPostDeleteIsCalled(): void
+    {
+        $this->clientMock
+            ->shouldReceive('delete')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX['write'],
+                    'type' => self::TYPE,
+                    'id' => self::ID,
+                ]
+            );
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $manager = new class($this->clientMock, [
+            'index_write' => self::INDEX['write'],
+            'type' => self::TYPE,
+        ], $this) extends ElasticsearchRepository
+        {
+            /**
+             * @var \Mockery\Adapter\Phpunit\MockeryTestCase
+             */
+            protected $test;
+
+            public function __construct(Client $client, array $config, MockeryTestCase $test)
+            {
+                parent::__construct($client, $config);
+                $this->test = $test;
+            }
+
+            protected function postDelete(string $id): void
+            {
+                $this->test->assertEquals($this->test::ID, $id);
+            }
+        };
+
+        $manager->delete(self::ID);
     }
 }

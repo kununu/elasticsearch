@@ -130,9 +130,20 @@ class ElasticsearchRepository implements ElasticsearchRepositoryInterface, Logge
             $this->client->index(
                 array_merge($this->buildRequestBase(OperationType::WRITE), ['id' => $id, 'body' => $document])
             );
+
+            $this->postSave($id, $document);
         } catch (Exception $e) {
             $this->logErrorAndThrowException($e);
         }
+    }
+
+    /**
+     * @param string $id
+     * @param array  $document
+     */
+    protected function postSave(string $id, array $document): void
+    {
+        // ready to be overwritten :)
     }
 
     /**
@@ -144,9 +155,16 @@ class ElasticsearchRepository implements ElasticsearchRepositoryInterface, Logge
             $this->client->delete(
                 array_merge($this->buildRequestBase(OperationType::WRITE), ['id' => $id])
             );
+
+            $this->postDelete($id);
         } catch (Exception $e) {
             $this->logErrorAndThrowException($e);
         }
+    }
+
+    protected function postDelete(string $id): void
+    {
+        // ready to be overwritten :)
     }
 
     /**
