@@ -6,10 +6,10 @@ namespace Kununu\Elasticsearch\Exception;
 use InvalidArgumentException;
 
 /**
- * Class AdapterConfigurationException
+ * Class RepositoryConfigurationException
  *
  * @package Kununu\Elasticsearch\Exception
  */
-class AdapterConfigurationException extends InvalidArgumentException
+class RepositoryConfigurationException extends InvalidArgumentException
 {
 }

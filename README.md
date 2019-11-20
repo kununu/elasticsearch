@@ -47,14 +47,8 @@ $repository->delete('the_document_id');
 
 ## Technical Concept
 The key ingredients of this package are:
- - Adapters
  - Repositories
  - Queries
-
-### Adapters
-Adapters abstract third-party Elasticsearch clients and are providing a common interface for Repositories to work against.
-
-[More explanation and examples](doc/ADAPTER.md)
 
 ### Repositories 
 Very similar to [Entity Repositories in Doctrine](https://www.doctrine-project.org/projects/doctrine-orm/en/2.6/reference/working-with-objects.html), a `Repository` in this package is a class which capsules Elasticsearch specific logic - for a specific index.
@@ -67,9 +61,8 @@ This package provides an abstracted query language which makes it easy to write 
 
 Various methods of the `ElasticsearchRepositoryInterface` require an object of type `QueryInterface` as input. Therefore, any implementation of this interface can be used together with Repositories.
 
-This package contains three implementations of the `QueryInterface`:
+This package contains two implementations of the `QueryInterface`:
  - [Query](doc/QUERY.md)
- - [ElasticaQuery](doc/ELASTICAQUERY.md)
  - [RawQuery](doc/RAWQUERY.md)
 
 ## Package Version vs. Elasticsearch Version 

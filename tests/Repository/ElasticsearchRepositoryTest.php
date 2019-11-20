@@ -3,14 +3,17 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Tests\Repository;
 
-use Kununu\Elasticsearch\Adapter\AdapterFactoryInterface;
-use Kununu\Elasticsearch\Adapter\AdapterInterface;
+use Elasticsearch\Client;
+use Elasticsearch\Namespaces\IndicesNamespace;
 use Kununu\Elasticsearch\Exception\RepositoryException;
 use Kununu\Elasticsearch\Query\Aggregation;
 use Kununu\Elasticsearch\Query\Criteria\Filter;
 use Kununu\Elasticsearch\Query\Query;
+use Kununu\Elasticsearch\Query\QueryInterface;
+use Kununu\Elasticsearch\Query\RawQuery;
 use Kununu\Elasticsearch\Repository\ElasticsearchRepository;
 use Kununu\Elasticsearch\Repository\ElasticsearchRepositoryInterface;
+use Kununu\Elasticsearch\Repository\RepositoryConfiguration;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Psr\Log\LoggerInterface;
@@ -20,29 +23,27 @@ use Psr\Log\LoggerInterface;
  */
 class ElasticsearchRepositoryTest extends MockeryTestCase
 {
+    protected const INDEX = [
+        'read' => 'some_index_read',
+        'write' => 'some_index_write',
+    ];
+    protected const TYPE = '_doc';
     protected const ERROR_PREFIX = 'Elasticsearch exception: ';
     protected const ERROR_MESSAGE = 'Any error, for example: missing type';
     protected const ID = 'can_be_anything';
     protected const DOCUMENT_COUNT = 42;
+    protected const SCROLL_ID = 'DnF1ZXJ5VGhlbkZldGNoBQAAAAAAAAFbFkJVNEdjZWVjU';
 
-    /** @var \Kununu\Elasticsearch\Adapter\AdapterFactoryInterface|\Mockery\MockInterface */
-    protected $adapterFactoryMock;
-
-    /** @var \Kununu\Elasticsearch\Adapter\AdapterInterface|\Mockery\MockInterface */
-    protected $adapterMock;
+    /** @var \Elasticsearch\Client|\Mockery\MockInterface */
+    protected $clientMock;
 
     /** @var \Psr\Log\LoggerInterface|\Mockery\MockInterface */
     protected $loggerMock;
 
     protected function setUp(): void
     {
-        $this->adapterFactoryMock = Mockery::mock(AdapterFactoryInterface::class);
-        $this->adapterMock = Mockery::mock(AdapterInterface::class);
+        $this->clientMock = Mockery::mock(Client::class);
         $this->loggerMock = Mockery::mock(LoggerInterface::class);
-
-        $this->adapterFactoryMock
-            ->shouldReceive('build')
-            ->andReturn($this->adapterMock);
     }
 
     /**
@@ -51,8 +52,12 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
     private function getManager(): ElasticsearchRepositoryInterface
     {
         $repo = new ElasticsearchRepository(
-            $this->adapterFactoryMock,
-            []
+            $this->clientMock,
+            [
+                'index_read' => self::INDEX['read'],
+                'index_write' => self::INDEX['write'],
+                'type' => self::TYPE,
+            ]
         );
 
         $repo->setLogger($this->loggerMock);
@@ -62,34 +67,48 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
 
     public function testSave(): void
     {
-        $data = [
+        $document = [
             'whatever' => 'just some data',
         ];
 
-        $this->adapterMock
+        $this->clientMock
             ->shouldReceive('index')
             ->once()
-            ->with(self::ID, $data);
+            ->with(
+                [
+                    'index' => self::INDEX['write'],
+                    'type' => self::TYPE,
+                    'id' => self::ID,
+                    'body' => $document,
+                ]
+            );
 
         $this->loggerMock
             ->shouldNotReceive('error');
 
         $this->getManager()->save(
             self::ID,
-            $data
+            $document
         );
     }
 
     public function testSaveFails(): void
     {
-        $data = [
+        $document = [
             'foo' => 'bar',
         ];
 
-        $this->adapterMock
+        $this->clientMock
             ->shouldReceive('index')
             ->once()
-            ->with(self::ID, $data)
+            ->with(
+                [
+                    'index' => self::INDEX['write'],
+                    'type' => self::TYPE,
+                    'id' => self::ID,
+                    'body' => $document,
+                ]
+            )
             ->andThrow(new \Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
@@ -99,17 +118,22 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
         $this->expectException(RepositoryException::class);
         $this->getManager()->save(
             self::ID,
-            $data
+            $document
         );
     }
 
     public function testDelete(): void
     {
-        $this->adapterMock
+        $this->clientMock
             ->shouldReceive('delete')
             ->once()
-            ->with(self::ID)
-            ->andReturn();
+            ->with(
+                [
+                    'index' => self::INDEX['write'],
+                    'type' => self::TYPE,
+                    'id' => self::ID,
+                ]
+            );
 
         $this->loggerMock
             ->shouldNotReceive('error');
@@ -121,10 +145,16 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
 
     public function testDeleteFails(): void
     {
-        $this->adapterMock
+        $this->clientMock
             ->shouldReceive('delete')
             ->once()
-            ->with(self::ID)
+            ->with(
+                [
+                    'index' => self::INDEX['write'],
+                    'type' => self::TYPE,
+                    'id' => self::ID,
+                ]
+            )
             ->andThrow(new \Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
@@ -141,13 +171,43 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
     {
         $indexName = 'my_index';
 
-        $this->adapterMock->shouldReceive('deleteIndex')
+        $indicesMock = Mockery::mock(IndicesNamespace::class);
+        $indicesMock
+            ->shouldReceive('delete')
             ->once()
-            ->with($indexName)
-            ->andReturn();
+            ->with(
+                [
+                    'index' => $indexName,
+                ]
+            );
+
+        $this->clientMock
+            ->shouldReceive('indices')
+            ->andReturn($indicesMock);
 
         $this->loggerMock
             ->shouldNotReceive('error');
+
+        $this->getManager()->deleteIndex($indexName);
+    }
+
+    public function testDeleteOtherIndex(): void
+    {
+        $indexName = self::INDEX['read'] . '_2';
+
+        $indicesMock = Mockery::mock(IndicesNamespace::class);
+        $indicesMock
+            ->shouldReceive('delete')
+            ->once()
+            ->with(
+                [
+                    'index' => $indexName,
+                ]
+            );
+
+        $this->clientMock
+            ->shouldReceive('indices')
+            ->andReturn($indicesMock);
 
         $this->getManager()->deleteIndex($indexName);
     }
@@ -156,9 +216,8 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
     {
         $indexName = 'my_index';
 
-        $this->adapterMock->shouldReceive('deleteIndex')
-            ->once()
-            ->with($indexName)
+        $this->clientMock
+            ->shouldReceive('indices')
             ->andThrow(new \Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
@@ -169,24 +228,187 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
         $this->getManager()->deleteIndex($indexName);
     }
 
-    public function testFindByQuery(): void
+    /**
+     * @return array
+     */
+    public function searchResultData(): array
     {
-        $query = Query::create();
+        return [
+            'no results' => [
+                'es_result' => [
+                    'hits' => [
+                        'total' => self::DOCUMENT_COUNT,
+                        'hits' => [
 
-        $this->adapterMock
+                        ],
+                    ],
+                ],
+                'adapter_result' => [],
+            ],
+            'one result' => [
+                'es_result' => [
+                    'hits' => [
+                        'total' => self::DOCUMENT_COUNT,
+                        'hits' => [
+                            [
+                                'foo' => 'bar',
+                            ],
+                        ],
+                    ],
+                ],
+                'adapter_result' => [
+                    ['foo' => 'bar'],
+                ],
+            ],
+            'two results' => [
+                'es_result' => [
+                    'hits' => [
+                        'total' => self::DOCUMENT_COUNT,
+                        'hits' => [
+                            [
+                                'foo' => 'bar',
+                            ],
+                            [
+                                'second' => 'result',
+                                'with_more_than' => 'one field',
+                            ],
+                        ],
+                    ],
+                ],
+                'adapter_result' => [
+                    [
+                        'foo' => 'bar',
+                    ],
+                    [
+                        'second' => 'result',
+                        'with_more_than' => 'one field',
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function queriesData(): array
+    {
+        return [
+            'empty kununu query' => [
+                'query' => Query::create(),
+            ],
+            'some kununu term query' => [
+                'query' => Query::create(
+                    Filter::create('foo', 'bar')
+                ),
+            ],
+            'empty raw query' => [
+                'query' => RawQuery::create(),
+            ],
+            'some raw term query' => [
+                'query' => RawQuery::create(['query' => ['bool' => ['must' => [['term' => ['foo' => 'bar']]]]]]),
+            ],
+        ];
+    }
+
+    /**
+     * @param array $queryVariations
+     * @param array $resultsVariations
+     *
+     * @return array
+     */
+    protected function mergeQueryAndResultsVariations(array $queryVariations, array $resultsVariations): array
+    {
+        $allVariations = [];
+        foreach ($queryVariations as $queryName => $queryVariation) {
+            foreach ($resultsVariations as $resultsName => $resultsVariation) {
+                $allVariations[$queryName . ', ' . $resultsName] = array_merge($queryVariation, $resultsVariation);
+            }
+        }
+
+        return $allVariations;
+    }
+
+    /**
+     * @return array
+     */
+    public function queryAndSearchResultData(): array
+    {
+        return $this->mergeQueryAndResultsVariations($this->queriesData(), $this->searchResultData());
+    }
+
+    /**
+     * @return array
+     */
+    public function queryAndSearchResultVariationsData(): array
+    {
+        return $this->mergeQueryAndResultsVariations($this->queriesData(), $this->searchResultVariationsData());
+    }
+
+    /**
+     * @return array
+     */
+    public function searchResultVariationsData(): array
+    {
+        $allVariations = [];
+        foreach ($this->searchResultData() as $caseName => $case) {
+            foreach ([true, false] as $scroll) {
+                $newCase = $case;
+                $fullCaseName = $caseName . '; scroll: ' . ($scroll ? 'true' : 'false');
+                if ($scroll) {
+                    $newCase['es_result']['_scroll_id'] = self::SCROLL_ID;
+                }
+                $newCase['scroll'] = $scroll;
+
+                $allVariations[$fullCaseName] = $newCase;
+            }
+        }
+
+        return $allVariations;
+    }
+
+    /**
+     * @dataProvider queryAndSearchResultVariationsData
+     *
+     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
+     * @param array                                      $esResult
+     * @param array                                      $endResult
+     * @param bool                                       $scroll
+     */
+    public function testFindByQuery(QueryInterface $query, array $esResult, array $endResult, bool $scroll): void
+    {
+        $rawParams = [
+            'index' => self::INDEX['read'],
+            'type' => self::TYPE,
+            'body' => $query->toArray(),
+        ];
+
+        if ($scroll) {
+            $rawParams['scroll'] = RepositoryConfiguration::DEFAULT_SCROLL_CONTEXT_KEEPALIVE;
+        }
+
+        $this->clientMock
             ->shouldReceive('search')
             ->once()
-            ->with($query);
+            ->with($rawParams)
+            ->andReturn($esResult);
 
-        $this->loggerMock
-            ->shouldNotReceive('error');
+        $result = $scroll
+            ? $this->getManager()->findScrollableByQuery($query)
+            : $this->getManager()->findByQuery($query);
 
-        $this->getManager()->findByQuery($query);
+        $this->assertEquals($endResult, $result->asArray());
+        $this->assertEquals(self::DOCUMENT_COUNT, $result->getTotal());
+        if ($scroll) {
+            $this->assertEquals(self::SCROLL_ID, $result->getScrollId());
+        } else {
+            $this->assertNull($result->getScrollId());
+        }
     }
 
     public function testFindByQueryFails(): void
     {
-        $this->adapterMock
+        $this->clientMock
             ->shouldReceive('search')
             ->once()
             ->andThrow(new \Exception(self::ERROR_MESSAGE));
@@ -200,24 +422,48 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
         $this->getManager()->findByQuery(Query::create());
     }
 
-    public function testCount(): void
+    /**
+     * @dataProvider searchResultData
+     *
+     * @param array $esResult
+     * @param array $endResult
+     */
+    public function testFindByScrollId(array $esResult, array $endResult): void
     {
-        $this->adapterMock
-            ->shouldReceive('count')
+        $scrollId = 'foobar';
+
+        $this->clientMock
+            ->shouldReceive('scroll')
             ->once()
-            ->andReturn(self::DOCUMENT_COUNT);
+            ->with(
+                [
+                    'scroll_id' => $scrollId,
+                    'scroll' => RepositoryConfiguration::DEFAULT_SCROLL_CONTEXT_KEEPALIVE,
+                ]
+            )
+            ->andReturn($esResult);
 
         $this->loggerMock
             ->shouldNotReceive('error');
 
-        $this->assertEquals(self::DOCUMENT_COUNT, $this->getManager()->count());
+        $result = $this->getManager()->findByScrollId($scrollId);
+
+        $this->assertEquals($endResult, $result->asArray());
     }
 
-    public function testCountFails(): void
+    public function testFindByScrollIdFails(): void
     {
-        $this->adapterMock
-            ->shouldReceive('count')
+        $scrollId = 'foobar';
+
+        $this->clientMock
+            ->shouldReceive('scroll')
             ->once()
+            ->with(
+                [
+                    'scroll_id' => $scrollId,
+                    'scroll' => RepositoryConfiguration::DEFAULT_SCROLL_CONTEXT_KEEPALIVE,
+                ]
+            )
             ->andThrow(new \Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
@@ -226,30 +472,34 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
 
         $this->expectException(RepositoryException::class);
 
-        $this->getManager()->count();
+        $this->getManager()->findByScrollId($scrollId);
     }
 
-    public function testCountByQuery(): void
+    /**
+     * @dataProvider queriesData
+     *
+     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
+     */
+    public function testCountByQuery(QueryInterface $query): void
     {
-        $query = Query::create(
-            Filter::create('foo', 'bar')
-        );
-
-        $this->adapterMock
+        $this->clientMock
             ->shouldReceive('count')
             ->once()
-            ->with($query)
-            ->andReturn(self::DOCUMENT_COUNT);
-
-        $this->loggerMock
-            ->shouldNotReceive('error');
+            ->with(
+                [
+                    'index' => self::INDEX['read'],
+                    'type' => self::TYPE,
+                    'body' => $query->toArray(),
+                ]
+            )
+            ->andReturn(['count' => self::DOCUMENT_COUNT]);
 
         $this->assertEquals(self::DOCUMENT_COUNT, $this->getManager()->countByQuery($query));
     }
 
     public function testCountByQueryFails(): void
     {
-        $this->adapterMock
+        $this->clientMock
             ->shouldReceive('count')
             ->once()
             ->andThrow(new \Exception(self::ERROR_MESSAGE));
@@ -263,22 +513,72 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
         $this->getManager()->countByQuery(Query::create());
     }
 
-    public function testAggregateByQuery(): void
+    public function testCount(): void
     {
-        $query = Query::create(
-            Filter::create('foo', 'bar'),
-            Aggregation::create('foo', Aggregation\Metric::EXTENDED_STATS)
-        );
+        $query = Query::create();
 
-        $this->adapterMock
-            ->shouldReceive('aggregate')
+        $this->clientMock
+            ->shouldReceive('count')
             ->once()
-            ->with($query);
+            ->with(
+                [
+                    'index' => self::INDEX['read'],
+                    'type' => self::TYPE,
+                    'body' => $query->toArray(),
+                ]
+            )
+            ->andReturn(['count' => self::DOCUMENT_COUNT]);
+
+        $this->assertEquals(self::DOCUMENT_COUNT, $this->getManager()->count());
+    }
+
+    public function testCountFails(): void
+    {
+        $this->clientMock
+            ->shouldReceive('count')
+            ->once()
+            ->andThrow(new \Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->shouldReceive('error')
+            ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
-        $this->getManager()->aggregateByQuery($query);
+        $this->expectException(RepositoryException::class);
+
+        $this->getManager()->count();
+    }
+
+    /**
+     * @dataProvider queryAndSearchResultData
+     *
+     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
+     * @param array                                      $esResult
+     */
+    public function testAggregateByQuery(QueryInterface $query, array $esResult): void
+    {
+        $this->clientMock
+            ->shouldReceive('search')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX['read'],
+                    'type' => self::TYPE,
+                    'body' => $query->toArray(),
+                ]
+            )
+            ->andReturn(array_merge($esResult, ['aggregations' => ['my_aggregation' => ['value' => 0.1]]]));
+
+        $aggregationResult = $this->getManager()->aggregateByQuery($query);
+
+        $this->assertEquals(count($esResult['hits']['hits']), $aggregationResult->getDocuments()->getCount());
+        $this->assertEquals(self::DOCUMENT_COUNT, $aggregationResult->getDocuments()->getTotal());
+        $this->assertCount(count($esResult['hits']['hits']), $aggregationResult->getDocuments());
+        $this->assertNull($aggregationResult->getDocuments()->getScrollId());
+        $this->assertEquals($esResult['hits']['hits'], $aggregationResult->getDocuments()->asArray());
+
+        $this->assertEquals(1, count($aggregationResult->getResults()));
+        $this->assertEquals('my_aggregation', $aggregationResult->getResultByName('my_aggregation')->getName());
+        $this->assertEquals(0.1, $aggregationResult->getResultByName('my_aggregation')->getValue());
     }
 
     public function testAggregateByQueryFails(): void
@@ -288,8 +588,8 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
             Aggregation::create('foo', Aggregation\Metric::EXTENDED_STATS)
         );
 
-        $this->adapterMock
-            ->shouldReceive('aggregate')
+        $this->clientMock
+            ->shouldReceive('search')
             ->once()
             ->andThrow(new \Exception(self::ERROR_MESSAGE));
 
@@ -332,10 +632,25 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
             'failures' => [],
         ];
 
-        $this->adapterMock
-            ->shouldReceive('update')
+        $this->clientMock
+            ->shouldReceive('updateByQuery')
             ->once()
-            ->with($query, $updateScript)
+            ->with(
+                [
+                    'index' => self::INDEX['write'],
+                    'type' => self::TYPE,
+                    'body' => array_merge(
+                        $query->toArray(),
+                        [
+                            'script' => [
+                                'lang' => 'painless',
+                                'source' => 'ctx._source.dimensions_completed=4',
+                                'params' => [],
+                            ],
+                        ]
+                    ),
+                ]
+            )
             ->andReturn($responseBody);
 
         $this->loggerMock
@@ -346,8 +661,8 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
 
     public function testUpdateByQueryFails(): void
     {
-        $this->adapterMock
-            ->shouldReceive('update')
+        $this->clientMock
+            ->shouldReceive('updateByQuery')
             ->once()
             ->andThrow(new \Exception(self::ERROR_MESSAGE));
 
@@ -357,74 +672,6 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
 
         $this->expectException(RepositoryException::class);
 
-        $this->getManager()->updateByQuery(Query::create(), []);
-    }
-
-    public function testFindScrollableByQuery(): void
-    {
-        $query = Query::create();
-
-        $this->adapterMock
-            ->shouldReceive('search')
-            ->once()
-            ->with($query, true);
-
-        $this->loggerMock
-            ->shouldNotReceive('error');
-
-        $this->getManager()->findScrollableByQuery($query);
-    }
-
-    public function testFindScrollableByQueryFails(): void
-    {
-        $query = Query::create();
-
-        $this->adapterMock
-            ->shouldReceive('search')
-            ->once()
-            ->with($query, true)
-            ->andThrow(new \Exception(self::ERROR_MESSAGE));
-
-        $this->loggerMock
-            ->shouldReceive('error')
-            ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
-
-        $this->expectException(RepositoryException::class);
-
-        $this->getManager()->findScrollableByQuery($query);
-    }
-
-    public function testFindByScrollId(): void
-    {
-        $scrollId = 'foobar';
-
-        $this->adapterMock
-            ->shouldReceive('scroll')
-            ->once()
-            ->with($scrollId);
-
-        $this->loggerMock
-            ->shouldNotReceive('error');
-
-        $this->getManager()->findByScrollId($scrollId);
-    }
-
-    public function testFindByScrollIdFails(): void
-    {
-        $scrollId = 'foobar';
-
-        $this->adapterMock
-            ->shouldReceive('scroll')
-            ->once()
-            ->with($scrollId)
-            ->andThrow(new \Exception(self::ERROR_MESSAGE));
-
-        $this->loggerMock
-            ->shouldReceive('error')
-            ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
-
-        $this->expectException(RepositoryException::class);
-
-        $this->getManager()->findByScrollId($scrollId);
+        $this->getManager()->updateByQuery(Query::create(), ['script' => []]);
     }
 }

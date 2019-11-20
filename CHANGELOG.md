@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file based on the
 
 ## [Unreleased](https://github.com/kununu/elasticsearch/compare/v1.1...master)
 ### Backward Compatibility Breaks
+* Removed support for Elastica as Elasticsearch client
+* Removed adapters completely (Repository is now directly using `\Elasticsearch\Client`)
+* Removed `ElasticaQuery`
 ### Bugfixes
 ### Added
 ### Improvements
