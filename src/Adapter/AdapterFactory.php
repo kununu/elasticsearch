@@ -65,23 +65,34 @@ class AdapterFactory implements LoggerAwareInterface, AdapterFactoryInterface
         switch ($class) {
             case ElasticsearchAdapter::class:
             case ElasticaAdapter::class:
-                /** @var \Kununu\Elasticsearch\Adapter\AdapterInterface $adapter */
-                $adapter = new $class(
-                    $this->clients[$class],
-                    [
-                        'read' => $connectionConfig[self::OPTION_INDEX_READ],
-                        'write' => $connectionConfig[self::OPTION_INDEX_WRITE],
-                    ],
-                    $connectionConfig['type']
-                );
-                if ($adapter instanceof LoggerAwareInterface) {
-                    $adapter->setLogger($this->logger);
-                }
-
-                return $adapter;
+                return $this->doBuildAdapter($class, $connectionConfig);
             default:
                 throw new InvalidArgumentException('Unknown adapter class "' . $class . '"');
         }
+    }
+
+    /**
+     * @param string $class
+     * @param array  $connectionConfig
+     *
+     * @return \Kununu\Elasticsearch\Adapter\AdapterInterface
+     */
+    protected function doBuildAdapter(string $class, array $connectionConfig): AdapterInterface
+    {
+        /** @var \Kununu\Elasticsearch\Adapter\AdapterInterface $adapter */
+        $adapter = new $class(
+            $this->clients[$class],
+            [
+                'read' => $connectionConfig[self::OPTION_INDEX_READ],
+                'write' => $connectionConfig[self::OPTION_INDEX_WRITE],
+            ],
+            $connectionConfig['type']
+        );
+        if ($adapter instanceof LoggerAwareInterface) {
+            $adapter->setLogger($this->logger);
+        }
+
+        return $adapter;
     }
 
     /**
