@@ -3,14 +3,11 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Tests\Repository;
 
-use Elastica\Query\BoolQuery;
-use Elastica\Query\Term;
 use Elasticsearch\Client;
 use Elasticsearch\Namespaces\IndicesNamespace;
 use Kununu\Elasticsearch\Exception\RepositoryException;
 use Kununu\Elasticsearch\Query\Aggregation;
 use Kununu\Elasticsearch\Query\Criteria\Filter;
-use Kununu\Elasticsearch\Query\ElasticaQuery;
 use Kununu\Elasticsearch\Query\Query;
 use Kununu\Elasticsearch\Query\QueryInterface;
 use Kununu\Elasticsearch\Query\RawQuery;
@@ -303,15 +300,6 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
             'some kununu term query' => [
                 'query' => Query::create(
                     Filter::create('foo', 'bar')
-                ),
-            ],
-            'empty elastica query' => [
-                'query' => ElasticaQuery::create(),
-            ],
-            'some elastica term query' => [
-                'query' => ElasticaQuery::create(
-                    (new BoolQuery())
-                        ->addMust((new Term())->setTerm('foo', 'bar'))
                 ),
             ],
             'empty raw query' => [

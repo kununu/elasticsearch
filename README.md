@@ -61,9 +61,8 @@ This package provides an abstracted query language which makes it easy to write 
 
 Various methods of the `ElasticsearchRepositoryInterface` require an object of type `QueryInterface` as input. Therefore, any implementation of this interface can be used together with Repositories.
 
-This package contains three implementations of the `QueryInterface`:
+This package contains two implementations of the `QueryInterface`:
  - [Query](doc/QUERY.md)
- - [ElasticaQuery](doc/ELASTICAQUERY.md)
  - [RawQuery](doc/RAWQUERY.md)
 
 ## Package Version vs. Elasticsearch Version 
