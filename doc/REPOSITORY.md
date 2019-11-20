@@ -35,9 +35,8 @@ Example for a Symfony DI service definition in a 3rd party project:
 ```yaml
 App\Repository\ElasticSubmissionRepository:
   arguments:
-    - '@Kununu\Elasticsearch\Adapter\AdapterFactory'
-    - adapter_class: 'Kununu\Elasticsearch\Adapter\ElasticaAdapter'
-      index_read: 'culture_submissions_read'
+    - '@Elasticsearch\Client'
+    - index_read: 'culture_submissions_read'
       index_write: 'culture_submissions_write'
       type: '_doc'
   calls:
@@ -52,9 +51,8 @@ Example with minimal configuration:
 ```yaml
 App\Service\Elasticsearch\Repository\ElasticsearchRepository:
   arguments:
-    - '@Kununu\Elasticsearch\Adapter\AdapterFactory'
-    - adapter_class: 'Kununu\Elasticsearch\Adapter\ElasticaAdapter'
-      index: 'my_index'
+    - '@Elasticsearch\Client'
+    - index: 'my_index'
       type: '_doc'
 ```
 
@@ -63,25 +61,22 @@ Multiple indexes/repositories in one project:
 my_first_repo:
   class: App\Service\Elasticsearch\Repository\ElasticsearchRepository
   arguments:
-    - '@Kununu\Elasticsearch\Adapter\AdapterFactory'
-    - adapter_class: 'Kununu\Elasticsearch\Adapter\ElasticsearchAdapter'
-      index_read: 'some_index_read'
+    - '@Elasticsearch\Client'
+    - index_read: 'some_index_read'
       index_write: 'some_index_write'
       type: '_doc'
 
 my_second_repo:
   class: App\Service\Elasticsearch\Repository\ElasticsearchRepository
   arguments:
-    - '@Kununu\Elasticsearch\Adapter\AdapterFactory'
-    - adapter_class: 'Kununu\Elasticsearch\Adapter\ElasticaAdapter'
-      index: 'some_other_index'
+    - '@Elasticsearch\Client'
+    - index: 'some_other_index'
       type: '_doc'
 ```
 
-#### Connection configuration
-The second constructor argument for every `Repository` is an object/associative array containing all relevant configuration values for the Elasticsearch connection.
+#### Configuration
+The second constructor argument for every `Repository` is an object/associative array containing all relevant configuration values for the repository.
 Mandatory fields are
- - `adapter_class`: the fully-qualified class name of the adapter to be built by the `AdapterFactory`
  - `index_read`: the name of the Elasticsearch index the `Repository` should connect to for any read operation (search, count, aggregate)
  - `index_write`: the name of the Elasticsearch index the `Repository` should connect to for any write operation (save, delete)
  - `type`: the name of the Elasticsearch type the `Repository` should connect to

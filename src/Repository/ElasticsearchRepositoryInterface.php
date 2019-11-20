@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\Repository;
 
 use Kununu\Elasticsearch\Query\QueryInterface;
-use Kununu\Elasticsearch\Result\AggregationResultSet;
+use Kununu\Elasticsearch\Result\AggregationResultSetInterface;
 use Kununu\Elasticsearch\Result\ResultIteratorInterface;
 
 /**
@@ -66,9 +66,9 @@ interface ElasticsearchRepositoryInterface
     /**
      * @param \Kununu\Elasticsearch\Query\QueryInterface $query
      *
-     * @return \Kununu\Elasticsearch\Result\AggregationResultSet
+     * @return \Kununu\Elasticsearch\Result\AggregationResultSetInterface
      */
-    public function aggregateByQuery(QueryInterface $query): AggregationResultSet;
+    public function aggregateByQuery(QueryInterface $query): AggregationResultSetInterface;
 
     /**
      * @param \Kununu\Elasticsearch\Query\QueryInterface $query
