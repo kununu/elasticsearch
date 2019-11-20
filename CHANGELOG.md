@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file based on the
 * Removed `ElasticaQuery`
 ### Bugfixes
 ### Added
+* `postSave` and `postDelete()` hooks for repositories
 ### Improvements
 ### Deprecated
 
