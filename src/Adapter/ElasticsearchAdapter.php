@@ -25,38 +25,41 @@ class ElasticsearchAdapter extends AbstractAdapter implements AdapterInterface
      * ElasticsearchAdapter constructor.
      *
      * @param \Elasticsearch\Client $client
-     * @param string                $index
+     * @param array                 $index
      * @param string                $type
      */
-    public function __construct(Client $client, string $index, string $type)
+    public function __construct(Client $client, array $index, string $type)
     {
         $this->client = $client;
-        $this->indexName = $index;
+        $this->index = $index;
         $this->typeName = $type;
 
         $this->validateIndexAndType();
     }
 
     /**
+     * @param string $operation
+     *
      * @return array
      */
-    protected function buildRequestBase(): array
+    protected function buildRequestBase(string $operation): array
     {
         return [
-            'index' => $this->indexName,
-            'type' => $this->typeName,
+            'index' => $this->getIndexName($operation),
+            'type' => $this->getTypeName(),
         ];
     }
 
     /**
      * @param \Kununu\Elasticsearch\Query\QueryInterface $query
+     * @param string                                     $operation
      *
      * @return array
      */
-    protected function buildRawQuery(QueryInterface $query): array
+    protected function buildRawQuery(QueryInterface $query, string $operation): array
     {
         return array_merge(
-            $this->buildRequestBase(),
+            $this->buildRequestBase($operation),
             ['body' => $query->toArray()]
         );
     }
@@ -82,7 +85,7 @@ class ElasticsearchAdapter extends AbstractAdapter implements AdapterInterface
      */
     public function search(?QueryInterface $query, bool $scroll = false): ResultIteratorInterface
     {
-        $rawQuery = $this->buildRawQuery($query);
+        $rawQuery = $this->buildRawQuery($query, self::OP_READ);
         if ($scroll) {
             $rawQuery['scroll'] = static::SCROLL_CONTEXT_KEEPALIVE;
         }
@@ -116,7 +119,7 @@ class ElasticsearchAdapter extends AbstractAdapter implements AdapterInterface
      */
     public function count(QueryInterface $query): int
     {
-        return $this->client->count($this->buildRawQuery($query))['count'];
+        return $this->client->count($this->buildRawQuery($query, self::OP_READ))['count'];
     }
 
     /**
@@ -124,7 +127,9 @@ class ElasticsearchAdapter extends AbstractAdapter implements AdapterInterface
      */
     public function delete(string $id): void
     {
-        $this->client->delete(array_merge($this->buildRequestBase(), ['id' => $id]));
+        $this->client->delete(
+            array_merge($this->buildRequestBase(self::OP_WRITE), ['id' => $id])
+        );
     }
 
     /**
@@ -133,7 +138,9 @@ class ElasticsearchAdapter extends AbstractAdapter implements AdapterInterface
      */
     public function index(string $id, array $data): void
     {
-        $this->client->index(array_merge($this->buildRequestBase(), ['id' => $id, 'body' => $data]));
+        $this->client->index(
+            array_merge($this->buildRequestBase(self::OP_WRITE), ['id' => $id, 'body' => $data])
+        );
     }
 
     /**
@@ -144,7 +151,7 @@ class ElasticsearchAdapter extends AbstractAdapter implements AdapterInterface
     public function aggregate(QueryInterface $query): AggregationResultSet
     {
         $result = $this->client->search(
-            $this->buildRawQuery($query)
+            $this->buildRawQuery($query, self::OP_READ)
         );
 
         return AggregationResultSet::create($result['aggregations'] ?? [])
@@ -159,7 +166,7 @@ class ElasticsearchAdapter extends AbstractAdapter implements AdapterInterface
      */
     public function update(QueryInterface $query, array $updateScript): array
     {
-        $rawQuery = $this->buildRawQuery($query);
+        $rawQuery = $this->buildRawQuery($query, self::OP_WRITE);
         $rawQuery['body']['script'] = $this->sanitizeUpdateScript($updateScript)['script'];
 
         return $this->client->updateByQuery($rawQuery);

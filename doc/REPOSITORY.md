@@ -31,13 +31,14 @@ This package includes a few objects for non-scalar return values of `Elasticsear
 ## Usage
 It's possible to either use the standard `ElasticsearchRepository` directly or to extend this class and use dedicated Repositories for each entity.
 
-Example for a Symfony DI service definition:
+Example for a Symfony DI service definition in a 3rd party project:
 ```yaml
 App\Repository\ElasticSubmissionRepository:
   arguments:
     - '@Kununu\Elasticsearch\Adapter\AdapterFactory'
     - adapter_class: 'Kununu\Elasticsearch\Adapter\ElasticaAdapter'
-      index: 'culture_submissions'
+      index_read: 'culture_submissions_read'
+      index_write: 'culture_submissions_write'
       type: '_doc'
   calls:
     - method: setLogger
@@ -64,7 +65,8 @@ my_first_repo:
   arguments:
     - '@Kununu\Elasticsearch\Adapter\AdapterFactory'
     - adapter_class: 'Kununu\Elasticsearch\Adapter\ElasticsearchAdapter'
-      index: 'some_index'
+      index_read: 'some_index_read'
+      index_write: 'some_index_write'
       type: '_doc'
 
 my_second_repo:
@@ -80,7 +82,11 @@ my_second_repo:
 The second constructor argument for every `Repository` is an object/associative array containing all relevant configuration values for the Elasticsearch connection.
 Mandatory fields are
  - `adapter_class`: the fully-qualified class name of the adapter to be built by the `AdapterFactory`
- - `index`: the name of the Elasticsearch index the `Repository` should connect to
+ - `index_read`: the name of the Elasticsearch index the `Repository` should connect to for any read operation (search, count, aggregate)
+ - `index_write`: the name of the Elasticsearch index the `Repository` should connect to for any write operation (save, delete)
  - `type`: the name of the Elasticsearch type the `Repository` should connect to
+
+Optional fields are
+- `index`: the name of the Elasticsearch index the `Repository` should connect to for for any operation. Useful if you are not using aliases. This **does not** override `index_read` and `index_write` if given.
 
 In the future this object might be extended with additional (mandatory) fields.

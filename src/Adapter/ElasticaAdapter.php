@@ -32,32 +32,36 @@ class ElasticaAdapter extends AbstractAdapter implements AdapterInterface
      * ElasticaAdapter constructor.
      *
      * @param \Elastica\Client $client
-     * @param string           $index
+     * @param array            $index
      * @param string           $type
      */
-    public function __construct(Client $client, string $index, string $type)
+    public function __construct(Client $client, array $index, string $type)
     {
         $this->client = $client;
-        $this->indexName = $index;
+        $this->index = $index;
         $this->typeName = $type;
 
         $this->validateIndexAndType();
     }
 
     /**
+     * @param string $operation
+     *
      * @return \Elastica\Index
      */
-    protected function getIndex(): Index
+    protected function getIndex(string $operation): Index
     {
-        return $this->client->getIndex($this->indexName);
+        return $this->client->getIndex($this->getIndexName($operation));
     }
 
     /**
+     * @param string $operation
+     *
      * @return \Elastica\Type
      */
-    protected function getType(): Type
+    protected function getType(string $operation): Type
     {
-        return $this->getIndex()->getType($this->typeName);
+        return $this->getIndex($operation)->getType($this->getTypeName());
     }
 
     /**
@@ -113,7 +117,7 @@ class ElasticaAdapter extends AbstractAdapter implements AdapterInterface
             : [];
 
         return $this->parseResultSet(
-            $this->getType()->search(
+            $this->getType(self::OP_READ)->search(
                 $this->ensureElasticaCompatibleQueryObject($query),
                 $options
             )
@@ -128,7 +132,7 @@ class ElasticaAdapter extends AbstractAdapter implements AdapterInterface
     public function scroll(string $scrollId): ResultIteratorInterface
     {
         return $this->parseResultSet(
-            $this->getType()->search(
+            $this->getType(self::OP_READ)->search(
                 [],
                 [
                     Search::OPTION_SCROLL => static::SCROLL_CONTEXT_KEEPALIVE,
@@ -145,7 +149,7 @@ class ElasticaAdapter extends AbstractAdapter implements AdapterInterface
      */
     public function count(QueryInterface $query): int
     {
-        return $this->getType()->count(
+        return $this->getType(self::OP_READ)->count(
             $this->ensureElasticaCompatibleQueryObject($query)
         );
     }
@@ -155,7 +159,7 @@ class ElasticaAdapter extends AbstractAdapter implements AdapterInterface
      */
     public function delete(string $id): void
     {
-        $this->getType()->deleteById($id);
+        $this->getType(self::OP_WRITE)->deleteById($id);
     }
 
     /**
@@ -164,7 +168,7 @@ class ElasticaAdapter extends AbstractAdapter implements AdapterInterface
      */
     public function index(string $id, array $data): void
     {
-        $type = $this->getType();
+        $type = $this->getType(self::OP_WRITE);
         $type->addDocument($type->createDocument($id, $data));
     }
 
@@ -175,7 +179,7 @@ class ElasticaAdapter extends AbstractAdapter implements AdapterInterface
      */
     public function aggregate(QueryInterface $query): AggregationResultSet
     {
-        $fullResult = $this->getType()->search(
+        $fullResult = $this->getType(self::OP_READ)->search(
             $this->ensureElasticaCompatibleQueryObject($query)
         );
 
@@ -191,7 +195,7 @@ class ElasticaAdapter extends AbstractAdapter implements AdapterInterface
      */
     public function update(QueryInterface $query, array $updateScript): array
     {
-        return $this->getIndex()->updateByQuery(
+        return $this->getIndex(self::OP_WRITE)->updateByQuery(
             $this->ensureElasticaCompatibleQueryObject($query),
             Script::create($this->sanitizeUpdateScript($updateScript))
         )->getData();
