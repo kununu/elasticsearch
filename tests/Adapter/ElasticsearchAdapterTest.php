@@ -21,7 +21,10 @@ use Mockery\Adapter\Phpunit\MockeryTestCase;
  */
 class ElasticsearchAdapterTest extends MockeryTestCase
 {
-    protected const INDEX = 'some_index';
+    protected const INDEX = [
+        'read' => 'some_index_read',
+        'write' => 'some_index_write',
+    ];
     protected const TYPE = '_doc';
     protected const ID = 'can_be_anything';
     protected const DOCUMENT_COUNT = 42;
@@ -69,7 +72,7 @@ class ElasticsearchAdapterTest extends MockeryTestCase
             ->once()
             ->with(
                 [
-                    'index' => self::INDEX,
+                    'index' => self::INDEX['write'],
                     'type' => self::TYPE,
                     'id' => self::ID,
                     'body' => $document,
@@ -89,7 +92,7 @@ class ElasticsearchAdapterTest extends MockeryTestCase
             ->once()
             ->with(
                 [
-                    'index' => self::INDEX,
+                    'index' => self::INDEX['write'],
                     'type' => self::TYPE,
                     'id' => self::ID,
                 ]
@@ -108,7 +111,7 @@ class ElasticsearchAdapterTest extends MockeryTestCase
             ->once()
             ->with(
                 [
-                    'index' => self::INDEX,
+                    'index' => self::INDEX['write'],
                 ]
             );
 
@@ -116,12 +119,12 @@ class ElasticsearchAdapterTest extends MockeryTestCase
             ->shouldReceive('indices')
             ->andReturn($indicesMock);
 
-        $this->getAdapter()->deleteIndex(self::INDEX);
+        $this->getAdapter()->deleteIndex(self::INDEX['write']);
     }
 
     public function testDeleteIndexOtherIndex(): void
     {
-        $indexToDelete = self::INDEX . '_2';
+        $indexToDelete = self::INDEX['read'] . '_2';
 
         $indicesMock = Mockery::mock(IndicesNamespace::class);
         $indicesMock
@@ -299,7 +302,7 @@ class ElasticsearchAdapterTest extends MockeryTestCase
     public function testSearchByQuery(QueryInterface $query, array $esResult, array $endResult, bool $scroll): void
     {
         $rawParams = [
-            'index' => self::INDEX,
+            'index' => self::INDEX['read'],
             'type' => self::TYPE,
             'body' => $query->toArray(),
         ];
@@ -337,7 +340,7 @@ class ElasticsearchAdapterTest extends MockeryTestCase
             ->once()
             ->with(
                 [
-                    'index' => self::INDEX,
+                    'index' => self::INDEX['read'],
                     'type' => self::TYPE,
                     'body' => $query->toArray(),
                 ]
@@ -352,16 +355,15 @@ class ElasticsearchAdapterTest extends MockeryTestCase
      *
      * @param \Kununu\Elasticsearch\Query\QueryInterface $query
      * @param array                                      $esResult
-     * @param array                                      $endResult
      */
-    public function testAggregate(QueryInterface $query, array $esResult, array $endResult): void
+    public function testAggregate(QueryInterface $query, array $esResult): void
     {
         $this->clientMock
             ->shouldReceive('search')
             ->once()
             ->with(
                 [
-                    'index' => self::INDEX,
+                    'index' => self::INDEX['read'],
                     'type' => self::TYPE,
                     'body' => $query->toArray(),
                 ]
@@ -388,7 +390,7 @@ class ElasticsearchAdapterTest extends MockeryTestCase
     {
         $emptyQuery = Query::create();
         $emptyRawQuery = [
-            'index' => self::INDEX,
+            'index' => self::INDEX['write'],
             'type' => self::TYPE,
             'body' => [],
         ];
@@ -396,7 +398,7 @@ class ElasticsearchAdapterTest extends MockeryTestCase
             Filter::create('foo', 'bar')
         );
         $termRawQuery = [
-            'index' => self::INDEX,
+            'index' => self::INDEX['write'],
             'type' => self::TYPE,
             'body' => [
                 'query' => [

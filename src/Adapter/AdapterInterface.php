@@ -14,10 +14,15 @@ use Kununu\Elasticsearch\Result\ResultIteratorInterface;
  */
 interface AdapterInterface
 {
+    public const OP_READ = 'read';
+    public const OP_WRITE = 'write';
+
     /**
+     * @param string $operation
+     *
      * @return string
      */
-    public function getIndexName(): string;
+    public function getIndexName(string $operation): string;
 
     /**
      * @return string

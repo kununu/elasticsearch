@@ -27,7 +27,10 @@ use Mockery\Adapter\Phpunit\MockeryTestCase;
  */
 class ElasticaAdapterTest extends MockeryTestCase
 {
-    protected const INDEX = 'some_index';
+    protected const INDEX = [
+        'read' => 'some_index_read',
+        'write' => 'some_index_write',
+    ];
     protected const TYPE = '_doc';
     protected const ID = 'can_be_anything';
     protected const DOCUMENT_COUNT = 42;
@@ -65,12 +68,18 @@ class ElasticaAdapterTest extends MockeryTestCase
         $this->clientMock = Mockery::mock(Client::class);
         $this->indexMock = Mockery::mock(Index::class);
         $this->typeMock = Mockery::mock(Type::class);
+    }
 
+    /**
+     * @param string $operation
+     */
+    protected function setUpMocksForCommonMethodCalls(string $operation): void
+    {
         $this->clientMock
             ->shouldReceive('getIndex')
             ->byDefault()
             ->once()
-            ->with(self::INDEX)
+            ->with(self::INDEX[$operation])
             ->andReturn($this->indexMock);
 
         $this->indexMock
@@ -105,6 +114,8 @@ class ElasticaAdapterTest extends MockeryTestCase
 
         $documentMock = Mockery::mock(Document::class);
 
+        $this->setUpMocksForCommonMethodCalls('write');
+
         $this->typeMock
             ->shouldReceive('createDocument')
             ->once()
@@ -125,6 +136,8 @@ class ElasticaAdapterTest extends MockeryTestCase
 
     public function testDelete(): void
     {
+        $this->setUpMocksForCommonMethodCalls('write');
+
         $this->typeMock
             ->shouldReceive('deleteById')
             ->once()
@@ -138,6 +151,8 @@ class ElasticaAdapterTest extends MockeryTestCase
 
     public function testDeleteIndex(): void
     {
+        $this->setUpMocksForCommonMethodCalls('write');
+
         $this->indexMock
             ->shouldNotReceive('getType');
 
@@ -147,7 +162,7 @@ class ElasticaAdapterTest extends MockeryTestCase
             ->with()
             ->andReturn();
 
-        $this->getAdapter()->deleteIndex(self::INDEX);
+        $this->getAdapter()->deleteIndex(self::INDEX['write']);
     }
 
     /**
@@ -166,7 +181,7 @@ class ElasticaAdapterTest extends MockeryTestCase
                         [
                             '_source' => ['foo' => 'bar'],
                             '_id' => 'something',
-                            '_index' => self::INDEX,
+                            '_index' => self::INDEX['read'],
                             '_type' => self::TYPE,
                             '_score' => 0,
                         ]
@@ -182,7 +197,7 @@ class ElasticaAdapterTest extends MockeryTestCase
                         [
                             '_source' => ['foo' => 'bar'],
                             '_id' => 'something',
-                            '_index' => self::INDEX,
+                            '_index' => self::INDEX['read'],
                             '_type' => self::TYPE,
                             '_score' => 1,
                         ]
@@ -194,7 +209,7 @@ class ElasticaAdapterTest extends MockeryTestCase
                                 'with_more_than' => 'one field',
                             ],
                             '_id' => 'else',
-                            '_index' => self::INDEX,
+                            '_index' => self::INDEX['read'],
                             '_type' => self::TYPE,
                             '_score' => 0,
                         ]
@@ -299,6 +314,8 @@ class ElasticaAdapterTest extends MockeryTestCase
         QueryInterface $query,
         bool $scroll = false
     ): void {
+        $this->setUpMocksForCommonMethodCalls('read');
+
         $resultSetMock = Mockery::mock(ResultSet::class);
         $resultSetMock
             ->shouldReceive('getResults')
@@ -364,6 +381,8 @@ class ElasticaAdapterTest extends MockeryTestCase
      */
     public function testCount(QueryInterface $query): void
     {
+        $this->setUpMocksForCommonMethodCalls('read');
+
         $this->typeMock
             ->shouldReceive('count')
             ->once()
@@ -379,6 +398,8 @@ class ElasticaAdapterTest extends MockeryTestCase
      */
     public function testAggregate(QueryInterface $query): void
     {
+        $this->setUpMocksForCommonMethodCalls('read');
+
         $resultSetMock = Mockery::mock(ResultSet::class);
         $resultSetMock
             ->shouldReceive('getResults')
@@ -478,6 +499,8 @@ class ElasticaAdapterTest extends MockeryTestCase
      */
     public function testUpdate(QueryInterface $query, array $updateScript): void
     {
+        $this->setUpMocksForCommonMethodCalls('write');
+
         $this->indexMock
             ->shouldNotReceive('getType');
 
@@ -503,6 +526,8 @@ class ElasticaAdapterTest extends MockeryTestCase
      */
     public function testScroll(array $esResult, array $expectedEndResult): void
     {
+        $this->setUpMocksForCommonMethodCalls('read');
+
         $resultSetMock = Mockery::mock(ResultSet::class);
         $resultSetMock
             ->shouldReceive('getResults')

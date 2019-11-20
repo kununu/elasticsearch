@@ -19,6 +19,11 @@ class AdapterFactory implements LoggerAwareInterface, AdapterFactoryInterface
 {
     use LoggerAwareTrait;
 
+    protected const OPTION_INDEX = 'index';
+    protected const OPTION_INDEX_READ = 'index_' . AdapterInterface::OP_READ;
+    protected const OPTION_INDEX_WRITE = 'index_' . AdapterInterface::OP_WRITE;
+    protected const OPTION_TYPE = 'type';
+
     /**
      * @var array
      */
@@ -54,13 +59,21 @@ class AdapterFactory implements LoggerAwareInterface, AdapterFactoryInterface
      */
     public function build(string $class, array $connectionConfig): AdapterInterface
     {
+        $connectionConfig = $this->inflateConnectionConfig($connectionConfig);
         $this->validateConnectionConfig($connectionConfig);
 
         switch ($class) {
             case ElasticsearchAdapter::class:
             case ElasticaAdapter::class:
                 /** @var \Kununu\Elasticsearch\Adapter\AdapterInterface $adapter */
-                $adapter = new $class($this->clients[$class], $connectionConfig['index'], $connectionConfig['type']);
+                $adapter = new $class(
+                    $this->clients[$class],
+                    [
+                        'read' => $connectionConfig[self::OPTION_INDEX_READ],
+                        'write' => $connectionConfig[self::OPTION_INDEX_WRITE],
+                    ],
+                    $connectionConfig['type']
+                );
                 if ($adapter instanceof LoggerAwareInterface) {
                     $adapter->setLogger($this->logger);
                 }
@@ -76,7 +89,11 @@ class AdapterFactory implements LoggerAwareInterface, AdapterFactoryInterface
      */
     protected function validateConnectionConfig(array $connectionConfig): void
     {
-        $requiredFields = ['index', 'type'];
+        $requiredFields = [
+            self::OPTION_INDEX_READ,
+            self::OPTION_INDEX_WRITE,
+            self::OPTION_TYPE,
+        ];
 
         $missingFields = array_diff($requiredFields, array_keys($connectionConfig));
 
@@ -85,5 +102,23 @@ class AdapterFactory implements LoggerAwareInterface, AdapterFactoryInterface
                 'Missing fields "' . implode(', ', $missingFields) . '" in connection config'
             );
         }
+    }
+
+    /**
+     * @param array $connectionConfig
+     *
+     * @return array
+     */
+    protected function inflateConnectionConfig(array $connectionConfig): array
+    {
+        if (isset($connectionConfig[self::OPTION_INDEX])) {
+            foreach ([self::OPTION_INDEX_READ, self::OPTION_INDEX_WRITE] as $operationAlias) {
+                if (!isset($connectionConfig[$operationAlias])) {
+                    $connectionConfig[$operationAlias] = $connectionConfig[self::OPTION_INDEX];
+                }
+            }
+        }
+
+        return $connectionConfig;
     }
 }

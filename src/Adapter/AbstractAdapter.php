@@ -20,9 +20,9 @@ abstract class AbstractAdapter
     public const SCROLL_CONTEXT_KEEPALIVE = '1m';
 
     /**
-     * @var string
+     * @var array
      */
-    protected $indexName;
+    protected $index = [];
 
     /**
      * @var string
@@ -30,11 +30,17 @@ abstract class AbstractAdapter
     protected $typeName;
 
     /**
+     * @param string $operation
+     *
      * @return string
      */
-    public function getIndexName(): string
+    public function getIndexName(string $operation): string
     {
-        return $this->indexName;
+        if (isset($this->index[$operation])) {
+            return $this->index[$operation];
+        } else {
+            throw new AdapterConfigurationException('No index name configured for operation "' . $operation . '"');
+        }
     }
 
     /**
@@ -47,8 +53,16 @@ abstract class AbstractAdapter
 
     protected function validateIndexAndType(): void
     {
-        if (empty($this->indexName)) {
-            throw new AdapterConfigurationException('no valid index name defined');
+        if (!is_array($this->index)) {
+            throw new AdapterConfigurationException('no valid index name/alias defined');
+        }
+
+        foreach ([AdapterInterface::OP_READ, AdapterInterface::OP_WRITE] as $operation) {
+            if (empty($this->getIndexName($operation))) {
+                throw new AdapterConfigurationException(
+                    'no valid index name for ' . $operation . ' operations defined'
+                );
+            }
         }
 
         if (empty($this->typeName)) {

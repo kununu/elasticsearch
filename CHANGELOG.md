@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file based on the
 ### Bugfixes
 ### Added
 ### Improvements
+* Added support for dedicated index aliases for read and write operations (connnection options `index_read` and `index_write`)
 ### Deprecated
 
 ## [1.0.0](https://github.com/kununu/elasticsearch/compare/v0.4-beta...v1.0)

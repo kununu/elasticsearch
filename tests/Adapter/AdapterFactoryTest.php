@@ -7,6 +7,7 @@ use Elastica\Client as ElasticaClient;
 use Elasticsearch\Client as ElasticsearchClient;
 use InvalidArgumentException;
 use Kununu\Elasticsearch\Adapter\AdapterFactory;
+use Kununu\Elasticsearch\Adapter\AdapterInterface;
 use Kununu\Elasticsearch\Adapter\ElasticaAdapter;
 use Kununu\Elasticsearch\Adapter\ElasticsearchAdapter;
 use Kununu\Elasticsearch\Exception\AdapterConfigurationException;
@@ -19,7 +20,8 @@ use Mockery\Adapter\Phpunit\MockeryTestCase;
 class AdapterFactoryTest extends MockeryTestCase
 {
     protected const CONNECTION_CONFIG = [
-        'index' => 'my_index',
+        'index_read' => 'my_index_read',
+        'index_write' => 'my_index_write',
         'type' => '_doc',
     ];
 
@@ -96,7 +98,8 @@ class AdapterFactoryTest extends MockeryTestCase
         $adapter = $factory->build($adapterClass, self::CONNECTION_CONFIG);
 
         $this->assertInstanceOf($adapterClass, $adapter);
-        $this->assertEquals(self::CONNECTION_CONFIG['index'], $adapter->getIndexName());
+        $this->assertEquals(self::CONNECTION_CONFIG['index_read'], $adapter->getIndexName(AdapterInterface::OP_READ));
+        $this->assertEquals(self::CONNECTION_CONFIG['index_write'], $adapter->getIndexName(AdapterInterface::OP_WRITE));
         $this->assertEquals(self::CONNECTION_CONFIG['type'], $adapter->getTypeName());
     }
 
@@ -132,9 +135,17 @@ class AdapterFactoryTest extends MockeryTestCase
     public function connectionConfigData(): array
     {
         return [
-            'index missing' => [
+            'all index aliases missing' => [
                 'connectionConfig' => ['type' => 'foo'],
-                'exceptionMessage' => 'Missing fields "index" in connection config',
+                'exceptionMessage' => 'Missing fields "index_read, index_write" in connection config',
+            ],
+            'index_read missing' => [
+                'connectionConfig' => ['index_write' => 'bar', 'type' => 'foo'],
+                'exceptionMessage' => 'Missing fields "index_read" in connection config',
+            ],
+            'index_write missing' => [
+                'connectionConfig' => ['index_read' => 'bar', 'type' => 'foo'],
+                'exceptionMessage' => 'Missing fields "index_write" in connection config',
             ],
             'type missing' => [
                 'connectionConfig' => ['index' => 'foo'],
@@ -142,11 +153,11 @@ class AdapterFactoryTest extends MockeryTestCase
             ],
             'index and type missing, blank config' => [
                 'connectionConfig' => [],
-                'exceptionMessage' => 'Missing fields "index, type" in connection config',
+                'exceptionMessage' => 'Missing fields "index_read, index_write, type" in connection config',
             ],
             'index and type missing, non-blank config' => [
                 'connectionConfig' => ['some' => 'other_field'],
-                'exceptionMessage' => 'Missing fields "index, type" in connection config',
+                'exceptionMessage' => 'Missing fields "index_read, index_write, type" in connection config',
             ],
         ];
     }
