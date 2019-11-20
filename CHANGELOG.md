@@ -1,7 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file based on the [Keep a Changelog](http://keepachangelog.com/) Standard. This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased](https://github.com/kununu/elasticsearch/compare/v1.0...master)
+## [Unreleased](https://github.com/kununu/elasticsearch/compare/v1.1...master)
+### Backward Compatibility Breaks
+### Bugfixes
+### Added
+### Improvements
+### Deprecated
+
+## [1.1](https://github.com/kununu/elasticsearch/compare/v1.0...v1.1)
 ### Backward Compatibility Breaks
 ### Bugfixes
 ### Added
@@ -9,7 +16,7 @@ All notable changes to this project will be documented in this file based on the
 * Added support for dedicated index aliases for read and write operations (connnection options `index_read` and `index_write`)
 ### Deprecated
 
-## [1.0.0](https://github.com/kununu/elasticsearch/compare/v0.4-beta...v1.0)
+## [1.0](https://github.com/kununu/elasticsearch/compare/v0.4-beta...v1.0)
 ### Backward Compatibility Breaks
 none
 ### Bugfixes
