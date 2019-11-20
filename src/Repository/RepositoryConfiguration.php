@@ -53,21 +53,21 @@ class RepositoryConfiguration
     }
 
     /**
-     * @param string $operation
+     * @param string $operationType
      *
      * @return string
      */
-    public function getIndex(string $operation): string
+    public function getIndex(string $operationType): string
     {
-        $index = $this->index[$operation] ?? '';
+        $indexForOperationType = $this->index[$operationType] ?? '';
 
-        if (!$index) {
+        if (!$indexForOperationType) {
             throw new RepositoryConfigurationException(
-                'No valid index name configured for operation "' . $operation . '"'
+                'No valid index name configured for operation "' . $operationType . '"'
             );
         }
 
-        return $index;
+        return $indexForOperationType;
     }
 
     /**
