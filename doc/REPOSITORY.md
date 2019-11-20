@@ -31,13 +31,14 @@ This package includes a few objects for non-scalar return values of `Elasticsear
 ## Usage
 It's possible to either use the standard `ElasticsearchRepository` directly or to extend this class and use dedicated Repositories for each entity.
 
-Example for a Symfony DI service definition:
+Example for a Symfony DI service definition in a 3rd party project:
 ```yaml
 App\Repository\ElasticSubmissionRepository:
   arguments:
     - '@Kununu\Elasticsearch\Adapter\AdapterFactory'
     - adapter_class: 'Kununu\Elasticsearch\Adapter\ElasticaAdapter'
-      index: 'culture_submissions'
+      index_read: 'culture_submissions_read'
+      index_write: 'culture_submissions_write'
       type: '_doc'
   calls:
     - method: setLogger
@@ -64,7 +65,8 @@ my_first_repo:
   arguments:
     - '@Kununu\Elasticsearch\Adapter\AdapterFactory'
     - adapter_class: 'Kununu\Elasticsearch\Adapter\ElasticsearchAdapter'
-      index: 'some_index'
+      index_read: 'some_index_read'
+      index_write: 'some_index_write'
       type: '_doc'
 
 my_second_repo:
