@@ -18,6 +18,7 @@ class RepositoryConfiguration
     protected const OPTION_TYPE = 'type';
     protected const OPTION_ENTITY_SERIALIZER = 'entity_serializer';
     protected const OPTION_ENTITY_FACTORY = 'entity_factory';
+    protected const OPTION_ENTITY_CLASS = 'entity_class';
 
     /**
      * 1 minute per default
@@ -45,6 +46,11 @@ class RepositoryConfiguration
      * @var \Kununu\Elasticsearch\Repository\EntityFactoryInterface
      */
     protected $entityFactory;
+
+    /**
+     * @var string
+     */
+    protected $entityClass;
 
     /**
      * RepositoryConfiguration constructor.
@@ -87,6 +93,14 @@ class RepositoryConfiguration
     }
 
     /**
+     * @return string|null
+     */
+    public function getEntityClass(): ?string
+    {
+        return $this->entityClass;
+    }
+
+    /**
      * @return \Kununu\Elasticsearch\Repository\EntitySerializerInterface|null
      */
     public function getEntitySerializer(): ?EntitySerializerInterface
@@ -123,22 +137,41 @@ class RepositoryConfiguration
         );
         $this->type = $config[static::OPTION_TYPE] ?? null;
 
+        if (isset($config[static::OPTION_ENTITY_CLASS])) {
+            $entityClass = $config[static::OPTION_ENTITY_CLASS];
+            if (!class_exists($entityClass)) {
+                throw new RepositoryConfigurationException(
+                    'Given entity class does not exist.'
+                );
+            }
+
+            if (!is_a($entityClass, PersistableEntityInterface::class, true)) {
+                throw new RepositoryConfigurationException(
+                    'Invalid entity class given. Must be of type \Kununu\Elasticsearch\Repository\PersistableEntityInterface'
+                );
+            }
+
+            $this->entityClass = $entityClass;
+        }
+
         if (isset($config[static::OPTION_ENTITY_SERIALIZER])) {
-            if (!($config[static::OPTION_ENTITY_SERIALIZER] instanceof EntitySerializerInterface)) {
+            $entitySerializer = $config[static::OPTION_ENTITY_SERIALIZER];
+            if (!($entitySerializer instanceof EntitySerializerInterface)) {
                 throw new RepositoryConfigurationException(
                     'Invalid entity serializer given. Must be of type \Kununu\Elasticsearch\Repository\EntitySerializerInterface'
                 );
             }
-            $this->entitySerializer = $config[static::OPTION_ENTITY_SERIALIZER];
+            $this->entitySerializer = $entitySerializer;
         }
 
         if (isset($config[static::OPTION_ENTITY_FACTORY])) {
-            if (!($config[static::OPTION_ENTITY_FACTORY] instanceof EntityFactoryInterface)) {
+            $entityFactory = $config[static::OPTION_ENTITY_FACTORY];
+            if (!($entityFactory instanceof EntityFactoryInterface)) {
                 throw new RepositoryConfigurationException(
                     'Invalid entity factory given. Must be of type \Kununu\Elasticsearch\Repository\EntityFactoryInterface'
                 );
             }
-            $this->entityFactory = $config[static::OPTION_ENTITY_FACTORY];
+            $this->entityFactory = $entityFactory;
         }
     }
 

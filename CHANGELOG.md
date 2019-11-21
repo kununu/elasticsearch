@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file based on the
 ### Added
 * `postSave` and `postDelete()` hooks for repositories
 * Index management features via `IndexManager`
+* Entity class for repositories: if configured with an entity class, a repository will emit entity objects of this type instead of plain documents and accepts such objects on the `save()` method
 * Entity factory for repositories: if configured with an entity factory, a repository will emit entity objects instead of plain document arrays
 * Entity serializer for repositories: if configured with an entity serializer, a repository accepts objects on the `save()` method and serializes them using the given serializer 
 ### Improvements

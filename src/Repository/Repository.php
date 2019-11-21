@@ -5,6 +5,7 @@ namespace Kununu\Elasticsearch\Repository;
 
 use Elasticsearch\Client;
 use Exception;
+use InvalidArgumentException;
 use Kununu\Elasticsearch\Exception\RepositoryConfigurationException;
 use Kununu\Elasticsearch\Exception\RepositoryException;
 use Kununu\Elasticsearch\Query\Query;
@@ -57,14 +58,18 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         if (is_array($entity)) {
             $document = $entity;
         } elseif (is_object($entity)) {
-            if (!$this->config->getEntitySerializer()) {
+            $configuredEntityClass = $this->config->getEntityClass();
+            if ($configuredEntityClass && $entity instanceof $configuredEntityClass) {
+                $document = $entity->toElastic();
+            } elseif ($this->config->getEntitySerializer()) {
+                $document = $this->config->getEntitySerializer()->toElastic($entity);
+            } else {
                 throw new RepositoryConfigurationException(
                     'No entity serializer configured while trying to persist object'
                 );
             }
-            $document = $this->config->getEntitySerializer()->toElastic($entity);
         } else {
-            throw new \InvalidArgumentException('Entity must be of type array or object');
+            throw new InvalidArgumentException('Entity must be of type array or object');
         }
 
         $this->execute(
@@ -259,7 +264,17 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
     {
         $results = $hits = $rawResult['hits']['hits'] ?? [];
 
-        if ($this->config->getEntityFactory()) {
+        if ($this->config->getEntityClass()) {
+            $results = array_map(
+                function (array $hit) {
+                    $metaData = $hit;
+                    unset($metaData['_source']);
+
+                    return $this->config->getEntityClass()::fromElasticDocument($hit['_source'], $metaData);
+                },
+                $hits
+            );
+        } elseif ($this->config->getEntityFactory()) {
             $results = array_map(
                 function (array $hit) {
                     $metaData = $hit;

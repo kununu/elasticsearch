@@ -13,12 +13,14 @@ use Kununu\Elasticsearch\Query\QueryInterface;
 use Kununu\Elasticsearch\Query\RawQuery;
 use Kununu\Elasticsearch\Repository\EntityFactoryInterface;
 use Kununu\Elasticsearch\Repository\EntitySerializerInterface;
+use Kununu\Elasticsearch\Repository\PersistableEntityInterface;
 use Kununu\Elasticsearch\Repository\Repository;
 use Kununu\Elasticsearch\Repository\RepositoryConfiguration;
 use Kununu\Elasticsearch\Repository\RepositoryInterface;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Psr\Log\LoggerInterface;
+use stdClass;
 
 /**
  * @group unit
@@ -99,7 +101,7 @@ class RepositoryTest extends MockeryTestCase
         );
     }
 
-    public function testSaveObject(): void
+    public function testSaveObjectWithEntitySerializer(): void
     {
         $mySerializer = new class implements EntitySerializerInterface
         {
@@ -109,7 +111,7 @@ class RepositoryTest extends MockeryTestCase
             }
         };
 
-        $document = new \stdClass();
+        $document = new stdClass();
         $document->property_a = 'a';
         $document->property_b = 'b';
 
@@ -137,14 +139,44 @@ class RepositoryTest extends MockeryTestCase
         );
     }
 
-    public function testSaveObjectFailsWithoutEntitySerializer(): void
+    public function testSaveObjectWithEntityClass(): void
+    {
+        $document = $this->getEntityClass();
+        $document->property_a = 'a';
+        $document->property_b = 'b';
+
+        $this->clientMock
+            ->shouldReceive('index')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX['write'],
+                    'type' => self::TYPE,
+                    'id' => self::ID,
+                    'body' => [
+                        'property_a' => 'a',
+                        'property_b' => 'b',
+                    ],
+                ]
+            );
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $this->getRepository(['entity_class' => get_class($this->getEntityClass())])->save(
+            self::ID,
+            $document
+        );
+    }
+
+    public function testSaveObjectFailsWithoutEntitySerializerAndEntityClass(): void
     {
         $this->expectException(RepositoryConfigurationException::class);
         $this->expectExceptionMessage('No entity serializer configured while trying to persist object');
 
         $this->getRepository()->save(
             self::ID,
-            new \stdClass()
+            new stdClass()
         );
     }
 
@@ -835,7 +867,7 @@ class RepositoryTest extends MockeryTestCase
             function (array $variables) {
                 $variables['end_result'] = array_map(
                     function (array $result) {
-                        $entity = new \stdClass();
+                        $entity = new stdClass();
                         foreach ($result['_source'] as $key => $value) {
                             $entity->$key = $value;
                         }
@@ -863,6 +895,14 @@ class RepositoryTest extends MockeryTestCase
     /**
      * @return array
      */
+    public function queryAndSearchResultWithEntitiesData(): array
+    {
+        return $this->modifySearchResultDataForEntityUsecases($this->queryAndSearchResultData());
+    }
+
+    /**
+     * @return array
+     */
     public function searchResultWithEntitiesData(): array
     {
         return $this->modifySearchResultDataForEntityUsecases($this->searchResultData());
@@ -877,7 +917,7 @@ class RepositoryTest extends MockeryTestCase
         {
             public function fromDocument(array $document, array $metaData)
             {
-                $entity = new \stdClass();
+                $entity = new stdClass();
                 foreach ($document as $key => $value) {
                     $entity->$key = $value;
                 }
@@ -977,5 +1017,222 @@ class RepositoryTest extends MockeryTestCase
                 $this->assertEquals(['_index' => self::INDEX, '_score' => 77], $entity->_meta);
             }
         }
+    }
+
+    /**
+     * @dataProvider queryAndSearchResultWithEntitiesData
+     *
+     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
+     * @param array                                      $esResult
+     * @param array                                      $endResult
+     */
+    public function testAggregateByQueryWithEntityFactory(
+        QueryInterface $query,
+        array $esResult,
+        array $endResult
+    ): void {
+        $this->clientMock
+            ->shouldReceive('search')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX['read'],
+                    'type' => self::TYPE,
+                    'body' => $query->toArray(),
+                ]
+            )
+            ->andReturn(array_merge($esResult, ['aggregations' => ['my_aggregation' => ['value' => 0.1]]]));
+
+        $aggregationResult = $this
+            ->getRepository(['entity_factory' => $this->getEntityFactory()])
+            ->aggregateByQuery($query);
+
+        $this->assertEquals(count($esResult['hits']['hits']), $aggregationResult->getDocuments()->getCount());
+        $this->assertEquals(self::DOCUMENT_COUNT, $aggregationResult->getDocuments()->getTotal());
+        $this->assertCount(count($esResult['hits']['hits']), $aggregationResult->getDocuments());
+        $this->assertNull($aggregationResult->getDocuments()->getScrollId());
+        $this->assertEquals($endResult, $aggregationResult->getDocuments()->asArray());
+
+        if (!empty($aggregationResult->getDocuments())) {
+            foreach ($aggregationResult->getDocuments() as $entity) {
+                $this->assertEquals(['_index' => self::INDEX, '_score' => 77], $entity->_meta);
+            }
+        }
+
+        $this->assertEquals(1, count($aggregationResult->getResults()));
+        $this->assertEquals('my_aggregation', $aggregationResult->getResultByName('my_aggregation')->getName());
+        $this->assertEquals(0.1, $aggregationResult->getResultByName('my_aggregation')->getValue());
+    }
+
+    /**
+     * @return \Kununu\Elasticsearch\Repository\PersistableEntityInterface
+     */
+    protected function getEntityClass(): PersistableEntityInterface
+    {
+        return new class extends stdClass implements PersistableEntityInterface
+        {
+            /**
+             * @return array
+             */
+            public function toElastic(): array
+            {
+                return (array)$this;
+            }
+
+            /**
+             * @param array $document the raw document as found in the _source field of the raw Elasticsearch response
+             * @param array $metaData contains all "underscore-fields" delivered in the raw Elasticsearch response (e.g. _score)
+             *
+             * @return mixed
+             */
+            public static function fromElasticDocument(array $document, array $metaData)
+            {
+                $entity = new stdClass();
+                foreach ($document as $key => $value) {
+                    $entity->$key = $value;
+                }
+                $entity->_meta = $metaData;
+
+                return $entity;
+            }
+        };
+    }
+
+    /**
+     * @dataProvider queryAndSearchResultVariationsWithEntitiesData
+     *
+     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
+     * @param array                                      $esResult
+     * @param array                                      $endResult
+     * @param bool                                       $scroll
+     */
+    public function testFindByQueryWithEntityClass(
+        QueryInterface $query,
+        array $esResult,
+        array $endResult,
+        bool $scroll
+    ): void {
+        $rawParams = [
+            'index' => self::INDEX['read'],
+            'type' => self::TYPE,
+            'body' => $query->toArray(),
+        ];
+
+        if ($scroll) {
+            $rawParams['scroll'] = RepositoryConfiguration::DEFAULT_SCROLL_CONTEXT_KEEPALIVE;
+        }
+
+        $this->clientMock
+            ->shouldReceive('search')
+            ->once()
+            ->with($rawParams)
+            ->andReturn($esResult);
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $repository = $this->getRepository(['entity_class' => get_class($this->getEntityClass())]);
+
+        $result = $scroll
+            ? $repository->findScrollableByQuery($query)
+            : $repository->findByQuery($query);
+
+        $this->assertEquals($endResult, $result->asArray());
+        $this->assertEquals(self::DOCUMENT_COUNT, $result->getTotal());
+        if ($scroll) {
+            $this->assertEquals(self::SCROLL_ID, $result->getScrollId());
+        } else {
+            $this->assertNull($result->getScrollId());
+        }
+
+        if (!empty($result)) {
+            foreach ($result as $entity) {
+                $this->assertEquals(['_index' => self::INDEX, '_score' => 77], $entity->_meta);
+            }
+        }
+    }
+
+    /**
+     * @dataProvider searchResultWithEntitiesData
+     *
+     * @param array $esResult
+     * @param array $endResult
+     */
+    public function testFindByScrollIdWithEntityClass(array $esResult, array $endResult): void
+    {
+        $scrollId = 'foobar';
+
+        $this->clientMock
+            ->shouldReceive('scroll')
+            ->once()
+            ->with(
+                [
+                    'scroll_id' => $scrollId,
+                    'scroll' => RepositoryConfiguration::DEFAULT_SCROLL_CONTEXT_KEEPALIVE,
+                ]
+            )
+            ->andReturn(array_merge($esResult, ['_scroll_id' => $scrollId]));
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $result = $this->getRepository(['entity_class' => get_class($this->getEntityClass())])->findByScrollId(
+            $scrollId
+        );
+
+        $this->assertEquals($endResult, $result->asArray());
+        $this->assertEquals(self::DOCUMENT_COUNT, $result->getTotal());
+        $this->assertEquals($scrollId, $result->getScrollId());
+
+        if (!empty($result)) {
+            foreach ($result as $entity) {
+                $this->assertEquals(['_index' => self::INDEX, '_score' => 77], $entity->_meta);
+            }
+        }
+    }
+
+    /**
+     * @dataProvider queryAndSearchResultWithEntitiesData
+     *
+     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
+     * @param array                                      $esResult
+     * @param array                                      $endResult
+     */
+    public function testAggregateByQueryWithEntityClass(
+        QueryInterface $query,
+        array $esResult,
+        array $endResult
+    ): void {
+        $this->clientMock
+            ->shouldReceive('search')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX['read'],
+                    'type' => self::TYPE,
+                    'body' => $query->toArray(),
+                ]
+            )
+            ->andReturn(array_merge($esResult, ['aggregations' => ['my_aggregation' => ['value' => 0.1]]]));
+
+        $aggregationResult = $this
+            ->getRepository(['entity_class' => get_class($this->getEntityClass())])
+            ->aggregateByQuery($query);
+
+        $this->assertEquals(count($esResult['hits']['hits']), $aggregationResult->getDocuments()->getCount());
+        $this->assertEquals(self::DOCUMENT_COUNT, $aggregationResult->getDocuments()->getTotal());
+        $this->assertCount(count($esResult['hits']['hits']), $aggregationResult->getDocuments());
+        $this->assertNull($aggregationResult->getDocuments()->getScrollId());
+        $this->assertEquals($endResult, $aggregationResult->getDocuments()->asArray());
+
+        if (!empty($aggregationResult->getDocuments())) {
+            foreach ($aggregationResult->getDocuments() as $entity) {
+                $this->assertEquals(['_index' => self::INDEX, '_score' => 77], $entity->_meta);
+            }
+        }
+
+        $this->assertEquals(1, count($aggregationResult->getResults()));
+        $this->assertEquals('my_aggregation', $aggregationResult->getResultByName('my_aggregation')->getName());
+        $this->assertEquals(0.1, $aggregationResult->getResultByName('my_aggregation')->getValue());
     }
 }
