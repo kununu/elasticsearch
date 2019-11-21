@@ -20,7 +20,7 @@ use Psr\Log\LoggerInterface;
 /**
  * @group unit
  */
-class ElasticsearchRepositoryTest extends MockeryTestCase
+class RepositoryTest extends MockeryTestCase
 {
     protected const INDEX = [
         'read' => 'some_index_read',

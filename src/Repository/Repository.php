@@ -49,6 +49,167 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
     }
 
     /**
+     * @inheritdoc
+     */
+    public function save(string $id, array $document): void
+    {
+        $this->execute(
+            function () use ($id, $document) {
+                $this->client->index(
+                    array_merge($this->buildRequestBase(OperationType::WRITE), ['id' => $id, 'body' => $document])
+                );
+
+                $this->postSave($id, $document);
+            }
+        );
+    }
+
+    /**
+     * @param string $id
+     * @param array  $document
+     */
+    protected function postSave(string $id, array $document): void
+    {
+        // ready to be overwritten :)
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function delete(string $id): void
+    {
+        $this->execute(
+            function () use ($id) {
+                $this->client->delete(
+                    array_merge($this->buildRequestBase(OperationType::WRITE), ['id' => $id])
+                );
+
+                $this->postDelete($id);
+            }
+        );
+    }
+
+    protected function postDelete(string $id): void
+    {
+        // ready to be overwritten :)
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function findByQuery(QueryInterface $query): ResultIteratorInterface
+    {
+        return $this->execute(
+            function () use ($query) {
+                return $this->parseRawSearchResponse(
+                    $this->client->search($this->buildRawQuery($query, OperationType::READ))
+                );
+            }
+        );
+    }
+
+    /**
+     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
+     *
+     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
+     */
+    public function findScrollableByQuery(QueryInterface $query): ResultIteratorInterface
+    {
+        return $this->execute(
+            function () use ($query) {
+                $rawQuery = $this->buildRawQuery($query, OperationType::READ);
+                $rawQuery['scroll'] = $this->config->getScrollContextKeepalive();
+
+                return $this->parseRawSearchResponse(
+                    $this->client->search($rawQuery)
+                );
+            }
+        );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function findByScrollId(string $scrollId): ResultIteratorInterface
+    {
+        return $this->execute(
+            function () use ($scrollId) {
+                return $this->parseRawSearchResponse(
+                    $this->client->scroll(
+                        [
+                            'scroll_id' => $scrollId,
+                            'scroll' => $this->config->getScrollContextKeepalive(),
+                        ]
+                    )
+                );
+            }
+        );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function count(): int
+    {
+        return $this->countByQuery(Query::create());
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function countByQuery(QueryInterface $query): int
+    {
+        return $this->execute(
+            function () use ($query) {
+                return $this->client->count($this->buildRawQuery($query, OperationType::READ))['count'];
+            }
+        );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function aggregateByQuery(QueryInterface $query): AggregationResultSetInterface
+    {
+        return $this->execute(
+            function () use ($query) {
+                $result = $this->client->search(
+                    $this->buildRawQuery($query, OperationType::READ)
+                );
+
+                return AggregationResultSet::create($result['aggregations'] ?? [])
+                    ->setDocuments($this->parseRawSearchResponse($result));
+            }
+        );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function updateByQuery(QueryInterface $query, array $updateScript): array
+    {
+        return $this->execute(
+            function () use ($query, $updateScript) {
+                $rawQuery = $this->buildRawQuery($query, OperationType::WRITE);
+                $rawQuery['body']['script'] = $this->sanitizeUpdateScript($updateScript)['script'];
+
+                return $this->client->updateByQuery($rawQuery);
+            }
+        );
+    }
+
+    protected function execute(callable $operation)
+    {
+        try {
+            return $operation();
+        } catch (Exception $e) {
+            $this->getLogger()->error(self::EXCEPTION_PREFIX . $e->getMessage());
+
+            throw new RepositoryException($e->getMessage(), $e);
+        }
+    }
+
+    /**
      * @param \Exception $e
      *
      * @throws \Kununu\Elasticsearch\Exception\RepositoryException
@@ -119,155 +280,5 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         }
 
         return $sanitizedUpdateScript;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function save(string $id, array $document): void
-    {
-        try {
-            $this->client->index(
-                array_merge($this->buildRequestBase(OperationType::WRITE), ['id' => $id, 'body' => $document])
-            );
-
-            $this->postSave($id, $document);
-        } catch (Exception $e) {
-            $this->logErrorAndThrowException($e);
-        }
-    }
-
-    /**
-     * @param string $id
-     * @param array  $document
-     */
-    protected function postSave(string $id, array $document): void
-    {
-        // ready to be overwritten :)
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function delete(string $id): void
-    {
-        try {
-            $this->client->delete(
-                array_merge($this->buildRequestBase(OperationType::WRITE), ['id' => $id])
-            );
-
-            $this->postDelete($id);
-        } catch (Exception $e) {
-            $this->logErrorAndThrowException($e);
-        }
-    }
-
-    protected function postDelete(string $id): void
-    {
-        // ready to be overwritten :)
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function findByQuery(QueryInterface $query): ResultIteratorInterface
-    {
-        try {
-            return $this->parseRawSearchResponse(
-                $this->client->search($this->buildRawQuery($query, OperationType::READ))
-            );
-        } catch (Exception $e) {
-            $this->logErrorAndThrowException($e);
-        }
-    }
-
-    /**
-     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
-     *
-     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
-     */
-    public function findScrollableByQuery(QueryInterface $query): ResultIteratorInterface
-    {
-        try {
-            $rawQuery = $this->buildRawQuery($query, OperationType::READ);
-            $rawQuery['scroll'] = $this->config->getScrollContextKeepalive();
-
-            return $this->parseRawSearchResponse(
-                $this->client->search($rawQuery)
-            );
-        } catch (Exception $e) {
-            $this->logErrorAndThrowException($e);
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function findByScrollId(string $scrollId): ResultIteratorInterface
-    {
-        try {
-            return $this->parseRawSearchResponse(
-                $this->client->scroll(
-                    [
-                        'scroll_id' => $scrollId,
-                        'scroll' => $this->config->getScrollContextKeepalive(),
-                    ]
-                )
-            );
-        } catch (Exception $e) {
-            $this->logErrorAndThrowException($e);
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function count(): int
-    {
-        return $this->countByQuery(Query::create());
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function countByQuery(QueryInterface $query): int
-    {
-        try {
-            return $this->client->count($this->buildRawQuery($query, OperationType::READ))['count'];
-        } catch (Exception $e) {
-            $this->logErrorAndThrowException($e);
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function aggregateByQuery(QueryInterface $query): AggregationResultSetInterface
-    {
-        try {
-            $result = $this->client->search(
-                $this->buildRawQuery($query, OperationType::READ)
-            );
-
-            return AggregationResultSet::create($result['aggregations'] ?? [])
-                ->setDocuments($this->parseRawSearchResponse($result));
-        } catch (Exception $e) {
-            $this->logErrorAndThrowException($e);
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function updateByQuery(QueryInterface $query, array $updateScript): array
-    {
-        try {
-            $rawQuery = $this->buildRawQuery($query, OperationType::WRITE);
-            $rawQuery['body']['script'] = $this->sanitizeUpdateScript($updateScript)['script'];
-
-            return $this->client->updateByQuery($rawQuery);
-        } catch (Exception $e) {
-            $this->logErrorAndThrowException($e);
-        }
     }
 }
