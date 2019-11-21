@@ -46,9 +46,10 @@ $repository->delete('the_document_id');
 ```
 
 ## Technical Concept
-The key ingredients of this package are:
+The key features of this package are:
  - Repositories
  - Queries
+ - IndexManager
 
 ### Repositories 
 Very similar to [Entity Repositories in Doctrine](https://www.doctrine-project.org/projects/doctrine-orm/en/2.6/reference/working-with-objects.html), a `Repository` in this package is a class which capsules Elasticsearch specific logic - for a specific index.
@@ -64,6 +65,11 @@ Various methods of the `ElasticsearchRepositoryInterface` require an object of t
 This package contains two implementations of the `QueryInterface`:
  - [Query](doc/QUERY.md)
  - [RawQuery](doc/RAWQUERY.md)
+
+### IndexManager
+This package provides easy access to a a few commonly used Elasticsearch index management features like creating indices and managing aliases.
+
+[More explanation and examples](doc/INDEX_MANAGER.md)
 
 ## Package Version vs. Elasticsearch Version 
 The package is developed and tested with [Elasticsearch version 6.4](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/index.html) only. Any other version may or may not work.
