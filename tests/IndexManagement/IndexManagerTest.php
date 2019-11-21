@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\Tests\IndexManagement;
 
 use Elasticsearch\Client;
+use Elasticsearch\Common\Exceptions\Missing404Exception;
 use Elasticsearch\Namespaces\IndicesNamespace;
 use Kununu\Elasticsearch\Exception\IndexManagementException;
 use Kununu\Elasticsearch\IndexManagement\IndexManager;
@@ -596,6 +597,21 @@ class IndexManagerTest extends MockeryTestCase
         $this->getManager()->getIndicesByAlias(self::ALIAS);
     }
 
+    public function testGetIndicesByAliasCatches404(): void
+    {
+        $this->setUpIndexOperation();
+
+        $this->indicesMock
+            ->shouldReceive('getAlias')
+            ->once()
+            ->andThrow(new Missing404Exception());
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $this->assertEquals([], $this->getManager()->getIndicesByAlias(self::ALIAS));
+    }
+
     /**
      * @return array
      */
@@ -666,6 +682,24 @@ class IndexManagerTest extends MockeryTestCase
         $this->assertEquals($expectedResult, $this->getManager()->getIndicesAliasesMapping());
     }
 
+    public function testGetIndicesAliasesMappingCatches404(): void
+    {
+        $this->setUpIndexOperation();
+
+        $this->indicesMock
+            ->shouldReceive('get')
+            ->once()
+            ->with(
+                ['index' => '_all']
+            )
+            ->andThrow(new Missing404Exception());
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $this->assertEquals([], $this->getManager()->getIndicesAliasesMapping());
+    }
+
     public function testGetIndicesAliasesMappingFails(): void
     {
         $this->setUpIndexOperation();
@@ -673,6 +707,9 @@ class IndexManagerTest extends MockeryTestCase
         $this->indicesMock
             ->shouldReceive('get')
             ->once()
+            ->with(
+                ['index' => '_all']
+            )
             ->andThrow(new \Exception('something happened'));
 
         $this->loggerMock
