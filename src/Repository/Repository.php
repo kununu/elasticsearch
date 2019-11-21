@@ -16,11 +16,11 @@ use Kununu\Elasticsearch\Util\LoggerAwareTrait;
 use Psr\Log\LoggerAwareInterface;
 
 /**
- * Class ElasticsearchRepository
+ * Class Repository
  *
  * @package Kununu\Elasticsearch\Repository
  */
-class ElasticsearchRepository implements ElasticsearchRepositoryInterface, LoggerAwareInterface
+class Repository implements RepositoryInterface, LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
