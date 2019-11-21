@@ -11,8 +11,7 @@
         "ext-json": "*",
         "ext-mbstring": "*",
         "elasticsearch/elasticsearch": "^6.5",
-        "psr/log": "~1.0",
-        "ruflin/elastica": "^6.1"
+        "psr/log": "~1.0"
     },
     "require-dev": {
         "mockery/mockery": "^1.2",
