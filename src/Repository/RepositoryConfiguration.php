@@ -16,6 +16,8 @@ class RepositoryConfiguration
     protected const OPTION_INDEX_READ = 'index_read';
     protected const OPTION_INDEX_WRITE = 'index_write';
     protected const OPTION_TYPE = 'type';
+    protected const OPTION_ENTITY_SERIALIZER = 'entity_serializer';
+    protected const OPTION_ENTITY_FACTORY = 'entity_factory';
 
     /**
      * 1 minute per default
@@ -35,21 +37,23 @@ class RepositoryConfiguration
     protected $type;
 
     /**
+     * @var \Kununu\Elasticsearch\Repository\EntitySerializerInterface
+     */
+    protected $entitySerializer;
+
+    /**
+     * @var \Kununu\Elasticsearch\Repository\EntityFactoryInterface
+     */
+    protected $entityFactory;
+
+    /**
      * RepositoryConfiguration constructor.
      *
      * @param array $config
      */
     public function __construct(array $config)
     {
-        $config = $this->inflateConfig($config);
-
-        $this->index = array_filter(
-            [
-                OperationType::READ => $config[static::OPTION_INDEX_READ] ?? null,
-                OperationType::WRITE => $config[static::OPTION_INDEX_WRITE] ?? null,
-            ]
-        );
-        $this->type = $config[static::OPTION_TYPE] ?? null;
+        $this->parseConfig($this->inflateConfig($config));
     }
 
     /**
@@ -76,10 +80,26 @@ class RepositoryConfiguration
     public function getType(): string
     {
         if (!$this->type) {
-            throw new RepositoryConfigurationException('No valid type configured ');
+            throw new RepositoryConfigurationException('No valid type configured');
         }
 
         return $this->type;
+    }
+
+    /**
+     * @return \Kununu\Elasticsearch\Repository\EntitySerializerInterface|null
+     */
+    public function getEntitySerializer(): ?EntitySerializerInterface
+    {
+        return $this->entitySerializer;
+    }
+
+    /**
+     * @return \Kununu\Elasticsearch\Repository\EntityFactoryInterface|null
+     */
+    public function getEntityFactory(): ?EntityFactoryInterface
+    {
+        return $this->entityFactory;
     }
 
     /**
@@ -88,6 +108,38 @@ class RepositoryConfiguration
     public function getScrollContextKeepalive(): string
     {
         return static::DEFAULT_SCROLL_CONTEXT_KEEPALIVE;
+    }
+
+    /**
+     * @param array $config
+     */
+    protected function parseConfig(array $config): void
+    {
+        $this->index = array_filter(
+            [
+                OperationType::READ => $config[static::OPTION_INDEX_READ] ?? null,
+                OperationType::WRITE => $config[static::OPTION_INDEX_WRITE] ?? null,
+            ]
+        );
+        $this->type = $config[static::OPTION_TYPE] ?? null;
+
+        if (isset($config[static::OPTION_ENTITY_SERIALIZER])) {
+            if (!($config[static::OPTION_ENTITY_SERIALIZER] instanceof EntitySerializerInterface)) {
+                throw new RepositoryConfigurationException(
+                    'Invalid entity serializer given. Must be of type \Kununu\Elasticsearch\Repository\EntitySerializerInterface'
+                );
+            }
+            $this->entitySerializer = $config[static::OPTION_ENTITY_SERIALIZER];
+        }
+
+        if (isset($config[static::OPTION_ENTITY_FACTORY])) {
+            if (!($config[static::OPTION_ENTITY_FACTORY] instanceof EntityFactoryInterface)) {
+                throw new RepositoryConfigurationException(
+                    'Invalid entity factory given. Must be of type \Kununu\Elasticsearch\Repository\EntityFactoryInterface'
+                );
+            }
+            $this->entityFactory = $config[static::OPTION_ENTITY_FACTORY];
+        }
     }
 
     /**
