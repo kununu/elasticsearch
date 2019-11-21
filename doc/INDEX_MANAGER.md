@@ -11,19 +11,6 @@ The default `IndexManager` shipped with this package includes standard functiona
  - updating documents (with update scripts)
  - aggregations
 
-A good practice is to create a dedicated `Repository` class for every entity by extending the `ElasticsearchRepository` class. This is a good way of keeping all your Elastic-related code for an entity together in a central place. For example:
-```php
-class ElasticSubmissionRepository extends ElasticsearchRepository {
-    public function findSomethingSpecific() {
-        return $this->findByQuery(
-            Query::create(
-                Filter::create('something', 'specific')
-            )
-        );
-    }
-}
-``` 
-
 `IndexManager` is `LoggerAware` (see `\Psr\Log\LoggerAwareInterface`).
 
 ## Usage
