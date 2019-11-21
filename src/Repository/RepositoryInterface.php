@@ -15,10 +15,10 @@ use Kununu\Elasticsearch\Result\ResultIteratorInterface;
 interface RepositoryInterface
 {
     /**
-     * @param string $id
-     * @param array  $document
+     * @param string       $id
+     * @param array|object $entity
      */
-    public function save(string $id, array $document): void;
+    public function save(string $id, $entity): void;
 
     /**
      * @param string $id

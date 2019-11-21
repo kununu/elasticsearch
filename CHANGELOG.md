@@ -10,12 +10,17 @@ All notable changes to this project will be documented in this file based on the
 * Removed method `ElasticsearchRepository::deleteIndex()` in favor of `IndexManager::deleteIndex()`
 * Renamed `ElasticsearchRepository` to `Repository`
 * Renamed `ElasticsearchRepositoryInterface` to `RepositoryInterface`
+* Changed signature of `RepositoryInterface::save()` and therefore `Repository::save()`
 ### Bugfixes
 ### Added
 * `postSave` and `postDelete()` hooks for repositories
 * Index management features via `IndexManager`
+* Entity class for repositories: if configured with an entity class, a repository will emit entity objects of this type instead of plain documents and accepts such objects on the `save()` method
+* Entity factory for repositories: if configured with an entity factory, a repository will emit entity objects instead of plain document arrays
+* Entity serializer for repositories: if configured with an entity serializer, a repository accepts objects on the `save()` method and serializes them using the given serializer 
 ### Improvements
 * Really downgraded dependency `elasticsearch/elasticsearch` from 6.7.* to 6.5.* to be compatible with the [official version matrix](https://github.com/elastic/elasticsearch-php#version-matrix)
+* fixed a few tests to be more precise
 ### Deprecated
 
 ## [1.1](https://github.com/kununu/elasticsearch/compare/v1.0...v1.1)

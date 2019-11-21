@@ -31,7 +31,7 @@ Repositories are `LoggerAware` (see `\Psr\Log\LoggerAwareInterface`).
 This package includes a few objects for non-scalar return values of `ElasticsearchRepository`. Those are: `ResultIterator` and `AggregationResultSet`. See [Results](RESULTS.md) for details.
 
 ## Usage
-It's possible to either use the standard `ElasticsearchRepository` directly or to extend this class and use dedicated Repositories for each entity.
+It's possible to either use the standard `Repository` directly or to extend this class and use dedicated Repositories for each entity.
 
 Example for a Symfony DI service definition in a 3rd party project:
 ```yaml
@@ -79,18 +79,152 @@ my_second_repo:
 ### Configuration
 The second constructor argument for every `Repository` is an object/associative array containing all relevant configuration values for the repository.
 Mandatory fields are
- - `index_read`: the name of the Elasticsearch index the `Repository` should connect to for any read operation (search, count, aggregate)
- - `index_write`: the name of the Elasticsearch index the `Repository` should connect to for any write operation (save, delete)
- - `type`: the name of the Elasticsearch type the `Repository` should connect to
+ - `index_read` (string): the name of the Elasticsearch index the `Repository` should connect to for any read operation (search, count, aggregate)
+ - `index_write` (string): the name of the Elasticsearch index the `Repository` should connect to for any write operation (save, delete)
+ - `type` (string): the name of the Elasticsearch type the `Repository` should connect to
 
 Optional fields are
-- `index`: the name of the Elasticsearch index the `Repository` should connect to for for any operation. Useful if you are not using aliases. This **does not** override `index_read` and `index_write` if given.
+- `index` (string): the name of the Elasticsearch index the `Repository` should connect to for for any operation. Useful if you are not using aliases. This **does not** override `index_read` and `index_write` if given.
+- `entity_class` (string): class must implement `PeristableEntityInterface`. If given, the repository will emit entities instead of plain document arrays and accepts object of this class on the `save()` method. 
+- `entity_factory` (object): must be of type `EntityFactoryInterface`. If given, the repository will emit entities instead of plain document arrays.
+- `entity_serializer` (object): must be of type `EntitySerializerInterface`. If given, the repository accepts objects on the `save()` method and serializes them using the given serializer. 
 
 In the future this object might be extended with additional (mandatory) fields.
 
+### Working with entities
+By default a repository uses plain document arrays as input when persisting with `save()` and emits `ResultIterator` objects containing plain document arrays when searching.
+
+However, in a lot of cases you will want to work with entity objects to not mess around with plain arrays. This package offers two solutions to this:
+### PersistableEntityInterface
+The simplest solution is to make your entities implement the `PersistableEntityInterface` that comes with this package. It defines two methods:
+ - a static factory method to create an entity from a raw Elasticsearch document
+ - a serializer method which is supposed to convert your entity object to a plain array/document
+
+Next, configure your repository with the `entity_class` option:
+```php
+class DomainEntity implements PersistableEntityInterface {
+    public function toElastic(): array {
+        return [
+            'field_a' => $this->getA(),
+            'field_b' => $this->getB(),
+        ];
+    }
+    
+    public static function fromElasticDocument(array $document, array $metaData) {
+        $me = new self();
+        $me->setA($document['field_a']);
+        $me->setB($document['field_b']);
+
+        return $me;
+    }
+}
+
+$repository = new Repository(
+    $client,
+    [
+        'index' => 'my_index',
+        'type' => '_doc',
+        'entity_class' => '',
+    ]
+);
+
+$myEtity = new DomainEntity();
+$myEntity->setA('foo');
+$myEntity->setB('bar');
+
+// the repository will call $myEntity->toElastic() to convert it into a plain array before persisting it to Elasticsearch
+$repository->save('my_entity_0', $entity);
+
+$results = $repository->findByQuery(
+    Query::create(Search::create(['field_a'], 'foo'))
+);
+
+// this will again be an instance of DomainEntity instead of a plain array
+var_dump($results[0]);
+```
+
+This solution is suitable for entities which can be easily persisted in Elasticsearch as-is.
+
+### EntitySerializer and EntityFactory
+There are more advanced use cases in which an entity does not have direct access to all data required to serialize it into an Elasticsearch document. Example: entities stored in a normalized fashion in a relational DBMS. In Elasticsearch, however, a denormalized version of the data should be stored for easy retrieval.
+
+In such a case you will require additional information (more than is available in the entity object itself) when persisting an entity in Elasticsearch.
+
+Simply configure your repository with the `entity_serializer` option by passing an instance of a class implementing `EntitySerializerInterface`:
+```php
+class MyDomainEntitySerializer implements EntitySerializerInterface {
+    public function __construct(/* all my dependencies */) {
+        // ...
+    }
+    public function toElastic($entity): array {
+        // compose your document here
+    
+        return $document;
+    }
+}
+
+$mySerializer = new MyDomainEntitySerializer(/* ... */);
+
+$repository = new Repository(
+    $client,
+    [
+        'index' => 'my_index',
+        'type' => '_doc',
+        'entity_serializer' => $mySerializer,
+    ]
+);
+
+$myEntity = new DomainEntity();
+
+// the repository will use $mySerializer to convert $myEntity to a plain array before persisting it to Elasticsearch
+$repository->save('my_first_doc', $myEntity);
+```
+
+Retrieving entity objects from Elasticsearch through a repository is just as simple.
+Configure your repository with the `entity_factory` option by passing an instance of a class implementing `EntityFactoryInterface`:
+```php
+class MyDomainEntityFactory implements EntityFactoryInterface {
+    public function fromDocument(array $document, array $metaData) {
+        $myEntity = new DomainEntity();
+
+        // $document contains the raw document as found in the _source field of the raw Elasticsearch response       
+        $myEntity->setFoo($document['foo'] ?? null);
+        $myEntity->setBar($document['bar'] ?? false);
+
+        // $metaData contains all "underscore-fields" delivered in the raw Elasticsearch response
+        // f.e. _index, _type, _score
+        $myEntity->setSearchResultScore($metaData['_score']);
+
+        return $myEntity;
+    }
+}
+
+$repository = new Repository(
+    $client,
+    [
+        'index' => 'my_index',
+        'type' => '_doc',
+        'entity_factory' => new MyDomainEntityFactory(),
+    ]
+);
+
+$results = $repository->findByQuery(
+    Query::create(Search::create(['text_field'], 'search term'))
+);
+
+// this will be an instance of DomainEntity instead of a plain array
+var_dump($results[0]);
+```
+
+#### Combining the approaches
+Usually you will not want to combine `entity_class` with `entity_serializer`+`entity_factory` options. It's recommend to use either the one or the other approach (i.e. per entity/repository; feel free to mix across entities).
+However, there of course is an order of precedence:
+ - persisting: `entity_class` is used before `entity_serializer`
+ - retrieving: `entity_class` is used before `entity_factory`
+
 ### Hooks
 `ElasticsearchRepository::postSave()` is called directly after every index operation (i.e. when a document is upserted to Elasticsearch). `ElasticsearchRepository::postDelete()` is called after every delete operation.
-Overwrite these methods in your own Repository classes to hook into these events.
+Overwrite these methods in your own repository classes to hook into these events.
 
 
 Example use case: If you want to write the data to two indexes (when migrating index mappings). 

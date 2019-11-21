@@ -4,7 +4,10 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\Tests\Repository;
 
 use Kununu\Elasticsearch\Exception\RepositoryConfigurationException;
+use Kununu\Elasticsearch\Repository\EntityFactoryInterface;
+use Kununu\Elasticsearch\Repository\EntitySerializerInterface;
 use Kununu\Elasticsearch\Repository\OperationType;
+use Kununu\Elasticsearch\Repository\PersistableEntityInterface;
 use Kununu\Elasticsearch\Repository\RepositoryConfiguration;
 use PHPUnit\Framework\TestCase;
 
@@ -20,7 +23,7 @@ class RepositoryConfigurationTest extends TestCase
     /**
      * @return array
      */
-    public function configData(): array
+    public function inflatableConfigData(): array
     {
         return [
             'only index name given' => [
@@ -56,7 +59,7 @@ class RepositoryConfigurationTest extends TestCase
     }
 
     /**
-     * @dataProvider configData
+     * @dataProvider inflatableConfigData
      *
      * @param array  $input
      * @param string $expectedReadAlias
@@ -135,7 +138,7 @@ class RepositoryConfigurationTest extends TestCase
                 'input' => ['type' => ''],
             ],
             'null type name given' => [
-                'input' => ['index' => null],
+                'input' => ['type' => null],
             ],
         ];
     }
@@ -153,5 +156,98 @@ class RepositoryConfigurationTest extends TestCase
         $this->expectExceptionMessage('No valid type configured');
 
         $config->getType();
+    }
+
+    public function testValidEntitySerializer(): void
+    {
+        $mySerializer = new class implements EntitySerializerInterface
+        {
+            public function toElastic($entity): array
+            {
+                return [];
+            }
+        };
+
+        $config = new RepositoryConfiguration(['entity_serializer' => $mySerializer]);
+
+        $this->assertEquals($mySerializer, $config->getEntitySerializer());
+    }
+
+    public function testInvalidEntitySerializer(): void
+    {
+        $mySerializer = new \stdClass();
+
+        $this->expectException(RepositoryConfigurationException::class);
+        $this->expectExceptionMessage(
+            'Invalid entity serializer given. Must be of type \Kununu\Elasticsearch\Repository\EntitySerializerInterface'
+        );
+
+        $config = new RepositoryConfiguration(['entity_serializer' => $mySerializer]); // NOSONAR
+    }
+
+    public function testValidEntityFactory(): void
+    {
+        $myFactory = new class implements EntityFactoryInterface
+        {
+            public function fromDocument(array $document, array $metaData)
+            {
+                return null;
+            }
+        };
+
+        $config = new RepositoryConfiguration(['entity_factory' => $myFactory]);
+
+        $this->assertEquals($myFactory, $config->getEntityFactory());
+    }
+
+    public function testInvalidEntityFactory(): void
+    {
+        $myFactory = new \stdClass();
+
+        $this->expectException(RepositoryConfigurationException::class);
+        $this->expectExceptionMessage(
+            'Invalid entity factory given. Must be of type \Kununu\Elasticsearch\Repository\EntityFactoryInterface'
+        );
+
+        $config = new RepositoryConfiguration(['entity_factory' => $myFactory]); // NOSONAR
+    }
+
+    public function testValidEntityClass(): void
+    {
+        $myEntity = new class implements PersistableEntityInterface
+        {
+            public function toElastic(): array
+            {
+                return [];
+            }
+
+            public static function fromElasticDocument(array $document, array $metaData)
+            {
+            }
+        };
+
+        $config = new RepositoryConfiguration(['entity_class' => get_class($myEntity)]);
+
+        $this->assertEquals(get_class($myEntity), $config->getEntityClass());
+    }
+
+    public function testInvalidEntityClass(): void
+    {
+        $this->expectException(RepositoryConfigurationException::class);
+        $this->expectExceptionMessage(
+            'Invalid entity class given. Must be of type \Kununu\Elasticsearch\Repository\PersistableEntityInterface'
+        );
+
+        $config = new RepositoryConfiguration(['entity_class' => \stdClass::class]); // NOSONAR
+    }
+
+    public function testNonExistentEntityClass(): void
+    {
+        $this->expectException(RepositoryConfigurationException::class);
+        $this->expectExceptionMessage(
+            'Given entity class does not exist.'
+        );
+
+        $config = new RepositoryConfiguration(['entity_class' => '\Foo\Bar']); // NOSONAR
     }
 }
