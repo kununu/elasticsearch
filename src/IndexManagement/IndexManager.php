@@ -95,14 +95,17 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
      */
     public function createIndex(
         string $index,
-        array $schema,
+        array $mappings = [],
         array $aliases = [],
         array $settings = []
     ): IndexManagerInterface {
         $params = [
             'index' => $index,
-            'body' => $schema,
         ];
+
+        if (!empty($mappings)) {
+            $params['body']['mappings'] = $mappings;
+        }
 
         if (!empty($aliases)) {
             $params['body']['aliases'] = array_fill_keys($aliases, new stdClass());
@@ -144,9 +147,9 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
     /**
      * @inheritDoc
      */
-    public function putMapping(string $index, array $schema, string $type): IndexManagerInterface
+    public function putMapping(string $index, string $type, array $mapping): IndexManagerInterface
     {
-        $params = ['index' => $index, 'body' => $schema, 'type' => $type];
+        $params = ['index' => $index, 'type' => $type, 'body' => $mapping];
 
         $this->execute(
             function () use ($params) {
@@ -154,7 +157,7 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
             },
             true,
             'Could not put mapping',
-            ['index' => $index, 'type' => $type, 'schema' => $schema]
+            ['index' => $index, 'type' => $type, 'mapping' => $mapping]
         );
 
         return $this;

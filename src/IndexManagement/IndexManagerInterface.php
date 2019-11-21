@@ -37,7 +37,7 @@ interface IndexManagerInterface
 
     /**
      * @param string $index
-     * @param array  $schema
+     * @param array  $mappings
      * @param array  $aliases
      * @param array  $settings
      *
@@ -45,7 +45,7 @@ interface IndexManagerInterface
      */
     public function createIndex(
         string $index,
-        array $schema,
+        array $mappings,
         array $aliases = [],
         array $settings = []
     ): IndexManagerInterface;
@@ -59,12 +59,12 @@ interface IndexManagerInterface
 
     /**
      * @param string $index
-     * @param array  $schema
+     * @param array  $mapping
      * @param string $type
      *
      * @return \Kununu\Elasticsearch\IndexManagement\IndexManagerInterface
      */
-    public function putMapping(string $index, array $schema, string $type): IndexManagerInterface;
+    public function putMapping(string $index, string $type, array $mapping): IndexManagerInterface;
 
     /**
      * @param string $alias
