@@ -85,6 +85,8 @@ Mandatory fields are
 
 Optional fields are
 - `index`: the name of the Elasticsearch index the `Repository` should connect to for for any operation. Useful if you are not using aliases. This **does not** override `index_read` and `index_write` if given.
+- `entity_factory`: must be of type `EntityFactoryInterface`. If given, the Repository will emit entities instead of plain document arrays.
+- `entity_serializer`: must be of type `EntitySerializerInterface`. If given, the Repository accepts objects on the `save()` method and serializes them using the given serializer. 
 
 In the future this object might be extended with additional (mandatory) fields.
 

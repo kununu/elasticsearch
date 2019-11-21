@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file based on the
 ### Added
 * `postSave` and `postDelete()` hooks for repositories
 * Index management features via `IndexManager`
+* added `entity_serializer` and `entity_factory` options to `RepositoryConfiguration`
 ### Improvements
 * Really downgraded dependency `elasticsearch/elasticsearch` from 6.7.* to 6.5.* to be compatible with the [official version matrix](https://github.com/elastic/elasticsearch-php#version-matrix)
 ### Deprecated
