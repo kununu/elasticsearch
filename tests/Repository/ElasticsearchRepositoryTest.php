@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\Tests\Repository;
 
 use Elasticsearch\Client;
-use Elasticsearch\Namespaces\IndicesNamespace;
 use Kununu\Elasticsearch\Exception\RepositoryException;
 use Kununu\Elasticsearch\Query\Aggregation;
 use Kununu\Elasticsearch\Query\Criteria\Filter;
@@ -49,7 +48,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
     /**
      * @return \Kununu\Elasticsearch\Repository\ElasticsearchRepositoryInterface
      */
-    private function getManager(): ElasticsearchRepositoryInterface
+    private function getRepository(): ElasticsearchRepositoryInterface
     {
         $repo = new ElasticsearchRepository(
             $this->clientMock,
@@ -86,7 +85,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
         $this->loggerMock
             ->shouldNotReceive('error');
 
-        $this->getManager()->save(
+        $this->getRepository()->save(
             self::ID,
             $document
         );
@@ -116,7 +115,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
         $this->expectException(RepositoryException::class);
-        $this->getManager()->save(
+        $this->getRepository()->save(
             self::ID,
             $document
         );
@@ -138,7 +137,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
         $this->loggerMock
             ->shouldNotReceive('error');
 
-        $this->getManager()->delete(
+        $this->getRepository()->delete(
             self::ID
         );
     }
@@ -162,70 +161,9 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
         $this->expectException(RepositoryException::class);
-        $this->getManager()->delete(
+        $this->getRepository()->delete(
             self::ID
         );
-    }
-
-    public function testDeleteIndex(): void
-    {
-        $indexName = 'my_index';
-
-        $indicesMock = Mockery::mock(IndicesNamespace::class);
-        $indicesMock
-            ->shouldReceive('delete')
-            ->once()
-            ->with(
-                [
-                    'index' => $indexName,
-                ]
-            );
-
-        $this->clientMock
-            ->shouldReceive('indices')
-            ->andReturn($indicesMock);
-
-        $this->loggerMock
-            ->shouldNotReceive('error');
-
-        $this->getManager()->deleteIndex($indexName);
-    }
-
-    public function testDeleteOtherIndex(): void
-    {
-        $indexName = self::INDEX['read'] . '_2';
-
-        $indicesMock = Mockery::mock(IndicesNamespace::class);
-        $indicesMock
-            ->shouldReceive('delete')
-            ->once()
-            ->with(
-                [
-                    'index' => $indexName,
-                ]
-            );
-
-        $this->clientMock
-            ->shouldReceive('indices')
-            ->andReturn($indicesMock);
-
-        $this->getManager()->deleteIndex($indexName);
-    }
-
-    public function testDeleteIndexFails(): void
-    {
-        $indexName = 'my_index';
-
-        $this->clientMock
-            ->shouldReceive('indices')
-            ->andThrow(new \Exception(self::ERROR_MESSAGE));
-
-        $this->loggerMock
-            ->shouldReceive('error')
-            ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
-
-        $this->expectException(RepositoryException::class);
-        $this->getManager()->deleteIndex($indexName);
     }
 
     /**
@@ -394,8 +332,8 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
             ->andReturn($esResult);
 
         $result = $scroll
-            ? $this->getManager()->findScrollableByQuery($query)
-            : $this->getManager()->findByQuery($query);
+            ? $this->getRepository()->findScrollableByQuery($query)
+            : $this->getRepository()->findByQuery($query);
 
         $this->assertEquals($endResult, $result->asArray());
         $this->assertEquals(self::DOCUMENT_COUNT, $result->getTotal());
@@ -419,7 +357,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
 
         $this->expectException(RepositoryException::class);
 
-        $this->getManager()->findByQuery(Query::create());
+        $this->getRepository()->findByQuery(Query::create());
     }
 
     /**
@@ -446,7 +384,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
         $this->loggerMock
             ->shouldNotReceive('error');
 
-        $result = $this->getManager()->findByScrollId($scrollId);
+        $result = $this->getRepository()->findByScrollId($scrollId);
 
         $this->assertEquals($endResult, $result->asArray());
     }
@@ -472,7 +410,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
 
         $this->expectException(RepositoryException::class);
 
-        $this->getManager()->findByScrollId($scrollId);
+        $this->getRepository()->findByScrollId($scrollId);
     }
 
     /**
@@ -494,7 +432,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
             )
             ->andReturn(['count' => self::DOCUMENT_COUNT]);
 
-        $this->assertEquals(self::DOCUMENT_COUNT, $this->getManager()->countByQuery($query));
+        $this->assertEquals(self::DOCUMENT_COUNT, $this->getRepository()->countByQuery($query));
     }
 
     public function testCountByQueryFails(): void
@@ -510,7 +448,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
 
         $this->expectException(RepositoryException::class);
 
-        $this->getManager()->countByQuery(Query::create());
+        $this->getRepository()->countByQuery(Query::create());
     }
 
     public function testCount(): void
@@ -529,7 +467,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
             )
             ->andReturn(['count' => self::DOCUMENT_COUNT]);
 
-        $this->assertEquals(self::DOCUMENT_COUNT, $this->getManager()->count());
+        $this->assertEquals(self::DOCUMENT_COUNT, $this->getRepository()->count());
     }
 
     public function testCountFails(): void
@@ -545,7 +483,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
 
         $this->expectException(RepositoryException::class);
 
-        $this->getManager()->count();
+        $this->getRepository()->count();
     }
 
     /**
@@ -568,7 +506,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
             )
             ->andReturn(array_merge($esResult, ['aggregations' => ['my_aggregation' => ['value' => 0.1]]]));
 
-        $aggregationResult = $this->getManager()->aggregateByQuery($query);
+        $aggregationResult = $this->getRepository()->aggregateByQuery($query);
 
         $this->assertEquals(count($esResult['hits']['hits']), $aggregationResult->getDocuments()->getCount());
         $this->assertEquals(self::DOCUMENT_COUNT, $aggregationResult->getDocuments()->getTotal());
@@ -599,7 +537,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
 
         $this->expectException(RepositoryException::class);
 
-        $this->getManager()->aggregateByQuery($query);
+        $this->getRepository()->aggregateByQuery($query);
     }
 
     public function testUpdateByQuery(): void
@@ -656,7 +594,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
         $this->loggerMock
             ->shouldNotReceive('error');
 
-        $this->assertEquals($responseBody, $this->getManager()->updateByQuery($query, $updateScript));
+        $this->assertEquals($responseBody, $this->getRepository()->updateByQuery($query, $updateScript));
     }
 
     public function testUpdateByQueryFails(): void
@@ -672,7 +610,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
 
         $this->expectException(RepositoryException::class);
 
-        $this->getManager()->updateByQuery(Query::create(), ['script' => []]);
+        $this->getRepository()->updateByQuery(Query::create(), ['script' => []]);
     }
 
     public function testPostSaveIsCalled(): void

@@ -26,11 +26,6 @@ interface ElasticsearchRepositoryInterface
     public function delete(string $id): void;
 
     /**
-     * @param string $indexName
-     */
-    public function deleteIndex(string $indexName): void;
-
-    /**
      * @param \Kununu\Elasticsearch\Query\QueryInterface $query
      *
      * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
