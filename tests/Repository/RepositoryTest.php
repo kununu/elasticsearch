@@ -10,9 +10,9 @@ use Kununu\Elasticsearch\Query\Criteria\Filter;
 use Kununu\Elasticsearch\Query\Query;
 use Kununu\Elasticsearch\Query\QueryInterface;
 use Kununu\Elasticsearch\Query\RawQuery;
-use Kununu\Elasticsearch\Repository\ElasticsearchRepository;
-use Kununu\Elasticsearch\Repository\ElasticsearchRepositoryInterface;
+use Kununu\Elasticsearch\Repository\Repository;
 use Kununu\Elasticsearch\Repository\RepositoryConfiguration;
+use Kununu\Elasticsearch\Repository\RepositoryInterface;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Psr\Log\LoggerInterface;
@@ -46,11 +46,11 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
     }
 
     /**
-     * @return \Kununu\Elasticsearch\Repository\ElasticsearchRepositoryInterface
+     * @return \Kununu\Elasticsearch\Repository\RepositoryInterface
      */
-    private function getRepository(): ElasticsearchRepositoryInterface
+    private function getRepository(): RepositoryInterface
     {
-        $repo = new ElasticsearchRepository(
+        $repo = new Repository(
             $this->clientMock,
             [
                 'index_read' => self::INDEX['read'],
@@ -637,7 +637,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
         $manager = new class($this->clientMock, [
             'index_write' => self::INDEX['write'],
             'type' => self::TYPE,
-        ], $this) extends ElasticsearchRepository
+        ], $this) extends Repository
         {
             /**
              * @var \Mockery\Adapter\Phpunit\MockeryTestCase
@@ -687,7 +687,7 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
         $manager = new class($this->clientMock, [
             'index_write' => self::INDEX['write'],
             'type' => self::TYPE,
-        ], $this) extends ElasticsearchRepository
+        ], $this) extends Repository
         {
             /**
              * @var \Mockery\Adapter\Phpunit\MockeryTestCase

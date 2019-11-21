@@ -8,11 +8,11 @@ use Kununu\Elasticsearch\Result\AggregationResultSetInterface;
 use Kununu\Elasticsearch\Result\ResultIteratorInterface;
 
 /**
- * Interface ElasticsearchRepositoryInterface
+ * Interface RepositoryInterface
  *
  * @package Kununu\Elasticsearch\Repository
  */
-interface ElasticsearchRepositoryInterface
+interface RepositoryInterface
 {
     /**
      * @param string $id

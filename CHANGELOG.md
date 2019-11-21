@@ -8,6 +8,8 @@ All notable changes to this project will be documented in this file based on the
 * Removed `ElasticaQuery`
 * Removed `ruflin/elastica` from list of dependencies
 * Removed method `ElasticsearchRepository::deleteIndex()` in favor of `IndexManager::deleteIndex()`
+* Renamed `ElasticsearchRepository` to `Repository`
+* Renamed `ElasticsearchRepositoryInterface` to `RepositoryInterface`
 ### Bugfixes
 ### Added
 * `postSave` and `postDelete()` hooks for repositories
