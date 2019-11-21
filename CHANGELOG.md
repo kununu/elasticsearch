@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file based on the
 * Removed support for Elastica as Elasticsearch client
 * Removed adapters completely (Repository is now directly using `\Elasticsearch\Client`)
 * Removed `ElasticaQuery`
+* Removed `ruflin/elastica` from list of dependencies
 * Removed method `ElasticsearchRepository::deleteIndex()` in favor of `IndexManager::deleteIndex()`
 ### Bugfixes
 ### Added
