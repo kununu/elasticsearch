@@ -21,5 +21,5 @@ interface PersistableEntityInterface
      *
      * @return mixed
      */
-    public function fromElasticDocument(array $document, array $metaData);
+    public static function fromElasticDocument(array $document, array $metaData);
 }
