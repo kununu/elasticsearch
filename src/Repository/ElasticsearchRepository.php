@@ -170,18 +170,6 @@ class ElasticsearchRepository implements ElasticsearchRepositoryInterface, Logge
     /**
      * @inheritdoc
      */
-    public function deleteIndex(string $indexName): void
-    {
-        try {
-            $this->client->indices()->delete(['index' => $indexName]);
-        } catch (Exception $e) {
-            $this->logErrorAndThrowException($e);
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function findByQuery(QueryInterface $query): ResultIteratorInterface
     {
         try {

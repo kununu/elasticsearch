@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\Tests\Repository;
 
 use Elasticsearch\Client;
-use Elasticsearch\Namespaces\IndicesNamespace;
 use Kununu\Elasticsearch\Exception\RepositoryException;
 use Kununu\Elasticsearch\Query\Aggregation;
 use Kununu\Elasticsearch\Query\Criteria\Filter;
@@ -165,67 +164,6 @@ class ElasticsearchRepositoryTest extends MockeryTestCase
         $this->getRepository()->delete(
             self::ID
         );
-    }
-
-    public function testDeleteIndex(): void
-    {
-        $indexName = 'my_index';
-
-        $indicesMock = Mockery::mock(IndicesNamespace::class);
-        $indicesMock
-            ->shouldReceive('delete')
-            ->once()
-            ->with(
-                [
-                    'index' => $indexName,
-                ]
-            );
-
-        $this->clientMock
-            ->shouldReceive('indices')
-            ->andReturn($indicesMock);
-
-        $this->loggerMock
-            ->shouldNotReceive('error');
-
-        $this->getRepository()->deleteIndex($indexName);
-    }
-
-    public function testDeleteOtherIndex(): void
-    {
-        $indexName = self::INDEX['read'] . '_2';
-
-        $indicesMock = Mockery::mock(IndicesNamespace::class);
-        $indicesMock
-            ->shouldReceive('delete')
-            ->once()
-            ->with(
-                [
-                    'index' => $indexName,
-                ]
-            );
-
-        $this->clientMock
-            ->shouldReceive('indices')
-            ->andReturn($indicesMock);
-
-        $this->getRepository()->deleteIndex($indexName);
-    }
-
-    public function testDeleteIndexFails(): void
-    {
-        $indexName = 'my_index';
-
-        $this->clientMock
-            ->shouldReceive('indices')
-            ->andThrow(new \Exception(self::ERROR_MESSAGE));
-
-        $this->loggerMock
-            ->shouldReceive('error')
-            ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
-
-        $this->expectException(RepositoryException::class);
-        $this->getRepository()->deleteIndex($indexName);
     }
 
     /**
