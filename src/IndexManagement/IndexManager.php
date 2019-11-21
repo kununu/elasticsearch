@@ -9,6 +9,7 @@ use Exception;
 use Kununu\Elasticsearch\Exception\IndexManagementException;
 use Kununu\Elasticsearch\Util\LoggerAwareTrait;
 use Psr\Log\LoggerAwareInterface;
+use RuntimeException;
 use stdClass;
 
 class IndexManager implements IndexManagerInterface, LoggerAwareInterface
@@ -253,7 +254,7 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
         try {
             $result = $operation();
             if ($checkAcknowledged && !($result['acknowledged'] ?? false)) {
-                throw new Exception('Operation not acknowledged');
+                throw new RuntimeException('Operation not acknowledged');
             }
 
             return $result;
