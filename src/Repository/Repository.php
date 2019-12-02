@@ -6,8 +6,12 @@ namespace Kununu\Elasticsearch\Repository;
 use Elasticsearch\Client;
 use Exception;
 use InvalidArgumentException;
+use Kununu\Elasticsearch\Exception\DeleteException;
+use Kununu\Elasticsearch\Exception\ReadOperationException;
 use Kununu\Elasticsearch\Exception\RepositoryConfigurationException;
 use Kununu\Elasticsearch\Exception\RepositoryException;
+use Kununu\Elasticsearch\Exception\UpsertException;
+use Kununu\Elasticsearch\Exception\WriteOperationException;
 use Kununu\Elasticsearch\Query\Query;
 use Kununu\Elasticsearch\Query\QueryInterface;
 use Kununu\Elasticsearch\Result\AggregationResultSet;
@@ -72,15 +76,17 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
             throw new InvalidArgumentException('Entity must be of type array or object');
         }
 
-        $this->execute(
-            function () use ($id, $document) {
-                $this->client->index(
-                    array_merge($this->buildRequestBase(OperationType::WRITE), ['id' => $id, 'body' => $document])
-                );
+        try {
+            $this->client->index(
+                array_merge($this->buildRequestBase(OperationType::WRITE), ['id' => $id, 'body' => $document])
+            );
 
-                $this->postSave($id, $document);
-            }
-        );
+            $this->postSave($id, $document);
+        } catch (\Exception $e) {
+            $this->getLogger()->error(self::EXCEPTION_PREFIX . $e->getMessage());
+
+            throw new UpsertException($e->getMessage(), $e, $id, $document);
+        }
     }
 
     /**
@@ -97,15 +103,17 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
      */
     public function delete(string $id): void
     {
-        $this->execute(
-            function () use ($id) {
-                $this->client->delete(
-                    array_merge($this->buildRequestBase(OperationType::WRITE), ['id' => $id])
-                );
+        try {
+            $this->client->delete(
+                array_merge($this->buildRequestBase(OperationType::WRITE), ['id' => $id])
+            );
 
-                $this->postDelete($id);
-            }
-        );
+            $this->postDelete($id);
+        } catch (\Exception $e) {
+            $this->getLogger()->error(self::EXCEPTION_PREFIX . $e->getMessage());
+
+            throw new DeleteException($e->getMessage(), $e, $id);
+        }
     }
 
     protected function postDelete(string $id): void
@@ -118,7 +126,7 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
      */
     public function findByQuery(QueryInterface $query): ResultIteratorInterface
     {
-        return $this->execute(
+        return $this->executeRead(
             function () use ($query) {
                 return $this->parseRawSearchResponse(
                     $this->client->search($this->buildRawQuery($query, OperationType::READ))
@@ -134,7 +142,7 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
      */
     public function findScrollableByQuery(QueryInterface $query): ResultIteratorInterface
     {
-        return $this->execute(
+        return $this->executeRead(
             function () use ($query) {
                 $rawQuery = $this->buildRawQuery($query, OperationType::READ);
                 $rawQuery['scroll'] = $this->config->getScrollContextKeepalive();
@@ -151,7 +159,7 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
      */
     public function findByScrollId(string $scrollId): ResultIteratorInterface
     {
-        return $this->execute(
+        return $this->executeRead(
             function () use ($scrollId) {
                 return $this->parseRawSearchResponse(
                     $this->client->scroll(
@@ -178,7 +186,7 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
      */
     public function countByQuery(QueryInterface $query): int
     {
-        return $this->execute(
+        return $this->executeRead(
             function () use ($query) {
                 return $this->client->count($this->buildRawQuery($query, OperationType::READ))['count'];
             }
@@ -190,7 +198,7 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
      */
     public function aggregateByQuery(QueryInterface $query): AggregationResultSetInterface
     {
-        return $this->execute(
+        return $this->executeRead(
             function () use ($query) {
                 $result = $this->client->search(
                     $this->buildRawQuery($query, OperationType::READ)
@@ -207,7 +215,7 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
      */
     public function updateByQuery(QueryInterface $query, array $updateScript): array
     {
-        return $this->execute(
+        return $this->executeWrite(
             function () use ($query, $updateScript) {
                 $rawQuery = $this->buildRawQuery($query, OperationType::WRITE);
                 $rawQuery['body']['script'] = $this->sanitizeUpdateScript($updateScript)['script'];
@@ -217,14 +225,49 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         );
     }
 
-    protected function execute(callable $operation)
+    /**
+     * @param callable $operation
+     *
+     * @return mixed
+     */
+    protected function executeRead(callable $operation)
+    {
+        return $this->execute($operation, OperationType::READ);
+    }
+
+    /**
+     * @param callable $operation
+     *
+     * @return mixed
+     */
+    protected function executeWrite(callable $operation)
+    {
+        return $this->execute($operation, OperationType::WRITE);
+    }
+
+    /**
+     * @param callable $operation
+     * @param string   $operationType
+     *
+     * @return mixed
+     */
+    protected function execute(callable $operation, string $operationType)
     {
         try {
             return $operation();
         } catch (Exception $e) {
             $this->getLogger()->error(self::EXCEPTION_PREFIX . $e->getMessage());
 
-            throw new RepositoryException($e->getMessage(), $e);
+            switch ($operationType) {
+                case OperationType::READ:
+                    throw new ReadOperationException($e->getMessage(), $e);
+                    break;
+                case OperationType::WRITE:
+                    throw new WriteOperationException($e->getMessage(), $e);
+                    break;
+                default:
+                    throw new RepositoryException($e->getMessage(), $e);
+            }
         }
     }
 
