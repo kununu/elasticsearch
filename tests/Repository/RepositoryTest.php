@@ -324,7 +324,7 @@ class RepositoryTest extends MockeryTestCase
                         'total' => self::DOCUMENT_COUNT,
                         'hits' => [
                             [
-                                '_index' => self::INDEX,
+                                '_index' => self::INDEX['read'],
                                 '_score' => 77,
                                 '_source' => [
                                     'foo' => 'bar',
@@ -335,7 +335,7 @@ class RepositoryTest extends MockeryTestCase
                 ],
                 'end_result' => [
                     [
-                        '_index' => self::INDEX,
+                        '_index' => self::INDEX['read'],
                         '_score' => 77,
                         '_source' => [
                             'foo' => 'bar',
@@ -349,14 +349,14 @@ class RepositoryTest extends MockeryTestCase
                         'total' => self::DOCUMENT_COUNT,
                         'hits' => [
                             [
-                                '_index' => self::INDEX,
+                                '_index' => self::INDEX['read'],
                                 '_score' => 77,
                                 '_source' => [
                                     'foo' => 'bar',
                                 ],
                             ],
                             [
-                                '_index' => self::INDEX,
+                                '_index' => self::INDEX['read'],
                                 '_score' => 77,
                                 '_source' => [
                                     'second' => 'result',
@@ -368,14 +368,14 @@ class RepositoryTest extends MockeryTestCase
                 ],
                 'end_result' => [
                     [
-                        '_index' => self::INDEX,
+                        '_index' => self::INDEX['read'],
                         '_score' => 77,
                         '_source' => [
                             'foo' => 'bar',
                         ],
                     ],
                     [
-                        '_index' => self::INDEX,
+                        '_index' => self::INDEX['read'],
                         '_score' => 77,
                         '_source' => [
                             'second' => 'result',
@@ -575,6 +575,94 @@ class RepositoryTest extends MockeryTestCase
 
         try {
             $this->getRepository()->findByScrollId($scrollId);
+        } catch (ReadOperationException $e) {
+            $this->assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
+            $this->assertEquals(0, $e->getCode());
+            $this->assertNull($e->getQuery());
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function findByIdResultData(): array
+    {
+        return [
+            'no result' => [
+                'es_result' => [
+                    'found' => false,
+                ],
+                'end_result' => null,
+            ],
+            'document found' => [
+                'es_result' => [
+                    '_index' => self::INDEX['read'],
+                    '_type' => self::TYPE,
+                    '_version' => 1,
+                    'found' => true,
+                    '_source' => [
+                        'foo' => 'bar',
+                    ],
+                ],
+                'end_result' => [
+                    '_index' => self::INDEX['read'],
+                    '_type' => self::TYPE,
+                    '_version' => 1,
+                    'found' => true,
+                    '_source' => [
+                        'foo' => 'bar',
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider findByIdResultData
+     *
+     * @param array      $esResult
+     * @param array|null $endResult
+     */
+    public function testFindById(array $esResult, $endResult): void
+    {
+        $this->clientMock
+            ->shouldReceive('get')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX['read'],
+                    'type' => self::TYPE,
+                    'id' => self::ID,
+                ]
+            )
+            ->andReturn($esResult);
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $this->assertEquals($endResult, $this->getRepository()->findById(self::ID));
+    }
+
+    public function findByIdFails(): void
+    {
+        $this->clientMock
+            ->shouldReceive('scroll')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX['read'],
+                    'type' => self::TYPE,
+                    'id' => self::ID,
+                ]
+            )
+            ->andThrow(new \Exception(self::ERROR_MESSAGE));
+
+        $this->loggerMock
+            ->shouldReceive('error')
+            ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
+
+        try {
+            $this->getRepository()->findById(self::ID);
         } catch (ReadOperationException $e) {
             $this->assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
             $this->assertEquals(0, $e->getCode());
@@ -1014,7 +1102,7 @@ class RepositoryTest extends MockeryTestCase
 
         if (!empty($result)) {
             foreach ($result as $entity) {
-                $this->assertEquals(['_index' => self::INDEX, '_score' => 77], $entity->_meta);
+                $this->assertEquals(['_index' => self::INDEX['read'], '_score' => 77], $entity->_meta);
             }
         }
     }
@@ -1051,7 +1139,7 @@ class RepositoryTest extends MockeryTestCase
 
         if (!empty($result)) {
             foreach ($result as $entity) {
-                $this->assertEquals(['_index' => self::INDEX, '_score' => 77], $entity->_meta);
+                $this->assertEquals(['_index' => self::INDEX['read'], '_score' => 77], $entity->_meta);
             }
         }
     }
@@ -1092,7 +1180,7 @@ class RepositoryTest extends MockeryTestCase
 
         if (!empty($aggregationResult->getDocuments())) {
             foreach ($aggregationResult->getDocuments() as $entity) {
-                $this->assertEquals(['_index' => self::INDEX, '_score' => 77], $entity->_meta);
+                $this->assertEquals(['_index' => self::INDEX['read'], '_score' => 77], $entity->_meta);
             }
         }
 
@@ -1184,7 +1272,7 @@ class RepositoryTest extends MockeryTestCase
 
         if (!empty($result)) {
             foreach ($result as $entity) {
-                $this->assertEquals(['_index' => self::INDEX, '_score' => 77], $entity->_meta);
+                $this->assertEquals(['_index' => self::INDEX['read'], '_score' => 77], $entity->_meta);
             }
         }
     }
@@ -1223,7 +1311,7 @@ class RepositoryTest extends MockeryTestCase
 
         if (!empty($result)) {
             foreach ($result as $entity) {
-                $this->assertEquals(['_index' => self::INDEX, '_score' => 77], $entity->_meta);
+                $this->assertEquals(['_index' => self::INDEX['read'], '_score' => 77], $entity->_meta);
             }
         }
     }
@@ -1264,12 +1352,112 @@ class RepositoryTest extends MockeryTestCase
 
         if (!empty($aggregationResult->getDocuments())) {
             foreach ($aggregationResult->getDocuments() as $entity) {
-                $this->assertEquals(['_index' => self::INDEX, '_score' => 77], $entity->_meta);
+                $this->assertEquals(['_index' => self::INDEX['read'], '_score' => 77], $entity->_meta);
             }
         }
 
         $this->assertEquals(1, count($aggregationResult->getResults()));
         $this->assertEquals('my_aggregation', $aggregationResult->getResultByName('my_aggregation')->getName());
         $this->assertEquals(0.1, $aggregationResult->getResultByName('my_aggregation')->getValue());
+    }
+
+    /**
+     * @return array
+     */
+    public function findByIdResultWithEntitiesData(): array
+    {
+        return array_map(
+            function (array $variables) {
+                if ($variables['es_result']['found']) {
+                    $entity = new stdClass();
+                    foreach ($variables['es_result']['_source'] as $key => $value) {
+                        $entity->$key = $value;
+                    }
+                    $entity->_meta = [
+                        '_index' => $variables['es_result']['_index'],
+                        '_type' => $variables['es_result']['_type'],
+                        '_version' => $variables['es_result']['_version'],
+                        'found' => $variables['es_result']['found'],
+                    ];
+
+                    $variables['end_result'] = $entity;
+                }
+
+                return $variables;
+            },
+            $this->findByIdResultData()
+        );
+    }
+
+    /**
+     * @dataProvider findByIdResultWithEntitiesData
+     *
+     * @param array      $esResult
+     * @param array|null $endResult
+     */
+    public function testFindByIdWithEntityClass(array $esResult, $endResult): void
+    {
+        $this->clientMock
+            ->shouldReceive('get')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX['read'],
+                    'type' => self::TYPE,
+                    'id' => self::ID,
+                ]
+            )
+            ->andReturn($esResult);
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $result = $this->getRepository(['entity_class' => get_class($this->getEntityClass())])->findById(
+            self::ID
+        );
+
+        $this->assertEquals($endResult, $result);
+        if ($endResult) {
+            $this->assertEquals(
+                ['_index' => self::INDEX['read'], '_type' => self::TYPE, '_version' => 1, 'found' => true],
+                $result->_meta
+            );
+        }
+    }
+
+    /**
+     * @dataProvider findByIdResultWithEntitiesData
+     *
+     * @param array      $esResult
+     * @param array|null $endResult
+     */
+    public function testFindByIdWithEntityFactory(array $esResult, $endResult): void
+    {
+        $this->clientMock
+            ->shouldReceive('get')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX['read'],
+                    'type' => self::TYPE,
+                    'id' => self::ID,
+                ]
+            )
+            ->andReturn($esResult);
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $result = $this->getRepository(['entity_factory' => $this->getEntityFactory()])->findById(
+            self::ID
+        );
+
+        $this->assertEquals($endResult, $result);
+        if ($endResult) {
+            $this->assertEquals(
+                ['_index' => self::INDEX['read'], '_type' => self::TYPE, '_version' => 1, 'found' => true],
+                $result->_meta
+            );
+        }
     }
 }
