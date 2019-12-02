@@ -1,7 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file based on the [Keep a Changelog](http://keepachangelog.com/) Standard. This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased](https://github.com/kununu/elasticsearch/compare/v2.0...master)
+## [Unreleased](https://github.com/kununu/elasticsearch/compare/v2.1...master)
+### Backward Compatibility Breaks
+### Bugfixes
+### Added
+### Improvements
+### Deprecated
+
+## [2.1](https://github.com/kununu/elasticsearch/compare/v2.0...2.1)
 ### Backward Compatibility Breaks
 ### Bugfixes
 ### Added
@@ -10,7 +17,7 @@ All notable changes to this project will be documented in this file based on the
 * Created more specific Exceptions extending `RepositoryException`. They can hold operation specific payload (f.e. document and documentId for upsert operations with `Repository::save()`)
 ### Deprecated
 
-## [1.1](https://github.com/kununu/elasticsearch/compare/v1.1...v2.0)
+## [2.0](https://github.com/kununu/elasticsearch/compare/v1.1...v2.0)
 ### Backward Compatibility Breaks
 * Removed support for Elastica as Elasticsearch client
 * Removed adapters completely (Repository is now directly using `\Elasticsearch\Client`)
