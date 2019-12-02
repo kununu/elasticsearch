@@ -176,6 +176,38 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
     /**
      * @inheritdoc
      */
+    public function findById(string $id)
+    {
+        return $this->executeRead(
+            function () use ($id) {
+                $response = $this->client->get(
+                    array_merge($this->buildRequestBase(OperationType::READ), ['id' => $id])
+                );
+
+                if (!($response['found'] ?? false)) {
+                    return null;
+                }
+
+                if ($this->config->getEntityClass()) {
+                    $metaData = $response;
+                    unset($metaData['_source']);
+
+                    return $this->config->getEntityClass()::fromElasticDocument($response['_source'], $metaData);
+                } elseif ($this->config->getEntityFactory()) {
+                    $metaData = $response;
+                    unset($metaData['_source']);
+
+                    return $this->config->getEntityFactory()->fromDocument($response['_source'], $metaData);
+                }
+
+                return $response;
+            }
+        );
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function count(): int
     {
         return $this->countByQuery(Query::create());

@@ -47,6 +47,13 @@ interface RepositoryInterface
     public function findByScrollId(string $scrollId): ResultIteratorInterface;
 
     /**
+     * @param string $id
+     *
+     * @return array|\Kununu\Elasticsearch\Repository\PersistableEntityInterface|object
+     */
+    public function findById(string $id);
+
+    /**
      * @return int
      */
     public function count(): int;

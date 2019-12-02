@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file based on the
 ### Backward Compatibility Breaks
 ### Bugfixes
 ### Added
+* Method `Repository::findById()` added
 ### Improvements
 * Created more specific Exceptions extending `RepositoryException`. They can hold operation specific payload (f.e. document and documentId for upsert operations with `Repository::save()`)
 ### Deprecated
