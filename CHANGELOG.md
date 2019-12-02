@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file based on the
 ### Bugfixes
 ### Added
 ### Improvements
+* Created more specific Exceptions extending `RepositoryException`. They can hold operation specific payload (f.e. document and documentId for upsert operations with `Repository::save()`)
 ### Deprecated
 
 ## [1.1](https://github.com/kununu/elasticsearch/compare/v1.1...v2.0)

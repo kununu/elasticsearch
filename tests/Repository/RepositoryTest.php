@@ -4,8 +4,11 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\Tests\Repository;
 
 use Elasticsearch\Client;
+use Kununu\Elasticsearch\Exception\DeleteException;
+use Kununu\Elasticsearch\Exception\ReadOperationException;
 use Kununu\Elasticsearch\Exception\RepositoryConfigurationException;
-use Kununu\Elasticsearch\Exception\RepositoryException;
+use Kununu\Elasticsearch\Exception\UpsertException;
+use Kununu\Elasticsearch\Exception\WriteOperationException;
 use Kununu\Elasticsearch\Query\Aggregation;
 use Kununu\Elasticsearch\Query\Criteria\Filter;
 use Kununu\Elasticsearch\Query\Query;
@@ -235,11 +238,17 @@ class RepositoryTest extends MockeryTestCase
             ->shouldReceive('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
-        $this->expectException(RepositoryException::class);
-        $this->getRepository()->save(
-            self::ID,
-            $document
-        );
+        try {
+            $this->getRepository()->save(
+                self::ID,
+                $document
+            );
+        } catch (UpsertException $e) {
+            $this->assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
+            $this->assertEquals(0, $e->getCode());
+            $this->assertEquals(self::ID, $e->getDocumentId());
+            $this->assertEquals($document, $e->getDocument());
+        }
     }
 
     public function testDelete(): void
@@ -281,10 +290,15 @@ class RepositoryTest extends MockeryTestCase
             ->shouldReceive('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
-        $this->expectException(RepositoryException::class);
-        $this->getRepository()->delete(
-            self::ID
-        );
+        try {
+            $this->getRepository()->delete(
+                self::ID
+            );
+        } catch (DeleteException $e) {
+            $this->assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
+            $this->assertEquals(0, $e->getCode());
+            $this->assertEquals(self::ID, $e->getDocumentId());
+        }
     }
 
     /**
@@ -502,9 +516,13 @@ class RepositoryTest extends MockeryTestCase
             ->shouldReceive('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
-        $this->expectException(RepositoryException::class);
-
-        $this->getRepository()->findByQuery(Query::create());
+        try {
+            $this->getRepository()->findByQuery(Query::create());
+        } catch (ReadOperationException $e) {
+            $this->assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
+            $this->assertEquals(0, $e->getCode());
+            $this->assertNull($e->getQuery());
+        }
     }
 
     /**
@@ -555,9 +573,13 @@ class RepositoryTest extends MockeryTestCase
             ->shouldReceive('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
-        $this->expectException(RepositoryException::class);
-
-        $this->getRepository()->findByScrollId($scrollId);
+        try {
+            $this->getRepository()->findByScrollId($scrollId);
+        } catch (ReadOperationException $e) {
+            $this->assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
+            $this->assertEquals(0, $e->getCode());
+            $this->assertNull($e->getQuery());
+        }
     }
 
     /**
@@ -593,9 +615,13 @@ class RepositoryTest extends MockeryTestCase
             ->shouldReceive('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
-        $this->expectException(RepositoryException::class);
-
-        $this->getRepository()->countByQuery(Query::create());
+        try {
+            $this->getRepository()->countByQuery(Query::create());
+        } catch (ReadOperationException $e) {
+            $this->assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
+            $this->assertEquals(0, $e->getCode());
+            $this->assertNull($e->getQuery());
+        }
     }
 
     public function testCount(): void
@@ -628,9 +654,13 @@ class RepositoryTest extends MockeryTestCase
             ->shouldReceive('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
-        $this->expectException(RepositoryException::class);
-
-        $this->getRepository()->count();
+        try {
+            $this->getRepository()->count();
+        } catch (ReadOperationException $e) {
+            $this->assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
+            $this->assertEquals(0, $e->getCode());
+            $this->assertNull($e->getQuery());
+        }
     }
 
     /**
@@ -682,9 +712,13 @@ class RepositoryTest extends MockeryTestCase
             ->shouldReceive('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
-        $this->expectException(RepositoryException::class);
-
-        $this->getRepository()->aggregateByQuery($query);
+        try {
+            $this->getRepository()->aggregateByQuery($query);
+        } catch (ReadOperationException $e) {
+            $this->assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
+            $this->assertEquals(0, $e->getCode());
+            $this->assertNull($e->getQuery());
+        }
     }
 
     public function testUpdateByQuery(): void
@@ -755,9 +789,12 @@ class RepositoryTest extends MockeryTestCase
             ->shouldReceive('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
-        $this->expectException(RepositoryException::class);
-
-        $this->getRepository()->updateByQuery(Query::create(), ['script' => []]);
+        try {
+            $this->getRepository()->updateByQuery(Query::create(), ['script' => []]);
+        } catch (WriteOperationException $e) {
+            $this->assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
+            $this->assertEquals(0, $e->getCode());
+        }
     }
 
     public function testPostSaveIsCalled(): void
