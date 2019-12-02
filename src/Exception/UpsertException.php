@@ -47,7 +47,7 @@ class UpsertException extends WriteOperationException
     /**
      * @return array
      */
-    public function getDocument(): array
+    public function getDocument(): ?array
     {
         return $this->document;
     }

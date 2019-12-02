@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file based on the
 ## [Unreleased](https://github.com/kununu/elasticsearch/compare/v2.1...master)
 ### Backward Compatibility Breaks
 ### Bugfixes
+* Fixed return type hint of `UpsertException::getDocument()`
 ### Added
 ### Improvements
 ### Deprecated
