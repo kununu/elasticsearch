@@ -188,16 +188,13 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
                     return null;
                 }
 
-                if ($this->config->getEntityClass()) {
+                if ($this->config->getEntityClass() || $this->config->getEntityFactory()) {
                     $metaData = $response;
                     unset($metaData['_source']);
 
-                    return $this->config->getEntityClass()::fromElasticDocument($response['_source'], $metaData);
-                } elseif ($this->config->getEntityFactory()) {
-                    $metaData = $response;
-                    unset($metaData['_source']);
-
-                    return $this->config->getEntityFactory()->fromDocument($response['_source'], $metaData);
+                    return $this->config->getEntityClass()
+                        ? $this->config->getEntityClass()::fromElasticDocument($response['_source'], $metaData)
+                        : $this->config->getEntityFactory()->fromDocument($response['_source'], $metaData);
                 }
 
                 return $response;
