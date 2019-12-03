@@ -8,16 +8,13 @@ This package aims to
 ## Quickstart
 It does not take a lot to get you up and running with Elasticsearch. All that's required is an `ElasticsearchRepository` which can be used to execute requests (e.g. to save a document, query for documents, etc.)
 ```php
-// configure an adapter factory
-// by injecting the elasticsearch-php client as available option
-$adapterFactory = new AdapterFactory();
-$adapterFactory->addClient(\Elasticsearch\ClientBuilder::create()->build());
+// create very minimal client
+$client = \Elasticsearch\ClientBuilder::create()->build();
 
 // create a new repository and bind it to my_index/my_type
-$repository = new ElasticsearchRepository(
-    $adapterFactory,
+$repository = new Repository(
+    $client,
     [
-        'adapter_class' => ElasticsearchAdapter::class,
         'index' => 'my_index',
         'type' => 'my_type',
     ]
