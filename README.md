@@ -6,7 +6,7 @@ This package aims to
  2. make your project independent of the underlying client library
 
 ## Quickstart
-It does not take a lot to get you up and running with Elasticsearch. All that's required is an `Repository` which can be used to execute requests (e.g. to save a document, query for documents, etc.)
+It does not take a lot to get you up and running with Elasticsearch. All that's required is a `Repository` which can be used to execute requests (e.g. to save a document, query for documents, etc.)
 ```php
 // create very minimal client
 $client = \Elasticsearch\ClientBuilder::create()->build();
