@@ -4,7 +4,7 @@ Repositories are used for accessing and manipulating data in Elasticsearch.
 Very similar to [Entity Repositories in Doctrine](https://www.doctrine-project.org/projects/doctrine-orm/en/2.6/reference/working-with-objects.html), a `Repository` in this package is a class which capsules Elasticsearch specific logic - for a specific index.
 Every `Repository` instance is bound to an index (and a type).
 
-The default `ElasticsearchRepository` shipped with this package includes standard functionality such as
+The default `Repository` shipped with this package includes standard functionality such as
  - inserting/replacing a document
  - deleting a document
  - retrieving a single document by id
@@ -13,9 +13,9 @@ The default `ElasticsearchRepository` shipped with this package includes standar
  - updating documents (with update scripts)
  - aggregations
 
-A good practice is to create a dedicated `Repository` class for every entity by extending the `ElasticsearchRepository` class. This is a good way of keeping all your Elastic-related code for an entity together in a central place. For example:
+A good practice is to create a dedicated class for every entity by extending the `Repository` class. This is a good way of keeping all your Elasticsearch-related code for an entity together in a central place. For example:
 ```php
-class ElasticSubmissionRepository extends ElasticsearchRepository {
+class ElasticSubmissionRepository extends Repository {
     public function findSomethingSpecific() {
         return $this->findByQuery(
             Query::create(
@@ -29,7 +29,7 @@ class ElasticSubmissionRepository extends ElasticsearchRepository {
 Repositories are `LoggerAware` (see `\Psr\Log\LoggerAwareInterface`).
 
 ## Return values
-This package includes a few objects for non-scalar return values of `ElasticsearchRepository`. Those are: `ResultIterator` and `AggregationResultSet`. See [Results](RESULTS.md) for details.
+This package includes a few objects for non-scalar return values of `Repository`. Those are: `ResultIterator` and `AggregationResultSet`. See [Results](RESULTS.md) for details.
 
 ## Usage
 It's possible to either use the standard `Repository` directly or to extend this class and use dedicated Repositories for each entity.
@@ -52,7 +52,7 @@ The above example also takes advantage of the logging capabilities of the `Repos
 
 Example with minimal configuration:
 ```yaml
-App\Service\Elasticsearch\Repository\ElasticsearchRepository:
+Kununu\Elasticsearch\Repository\Repository:
   arguments:
     - '@Elasticsearch\Client'
     - index: 'my_index'
@@ -62,7 +62,7 @@ App\Service\Elasticsearch\Repository\ElasticsearchRepository:
 Multiple indexes/repositories in one project:
 ```yaml
 my_first_repo:
-  class: App\Service\Elasticsearch\Repository\ElasticsearchRepository
+  class: Kununu\Elasticsearch\Repository\Repository
   arguments:
     - '@Elasticsearch\Client'
     - index_read: 'some_index_read'
@@ -70,7 +70,7 @@ my_first_repo:
       type: '_doc'
 
 my_second_repo:
-  class: App\Service\Elasticsearch\Repository\ElasticsearchRepository
+  class: Kununu\Elasticsearch\Repository\Repository
   arguments:
     - '@Elasticsearch\Client'
     - index: 'some_other_index'
@@ -224,7 +224,9 @@ However, there of course is an order of precedence:
  - retrieving: `entity_class` is used before `entity_factory`
 
 ### Hooks
-`ElasticsearchRepository::postSave()` is called directly after every index operation (i.e. when a document is upserted to Elasticsearch). `ElasticsearchRepository::postDelete()` is called after every delete operation.
+`Repository::postSave()` is called directly after every index operation (i.e. when a document is upserted to Elasticsearch).
+
+`Repository::postDelete()` is called after every delete operation.
 Overwrite these methods in your own repository classes to hook into these events.
 
 

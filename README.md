@@ -6,7 +6,7 @@ This package aims to
  2. make your project independent of the underlying client library
 
 ## Quickstart
-It does not take a lot to get you up and running with Elasticsearch. All that's required is an `ElasticsearchRepository` which can be used to execute requests (e.g. to save a document, query for documents, etc.)
+It does not take a lot to get you up and running with Elasticsearch. All that's required is an `Repository` which can be used to execute requests (e.g. to save a document, query for documents, etc.)
 ```php
 // create very minimal client
 $client = \Elasticsearch\ClientBuilder::create()->build();
@@ -57,7 +57,7 @@ Repositories execute queries against the index (and type) they are bound to.
 ### Queries
 This package provides an abstracted query language which makes it easy to write even complicated queries without headache. It hides the complexity of Elasticsearch Query DSL for the most common use-cases while stying extensible for advanced ones. 
 
-Various methods of the `ElasticsearchRepositoryInterface` require an object of type `QueryInterface` as input. Therefore, any implementation of this interface can be used together with Repositories.
+Various methods of the `RepositoryInterface` require an object of type `QueryInterface` as input. Therefore, any implementation of this interface can be used together with Repositories.
 
 This package contains two implementations of the `QueryInterface`:
  - [Query](doc/QUERY.md)
