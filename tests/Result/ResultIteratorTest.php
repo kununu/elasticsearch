@@ -123,7 +123,7 @@ class ResultIteratorTest extends MockeryTestCase
         $this->assertEquals(200, $iterator->getTotal());
     }
 
-    public function testPush(): void
+    public function testPushArray(): void
     {
         $iterator = ResultIterator::create();
         $this->assertEmpty($iterator->asArray());
@@ -132,6 +132,18 @@ class ResultIteratorTest extends MockeryTestCase
         $iterator->push(['some' => 'thing']);
 
         $this->assertEquals([['some' => 'thing']], $iterator->asArray());
+        $this->assertEquals(1, $iterator->getCount());
+    }
+
+    public function testPushObject(): void
+    {
+        $iterator = ResultIterator::create();
+        $this->assertEmpty($iterator->asArray());
+        $this->assertEquals(0, $iterator->getCount());
+
+        $iterator->push(new \stdClass());
+
+        $this->assertEquals([new \stdClass()], $iterator->asArray());
         $this->assertEquals(1, $iterator->getCount());
     }
 
