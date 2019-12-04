@@ -102,11 +102,11 @@ class ResultIterator implements \Iterator, \ArrayAccess, \Countable, ResultItera
     }
 
     /**
-     * @param array $result
+     * @param array|object $result
      *
      * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
      */
-    public function push(array $result): ResultIteratorInterface
+    public function push($result): ResultIteratorInterface
     {
         $this->results[] = $result;
 

@@ -1,9 +1,17 @@
 # Changelog
 All notable changes to this project will be documented in this file based on the [Keep a Changelog](http://keepachangelog.com/) Standard. This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased](https://github.com/kununu/elasticsearch/compare/v2.1.1...master)
+## [Unreleased](https://github.com/kununu/elasticsearch/compare/v2.1.2...master)
 ### Backward Compatibility Breaks
 ### Bugfixes
+### Added
+### Improvements
+### Deprecated
+
+## [2.1.2](https://github.com/kununu/elasticsearch/compare/v2.1.1...v2.1.2)
+### Backward Compatibility Breaks
+### Bugfixes
+* allow objects to be pushed into `ResultIterator`
 ### Added
 ### Improvements
 ### Deprecated
