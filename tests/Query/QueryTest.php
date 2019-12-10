@@ -165,7 +165,7 @@ class QueryTest extends MockeryTestCase
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
-            'Argument $search must implement \Kununu\Elasticsearch\Query\Criteria\SearchInterface or \Kununu\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface'
+            'Argument $search must be one of [\Kununu\Elasticsearch\Query\Criteria\SearchInterface, \Kununu\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface, \Kununu\Elasticsearch\Query\Criteria\NestableQueryInterface'
         );
 
         Query::create()->search(Filter::create('field', 'value'));
@@ -207,11 +207,11 @@ class QueryTest extends MockeryTestCase
     {
         $query = Query::create();
 
-        $this->assertNull($query->getMinScore());
+        $this->assertNull($query->getOption(Query::OPTION_MIN_SCORE));
 
         $query->setMinScore(42);
 
-        $this->assertEquals(42, $query->getMinScore());
+        $this->assertEquals(42, $query->getOption(Query::OPTION_MIN_SCORE));
     }
 
     public function testSearchOperator(): void
@@ -402,6 +402,117 @@ class QueryTest extends MockeryTestCase
                         ],
                     ],
                     'min_score' => 42,
+                ],
+            ],
+            'basic nested query as filter' => [
+                'query' => Query::create(
+                    Query::createNested('my_field', Filter::create('my_field.subfield', 'foobar'))
+                ),
+                'expected' => [
+                    'query' => [
+                        'bool' => [
+                            'filter' => [
+                                'bool' => [
+                                    'must' => [
+                                        [
+                                            'nested' => [
+                                                'path' => 'my_field',
+                                                'query' => [
+                                                    'bool' => [
+                                                        'filter' => [
+                                                            'bool' => [
+                                                                'must' => [
+                                                                    [
+                                                                        'term' => [
+                                                                            'my_field.subfield' => 'foobar',
+                                                                        ],
+                                                                    ],
+                                                                ],
+                                                            ],
+                                                        ],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            'basic nested query as search' => [
+                'query' => Query::create()
+                    ->search(Query::createNested('my_field', Filter::create('my_field.subfield', 'foobar'))),
+                'expected' => [
+                    'query' => [
+                        'bool' => [
+                            'should' => [
+                                [
+                                    'nested' => [
+                                        'path' => 'my_field',
+                                        'query' => [
+                                            'bool' => [
+                                                'filter' => [
+                                                    'bool' => [
+                                                        'must' => [
+                                                            [
+                                                                'term' => [
+                                                                    'my_field.subfield' => 'foobar',
+                                                                ],
+                                                            ],
+                                                        ],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            'minimum_should_match' => 1,
+                        ],
+                    ],
+                ],
+            ],
+            'nested query with options' => [
+                'query' => Query::create(
+                    Query::createNested('my_field', Filter::create('my_field.subfield', 'foobar'))
+                        ->setOption(Query::OPTION_SCORE_MODE, 'max')
+                        ->setOption(Query::OPTION_IGNORE_UNMAPPED, true)
+                ),
+                'expected' => [
+                    'query' => [
+                        'bool' => [
+                            'filter' => [
+                                'bool' => [
+                                    'must' => [
+                                        [
+                                            'nested' => [
+                                                'path' => 'my_field',
+                                                'score_mode' => 'max',
+                                                'ignore_unmapped' => true,
+                                                'query' => [
+                                                    'bool' => [
+                                                        'filter' => [
+                                                            'bool' => [
+                                                                'must' => [
+                                                                    [
+                                                                        'term' => [
+                                                                            'my_field.subfield' => 'foobar',
+                                                                        ],
+                                                                    ],
+                                                                ],
+                                                            ],
+                                                        ],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                 ],
             ],
         ];
