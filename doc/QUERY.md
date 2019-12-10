@@ -562,7 +562,7 @@ Will produce
 
 Also, any combination of boolean and nested queries is possible.
 
-Adding options is as simple as calling `setOption()` on the nested query:
+Optional options can be set by calling `setOption()` on the nested query:
 ```php
 Query::create(
     Query::createNested('my_field', Filter::create('my_field.subfield', 'foobar'))
