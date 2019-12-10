@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file based on the
 ### Backward Compatibility Breaks
 ### Bugfixes
 ### Added
+* Nested queries
 ### Improvements
 ### Deprecated
 
