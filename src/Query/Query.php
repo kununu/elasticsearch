@@ -18,9 +18,6 @@ class Query extends AbstractQuery implements NestableQueryInterface
 
     protected const MINIMUM_SHOULD_MATCH = 1; // relevant when $searchOperator === 'should'
     public const OPTION_MIN_SCORE = 'min_score';
-    public const OPTION_PATH = 'path'; // for nested queries only
-    public const OPTION_SCORE_MODE = 'score_mode'; // for nested queries only
-    public const OPTION_IGNORE_UNMAPPED = 'ignore_unmapped'; // for nested queries only
 
     /**
      * @var bool
@@ -222,7 +219,11 @@ class Query extends AbstractQuery implements NestableQueryInterface
     protected function getAvailableOptions(): array
     {
         return $this->nested
-            ? [static::OPTION_PATH, static::OPTION_IGNORE_UNMAPPED, static::OPTION_SCORE_MODE]
+            ? [
+                NestableQueryInterface::OPTION_PATH,
+                NestableQueryInterface::OPTION_IGNORE_UNMAPPED,
+                NestableQueryInterface::OPTION_SCORE_MODE,
+            ]
             : [static::OPTION_MIN_SCORE];
     }
 

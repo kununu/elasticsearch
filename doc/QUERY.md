@@ -562,6 +562,52 @@ Will produce
 
 Also, any combination of boolean and nested queries is possible.
 
+Adding options is as simple as calling `setOption()` on the nested query:
+```php
+Query::create(
+    Query::createNested('my_field', Filter::create('my_field.subfield', 'foobar'))
+        ->setOption(NestableQueryInterface::OPTION_SCORE_MODE, 'max')
+        ->setOption(NestableQueryInterface::OPTION_IGNORE_UNMAPPED, true)
+);
+```
+Will produce
+```json
+{
+  "query": {
+    "bool": {
+      "filter": {
+        "bool": {
+          "must": [
+            {
+              "nested": {
+                "path": "my_field",
+                "score_mode": "max",
+                "ignore_unmapped": true,
+                "query": {
+                  "bool": {
+                    "filter": {
+                      "bool": {
+                        "must": [
+                          {
+                            "term": {
+                              "my_field.subfield": "foobar"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}
+```
+
 ### Aggregations
 To add one or more aggregation(s) to a query, simply pass them as separate arguments when creating the query or add them anytime later by calling `Query::aggregate()`.
 

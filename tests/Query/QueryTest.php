@@ -10,6 +10,7 @@ use Kununu\Elasticsearch\Query\Criteria\Bool\Must;
 use Kununu\Elasticsearch\Query\Criteria\Bool\MustNot;
 use Kununu\Elasticsearch\Query\Criteria\Bool\Should;
 use Kununu\Elasticsearch\Query\Criteria\Filter;
+use Kununu\Elasticsearch\Query\Criteria\NestableQueryInterface;
 use Kununu\Elasticsearch\Query\Criteria\Search;
 use Kununu\Elasticsearch\Query\Query;
 use Kununu\Elasticsearch\Query\SortOrder;
@@ -477,8 +478,8 @@ class QueryTest extends MockeryTestCase
             'nested query with options' => [
                 'query' => Query::create(
                     Query::createNested('my_field', Filter::create('my_field.subfield', 'foobar'))
-                        ->setOption(Query::OPTION_SCORE_MODE, 'max')
-                        ->setOption(Query::OPTION_IGNORE_UNMAPPED, true)
+                        ->setOption(NestableQueryInterface::OPTION_SCORE_MODE, 'max')
+                        ->setOption(NestableQueryInterface::OPTION_IGNORE_UNMAPPED, true)
                 ),
                 'expected' => [
                     'query' => [
