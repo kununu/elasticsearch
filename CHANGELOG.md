@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file based on the
 ### Bugfixes
 ### Added
 ### Improvements
+* `Repository::findById()` now catches `\Elasticsearch\Common\Exceptions\Missing404Exception` and returns null
 ### Deprecated
 
 ## [2.1.2](https://github.com/kununu/elasticsearch/compare/v2.1.1...v2.1.2)

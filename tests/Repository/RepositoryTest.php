@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\Tests\Repository;
 
 use Elasticsearch\Client;
+use Elasticsearch\Common\Exceptions\Missing404Exception;
 use Kununu\Elasticsearch\Exception\DeleteException;
 use Kununu\Elasticsearch\Exception\ReadOperationException;
 use Kununu\Elasticsearch\Exception\RepositoryConfigurationException;
@@ -646,7 +647,7 @@ class RepositoryTest extends MockeryTestCase
     public function findByIdFails(): void
     {
         $this->clientMock
-            ->shouldReceive('scroll')
+            ->shouldReceive('get')
             ->once()
             ->with(
                 [
@@ -668,6 +669,23 @@ class RepositoryTest extends MockeryTestCase
             $this->assertEquals(0, $e->getCode());
             $this->assertNull($e->getQuery());
         }
+    }
+
+    public function findByIdFailsWith404(): void
+    {
+        $this->clientMock
+            ->shouldReceive('get')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX['read'],
+                    'type' => self::TYPE,
+                    'id' => self::ID,
+                ]
+            )
+            ->andThrow(new Missing404Exception());
+
+        $this->assertNull($this->getRepository()->findById(self::ID));
     }
 
     /**
