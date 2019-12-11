@@ -1,10 +1,18 @@
 # Changelog
 All notable changes to this project will be documented in this file based on the [Keep a Changelog](http://keepachangelog.com/) Standard. This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased](https://github.com/kununu/elasticsearch/compare/v2.2...master)
+## [Unreleased](https://github.com/kununu/elasticsearch/compare/v2.3...master)
 ### Backward Compatibility Breaks
 ### Bugfixes
 ### Added
+### Improvements
+### Deprecated
+
+## [2.3](https://github.com/kununu/elasticsearch/compare/v2.2...v2.3)
+### Backward Compatibility Breaks
+### Bugfixes
+### Added
+* Support for fieldless aggregations: [Filter Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-bucket-filter-aggregation.html) and [Filters Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-bucket-filters-aggregation.html)
 ### Improvements
 ### Deprecated
 

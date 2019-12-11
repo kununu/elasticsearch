@@ -207,4 +207,39 @@ class AggregationTest extends MockeryTestCase
             json_encode($aggregation->toArray())
         );
     }
+
+    public function testCreateFieldlessWithoutOptions(): void
+    {
+        $aggregation = Aggregation::createFieldless(Bucket::FILTERS, 'my_fieldless_agg');
+
+        $this->assertEquals(
+            [
+                'my_fieldless_agg' => [
+                    'filters' => [],
+                ],
+            ],
+            $aggregation->toArray()
+        );
+    }
+
+    public function testCreateFieldlessWithOptions(): void
+    {
+        $aggregation = Aggregation::createFieldless(
+            Bucket::FILTERS,
+            'my_fieldless_agg',
+            ['other_bucket_key' => 'foobar', 'filters' => ['bucket_a' => ['term' => ['field' => 'field_a']]]]
+        );
+
+        $this->assertEquals(
+            [
+                'my_fieldless_agg' => [
+                    'filters' => [
+                        'other_bucket_key' => 'foobar',
+                        'filters' => ['bucket_a' => ['term' => ['field' => 'field_a']]],
+                    ],
+                ],
+            ],
+            $aggregation->toArray()
+        );
+    }
 }
