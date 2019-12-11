@@ -30,7 +30,7 @@ class Aggregation implements AggregationInterface
     protected $type;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $field;
 
@@ -45,12 +45,12 @@ class Aggregation implements AggregationInterface
     protected $nestedAggregations = [];
 
     /**
-     * @param string $field
-     * @param string $type
-     * @param string $name
-     * @param array  $options
+     * @param string|null $field
+     * @param string      $type
+     * @param string      $name
+     * @param array       $options
      */
-    public function __construct(string $field, string $type, string $name = '', array $options = [])
+    public function __construct(?string $field, string $type, string $name = '', array $options = [])
     {
         if (!Metric::hasConstant($type) && !Bucket::hasConstant($type) && $type !== static::GLOBAL) {
             throw new InvalidArgumentException('Unknown type "' . $type . '" given');
@@ -91,6 +91,18 @@ class Aggregation implements AggregationInterface
     }
 
     /**
+     * @param string $type
+     * @param string $name
+     * @param array  $options
+     *
+     * @return \Kununu\Elasticsearch\Query\Aggregation
+     */
+    public static function createFieldless(string $type, string $name = '', array $options = []): Aggregation
+    {
+        return new self(null, $type, $name, $options);
+    }
+
+    /**
      * @return string
      */
     public function getName(): string
@@ -126,7 +138,7 @@ class Aggregation implements AggregationInterface
             $body = [
                 $this->name => [
                     $this->type => array_merge(
-                        ['field' => $this->field],
+                        $this->field ? ['field' => $this->field] : [],
                         $this->options
                     ),
                 ],
