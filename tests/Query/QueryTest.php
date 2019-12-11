@@ -10,6 +10,7 @@ use Kununu\Elasticsearch\Query\Criteria\Bool\Must;
 use Kununu\Elasticsearch\Query\Criteria\Bool\MustNot;
 use Kununu\Elasticsearch\Query\Criteria\Bool\Should;
 use Kununu\Elasticsearch\Query\Criteria\Filter;
+use Kununu\Elasticsearch\Query\Criteria\NestableQueryInterface;
 use Kununu\Elasticsearch\Query\Criteria\Search;
 use Kununu\Elasticsearch\Query\Query;
 use Kununu\Elasticsearch\Query\SortOrder;
@@ -105,6 +106,35 @@ class QueryTest extends MockeryTestCase
      *
      * @param array $input
      */
+    public function testCreateNested(array $input): void
+    {
+        $children = [
+            Search::class => [],
+            Filter::class => [],
+            Aggregation::class => [],
+        ];
+
+        foreach ($input as $child) {
+            $children[get_class($child)][] = $child;
+        }
+
+        $path = 'mypath';
+
+        $query = Query::createNested($path, ...$input);
+
+        $this->assertChildren($query, self::FIELD_NAME_SEARCHES, $children[Search::class]);
+        $this->assertChildren($query, self::FIELD_NAME_FILTERS, $children[Filter::class]);
+        $this->assertChildren($query, self::FIELD_NAME_AGGREGATIONS, $children[Aggregation::class]);
+        $this->assertEquals($path, $query->getOption(NestableQueryInterface::OPTION_PATH));
+        $this->assertNull($query->getOption(NestableQueryInterface::OPTION_IGNORE_UNMAPPED));
+        $this->assertNull($query->getOption(NestableQueryInterface::OPTION_SCORE_MODE));
+    }
+
+    /**
+     * @dataProvider createData
+     *
+     * @param array $input
+     */
     public function testAdd(array $input): void
     {
         $children = [
@@ -165,7 +195,7 @@ class QueryTest extends MockeryTestCase
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
-            'Argument $search must implement \Kununu\Elasticsearch\Query\Criteria\SearchInterface or \Kununu\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface'
+            'Argument $search must be one of [\Kununu\Elasticsearch\Query\Criteria\SearchInterface, \Kununu\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface, \Kununu\Elasticsearch\Query\Criteria\NestableQueryInterface'
         );
 
         Query::create()->search(Filter::create('field', 'value'));
@@ -207,11 +237,11 @@ class QueryTest extends MockeryTestCase
     {
         $query = Query::create();
 
-        $this->assertNull($query->getMinScore());
+        $this->assertNull($query->getOption(Query::OPTION_MIN_SCORE));
 
         $query->setMinScore(42);
 
-        $this->assertEquals(42, $query->getMinScore());
+        $this->assertEquals(42, $query->getOption(Query::OPTION_MIN_SCORE));
     }
 
     public function testSearchOperator(): void
@@ -402,6 +432,117 @@ class QueryTest extends MockeryTestCase
                         ],
                     ],
                     'min_score' => 42,
+                ],
+            ],
+            'basic nested query as filter' => [
+                'query' => Query::create(
+                    Query::createNested('my_field', Filter::create('my_field.subfield', 'foobar'))
+                ),
+                'expected' => [
+                    'query' => [
+                        'bool' => [
+                            'filter' => [
+                                'bool' => [
+                                    'must' => [
+                                        [
+                                            'nested' => [
+                                                'path' => 'my_field',
+                                                'query' => [
+                                                    'bool' => [
+                                                        'filter' => [
+                                                            'bool' => [
+                                                                'must' => [
+                                                                    [
+                                                                        'term' => [
+                                                                            'my_field.subfield' => 'foobar',
+                                                                        ],
+                                                                    ],
+                                                                ],
+                                                            ],
+                                                        ],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            'basic nested query as search' => [
+                'query' => Query::create()
+                    ->search(Query::createNested('my_field', Filter::create('my_field.subfield', 'foobar'))),
+                'expected' => [
+                    'query' => [
+                        'bool' => [
+                            'should' => [
+                                [
+                                    'nested' => [
+                                        'path' => 'my_field',
+                                        'query' => [
+                                            'bool' => [
+                                                'filter' => [
+                                                    'bool' => [
+                                                        'must' => [
+                                                            [
+                                                                'term' => [
+                                                                    'my_field.subfield' => 'foobar',
+                                                                ],
+                                                            ],
+                                                        ],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            'minimum_should_match' => 1,
+                        ],
+                    ],
+                ],
+            ],
+            'nested query with options' => [
+                'query' => Query::create(
+                    Query::createNested('my_field', Filter::create('my_field.subfield', 'foobar'))
+                        ->setOption(NestableQueryInterface::OPTION_SCORE_MODE, 'max')
+                        ->setOption(NestableQueryInterface::OPTION_IGNORE_UNMAPPED, true)
+                ),
+                'expected' => [
+                    'query' => [
+                        'bool' => [
+                            'filter' => [
+                                'bool' => [
+                                    'must' => [
+                                        [
+                                            'nested' => [
+                                                'path' => 'my_field',
+                                                'score_mode' => 'max',
+                                                'ignore_unmapped' => true,
+                                                'query' => [
+                                                    'bool' => [
+                                                        'filter' => [
+                                                            'bool' => [
+                                                                'must' => [
+                                                                    [
+                                                                        'term' => [
+                                                                            'my_field.subfield' => 'foobar',
+                                                                        ],
+                                                                    ],
+                                                                ],
+                                                            ],
+                                                        ],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                 ],
             ],
         ];

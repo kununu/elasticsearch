@@ -20,6 +20,8 @@ Currently, the most important Elasticsearch queries and aggregations are availab
  - Geo queries:
     - [Geo-distance Query](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/query-dsl-geo-distance-query.html)
     - [Geo-shape Query](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/query-dsl-geo-shape-query.html)
+ - Nested queries:
+    - [Nested Query](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/query-dsl-nested-query.html)
  - Aggregations:
     - [Terms Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-bucket-terms-aggregation.html)
     - [Avg Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-metrics-avg-aggregation.html)
@@ -466,6 +468,144 @@ Query::create()
     ->limit(10)
     ->skip(100);
 );
+```
+
+### Nested queries
+Nested queries can be used to search/filter within [nested fields](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/nested.html).
+The nested query searches nested field objects as if they were indexed as separate documents. If an object matches the search, the nested query returns the root parent document.
+For more information see [the Elasticsearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/query-dsl-nested-query.html).
+
+To create a nested query, simply use the `Query::createNested()` factory method. Pass the path of the nested field as first argument and an arbitrary number of Filters/Searches after that. 
+
+Examples:
+
+In the first example a query is nested inside the filter context. This is the default behavior when passing a nested query to the `Query::create()` factory method.
+```php
+Query::create(
+    Query::createNested('my_field', Filter::create('my_field.subfield', 'foobar'))
+);
+```
+Will produce
+```json
+{
+  "query": {
+    "bool": {
+      "filter": {
+        "bool": {
+          "must": [
+            {
+              "nested": {
+                "path": "my_field",
+                "query": {
+                  "bool": {
+                    "filter": {
+                      "bool": {
+                        "must": [
+                          {
+                            "term": {
+                              "my_field.subfield": "foobar"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}
+```
+
+However, queries can also be nested inside the search context:
+```php
+Query::create()
+    ->search(Query::createNested('my_field', Filter::create('my_field.subfield', 'foobar')));
+
+```
+Will produce
+```json
+{
+  "query": {
+    "bool": {
+      "should": [
+        {
+          "nested": {
+            "path": "my_field",
+            "query": {
+              "bool": {
+                "filter": {
+                  "bool": {
+                    "must": [
+                      {
+                        "term": {
+                          "my_field.subfield": "foobar"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "minimum_should_match": 1
+    }
+  }
+}
+```
+
+Also, any combination of boolean and nested queries is possible.
+
+Optional options can be set by calling `setOption()` on the nested query:
+```php
+Query::create(
+    Query::createNested('my_field', Filter::create('my_field.subfield', 'foobar'))
+        ->setOption(NestableQueryInterface::OPTION_SCORE_MODE, 'max')
+        ->setOption(NestableQueryInterface::OPTION_IGNORE_UNMAPPED, true)
+);
+```
+Will produce
+```json
+{
+  "query": {
+    "bool": {
+      "filter": {
+        "bool": {
+          "must": [
+            {
+              "nested": {
+                "path": "my_field",
+                "score_mode": "max",
+                "ignore_unmapped": true,
+                "query": {
+                  "bool": {
+                    "filter": {
+                      "bool": {
+                        "must": [
+                          {
+                            "term": {
+                              "my_field.subfield": "foobar"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}
 ```
 
 ### Aggregations
