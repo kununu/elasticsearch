@@ -6,10 +6,10 @@ namespace Kununu\Elasticsearch\Exception;
 use InvalidArgumentException;
 
 /**
- * Class QueryException
+ * Class UnknownOptionException
  *
  * @package Kununu\Elasticsearch\Exception
  */
-class QueryException extends InvalidArgumentException
+class UnknownOptionException extends InvalidArgumentException
 {
 }

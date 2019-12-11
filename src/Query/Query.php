@@ -11,6 +11,7 @@ use Kununu\Elasticsearch\Query\Criteria\CriteriaInterface;
 use Kununu\Elasticsearch\Query\Criteria\FilterInterface;
 use Kununu\Elasticsearch\Query\Criteria\NestableQueryInterface;
 use Kununu\Elasticsearch\Query\Criteria\SearchInterface;
+use Kununu\Elasticsearch\Util\OptionableTrait;
 
 class Query extends AbstractQuery implements NestableQueryInterface
 {

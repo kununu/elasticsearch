@@ -1,14 +1,14 @@
 <?php
 declare(strict_types=1);
 
-namespace Kununu\Elasticsearch\Query;
+namespace Kununu\Elasticsearch\Util;
 
-use Kununu\Elasticsearch\Exception\QueryException;
+use Kununu\Elasticsearch\Exception\UnknownOptionException;
 
 /**
  * Trait OptionableTrait
  *
- * @package Kununu\Elasticsearch\Query
+ * @package Kununu\Elasticsearch\Util
  */
 trait OptionableTrait
 {
@@ -32,6 +32,8 @@ trait OptionableTrait
     /**
      * @param string $option
      * @param        $value
+     *
+     * @return self
      */
     public function setOption(string $option, $value)
     {
@@ -67,7 +69,7 @@ trait OptionableTrait
     protected function validateOption(string $option): void
     {
         if (!in_array($option, $this->getAvailableOptions(), true)) {
-            throw new QueryException('Unknown option "' . $option . '" given');
+            throw new UnknownOptionException('Unknown option "' . $option . '" given.');
         }
     }
 }
