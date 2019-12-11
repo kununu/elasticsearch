@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\Repository;
 
 use Elasticsearch\Client;
+use Elasticsearch\Common\Exceptions\Missing404Exception;
 use Exception;
 use InvalidArgumentException;
 use Kununu\Elasticsearch\Exception\DeleteException;
@@ -180,21 +181,24 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
     {
         return $this->executeRead(
             function () use ($id) {
-                $response = $this->client->get(
-                    array_merge($this->buildRequestBase(OperationType::READ), ['id' => $id])
-                );
+                try {
+                    $response = $this->client->get(
+                        array_merge($this->buildRequestBase(OperationType::READ), ['id' => $id])
+                    );
 
-                if (!($response['found'] ?? false)) {
+                    if (!($response['found'] ?? false)) {
+                        throw new Missing404Exception();
+                    }
+                } catch (Missing404Exception $e) {
                     return null;
                 }
 
                 if ($this->config->getEntityClass() || $this->config->getEntityFactory()) {
-                    $metaData = $response;
-                    unset($metaData['_source']);
+                    list('source' => $source, 'meta' => $metaData) = $this->splitSourceAndMetaData($response);
 
                     return $this->config->getEntityClass()
-                        ? $this->config->getEntityClass()::fromElasticDocument($response['_source'], $metaData)
-                        : $this->config->getEntityFactory()->fromDocument($response['_source'], $metaData);
+                        ? $this->config->getEntityClass()::fromElasticDocument($source, $metaData)
+                        : $this->config->getEntityFactory()->fromDocument($source, $metaData);
                 }
 
                 return $response;
@@ -339,20 +343,18 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         if ($this->config->getEntityClass()) {
             $results = array_map(
                 function (array $hit) {
-                    $metaData = $hit;
-                    unset($metaData['_source']);
+                    list('source' => $source, 'meta' => $metaData) = $this->splitSourceAndMetaData($hit);
 
-                    return $this->config->getEntityClass()::fromElasticDocument($hit['_source'], $metaData);
+                    return $this->config->getEntityClass()::fromElasticDocument($source, $metaData);
                 },
                 $hits
             );
         } elseif ($this->config->getEntityFactory()) {
             $results = array_map(
                 function (array $hit) {
-                    $metaData = $hit;
-                    unset($metaData['_source']);
+                    list('source' => $source, 'meta' => $metaData) = $this->splitSourceAndMetaData($hit);
 
-                    return $this->config->getEntityFactory()->fromDocument($hit['_source'], $metaData);
+                    return $this->config->getEntityFactory()->fromDocument($source, $metaData);
                 },
                 $hits
             );
@@ -361,6 +363,19 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         return ResultIterator::create($results)
             ->setTotal($rawResult['hits']['total'] ?? 0)
             ->setScrollId($rawResult['_scroll_id'] ?? null);
+    }
+
+    /**
+     * @param array $hit
+     *
+     * @return array
+     */
+    protected function splitSourceAndMetaData(array $hit): array
+    {
+        $metaData = $hit;
+        unset($metaData['_source']);
+
+        return ['source' => $hit['_source'], 'meta' => $metaData];
     }
 
     /**
