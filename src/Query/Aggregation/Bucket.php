@@ -15,5 +15,6 @@ final class Bucket
     use ConstantContainerTrait;
 
     public const TERMS = 'terms'; // https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-bucket-terms-aggregation.html
+    public const FILTER = 'filter'; // https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-bucket-filter-aggregation.html
     public const FILTERS = 'filters'; // https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-bucket-filters-aggregation.html
 }
