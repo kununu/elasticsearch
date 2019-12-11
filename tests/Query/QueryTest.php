@@ -106,6 +106,35 @@ class QueryTest extends MockeryTestCase
      *
      * @param array $input
      */
+    public function testCreateNested(array $input): void
+    {
+        $children = [
+            Search::class => [],
+            Filter::class => [],
+            Aggregation::class => [],
+        ];
+
+        foreach ($input as $child) {
+            $children[get_class($child)][] = $child;
+        }
+
+        $path = 'mypath';
+
+        $query = Query::createNested($path, ...$input);
+
+        $this->assertChildren($query, self::FIELD_NAME_SEARCHES, $children[Search::class]);
+        $this->assertChildren($query, self::FIELD_NAME_FILTERS, $children[Filter::class]);
+        $this->assertChildren($query, self::FIELD_NAME_AGGREGATIONS, $children[Aggregation::class]);
+        $this->assertEquals($path, $query->getOption(NestableQueryInterface::OPTION_PATH));
+        $this->assertNull($query->getOption(NestableQueryInterface::OPTION_IGNORE_UNMAPPED));
+        $this->assertNull($query->getOption(NestableQueryInterface::OPTION_SCORE_MODE));
+    }
+
+    /**
+     * @dataProvider createData
+     *
+     * @param array $input
+     */
     public function testAdd(array $input): void
     {
         $children = [
