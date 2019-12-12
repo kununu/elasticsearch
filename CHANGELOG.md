@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file based on the
 ### Backward Compatibility Breaks
 ### Bugfixes
 ### Added
+* Support for `inner_hits` option for nested queries
 ### Improvements
 ### Deprecated
 
