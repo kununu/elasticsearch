@@ -224,6 +224,7 @@ class Query extends AbstractQuery implements NestableQueryInterface
                 NestableQueryInterface::OPTION_PATH,
                 NestableQueryInterface::OPTION_IGNORE_UNMAPPED,
                 NestableQueryInterface::OPTION_SCORE_MODE,
+                NestableQueryInterface::OPTION_INNER_HITS,
             ]
             : [static::OPTION_MIN_SCORE];
     }
