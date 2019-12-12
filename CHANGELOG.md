@@ -11,8 +11,8 @@ All notable changes to this project will be documented in this file based on the
 ## [2.3.3](https://github.com/kununu/elasticsearch/compare/v2.3.2...v2.3.3)
 ### Backward Compatibility Breaks
 ### Bugfixes
-* Support for `inner_hits` option for nested queries
 ### Added
+* Support for `inner_hits` option for nested queries
 ### Improvements
 ### Deprecated
 
