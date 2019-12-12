@@ -1,11 +1,18 @@
 # Changelog
 All notable changes to this project will be documented in this file based on the [Keep a Changelog](http://keepachangelog.com/) Standard. This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased](https://github.com/kununu/elasticsearch/compare/v2.3.2...master)
+## [Unreleased](https://github.com/kununu/elasticsearch/compare/v2.3.3...master)
 ### Backward Compatibility Breaks
 ### Bugfixes
 ### Added
+### Improvements
+### Deprecated
+
+## [2.3.3](https://github.com/kununu/elasticsearch/compare/v2.3.2...v2.3.3)
+### Backward Compatibility Breaks
+### Bugfixes
 * Support for `inner_hits` option for nested queries
+### Added
 ### Improvements
 ### Deprecated
 
