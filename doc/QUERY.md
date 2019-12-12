@@ -24,7 +24,6 @@ Currently, the most important Elasticsearch queries and aggregations are availab
     - [Nested Query](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/query-dsl-nested-query.html)
  - Aggregations:
     - [Terms Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-bucket-terms-aggregation.html)
-    - [Filter Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-bucket-filter-aggregation.html)
     - [Filters Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-bucket-filters-aggregation.html)
     - [Avg Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-metrics-avg-aggregation.html)
     - [Cardinality Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-metrics-cardinality-aggregation.html)
@@ -654,7 +653,7 @@ Will produce
 Please find all available aggregation types in `Query\Aggregation\Metric` and `Query\Aggregation\Bucket`, respectively.
 
 #### Fieldless Aggregations
-Usually aggregations operate on a field. However, there are a few exceptions to this rule, for example [Filter Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-bucket-filter-aggregation.html) and [Filters Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-bucket-filters-aggregation.html).
+Usually aggregations operate on a field. However, there are a few exceptions to this rule, for example [Filters Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-bucket-filters-aggregation.html).
 Use the `Aggregation::createFieldless()` factory method to create an aggregation which is not bound to a specific field.
 
 For example:

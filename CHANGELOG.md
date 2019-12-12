@@ -1,10 +1,26 @@
 # Changelog
 All notable changes to this project will be documented in this file based on the [Keep a Changelog](http://keepachangelog.com/) Standard. This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased](https://github.com/kununu/elasticsearch/compare/v2.3...master)
+## [Unreleased](https://github.com/kununu/elasticsearch/compare/v2.3.2...master)
 ### Backward Compatibility Breaks
 ### Bugfixes
 ### Added
+### Improvements
+### Deprecated
+
+## [2.3.2](https://github.com/kununu/elasticsearch/compare/v2.3.1...v2.3.2)
+### Backward Compatibility Breaks
+### Bugfixes
+* Removed support for [Filter Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-bucket-filter-aggregation.html) as is does not fit in the current scheme of things and therefore did not work
+### Added
+### Improvements
+### Deprecated
+
+## [2.3.1](https://github.com/kununu/elasticsearch/compare/v2.3...v2.3.1)
+### Backward Compatibility Breaks
+### Bugfixes
+### Added
+* Support for fieldless aggregations: [Filter Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-bucket-filter-aggregation.html)
 ### Improvements
 ### Deprecated
 
@@ -12,7 +28,7 @@ All notable changes to this project will be documented in this file based on the
 ### Backward Compatibility Breaks
 ### Bugfixes
 ### Added
-* Support for fieldless aggregations: [Filter Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-bucket-filter-aggregation.html) and [Filters Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-bucket-filters-aggregation.html)
+* Support for fieldless aggregations: [Filters Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-bucket-filters-aggregation.html) to start with
 ### Improvements
 ### Deprecated
 
