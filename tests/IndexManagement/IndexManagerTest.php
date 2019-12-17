@@ -728,29 +728,78 @@ class IndexManagerTest extends MockeryTestCase
         $this->getManager()->getIndicesAliasesMapping();
     }
 
-    public function testReindex(): void
-    {
+    /**
+     * @dataProvider dataProviderTestReindex
+     *
+     * @param bool   $waitForCompletion
+     * @param bool   $proceedConflicts
+     * @param bool   $reindexJustMissingDocuments
+     * @param string $expectedBody
+     */
+    public function testReindex(
+        bool $waitForCompletion,
+        bool $proceedConflicts,
+        bool $reindexJustMissingDocuments,
+        array $expectedBody
+    ): void {
         $this->clientMock
             ->shouldReceive('reindex')
             ->once()
-            ->with(
-                [
-                    'refresh' => true,
-                    'slices' => 'auto',
-                    'wait_for_completion' => true,
-                    'body' => [
-                        'conflicts' => 'proceed',
-                        'source' => ['index' => self::INDEX],
-                        'dest' => ['index' => self::INDEX . '_v2'],
-                    ],
-                ]
-            )
+            ->with($expectedBody)
             ->andReturn(['acknowledged' => true]);
 
         $this->loggerMock
             ->shouldNotReceive('error');
 
-        $this->getManager()->reindex(self::INDEX, self::INDEX . '_v2');
+        $this->getManager()->reindex(
+            self::INDEX,
+            self::INDEX . '_v2',
+            $waitForCompletion,
+            $proceedConflicts,
+            $reindexJustMissingDocuments
+        );
+    }
+
+    public function dataProviderTestReindex(): array
+    {
+        return [
+            [
+                false,
+                false,
+                false,
+                [
+                    'refresh'             => true,
+                    'slices'              => 'auto',
+                    'wait_for_completion' => false,
+                    'body'                => [
+                        'conflicts' => 'abort',
+                        'source'    => ['index' => self::INDEX],
+                        'dest'      => [
+                            'index'   => self::INDEX . '_v2',
+                            'op_type' => 'index'
+                        ],
+                    ],
+                ]
+            ],
+            [
+                true,
+                true,
+                true,
+                [
+                    'refresh'             => true,
+                    'slices'              => 'auto',
+                    'wait_for_completion' => true,
+                    'body'                => [
+                        'conflicts' => 'proceed',
+                        'source'    => ['index' => self::INDEX],
+                        'dest'      => [
+                            'index'   => self::INDEX . '_v2',
+                            'op_type' => 'create'
+                        ],
+                    ],
+                ]
+            ]
+        ];
     }
 
     public function testReindexFails(): void
