@@ -81,6 +81,17 @@ interface IndexManagerInterface
     /**
      * @param string $source
      * @param string $destination
+     * @param bool   $waitForCompletion
+     * @param bool   $proceedConflicts
+     * @param bool   $reindexJustMissingDocuments
+     *
+     * @return array
      */
-    public function reindex(string $source, string $destination): void;
+    public function reindex(
+        string $source,
+        string $destination,
+        bool $waitForCompletion = true,
+        bool $proceedConflicts = false,
+        bool $reindexJustMissingDocuments = false
+    ): array;
 }

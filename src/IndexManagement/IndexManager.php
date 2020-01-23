@@ -213,19 +213,27 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
     /**
      * @inheritDoc
      */
-    public function reindex(string $source, string $destination): void
-    {
-        $this->execute(
-            function () use ($source, $destination) {
+    public function reindex(
+        string $source,
+        string $destination,
+        bool $waitForCompletion = true,
+        bool $proceedConflicts = false,
+        bool $reindexJustMissingDocuments = false
+    ): array {
+        return $this->execute(
+            function () use ($source, $destination, $waitForCompletion, $proceedConflicts, $reindexJustMissingDocuments) {
                 return $this->client->reindex(
                     [
-                        'refresh' => true,
-                        'slices' => 'auto',
-                        'wait_for_completion' => true,
+                        'refresh'             => true,
+                        'slices'              => 'auto',
+                        'wait_for_completion' => $waitForCompletion,
                         'body' => [
-                            'conflicts' => 'proceed',
-                            'source' => ['index' => $source],
-                            'dest' => ['index' => $destination],
+                            'conflicts' => $proceedConflicts ? 'proceed' : 'abort',
+                            'source'    => ['index' => $source],
+                            'dest'      => [
+                                'index'   => $destination,
+                                'op_type' => $reindexJustMissingDocuments ? 'create' : 'index'
+                            ],
                         ],
                     ]
                 );
