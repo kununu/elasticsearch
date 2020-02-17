@@ -83,4 +83,10 @@ interface IndexManagerInterface
      * @param string $destination
      */
     public function reindex(string $source, string $destination): void;
+
+    /**
+     * @param string $index
+     * @param array $settings
+     */
+    public function putSettings(string $index, array $settings = []): void;
 }

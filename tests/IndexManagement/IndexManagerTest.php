@@ -777,4 +777,29 @@ class IndexManagerTest extends MockeryTestCase
 
         $this->getManager()->reindex(self::INDEX, self::INDEX . '_v2');
     }
+
+    public function testPutSettings(): void
+    {
+        $this->clientMock
+            ->shouldReceive('indices')
+            ->once()
+            ->withNoArgs()
+            ->andReturn($this->indicesMock);
+
+        $this->indicesMock
+            ->shouldReceive('putSettings')
+            ->once()
+            ->with([
+                'index' => 'test',
+                'body' => [
+                    'index' => [
+                        'refresh_interval' => '3m',
+                        'number_of_replicas' => 5,
+                    ],
+                ],
+            ])
+            ->andReturn(['acknowledged' => true]);
+
+        $this->getManager()->putSettings('test', ['refresh_interval' => '3m', 'number_of_replicas' => 5]);
+    }
 }

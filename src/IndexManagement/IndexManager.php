@@ -236,6 +236,32 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
         );
     }
 
+    public function putSettings(string $index, array $settings = []): void
+    {
+        $body = ['index' => []];
+
+        foreach ($settings as $key => $setting) {
+            if ($key === 'refresh_interval') {
+                $body['index'][$key] = $setting;
+            }
+            if ($key === 'number_of_replicas') {
+                $body['index'][$key] = $setting;
+            }
+        }
+
+        $this->execute(
+            function () use ($index, $body) {
+                return $this->client->indices()->putSettings([
+                    'index' => $index,
+                    'body' => $body,
+                ]);
+            },
+            true,
+            'Put Settings succeed.',
+            ['index' => $index, 'body' => $body]
+        );
+    }
+
     /**
      * @param callable $operation
      * @param bool     $checkAcknowledged
