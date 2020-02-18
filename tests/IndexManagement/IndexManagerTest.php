@@ -805,7 +805,6 @@ class IndexManagerTest extends MockeryTestCase
             [
                 'refresh_interval' => '3m',
                 'number_of_replicas' => 5,
-                'number_of_shards' => 1,
             ]
         );
     }
@@ -814,40 +813,37 @@ class IndexManagerTest extends MockeryTestCase
     {
         $this->clientMock
             ->shouldReceive('indices')
-            ->once()
-            ->withNoArgs()
-            ->andReturn($this->indicesMock);
+            ->never();
 
         $this->indicesMock
             ->shouldReceive('putSettings')
-            ->once()
-            ->with([
-                'index' => 'test',
-                'body' => [
-                    'index' => [],
-                ],
-            ]);
-
-        $this->loggerMock
-            ->shouldReceive('error')
-            ->once()
-            ->with(
-                'Elasticsearch exception: Unable to put settings',
-                [
-                    'message' => 'Operation not acknowledged',
-                    'index' => 'test',
-                    'body' => [
-                        'index' => []
-                    ]
-                ]
-            );
+            ->never();
 
         $this->expectException(IndexManagementException::class);
-        $this->expectExceptionMessage('Elasticsearch exception: Operation not acknowledged');
+        $this->expectExceptionMessage('Elasticsearch exception: Allowed settings are [refresh_interval, number_of_replicas]. Other settings are not allowed.');
 
         $this->getManager()->putSettings(
             'test',
             [
+                'number_of_shards' => 1
+            ]
+        );
+
+        $this->clientMock
+            ->shouldReceive('indices')
+            ->never();
+
+        $this->indicesMock
+            ->shouldReceive('putSettings')
+            ->never();
+
+        $this->expectException(IndexManagementException::class);
+        $this->expectExceptionMessage('Elasticsearch exception: Allowed settings are [refresh_interval, number_of_replicas]. Other settings are not allowed.');
+
+        $this->getManager()->putSettings(
+            'test',
+            [
+                'number_of_replicas' => 2,
                 'number_of_shards' => 1
             ]
         );

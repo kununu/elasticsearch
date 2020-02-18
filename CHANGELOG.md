@@ -12,7 +12,7 @@ All notable changes to this project will be documented in this file based on the
 ### Backward Compatibility Breaks
 ### Bugfixes
 ### Added
-* Support put settings to elastic search index.
+* Support put settings for `refresh_interval` and `number_of_replicas` to elastic search index
 ### Improvements
 ### Deprecated
 
