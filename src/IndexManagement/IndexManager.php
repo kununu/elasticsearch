@@ -238,16 +238,13 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
 
     public function putSettings(string $index, array $settings = []): void
     {
-        $body = ['index' => []];
+        $allowedSettings = ['refresh_interval', 'number_of_replicas'];
 
-        foreach ($settings as $key => $setting) {
-            if ($key === 'refresh_interval') {
-                $body['index'][$key] = $setting;
-            }
-            if ($key === 'number_of_replicas') {
-                $body['index'][$key] = $setting;
-            }
-        }
+        $body = [
+            'index' => array_filter($settings, function($key) use($allowedSettings) {
+                return in_array($key, $allowedSettings, true);
+            }, ARRAY_FILTER_USE_KEY)
+        ];
 
         $this->execute(
             function () use ($index, $body) {
@@ -257,7 +254,7 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
                 ]);
             },
             true,
-            'Put Settings succeed.',
+            'Unable to put settings',
             ['index' => $index, 'body' => $body]
         );
     }

@@ -800,6 +800,56 @@ class IndexManagerTest extends MockeryTestCase
             ])
             ->andReturn(['acknowledged' => true]);
 
-        $this->getManager()->putSettings('test', ['refresh_interval' => '3m', 'number_of_replicas' => 5]);
+        $this->getManager()->putSettings(
+            'test',
+            [
+                'refresh_interval' => '3m',
+                'number_of_replicas' => 5,
+                'number_of_shards' => 1,
+            ]
+        );
+    }
+
+    public function testPutSettingsFails(): void
+    {
+        $this->clientMock
+            ->shouldReceive('indices')
+            ->once()
+            ->withNoArgs()
+            ->andReturn($this->indicesMock);
+
+        $this->indicesMock
+            ->shouldReceive('putSettings')
+            ->once()
+            ->with([
+                'index' => 'test',
+                'body' => [
+                    'index' => [],
+                ],
+            ]);
+
+        $this->loggerMock
+            ->shouldReceive('error')
+            ->once()
+            ->with(
+                'Elasticsearch exception: Unable to put settings',
+                [
+                    'message' => 'Operation not acknowledged',
+                    'index' => 'test',
+                    'body' => [
+                        'index' => []
+                    ]
+                ]
+            );
+
+        $this->expectException(IndexManagementException::class);
+        $this->expectExceptionMessage('Elasticsearch exception: Operation not acknowledged');
+
+        $this->getManager()->putSettings(
+            'test',
+            [
+                'number_of_shards' => 1
+            ]
+        );
     }
 }
