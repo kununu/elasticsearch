@@ -809,7 +809,7 @@ class IndexManagerTest extends MockeryTestCase
         );
     }
 
-    public function testPutSettingsFails(): void
+    public function testDisallowedPutSettings(): void
     {
         $this->clientMock
             ->shouldReceive('indices')
@@ -828,7 +828,10 @@ class IndexManagerTest extends MockeryTestCase
                 'number_of_shards' => 1
             ]
         );
+    }
 
+    public function testAllowedAndDisallowedPutSettings(): void
+    {
         $this->clientMock
             ->shouldReceive('indices')
             ->never();
