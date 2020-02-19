@@ -8,6 +8,14 @@ All notable changes to this project will be documented in this file based on the
 ### Improvements
 ### Deprecated
 
+## [2.3.4](https://github.com/kununu/elasticsearch/compare/v2.3.3...v2.3.4)
+### Backward Compatibility Breaks
+### Bugfixes
+### Added
+* Support put settings for `refresh_interval` and `number_of_replicas` to elastic search index
+### Improvements
+### Deprecated
+
 ## [2.3.3](https://github.com/kununu/elasticsearch/compare/v2.3.2...v2.3.3)
 ### Backward Compatibility Breaks
 ### Bugfixes

@@ -236,6 +236,35 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
         );
     }
 
+    public function putSettings(string $index, array $settings = []): void
+    {
+        $allowedSettings = ['refresh_interval', 'number_of_replicas'];
+
+        $body = [
+            'index' => array_filter($settings, function($key) use($allowedSettings) {
+                return in_array($key, $allowedSettings, true);
+            }, ARRAY_FILTER_USE_KEY)
+        ];
+
+        if (count($settings) != count($body['index'])) {
+            throw new IndexManagementException(
+                'Allowed settings are [refresh_interval, number_of_replicas]. Other settings are not allowed.'
+            );
+        }
+
+        $this->execute(
+            function () use ($index, $body) {
+                return $this->client->indices()->putSettings([
+                    'index' => $index,
+                    'body' => $body,
+                ]);
+            },
+            true,
+            'Unable to put settings',
+            ['index' => $index, 'body' => $body]
+        );
+    }
+
     /**
      * @param callable $operation
      * @param bool     $checkAcknowledged
