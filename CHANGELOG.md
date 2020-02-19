@@ -8,7 +8,7 @@ All notable changes to this project will be documented in this file based on the
 ### Improvements
 ### Deprecated
 
-## [2.3.4](https://github.com/kununu/elasticsearch/compare/v2.3.3...v2.3.4)
+## [2.4.0](https://github.com/kununu/elasticsearch/compare/v2.3.3...v2.4.0)
 ### Backward Compatibility Breaks
 ### Bugfixes
 ### Added
