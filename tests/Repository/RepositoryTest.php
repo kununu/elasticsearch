@@ -325,7 +325,7 @@ class RepositoryTest extends MockeryTestCase
                 self::ID
             );
         } catch (DocumentNotFoundException $e) {
-            $this->assertEquals('No document found with id ' . self::ID, $e->getMessage());
+            $this->assertEquals(self::ERROR_PREFIX . 'No document found with id ' . self::ID, $e->getMessage());
             $this->assertEquals(0, $e->getCode());
             $this->assertEquals(self::ID, $e->getDocumentId());
         }
