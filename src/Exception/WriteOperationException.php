@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\Exception;
 
 /**
- * Class WriteException
+ * Class WriteOperationException
  *
  * @package Kununu\Elasticsearch\Exception
  */

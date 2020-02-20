@@ -6,7 +6,7 @@ namespace Kununu\Elasticsearch\Exception;
 use Throwable;
 
 /**
- * Class ReadException
+ * Class ReadOperationException
  *
  * @package Kununu\Elasticsearch\Exception
  */
