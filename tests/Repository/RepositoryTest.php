@@ -6,6 +6,7 @@ namespace Kununu\Elasticsearch\Tests\Repository;
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
 use Kununu\Elasticsearch\Exception\DeleteException;
+use Kununu\Elasticsearch\Exception\DocumentNotFoundException;
 use Kununu\Elasticsearch\Exception\ReadOperationException;
 use Kununu\Elasticsearch\Exception\RepositoryConfigurationException;
 use Kununu\Elasticsearch\Exception\UpsertException;
@@ -297,6 +298,34 @@ class RepositoryTest extends MockeryTestCase
             );
         } catch (DeleteException $e) {
             $this->assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
+            $this->assertEquals(0, $e->getCode());
+            $this->assertEquals(self::ID, $e->getDocumentId());
+        }
+    }
+
+    public function testDeleteFailsBecauseDocumentNotFound(): void
+    {
+        $this->clientMock
+            ->shouldReceive('delete')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX['write'],
+                    'type' => self::TYPE,
+                    'id' => self::ID,
+                ]
+            )
+            ->andThrow(new Missing404Exception(self::ERROR_MESSAGE));
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        try {
+            $this->getRepository()->delete(
+                self::ID
+            );
+        } catch (DocumentNotFoundException $e) {
+            $this->assertEquals('No document found with id ' . self::ID, $e->getMessage());
             $this->assertEquals(0, $e->getCode());
             $this->assertEquals(self::ID, $e->getDocumentId());
         }
