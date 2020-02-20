@@ -8,6 +8,14 @@ All notable changes to this project will be documented in this file based on the
 ### Improvements
 ### Deprecated
 
+## [2.4.1](https://github.com/kununu/elasticsearch/compare/v2.4.0...v2.4.1)
+### Backward Compatibility Breaks
+### Bugfixes
+### Added
+### Improvements
+* Distinguish `DocumentNotFoundException` from generic `DeleteException` when trying to delete non-existent documents via `Repository::delete()`
+### Deprecated
+
 ## [2.4.0](https://github.com/kununu/elasticsearch/compare/v2.3.3...v2.4.0)
 ### Backward Compatibility Breaks
 ### Bugfixes

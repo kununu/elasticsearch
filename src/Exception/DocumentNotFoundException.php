@@ -6,34 +6,35 @@ namespace Kununu\Elasticsearch\Exception;
 use Throwable;
 
 /**
- * Class ReadOperationException
+ * Class DocumentNotFoundException
  *
  * @package Kununu\Elasticsearch\Exception
  */
-class ReadOperationException extends RepositoryException
+class DocumentNotFoundException extends DeleteException
 {
     /**
      * @var mixed
      */
-    protected $query;
+    protected $documentId;
 
     /**
      * @param string          $message
      * @param \Throwable|null $previous
-     * @param mixed|null      $query
+     * @param mixed           $documentId
      */
-    public function __construct($message = "", Throwable $previous = null, $query = null)
+    public function __construct($message = "", Throwable $previous = null, $documentId = null)
     {
         parent::__construct($message, $previous);
 
-        $this->query = $query;
+        $this->documentId = $documentId;
     }
 
     /**
      * @return mixed
      */
-    public function getQuery()
+    public function getDocumentId()
     {
-        return $this->query;
+        return $this->documentId;
     }
+
 }

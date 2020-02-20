@@ -6,7 +6,7 @@ namespace Kununu\Elasticsearch\Exception;
 use Throwable;
 
 /**
- * Class WriteException
+ * Class DeleteException
  *
  * @package Kununu\Elasticsearch\Exception
  */

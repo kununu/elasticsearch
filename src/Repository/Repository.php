@@ -8,6 +8,7 @@ use Elasticsearch\Common\Exceptions\Missing404Exception;
 use Exception;
 use InvalidArgumentException;
 use Kununu\Elasticsearch\Exception\DeleteException;
+use Kununu\Elasticsearch\Exception\DocumentNotFoundException;
 use Kununu\Elasticsearch\Exception\ReadOperationException;
 use Kununu\Elasticsearch\Exception\RepositoryConfigurationException;
 use Kununu\Elasticsearch\Exception\RepositoryException;
@@ -110,6 +111,8 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
             );
 
             $this->postDelete($id);
+        } catch (Missing404Exception $e) {
+            throw new DocumentNotFoundException('No document found with id ' . $id, $e, $id);
         } catch (\Exception $e) {
             $this->getLogger()->error(self::EXCEPTION_PREFIX . $e->getMessage());
 
@@ -194,7 +197,7 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
                 }
 
                 if ($this->config->getEntityClass() || $this->config->getEntityFactory()) {
-                    list('source' => $source, 'meta' => $metaData) = $this->splitSourceAndMetaData($response);
+                    ['source' => $source, 'meta' => $metaData] = $this->splitSourceAndMetaData($response);
 
                     return $this->config->getEntityClass()
                         ? $this->config->getEntityClass()::fromElasticDocument($source, $metaData)
@@ -343,7 +346,7 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         if ($this->config->getEntityClass()) {
             $results = array_map(
                 function (array $hit) {
-                    list('source' => $source, 'meta' => $metaData) = $this->splitSourceAndMetaData($hit);
+                    ['source' => $source, 'meta' => $metaData] = $this->splitSourceAndMetaData($hit);
 
                     return $this->config->getEntityClass()::fromElasticDocument($source, $metaData);
                 },
@@ -352,7 +355,7 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         } elseif ($this->config->getEntityFactory()) {
             $results = array_map(
                 function (array $hit) {
-                    list('source' => $source, 'meta' => $metaData) = $this->splitSourceAndMetaData($hit);
+                    ['source' => $source, 'meta' => $metaData] = $this->splitSourceAndMetaData($hit);
 
                     return $this->config->getEntityFactory()->fromDocument($source, $metaData);
                 },
