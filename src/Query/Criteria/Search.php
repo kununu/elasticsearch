@@ -8,6 +8,8 @@ use Kununu\Elasticsearch\Query\Criteria\Search\Match;
 use Kununu\Elasticsearch\Query\Criteria\Search\MatchPhrase;
 use Kununu\Elasticsearch\Query\Criteria\Search\MatchPhrasePrefix;
 use Kununu\Elasticsearch\Query\Criteria\Search\QueryString;
+use Kununu\Elasticsearch\Query\Criteria\Search\Term;
+use Kununu\Elasticsearch\Query\Criteria\Search\Terms;
 use Kununu\Elasticsearch\Util\ConstantContainerTrait;
 use LogicException;
 
@@ -24,6 +26,7 @@ class Search implements SearchInterface
     public const MATCH_PHRASE = MatchPhrase::KEYWORD;
     public const MATCH_PHRASE_PREFIX = MatchPhrasePrefix::KEYWORD;
     public const QUERY_STRING = QueryString::KEYWORD;
+    public const TERM = Term::KEYWORD;
 
     /**
      * @var array
@@ -113,6 +116,9 @@ class Search implements SearchInterface
                 break;
             case static::MATCH_PHRASE_PREFIX:
                 $query = MatchPhrasePrefix::asArray($this->fields, $this->queryString, $this->options);
+                break;
+            case static::TERM:
+                $query = Term::asArray($this->fields[0], $this->queryString, $this->options);
                 break;
             default:
                 throw new LogicException(
