@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file based on the
 ### Bugfixes
 ### Added
 ### Improvements
+* Introduce term query specifically for search context
 ### Deprecated
 
 ## [2.4.1](https://github.com/kununu/elasticsearch/compare/v2.4.0...v2.4.1)
