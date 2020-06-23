@@ -1,12 +1,20 @@
 # Changelog
 All notable changes to this project will be documented in this file based on the [Keep a Changelog](http://keepachangelog.com/) Standard. This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased](https://github.com/kununu/elasticsearch/compare/v2.3.3...master)
+## [Unreleased](https://github.com/kununu/elasticsearch/compare/v2.4.2...master)
+### Backward Compatibility Breaks
+### Bugfixes
+### Added
+### Improvements
+### Deprecated
+
+## [2.4.2](https://github.com/kununu/elasticsearch/compare/v2.4.1...v2.4.2)
 ### Backward Compatibility Breaks
 ### Bugfixes
 ### Added
 ### Improvements
 * Introduce term query specifically for search context
+* Third party dependency upgrades (`phpunit` and `psr/log`)
 ### Deprecated
 
 ## [2.4.1](https://github.com/kununu/elasticsearch/compare/v2.4.0...v2.4.1)
@@ -39,6 +47,8 @@ All notable changes to this project will be documented in this file based on the
 * Removed support for [Filter Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-bucket-filter-aggregation.html) as is does not fit in the current scheme of things and therefore did not work
 ### Added
 ### Improvements
+* Introduce term query specifically for search context
+* 
 ### Deprecated
 
 ## [2.3.1](https://github.com/kununu/elasticsearch/compare/v2.3...v2.3.1)
