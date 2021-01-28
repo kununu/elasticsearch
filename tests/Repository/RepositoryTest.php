@@ -673,6 +673,59 @@ class RepositoryTest extends MockeryTestCase
         $this->assertEquals($endResult, $this->getRepository()->findById(self::ID));
     }
 
+    /**
+     * @dataProvider findByIdResultData
+     *
+     * @param array      $esResult
+     * @param array|null $endResult
+     */
+    public function testFindByIdWithSourceField(array $esResult, $endResult): void
+    {
+        $this->clientMock
+            ->shouldReceive('get')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX['read'],
+                    'type' => self::TYPE,
+                    'id' => self::ID,
+                    '_source' => ['foo', 'foo2']
+                ]
+            )
+            ->andReturn($esResult);
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $this->assertEquals($endResult, $this->getRepository()->findById(self::ID, ['foo', 'foo2']));
+    }
+
+    /**
+     * @dataProvider findByIdResultData
+     *
+     * @param array      $esResult
+     * @param array|null $endResult
+     */
+    public function testFindByIdWithEmptySourceField(array $esResult, $endResult): void
+    {
+        $this->clientMock
+            ->shouldReceive('get')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX['read'],
+                    'type' => self::TYPE,
+                    'id' => self::ID,
+                ]
+            )
+            ->andReturn($esResult);
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $this->assertEquals($endResult, $this->getRepository()->findById(self::ID, []));
+    }
+
     public function findByIdFails(): void
     {
         $this->clientMock
