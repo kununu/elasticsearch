@@ -8,6 +8,14 @@ All notable changes to this project will be documented in this file based on the
 ### Improvements
 ### Deprecated
 
+## [2.4.3](https://github.com/kununu/elasticsearch/compare/v2.4.3...v2.4.2)
+### Backward Compatibility Breaks
+### Bugfixes
+### Added
+### Improvements
+* Allow to pass source fields to return on `Repository::findById` instead of receiving the entire document
+### Deprecated
+
 ## [2.4.2](https://github.com/kununu/elasticsearch/compare/v2.4.1...v2.4.2)
 ### Backward Compatibility Breaks
 ### Bugfixes

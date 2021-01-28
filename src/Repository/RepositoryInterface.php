@@ -48,10 +48,11 @@ interface RepositoryInterface
 
     /**
      * @param string $id
+     * @param array  $sourceFields
      *
      * @return array|\Kununu\Elasticsearch\Repository\PersistableEntityInterface|object
      */
-    public function findById(string $id);
+    public function findById(string $id, array $sourceFields = []);
 
     /**
      * @return int

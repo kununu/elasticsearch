@@ -180,13 +180,17 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
     /**
      * @inheritdoc
      */
-    public function findById(string $id)
+    public function findById(string $id, array $sourceFields = [])
     {
         return $this->executeRead(
-            function () use ($id) {
+            function () use ($id, $sourceFields) {
                 try {
                     $response = $this->client->get(
-                        array_merge($this->buildRequestBase(OperationType::READ), ['id' => $id])
+                        array_merge(
+                            $this->buildRequestBase(OperationType::READ),
+                            ['id' => $id],
+                            empty($sourceFields) ? [] : ['_source' => $sourceFields]
+                        )
                     );
 
                     if (!($response['found'] ?? false)) {
