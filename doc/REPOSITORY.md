@@ -85,10 +85,17 @@ Mandatory fields are
  - `type` (string): the name of the Elasticsearch type the `Repository` should connect to
 
 Optional fields are
-- `index` (string): the name of the Elasticsearch index the `Repository` should connect to for for any operation. Useful if you are not using aliases. This **does not** override `index_read` and `index_write` if given.
-- `entity_class` (string): class must implement `PeristableEntityInterface`. If given, the repository will emit entities instead of plain document arrays and accepts object of this class on the `save()` method. 
-- `entity_factory` (object): must be of type `EntityFactoryInterface`. If given, the repository will emit entities instead of plain document arrays.
-- `entity_serializer` (object): must be of type `EntitySerializerInterface`. If given, the repository accepts objects on the `save()` method and serializes them using the given serializer. 
+- `index` (string): the name of the Elasticsearch index the `Repository` should connect to for for any operation. Useful
+  if you are not using aliases. This **does not** override `index_read` and `index_write` if given.
+- `entity_class` (string): class must implement `PeristableEntityInterface`. If given, the repository will emit entities
+  instead of plain document arrays and accepts object of this class on the `save()` method.
+- `entity_factory` (object): must be of type `EntityFactoryInterface`. If given, the repository will emit entities
+  instead of plain document arrays.
+- `entity_serializer` (object): must be of type `EntitySerializerInterface`. If given, the repository accepts objects on
+  the `save()` method and serializes them using the given serializer.
+- `force_refresh_on_write` (bool): If true, the index will be refreshed after every write operation. This can be very
+  handy for functional and integration tests. But caution! Using this in production environments can severely harm your
+  ES cluster performance. Default value is false.
 
 In the future this object might be extended with additional (mandatory) fields.
 
