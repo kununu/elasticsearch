@@ -318,10 +318,16 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
      */
     protected function buildRequestBase(string $operationType): array
     {
-        return [
+        $base = [
             'index' => $this->config->getIndex($operationType),
             'type' => $this->config->getType(),
         ];
+
+        if ($operationType === OperationType::WRITE && $this->config->getForceRefreshOnWrite()) {
+            $base['refresh'] = true;
+        }
+
+        return $base;
     }
 
     /**

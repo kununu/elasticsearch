@@ -19,6 +19,7 @@ class RepositoryConfiguration
     protected const OPTION_ENTITY_SERIALIZER = 'entity_serializer';
     protected const OPTION_ENTITY_FACTORY = 'entity_factory';
     protected const OPTION_ENTITY_CLASS = 'entity_class';
+    protected const OPTION_FORCE_REFRESH_ON_WRITE = 'force_refresh_on_write';
 
     /**
      * 1 minute per default
@@ -51,6 +52,11 @@ class RepositoryConfiguration
      * @var string
      */
     protected $entityClass;
+
+    /**
+     * @var bool
+     */
+    protected $forceRefreshOnWrite = false;
 
     /**
      * RepositoryConfiguration constructor.
@@ -124,6 +130,11 @@ class RepositoryConfiguration
         return static::DEFAULT_SCROLL_CONTEXT_KEEPALIVE;
     }
 
+    public function getForceRefreshOnWrite(): bool
+    {
+        return $this->forceRefreshOnWrite;
+    }
+
     /**
      * @param array $config
      */
@@ -168,6 +179,10 @@ class RepositoryConfiguration
                     'Invalid entity factory given. Must be of type \Kununu\Elasticsearch\Repository\EntityFactoryInterface'
                 );
             }
+        }
+
+        if (isset($config[static::OPTION_FORCE_REFRESH_ON_WRITE])) {
+            $this->forceRefreshOnWrite = (bool)$config[static::OPTION_FORCE_REFRESH_ON_WRITE];
         }
     }
 

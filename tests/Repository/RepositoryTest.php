@@ -106,10 +106,37 @@ class RepositoryTest extends MockeryTestCase
         );
     }
 
+    public function testSaveWithForcedRefresh(): void
+    {
+        $document = [
+            'whatever' => 'just some data',
+        ];
+
+        $this->clientMock
+            ->shouldReceive('index')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX['write'],
+                    'type' => self::TYPE,
+                    'id' => self::ID,
+                    'body' => $document,
+                    'refresh' => true,
+                ]
+            );
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $this->getRepository(['force_refresh_on_write' => true])->save(
+            self::ID,
+            $document
+        );
+    }
+
     public function testSaveObjectWithEntitySerializer(): void
     {
-        $mySerializer = new class implements EntitySerializerInterface
-        {
+        $mySerializer = new class implements EntitySerializerInterface {
             public function toElastic($entity): array
             {
                 return (array)$entity;
@@ -270,6 +297,28 @@ class RepositoryTest extends MockeryTestCase
             ->shouldNotReceive('error');
 
         $this->getRepository()->delete(
+            self::ID
+        );
+    }
+
+    public function testDeleteWithForcedRefresh(): void
+    {
+        $this->clientMock
+            ->shouldReceive('delete')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX['write'],
+                    'type' => self::TYPE,
+                    'id' => self::ID,
+                    'refresh' => true,
+                ]
+            );
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $this->getRepository(['force_refresh_on_write' => true])->delete(
             self::ID
         );
     }
@@ -964,6 +1013,69 @@ class RepositoryTest extends MockeryTestCase
             ->shouldNotReceive('error');
 
         $this->assertEquals($responseBody, $this->getRepository()->updateByQuery($query, $updateScript));
+    }
+
+    public function testUpdateByQueryWithForcedRefresh(): void
+    {
+        $query = Query::create(
+            Filter::create('foo', 'bar')
+        );
+
+        $updateScript = [
+            'lang' => 'painless',
+            'source' => 'ctx._source.dimensions_completed=4',
+        ];
+
+        $responseBody = [
+            'took' => 147,
+            'timed_out' => false,
+            'total' => 5,
+            'updated' => 5,
+            'deleted' => 0,
+            'batches' => 1,
+            'version_conflicts' => 0,
+            'noops' => 0,
+            'retries' => [
+                'bulk' => 0,
+                'search' => 0,
+            ],
+            'throttled_millis' => 0,
+            'requests_per_second' => -1.0,
+            'throttled_until_millis' => 0,
+            'failures' => [],
+        ];
+
+        $this->clientMock
+            ->shouldReceive('updateByQuery')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX['write'],
+                    'type' => self::TYPE,
+                    'body' => array_merge(
+                        $query->toArray(),
+                        [
+                            'script' => [
+                                'lang' => 'painless',
+                                'source' => 'ctx._source.dimensions_completed=4',
+                                'params' => [],
+                            ],
+                        ]
+                    ),
+                    'refresh' => true,
+                ]
+            )
+            ->andReturn($responseBody);
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $repository = $this->getRepository(['force_refresh_on_write' => true]);
+
+        $this->assertEquals(
+            $responseBody,
+            $repository->updateByQuery($query, $updateScript)
+        );
     }
 
     public function testUpdateByQueryFails(): void

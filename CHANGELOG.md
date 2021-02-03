@@ -1,19 +1,49 @@
 # Changelog
-All notable changes to this project will be documented in this file based on the [Keep a Changelog](http://keepachangelog.com/) Standard. This project adheres to [Semantic Versioning](http://semver.org/).
+
+All notable changes to this project will be documented in this file based on
+the [Keep a Changelog](http://keepachangelog.com/) Standard. This project adheres
+to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased](https://github.com/kununu/elasticsearch/compare/v2.4.2...master)
+
 ### Backward Compatibility Breaks
+
 ### Bugfixes
+
 ### Added
+
 ### Improvements
+
+### Deprecated
+
+## [2.4.4](https://github.com/kununu/elasticsearch/compare/v2.4.4...v2.4.3)
+
+### Backward Compatibility Breaks
+
+### Bugfixes
+
+### Added
+
+* Introduce `force_refresh_on_write` configuration option for repositories. It can be used to force an index refresh
+  after every write operation. This can be very handy for functional and integration tests. But caution! Using this in
+  production environments can severely harm your ES cluster performance.
+
+### Improvements
+
 ### Deprecated
 
 ## [2.4.3](https://github.com/kununu/elasticsearch/compare/v2.4.3...v2.4.2)
+
 ### Backward Compatibility Breaks
+
 ### Bugfixes
+
 ### Added
+
 ### Improvements
+
 * Allow to pass source fields to return on `Repository::findById` instead of receiving the entire document
+
 ### Deprecated
 
 ## [2.4.2](https://github.com/kununu/elasticsearch/compare/v2.4.1...v2.4.2)

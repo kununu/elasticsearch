@@ -17,7 +17,8 @@ class RepositoryConfigurationTest extends TestCase
     {
         $config = new RepositoryConfiguration([]);
 
-        $this->assertEquals('1m', $config->getScrollContextKeepalive());
+        $this->assertSame('1m', $config->getScrollContextKeepalive());
+        $this->assertFalse($config->getForceRefreshOnWrite());
     }
 
     /**
@@ -79,7 +80,7 @@ class RepositoryConfigurationTest extends TestCase
     public function invalidIndexConfigData(): array
     {
         $cases = [
-            'noting given' => [
+            'nothing given' => [
                 'input' => [],
             ],
             'empty index name given' => [
@@ -131,7 +132,7 @@ class RepositoryConfigurationTest extends TestCase
     public function invalidTypeConfigData(): array
     {
         return [
-            'noting given' => [
+            'nothing given' => [
                 'input' => [],
             ],
             'empty type name given' => [
@@ -249,5 +250,82 @@ class RepositoryConfigurationTest extends TestCase
         );
 
         $config = new RepositoryConfiguration(['entity_class' => '\Foo\Bar']); // NOSONAR
+    }
+
+    /**
+     * @return array
+     */
+    public function forceRefreshOnWriteVariations(): array
+    {
+        return [
+            'param not given' => [
+                'input' => [
+                    'index' => 'foobar',
+                    'type' => '_doc',
+                ],
+                'expected' => false,
+            ],
+            'false given' => [
+                'input' => [
+                    'index' => 'foobar',
+                    'type' => '_doc',
+                    'force_refresh_on_write' => false,
+                ],
+                'expected' => false,
+            ],
+            'falsy value given' => [
+                'input' => [
+                    'index' => 'foobar',
+                    'type' => '_doc',
+                    'force_refresh_on_write' => 0,
+                ],
+                'expected' => false,
+            ],
+            'true given' => [
+                'input' => [
+                    'index' => 'foobar',
+                    'type' => '_doc',
+                    'force_refresh_on_write' => true,
+                ],
+                'expected' => true,
+            ],
+            'true-ish integer given' => [
+                'input' => [
+                    'index' => 'foobar',
+                    'type' => '_doc',
+                    'force_refresh_on_write' => 1,
+                ],
+                'expected' => true,
+            ],
+            'true-ish string given' => [
+                'input' => [
+                    'index' => 'foobar',
+                    'type' => '_doc',
+                    'force_refresh_on_write' => 'yes',
+                ],
+                'expected' => true,
+            ],
+            'not-so-clever-but-still-true-ish string given' => [
+                'input' => [
+                    'index' => 'foobar',
+                    'type' => '_doc',
+                    'force_refresh_on_write' => 'no',
+                ],
+                'expected' => true,
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider forceRefreshOnWriteVariations
+     *
+     * @param array $input
+     * @param bool  $expected
+     */
+    public function testForceRefreshOnWrite(array $input, bool $expected): void
+    {
+        $config = new RepositoryConfiguration($input);
+
+        $this->assertSame($expected, $config->getForceRefreshOnWrite());
     }
 }
