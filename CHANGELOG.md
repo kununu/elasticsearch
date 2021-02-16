@@ -16,6 +16,22 @@ to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
+## [2.4.5](https://github.com/kununu/elasticsearch/compare/v2.4.5...v2.4.4)
+
+### Backward Compatibility Breaks
+
+### Bugfixes
+
+### Added
+
+* `Repository::saveBulk()` was added to support bulk index operations
+
+### Improvements
+
+* Third party dependency upgrades (`phpunit` and `mockery`)
+
+### Deprecated
+
 ## [2.4.4](https://github.com/kununu/elasticsearch/compare/v2.4.4...v2.4.3)
 
 ### Backward Compatibility Breaks
@@ -33,17 +49,11 @@ to [Semantic Versioning](http://semver.org/).
 ### Deprecated
 
 ## [2.4.3](https://github.com/kununu/elasticsearch/compare/v2.4.3...v2.4.2)
-
 ### Backward Compatibility Breaks
-
 ### Bugfixes
-
 ### Added
-
 ### Improvements
-
 * Allow to pass source fields to return on `Repository::findById` instead of receiving the entire document
-
 ### Deprecated
 
 ## [2.4.2](https://github.com/kununu/elasticsearch/compare/v2.4.1...v2.4.2)

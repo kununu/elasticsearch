@@ -65,34 +65,39 @@ my_first_repo:
   class: Kununu\Elasticsearch\Repository\Repository
   arguments:
     - '@Elasticsearch\Client'
-    - index_read: 'some_index_read'
-      index_write: 'some_index_write'
-      type: '_doc'
+    -   index_read: 'some_index_read'
+        index_write: 'some_index_write'
+        type: '_doc'
 
 my_second_repo:
   class: Kununu\Elasticsearch\Repository\Repository
   arguments:
     - '@Elasticsearch\Client'
-    - index: 'some_other_index'
-      type: '_doc'
+    -   index: 'some_other_index'
+        type: '_doc'
 ```
 
 ### Configuration
-The second constructor argument for every `Repository` is an object/associative array containing all relevant configuration values for the repository.
-Mandatory fields are
- - `index_read` (string): the name of the Elasticsearch index the `Repository` should connect to for any read operation (search, count, aggregate)
- - `index_write` (string): the name of the Elasticsearch index the `Repository` should connect to for any write operation (save, delete)
- - `type` (string): the name of the Elasticsearch type the `Repository` should connect to
+
+The second constructor argument for every `Repository` is an object/associative array containing all relevant
+configuration values for the repository. Mandatory fields are
+
+- `index_read` (string): the name of the Elasticsearch index the `Repository` should connect to for any read operation (
+  search, count, aggregate)
+- `index_write` (string): the name of the Elasticsearch index the `Repository` should connect to for any write
+  operation (save, bulk save, delete)
+- `type` (string): the name of the Elasticsearch type the `Repository` should connect to
 
 Optional fields are
+
 - `index` (string): the name of the Elasticsearch index the `Repository` should connect to for for any operation. Useful
   if you are not using aliases. This **does not** override `index_read` and `index_write` if given.
 - `entity_class` (string): class must implement `PeristableEntityInterface`. If given, the repository will emit entities
-  instead of plain document arrays and accepts object of this class on the `save()` method.
+  instead of plain document arrays and accepts object of this class on the `save()` and `saveBulk()` methods.
 - `entity_factory` (object): must be of type `EntityFactoryInterface`. If given, the repository will emit entities
   instead of plain document arrays.
 - `entity_serializer` (object): must be of type `EntitySerializerInterface`. If given, the repository accepts objects on
-  the `save()` method and serializes them using the given serializer.
+  the `save()` and `saveBulk()` methods and serializes them using the given serializer.
 - `force_refresh_on_write` (bool): If true, the index will be refreshed after every write operation. This can be very
   handy for functional and integration tests. But caution! Using this in production environments can severely harm your
   ES cluster performance. Default value is false.
@@ -100,15 +105,23 @@ Optional fields are
 In the future this object might be extended with additional (mandatory) fields.
 
 ### Working with entities
-By default a repository uses plain document arrays as input when persisting with `save()` and emits `ResultIterator` objects containing plain document arrays when searching.
 
-However, in a lot of cases you will want to work with entity objects to not mess around with plain arrays. This package offers two solutions to this:
+By default, a repository uses plain document arrays as input when persisting with `save()` and `saveBulk()`,
+respectively, and emits `ResultIterator` objects containing plain document arrays when searching.
+
+However, in a lot of cases you will want to work with entity objects to not mess around with plain arrays. This package
+offers two solutions to this:
+
 ### PersistableEntityInterface
-The simplest solution is to make your entities implement the `PersistableEntityInterface` that comes with this package. It defines two methods:
- - a static factory method to create an entity from a raw Elasticsearch document
- - a serializer method which is supposed to convert your entity object to a plain array/document
+
+The simplest solution is to make your entities implement the `PersistableEntityInterface` that comes with this package.
+It defines two methods:
+
+- a static factory method to create an entity from a raw Elasticsearch document
+- a serializer method which is supposed to convert your entity object to a plain array/document
 
 Next, configure your repository with the `entity_class` option:
+
 ```php
 class DomainEntity implements PersistableEntityInterface {
     public function toElastic(): array {
@@ -225,16 +238,22 @@ var_dump($results[0]);
 ```
 
 #### Combining the approaches
-Usually you will not want to combine `entity_class` with `entity_serializer`+`entity_factory` options. It's recommend to use either the one or the other approach (i.e. per entity/repository; feel free to mix across entities).
-However, there of course is an order of precedence:
- - persisting: `entity_class` is used before `entity_serializer`
- - retrieving: `entity_class` is used before `entity_factory`
+
+Usually you will not want to combine `entity_class` with `entity_serializer`+`entity_factory` options. It's recommend to
+use either the one or the other approach (i.e. per entity/repository; feel free to mix across entities). However, there
+of course is an order of precedence:
+
+- persisting: `entity_class` is used before `entity_serializer`
+- retrieving: `entity_class` is used before `entity_factory`
 
 ### Hooks
-`Repository::postSave()` is called directly after every index operation (i.e. when a document is upserted to Elasticsearch).
 
-`Repository::postDelete()` is called after every delete operation.
+* `Repository::postSave()` is called directly after every single index operation (i.e. after a document is upserted to
+  Elasticsearch).
+* `Repository::postSaveBulk()` is called directly after every bulk index operation (i.e. after a batch of documents is
+  upserted to Elasticsearch).
+* `Repository::postDelete()` is called after every delete operation.
+
 Overwrite these methods in your own repository classes to hook into these events.
-
 
 Example use case: If you want to write the data to two indexes (when migrating index mappings). 

@@ -7,6 +7,7 @@ use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
 use Exception;
 use InvalidArgumentException;
+use Kununu\Elasticsearch\Exception\BulkException;
 use Kununu\Elasticsearch\Exception\DeleteException;
 use Kununu\Elasticsearch\Exception\DocumentNotFoundException;
 use Kununu\Elasticsearch\Exception\ReadOperationException;
@@ -61,22 +62,7 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
      */
     public function save(string $id, $entity): void
     {
-        if (is_array($entity)) {
-            $document = $entity;
-        } elseif (is_object($entity)) {
-            $configuredEntityClass = $this->config->getEntityClass();
-            if ($configuredEntityClass && $entity instanceof $configuredEntityClass) {
-                $document = $entity->toElastic();
-            } elseif ($this->config->getEntitySerializer()) {
-                $document = $this->config->getEntitySerializer()->toElastic($entity);
-            } else {
-                throw new RepositoryConfigurationException(
-                    'No entity serializer configured while trying to persist object'
-                );
-            }
-        } else {
-            throw new InvalidArgumentException('Entity must be of type array or object');
-        }
+        $document = $this->prepareDocument($entity);
 
         try {
             $this->client->index(
@@ -96,6 +82,38 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
      * @param array  $document
      */
     protected function postSave(string $id, array $document): void
+    {
+        // ready to be overwritten :)
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function saveBulk(array $entities): void
+    {
+        $body = [];
+        foreach ($entities as $id => $entity) {
+            $body[] = ['index' => ['_id' => $id]];
+            $body[] = $this->prepareDocument($entity);
+        }
+
+        try {
+            $this->client->bulk(
+                array_merge($this->buildRequestBase(OperationType::WRITE), ['body' => $body])
+            );
+
+            $this->postSaveBulk($entities);
+        } catch (\Exception $e) {
+            $this->getLogger()->error(self::EXCEPTION_PREFIX . $e->getMessage());
+
+            throw new BulkException($e->getMessage(), $e, $body);
+        }
+    }
+
+    /**
+     * @param array $entities
+     */
+    protected function postSaveBulk(array $entities): void
     {
         // ready to be overwritten :)
     }
@@ -411,5 +429,32 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         }
 
         return $sanitizedUpdateScript;
+    }
+
+    /**
+     * @param array|object $entity
+     *
+     * @return array
+     */
+    protected function prepareDocument($entity): array
+    {
+        if (is_array($entity)) {
+            $document = $entity;
+        } elseif (is_object($entity)) {
+            $configuredEntityClass = $this->config->getEntityClass();
+            if ($configuredEntityClass && $entity instanceof $configuredEntityClass) {
+                $document = $entity->toElastic();
+            } elseif ($this->config->getEntitySerializer()) {
+                $document = $this->config->getEntitySerializer()->toElastic($entity);
+            } else {
+                throw new RepositoryConfigurationException(
+                    'No entity serializer configured while trying to persist object'
+                );
+            }
+        } else {
+            throw new InvalidArgumentException('Entity must be of type array or object');
+        }
+
+        return $document;
     }
 }

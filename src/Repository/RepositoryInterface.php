@@ -21,6 +21,11 @@ interface RepositoryInterface
     public function save(string $id, $entity): void;
 
     /**
+     * @param array[]|object[] $entities Associative array with document IDs as keys and documents as values
+     */
+    public function saveBulk(array $entities): void;
+
+    /**
      * @param string $id
      */
     public function delete(string $id): void;
