@@ -10,7 +10,7 @@
         "ext-iconv": "*",
         "ext-json": "*",
         "ext-mbstring": "*",
-        "elasticsearch/elasticsearch": "~6.5.0",
+        "elasticsearch/elasticsearch": "~6.5.0 || ~7.11.0",
         "psr/log": "~1.0"
     },
     "require-dev": {
