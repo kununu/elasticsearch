@@ -476,6 +476,7 @@ class IndexManagerTest extends MockeryTestCase
                     'index' => self::INDEX,
                     'body' => self::MAPPING,
                     'type' => self::TYPE,
+                    'extra_param' => true,
                 ]
             )
             ->andReturn(['acknowledged' => true]);
@@ -483,7 +484,7 @@ class IndexManagerTest extends MockeryTestCase
         $this->loggerMock
             ->shouldNotReceive('error');
 
-        $this->getManager()->putMapping(self::INDEX, self::TYPE, self::MAPPING);
+        $this->getManager()->putMapping(self::INDEX, self::TYPE, self::MAPPING, ['extra_param' => true]);
     }
 
     /**
