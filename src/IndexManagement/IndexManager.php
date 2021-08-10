@@ -148,9 +148,9 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
     /**
      * @inheritDoc
      */
-    public function putMapping(string $index, string $type, array $mapping): IndexManagerInterface
+    public function putMapping(string $index, string $type, array $mapping, array $extraParams = []): IndexManagerInterface
     {
-        $params = ['index' => $index, 'type' => $type, 'body' => $mapping];
+        $params = array_merge(['index' => $index, 'type' => $type, 'body' => $mapping], $extraParams);
 
         $this->execute(
             function () use ($params) {

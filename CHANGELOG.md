@@ -4,13 +4,28 @@ All notable changes to this project will be documented in this file based on
 the [Keep a Changelog](http://keepachangelog.com/) Standard. This project adheres
 to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased](https://github.com/kununu/elasticsearch/compare/v2.4.2...master)
+## [Unreleased](https://github.com/kununu/elasticsearch/compare/v2.4.6...master)
 
 ### Backward Compatibility Breaks
 
 ### Bugfixes
 
 ### Added
+
+### Improvements
+
+### Deprecated
+
+## [2.4.6](https://github.com/kununu/elasticsearch/compare/v2.4.6...v2.4.5)
+
+### Backward Compatibility Breaks
+
+### Bugfixes
+
+### Added
+
+* Add optional extra parameters to `IndexManagerInterface::putMapping` and respective implementation in `IndexManager::putMapping`
+  - This will be used to update schema mappings in `kununu/elasticsearch-bundle` with a forward compatibility layer for ES 7.x which requires `include_type_name=true`
 
 ### Improvements
 
