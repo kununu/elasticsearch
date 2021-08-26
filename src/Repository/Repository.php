@@ -392,7 +392,7 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         }
 
         return ResultIterator::create($results)
-            ->setTotal($rawResult['hits']['total'] ?? 0)
+            ->setTotal($rawResult['hits']['total']['value'] ?? 0)
             ->setScrollId($rawResult['_scroll_id'] ?? null);
     }
 
