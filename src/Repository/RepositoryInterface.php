@@ -32,6 +32,14 @@ interface RepositoryInterface
 
     /**
      * @param \Kununu\Elasticsearch\Query\QueryInterface $query
+     * @param bool                                       $proceedOnConflicts
+     *
+     * @return array
+     */
+    public function deleteByQuery(QueryInterface $query, bool $proceedOnConflicts = false): array;
+
+    /**
+     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
      *
      * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
      */

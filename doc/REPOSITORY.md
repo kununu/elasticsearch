@@ -7,6 +7,7 @@ Every `Repository` instance is bound to an index (and a type).
 The default `Repository` shipped with this package includes standard functionality such as
  - inserting/replacing a document
  - deleting a document
+ - deleting documents by query
  - retrieving a single document by id
  - retrieving documents (by query and/or scroll id)
  - counting documents
