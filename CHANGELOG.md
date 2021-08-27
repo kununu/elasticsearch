@@ -16,6 +16,20 @@ to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
+## [2.4.7](https://github.com/kununu/elasticsearch/compare/v2.4.7...v2.4.6)
+
+### Backward Compatibility Breaks
+
+### Bugfixes
+
+### Added
+
+* `Repository::deleteByQuery()` was added to support bulk delete operations
+
+### Improvements
+
+### Deprecated
+
 ## [2.4.6](https://github.com/kununu/elasticsearch/compare/v2.4.6...v2.4.5)
 
 ### Backward Compatibility Breaks
@@ -24,8 +38,10 @@ to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-* Add optional extra parameters to `IndexManagerInterface::putMapping` and respective implementation in `IndexManager::putMapping`
-  - This will be used to update schema mappings in `kununu/elasticsearch-bundle` with a forward compatibility layer for ES 7.x which requires `include_type_name=true`
+* Add optional extra parameters to `IndexManagerInterface::putMapping` and respective implementation
+  in `IndexManager::putMapping`
+  - This will be used to update schema mappings in `kununu/elasticsearch-bundle` with a forward compatibility layer for
+    ES 7.x which requires `include_type_name=true`
 
 ### Improvements
 

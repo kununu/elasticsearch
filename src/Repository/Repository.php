@@ -146,6 +146,23 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
     /**
      * @inheritdoc
      */
+    public function deleteByQuery(QueryInterface $query, bool $proceedOnConflicts = false): array
+    {
+        return $this->executeWrite(
+            function () use ($query, $proceedOnConflicts) {
+                $rawQuery = $this->buildRawQuery($query, OperationType::WRITE);
+                if ($proceedOnConflicts) {
+                    $rawQuery['conflicts'] = 'proceed';
+                }
+
+                return $this->client->deleteByQuery($rawQuery);
+            }
+        );
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function findByQuery(QueryInterface $query): ResultIteratorInterface
     {
         return $this->executeRead(
