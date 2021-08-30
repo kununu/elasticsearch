@@ -391,8 +391,17 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
             );
         }
 
+        /**
+         * This makes it compatible with Elasticsearch 6.x and 7.x.
+         * Versions before 7.x total hits are passed on ['hits']['total'] while on newer versions 7.x
+         * total hits are passed on ['hits']['total']['value']
+         */
+        $total = isset($rawResult['hits']['total']['value']) ?
+            ($rawResult['hits']['total']['value'] ?? 0) :
+            ($rawResult['hits']['total'] ?? 0);
+
         return ResultIterator::create($results)
-            ->setTotal($rawResult['hits']['total']['value'] ?? 0)
+            ->setTotal($total)
             ->setScrollId($rawResult['_scroll_id'] ?? null);
     }
 
