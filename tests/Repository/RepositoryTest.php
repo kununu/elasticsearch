@@ -777,7 +777,9 @@ class RepositoryTest extends MockeryTestCase
             'no results' => [
                 'es_result' => [
                     'hits' => [
-                        'total' => self::DOCUMENT_COUNT,
+                        'total' => [
+                            'value' => self::DOCUMENT_COUNT
+                        ],
                         'hits' => [
 
                         ],
@@ -788,6 +790,7 @@ class RepositoryTest extends MockeryTestCase
             'one result' => [
                 'es_result' => [
                     'hits' => [
+                        /** Validated Response for Elasticsearch 6.x */
                         'total' => self::DOCUMENT_COUNT,
                         'hits' => [
                             [
@@ -813,7 +816,11 @@ class RepositoryTest extends MockeryTestCase
             'two results' => [
                 'es_result' => [
                     'hits' => [
-                        'total' => self::DOCUMENT_COUNT,
+                        /** Validated Response for Elasticsearch 7.x */
+                        /** https://www.elastic.co/guide/en/elasticsearch/reference/current/breaking-changes-7.0.html#hits-total-now-object-search-response */
+                        'total' => [
+                            'value' => self::DOCUMENT_COUNT
+                        ],
                         'hits' => [
                             [
                                 '_index' => self::INDEX['read'],
