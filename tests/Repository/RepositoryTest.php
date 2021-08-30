@@ -596,7 +596,9 @@ class RepositoryTest extends MockeryTestCase
             'no results' => [
                 'es_result' => [
                     'hits' => [
-                        'total' => self::DOCUMENT_COUNT,
+                        'total' => [
+                            'value' => self::DOCUMENT_COUNT
+                        ],
                         'hits' => [
 
                         ],
@@ -607,7 +609,9 @@ class RepositoryTest extends MockeryTestCase
             'one result' => [
                 'es_result' => [
                     'hits' => [
-                        'total' => self::DOCUMENT_COUNT,
+                        'total' => [
+                            'value' => self::DOCUMENT_COUNT
+                        ],
                         'hits' => [
                             [
                                 '_index' => self::INDEX['read'],
@@ -632,7 +636,9 @@ class RepositoryTest extends MockeryTestCase
             'two results' => [
                 'es_result' => [
                     'hits' => [
-                        'total' => self::DOCUMENT_COUNT,
+                        'total' => [
+                            'value' => self::DOCUMENT_COUNT
+                        ],
                         'hits' => [
                             [
                                 '_index' => self::INDEX['read'],
