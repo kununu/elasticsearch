@@ -15,22 +15,40 @@ use Kununu\Elasticsearch\Result\ResultIteratorInterface;
 interface RepositoryInterface
 {
     /**
+     * This method indexes the given $entity, i.e. it either inserts or replaces the whole document.
+     *
      * @param string       $id
      * @param array|object $entity
      */
     public function save(string $id, $entity): void;
 
     /**
+     * This method indexes the given array of $entities, i.e. it either inserts or replaces the whole documents.
+     *
      * @param array[]|object[] $entities Associative array with document IDs as keys and documents as values
      */
     public function saveBulk(array $entities): void;
 
     /**
+     * This method uses the _update API with doc_as_upsert option to persist the given $entity,
+     * i.e. it either inserts the whole document or updates an existing document partially
+     * (with what's present on $entity)
+     *
+     * @param string       $id
+     * @param array|object $entity
+     */
+    public function upsert(string $id, $entity): void;
+
+    /**
+     * This method deletes a single document with given $id.
+     *
      * @param string $id
      */
     public function delete(string $id): void;
 
     /**
+     * This method deletes all documents matching the given $query.
+     *
      * @param \Kununu\Elasticsearch\Query\QueryInterface $query
      * @param bool                                       $proceedOnConflicts
      *
@@ -39,6 +57,8 @@ interface RepositoryInterface
     public function deleteByQuery(QueryInterface $query, bool $proceedOnConflicts = false): array;
 
     /**
+     * This method retrieves all documents matching the given $query.
+     *
      * @param \Kununu\Elasticsearch\Query\QueryInterface $query
      *
      * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
@@ -46,6 +66,8 @@ interface RepositoryInterface
     public function findByQuery(QueryInterface $query): ResultIteratorInterface;
 
     /**
+     * This method retrieves all documents matching the given $query and initializes a scroll cursor.
+     *
      * @param \Kununu\Elasticsearch\Query\QueryInterface $query
      *
      * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
@@ -53,6 +75,9 @@ interface RepositoryInterface
     public function findScrollableByQuery(QueryInterface $query): ResultIteratorInterface;
 
     /**
+     * This method retrieves all documents available for an existing scroll cursor, identified by $scrollId.
+     * Use RepositoryInterface::findScrollableByQuery() to initialize the scroll cursor.
+     *
      * @param string $scrollId
      *
      * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
@@ -60,6 +85,8 @@ interface RepositoryInterface
     public function findByScrollId(string $scrollId): ResultIteratorInterface;
 
     /**
+     * This method retrieves a single document based on a given $id.
+     *
      * @param string $id
      * @param array  $sourceFields
      *
@@ -68,11 +95,15 @@ interface RepositoryInterface
     public function findById(string $id, array $sourceFields = []);
 
     /**
+     * This method returns the total document count in an index.
+     *
      * @return int
      */
     public function count(): int;
 
     /**
+     * This method returns the total number of documents matching a given $query.
+     *
      * @param \Kununu\Elasticsearch\Query\QueryInterface $query
      *
      * @return int
@@ -80,6 +111,8 @@ interface RepositoryInterface
     public function countByQuery(QueryInterface $query): int;
 
     /**
+     * This method executes aggregations specified in $query and retrieves their results as well as the matching documents.
+     *
      * @param \Kununu\Elasticsearch\Query\QueryInterface $query
      *
      * @return \Kununu\Elasticsearch\Result\AggregationResultSetInterface
@@ -87,6 +120,8 @@ interface RepositoryInterface
     public function aggregateByQuery(QueryInterface $query): AggregationResultSetInterface;
 
     /**
+     * This method updates all documents matching a given $query using a given $updateScript.
+     *
      * @param \Kununu\Elasticsearch\Query\QueryInterface $query
      * @param array                                      $updateScript
      *

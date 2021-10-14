@@ -216,7 +216,7 @@ class RepositoryTest extends MockeryTestCase
     /**
      * @return array
      */
-    public function invalidDataTypesForSave(): array
+    public function invalidDataTypesForSaveAndUpsert(): array
     {
         return [
             [7],
@@ -230,7 +230,7 @@ class RepositoryTest extends MockeryTestCase
     }
 
     /**
-     * @dataProvider invalidDataTypesForSave
+     * @dataProvider invalidDataTypesForSaveAndUpsert
      *
      * @param mixed $entity
      */
@@ -437,7 +437,7 @@ class RepositoryTest extends MockeryTestCase
     }
 
     /**
-     * @dataProvider invalidDataTypesForSave
+     * @dataProvider invalidDataTypesForSaveAndUpsert
      *
      * @param mixed $entity
      */
@@ -2121,6 +2121,196 @@ class RepositoryTest extends MockeryTestCase
                 ['_index' => self::INDEX['read'], '_type' => self::TYPE, '_version' => 1, 'found' => true],
                 $result->_meta
             );
+        }
+    }
+
+    public function testUpsertArray(): void
+    {
+        $document = [
+            'whatever' => 'just some data',
+        ];
+
+        $this->clientMock
+            ->shouldReceive('update')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX['write'],
+                    'type' => self::TYPE,
+                    'id' => self::ID,
+                    'doc' => $document,
+                    'doc_as_upsert' => true,
+                ]
+            );
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $this->getRepository()->upsert(
+            self::ID,
+            $document
+        );
+    }
+
+    public function testUpsertWithForcedRefresh(): void
+    {
+        $document = [
+            'whatever' => 'just some data',
+        ];
+
+        $this->clientMock
+            ->shouldReceive('update')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX['write'],
+                    'type' => self::TYPE,
+                    'id' => self::ID,
+                    'doc' => $document,
+                    'doc_as_upsert' => true,
+                    'refresh' => true,
+                ]
+            );
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $this->getRepository(['force_refresh_on_write' => true])->upsert(
+            self::ID,
+            $document
+        );
+    }
+
+    public function testUpsertObjectWithEntitySerializer(): void
+    {
+        $mySerializer = new class implements EntitySerializerInterface {
+            public function toElastic($entity): array
+            {
+                return (array)$entity;
+            }
+        };
+
+        $document = new stdClass();
+        $document->property_a = 'a';
+        $document->property_b = 'b';
+
+        $this->clientMock
+            ->shouldReceive('update')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX['write'],
+                    'type' => self::TYPE,
+                    'id' => self::ID,
+                    'doc' => [
+                        'property_a' => 'a',
+                        'property_b' => 'b',
+                    ],
+                    'doc_as_upsert' => true,
+                ]
+            );
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $this->getRepository(['entity_serializer' => $mySerializer])->upsert(
+            self::ID,
+            $document
+        );
+    }
+
+    public function testUpsertObjectWithEntityClass(): void
+    {
+        $document = $this->getEntityClass();
+        $document->property_a = 'a';
+        $document->property_b = 'b';
+
+        $this->clientMock
+            ->shouldReceive('update')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX['write'],
+                    'type' => self::TYPE,
+                    'id' => self::ID,
+                    'doc' => [
+                        'property_a' => 'a',
+                        'property_b' => 'b',
+                    ],
+                    'doc_as_upsert' => true,
+                ]
+            );
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $this->getRepository(['entity_class' => get_class($this->getEntityClass())])->upsert(
+            self::ID,
+            $document
+        );
+    }
+
+    public function testUpsertObjectFailsWithoutEntitySerializerAndEntityClass(): void
+    {
+        $this->expectException(RepositoryConfigurationException::class);
+        $this->expectExceptionMessage('No entity serializer configured while trying to persist object');
+
+        $this->getRepository()->upsert(
+            self::ID,
+            new stdClass()
+        );
+    }
+
+    /**
+     * @dataProvider invalidDataTypesForSaveAndUpsert
+     *
+     * @param mixed $entity
+     */
+    public function testUpsertFailsWithInvalidDataType($entity): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Entity must be of type array or object');
+
+        $this->getRepository()->upsert(
+            self::ID,
+            $entity
+        );
+    }
+
+    public function testUpsertArrayFails(): void
+    {
+        $document = [
+            'foo' => 'bar',
+        ];
+
+        $this->clientMock
+            ->shouldReceive('update')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX['write'],
+                    'type' => self::TYPE,
+                    'id' => self::ID,
+                    'doc' => $document,
+                    'doc_as_upsert' => true,
+                ]
+            )
+            ->andThrow(new \Exception(self::ERROR_MESSAGE));
+
+        $this->loggerMock
+            ->shouldReceive('error')
+            ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
+
+        try {
+            $this->getRepository()->upsert(
+                self::ID,
+                $document
+            );
+        } catch (UpsertException $e) {
+            $this->assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
+            $this->assertEquals(0, $e->getCode());
+            $this->assertEquals(self::ID, $e->getDocumentId());
+            $this->assertEquals($document, $e->getDocument());
         }
     }
 }
