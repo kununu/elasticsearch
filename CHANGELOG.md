@@ -16,6 +16,63 @@ to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
+## [3.0.1](https://github.com/kununu/elasticsearch/compare/v3.0.0...v3.0.1)
+
+### Backward Compatibility Breaks
+
+### Bugfixes
+
+### Added
+
+* `Repository::upsert()` method to make use of Elasticsearch' `update` API with `doc_as_upsert` option.
+
+### Improvements
+
+### Deprecated
+
+## [2.5.1](https://github.com/kununu/elasticsearch/compare/v2.5.0...v2.5.1)
+
+### Backward Compatibility Breaks
+
+### Bugfixes
+
+### Added
+
+* `Repository::upsert()` method to make use of Elasticsearch' `update` API with `doc_as_upsert` option.
+
+### Improvements
+
+### Deprecated
+
+## [3.0.0](https://github.com/kununu/elasticsearch/compare/v3.0.0...v2.5.0)
+
+### Backward Compatibility Breaks
+
+* Upgraded elasticsearch/elasticsearch to a version compatible with Elasticsearch 7. This comes with breaking changes
+  for Elasticsearch 6!
+
+### Bugfixes
+
+### Added
+
+### Improvements
+
+### Deprecated
+
+## [2.5.0](https://github.com/kununu/elasticsearch/compare/v2.4.7...v2.5.0)
+
+### Backward Compatibility Breaks
+
+### Bugfixes
+
+### Added
+
+* Compatibility to Elasticsearch 7.x versions on `Repository::parseRawSearchResponse`
+
+### Improvements
+
+### Deprecated
+
 ## [2.4.7](https://github.com/kununu/elasticsearch/compare/v2.4.7...v2.4.6)
 
 ### Backward Compatibility Breaks
