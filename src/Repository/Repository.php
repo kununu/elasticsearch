@@ -300,6 +300,35 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         );
     }
 
+    public function upsert(string $id, $entity): void
+    {
+        $document = $this->prepareDocument($entity);
+
+        try {
+            $this->client->update(
+                array_merge(
+                    $this->buildRequestBase(OperationType::WRITE),
+                    ['id' => $id, 'doc' => $document, 'doc_as_upsert' => true]
+                )
+            );
+
+            $this->postUpsert($id, $document);
+        } catch (\Exception $e) {
+            $this->getLogger()->error(self::EXCEPTION_PREFIX . $e->getMessage());
+
+            throw new UpsertException($e->getMessage(), $e, $id, $document);
+        }
+    }
+
+    /**
+     * @param string $id
+     * @param array  $document
+     */
+    protected function postUpsert(string $id, array $document): void
+    {
+        // ready to be overwritten :)
+    }
+
     /**
      * @param callable $operation
      *
@@ -336,10 +365,8 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
             switch ($operationType) {
                 case OperationType::READ:
                     throw new ReadOperationException($e->getMessage(), $e);
-                    break;
                 case OperationType::WRITE:
                     throw new WriteOperationException($e->getMessage(), $e);
-                    break;
                 default:
                     throw new RepositoryException($e->getMessage(), $e);
             }
