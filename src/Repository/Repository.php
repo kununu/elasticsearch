@@ -308,7 +308,7 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
             $this->client->update(
                 array_merge(
                     $this->buildRequestBase(OperationType::WRITE),
-                    ['id' => $id, 'doc' => $document, 'doc_as_upsert' => true]
+                    ['id' => $id, 'body' => ['doc' => $document, 'doc_as_upsert' => true]]
                 )
             );
 
