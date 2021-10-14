@@ -2138,8 +2138,10 @@ class RepositoryTest extends MockeryTestCase
                     'index' => self::INDEX['write'],
                     'type' => self::TYPE,
                     'id' => self::ID,
-                    'doc' => $document,
-                    'doc_as_upsert' => true,
+                    'body' => [
+                        'doc' => $document,
+                        'doc_as_upsert' => true,
+                    ],
                 ]
             );
 
@@ -2166,8 +2168,10 @@ class RepositoryTest extends MockeryTestCase
                     'index' => self::INDEX['write'],
                     'type' => self::TYPE,
                     'id' => self::ID,
-                    'doc' => $document,
-                    'doc_as_upsert' => true,
+                    'body' => [
+                        'doc' => $document,
+                        'doc_as_upsert' => true,
+                    ],
                     'refresh' => true,
                 ]
             );
@@ -2202,11 +2206,13 @@ class RepositoryTest extends MockeryTestCase
                     'index' => self::INDEX['write'],
                     'type' => self::TYPE,
                     'id' => self::ID,
-                    'doc' => [
-                        'property_a' => 'a',
-                        'property_b' => 'b',
+                    'body' => [
+                        'doc' => [
+                            'property_a' => 'a',
+                            'property_b' => 'b',
+                        ],
+                        'doc_as_upsert' => true,
                     ],
-                    'doc_as_upsert' => true,
                 ]
             );
 
@@ -2233,11 +2239,13 @@ class RepositoryTest extends MockeryTestCase
                     'index' => self::INDEX['write'],
                     'type' => self::TYPE,
                     'id' => self::ID,
-                    'doc' => [
-                        'property_a' => 'a',
-                        'property_b' => 'b',
+                    'body' => [
+                        'doc' => [
+                            'property_a' => 'a',
+                            'property_b' => 'b',
+                        ],
+                        'doc_as_upsert' => true,
                     ],
-                    'doc_as_upsert' => true,
                 ]
             );
 
@@ -2291,8 +2299,10 @@ class RepositoryTest extends MockeryTestCase
                     'index' => self::INDEX['write'],
                     'type' => self::TYPE,
                     'id' => self::ID,
-                    'doc' => $document,
-                    'doc_as_upsert' => true,
+                    'body' => [
+                        'doc' => $document,
+                        'doc_as_upsert' => true,
+                    ],
                 ]
             )
             ->andThrow(new \Exception(self::ERROR_MESSAGE));

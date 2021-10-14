@@ -16,6 +16,20 @@ to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
+## [2.5.2](https://github.com/kununu/elasticsearch/compare/v2.5.1...v2.5.2)
+
+### Backward Compatibility Breaks
+
+### Bugfixes
+
+* Fixed request format of `Repositry::upsert()`
+
+### Added
+
+### Improvements
+
+### Deprecated
+
 ## [2.5.1](https://github.com/kununu/elasticsearch/compare/v2.5.0...v2.5.1)
 
 ### Backward Compatibility Breaks
