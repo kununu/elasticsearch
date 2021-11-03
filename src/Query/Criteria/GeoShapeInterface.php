@@ -13,7 +13,7 @@ interface GeoShapeInterface
     /**
      * @return array
      *
-     * Available shapes: https://www.elastic.co/guide/en/elasticsearch/reference/6.4/geo-shape.html#input-structure
+     * Available shapes: https://www.elastic.co/guide/en/elasticsearch/reference/7.9/geo-shape.html#input-structure
      */
     public function toArray();
 }

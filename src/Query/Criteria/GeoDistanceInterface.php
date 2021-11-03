@@ -21,7 +21,7 @@ interface GeoDistanceInterface
 
     /**
      * Accepted units:
-     * https://www.elastic.co/guide/en/elasticsearch/reference/6.4/common-options.html#distance-units
+     * https://www.elastic.co/guide/en/elasticsearch/reference/7.9/common-options.html#distance-units
      *
      * @return string
      */
