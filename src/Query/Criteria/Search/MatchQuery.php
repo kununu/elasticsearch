@@ -8,7 +8,7 @@ namespace Kununu\Elasticsearch\Query\Criteria\Search;
  *
  * @package Kununu\Elasticsearch\Query\Criteria\Search
  */
-class Match
+class MatchQuery
 {
     use MultiFieldTrait;
 

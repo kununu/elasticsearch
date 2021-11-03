@@ -4,13 +4,15 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\Query\Criteria\Search;
 
 /**
- * Class MatchPhrasePrefix
+ * Class QueryString
  *
  * @package Kununu\Elasticsearch\Query\Criteria\Search
  */
-class MatchPhrasePrefix
+class QueryStringQuery
 {
-    public const KEYWORD = 'match_phrase_prefix';
+    use MultiFieldTrait;
+
+    public const KEYWORD = 'query_string';
 
     /**
      * @param array  $fields
@@ -22,14 +24,13 @@ class MatchPhrasePrefix
     public static function asArray(array $fields, string $queryString, array $options = []): array
     {
         return [
-            static::KEYWORD => [
-                $fields[0] => array_merge(
-                    $options,
-                    [
-                        'query' => $queryString,
-                    ]
-                ),
-            ],
+            static::KEYWORD => array_merge(
+                $options,
+                [
+                    'fields' => self::prepareFields($fields),
+                    'query' => $queryString,
+                ]
+            ),
         ];
     }
 }

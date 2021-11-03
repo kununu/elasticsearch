@@ -4,29 +4,29 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\Query\Criteria\Search;
 
 /**
- * Class Term
+ * Class MatchPhrase
  *
  * @package Kununu\Elasticsearch\Query\Criteria\Search
  */
-class Term
+class MatchPhraseQuery
 {
-    public const KEYWORD = 'term';
+    public const KEYWORD = 'match_phrase';
 
     /**
-     * @param string $field
-     * @param mixed  $term
+     * @param array  $fields
+     * @param string $queryString
      * @param array  $options
      *
      * @return array
      */
-    public static function asArray(string $field, $term, array $options = []): array
+    public static function asArray(array $fields, string $queryString, array $options = []): array
     {
         return [
             static::KEYWORD => [
-                $field => array_merge(
+                $fields[0] => array_merge(
                     $options,
                     [
-                        'value' => $term,
+                        'query' => $queryString,
                     ]
                 ),
             ],

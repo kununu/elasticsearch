@@ -4,13 +4,13 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\Query\Criteria\Search;
 
 /**
- * Class MatchPhrase
+ * Class MatchPhrasePrefix
  *
  * @package Kununu\Elasticsearch\Query\Criteria\Search
  */
-class MatchPhrase
+class MatchPhrasePrefixQuery
 {
-    public const KEYWORD = 'match_phrase';
+    public const KEYWORD = 'match_phrase_prefix';
 
     /**
      * @param array  $fields
