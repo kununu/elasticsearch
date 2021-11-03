@@ -155,9 +155,9 @@ foreach($result->getResults() as $aggregationName => $aggregationResult) {
 This class makes available the result of a single aggregation. It exposes the aggregation name and the result fields.
 Each field can be accessed individually by name. Additionally, there are dedicated getter methods for the most common
 fields (`value`
-for [single-value numeric metrics aggregations](https://www.elastic.co/guide/en/elasticsearch//reference/7.9/search-aggregations-metrics.html)
+for [single-value numeric metrics aggregations](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/search-aggregations-metrics.html)
 and `buckets`
-for [bucket aggregations](https://www.elastic.co/guide/en/elasticsearch//reference/7.9/search-aggregations-bucket.html))
+for [bucket aggregations](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/search-aggregations-bucket.html))
 
 ### Usage
 ```php
