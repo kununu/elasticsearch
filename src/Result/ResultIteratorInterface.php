@@ -3,60 +3,26 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Result;
 
-/**
- * Interface ResultIteratorInterface
- *
- * @package Kununu\Elasticsearch\Result
- */
 interface ResultIteratorInterface
 {
-    /**
-     * @param int $total
-     *
-     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
-     */
     public function setTotal(int $total): ResultIteratorInterface;
 
-    /**
-     * @return int
-     */
     public function getTotal(): int;
 
-    /**
-     * @return int
-     */
     public function getCount(): int;
 
-    /**
-     * @return string|null
-     */
     public function getScrollId(): ?string;
 
-    /**
-     * @param string|null $scrollId
-     *
-     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
-     */
     public function setScrollId(?string $scrollId): ResultIteratorInterface;
 
-    /**
-     * @return array
-     */
     public function asArray(): array;
 
-    /**
-     * @param array $result
-     *
-     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
-     */
-    public function push(array $result): ResultIteratorInterface;
+    public function push(array|object $result): ResultIteratorInterface;
 
     /**
      * Returns the first result in this iterator for which the given callable returns a true-ish value.
      *
      * @param callable $fn (result)
-     *
-     * @return array|null
      */
     public function first(callable $fn): ?array;
 
@@ -64,8 +30,6 @@ interface ResultIteratorInterface
      * Returns all results in this iterator for which the given callable returns a true-ish value.
      *
      * @param callable $fn (result)
-     *
-     * @return array
      */
     public function filter(callable $fn): array;
 
@@ -73,8 +37,6 @@ interface ResultIteratorInterface
      * Returns true, if for at least one result in this iterator the given callable returns a true-ish value.
      *
      * @param callable $fn (result, key)
-     *
-     * @return bool
      */
     public function some(callable $fn): bool;
 
@@ -82,8 +44,6 @@ interface ResultIteratorInterface
      * Returns true, if for all results in this iterator the given callable returns a true-ish value.
      *
      * @param callable $fn (result, key)
-     *
-     * @return bool
      */
     public function every(callable $fn): bool;
 
@@ -98,8 +58,6 @@ interface ResultIteratorInterface
      * Calls given callable on every result in this iterator and returns an array of the return values of the callable.
      *
      * @param callable $fn (result, key)
-     *
-     * @return array
      */
     public function map(callable $fn): array;
 
@@ -109,5 +67,5 @@ interface ResultIteratorInterface
      *
      * @return mixed
      */
-    public function reduce(callable $fn, $initial = null);
+    public function reduce(callable $fn, mixed $initial = null): mixed;
 }

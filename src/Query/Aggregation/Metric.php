@@ -5,11 +5,6 @@ namespace Kununu\Elasticsearch\Query\Aggregation;
 
 use Kununu\Elasticsearch\Util\ConstantContainerTrait;
 
-/**
- * Class Metric
- *
- * @package Kununu\Elasticsearch\Query\Aggregation
- */
 final class Metric
 {
     use ConstantContainerTrait;

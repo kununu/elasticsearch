@@ -5,11 +5,6 @@ namespace Kununu\Elasticsearch\Repository;
 
 use Kununu\Elasticsearch\Exception\RepositoryConfigurationException;
 
-/**
- * Class RepositoryConfiguration
- *
- * @package Kununu\Elasticsearch\Repository
- */
 class RepositoryConfiguration
 {
     protected const OPTION_INDEX = 'index';
@@ -20,59 +15,28 @@ class RepositoryConfiguration
     protected const OPTION_ENTITY_FACTORY = 'entity_factory';
     protected const OPTION_ENTITY_CLASS = 'entity_class';
     protected const OPTION_FORCE_REFRESH_ON_WRITE = 'force_refresh_on_write';
+    protected const OPTION_TRACK_TOTAL_HITS = 'track_total_hits';
 
     /**
      * 1 minute per default
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/6.5/search-request-scroll.html#scroll-search-context
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/7.9/search-request-scroll.html#scroll-search-context
      */
     public const DEFAULT_SCROLL_CONTEXT_KEEPALIVE = '1m';
 
-    /**
-     * @var array
-     */
-    protected $index = [];
+    protected array $index = [];
+    protected string|null $type = null;
+    protected EntitySerializerInterface|null $entitySerializer = null;
+    protected EntityFactoryInterface|null $entityFactory = null;
+    protected string|null $entityClass = null;
+    protected bool $forceRefreshOnWrite = false;
+    protected bool|null $trackTotalHits = null;
 
-    /**
-     * @var string
-     */
-    protected $type;
-
-    /**
-     * @var \Kununu\Elasticsearch\Repository\EntitySerializerInterface
-     */
-    protected $entitySerializer;
-
-    /**
-     * @var \Kununu\Elasticsearch\Repository\EntityFactoryInterface
-     */
-    protected $entityFactory;
-
-    /**
-     * @var string
-     */
-    protected $entityClass;
-
-    /**
-     * @var bool
-     */
-    protected $forceRefreshOnWrite = false;
-
-    /**
-     * RepositoryConfiguration constructor.
-     *
-     * @param array $config
-     */
     public function __construct(array $config)
     {
         $this->parseConfig($this->inflateConfig($config));
     }
 
-    /**
-     * @param string $operationType
-     *
-     * @return string
-     */
     public function getIndex(string $operationType): string
     {
         $indexForOperationType = $this->index[$operationType] ?? '';
@@ -86,9 +50,6 @@ class RepositoryConfiguration
         return $indexForOperationType;
     }
 
-    /**
-     * @return string
-     */
     public function getType(): string
     {
         if (!$this->type) {
@@ -98,33 +59,21 @@ class RepositoryConfiguration
         return $this->type;
     }
 
-    /**
-     * @return string|null
-     */
     public function getEntityClass(): ?string
     {
         return $this->entityClass;
     }
 
-    /**
-     * @return \Kununu\Elasticsearch\Repository\EntitySerializerInterface|null
-     */
     public function getEntitySerializer(): ?EntitySerializerInterface
     {
         return $this->entitySerializer;
     }
 
-    /**
-     * @return \Kununu\Elasticsearch\Repository\EntityFactoryInterface|null
-     */
     public function getEntityFactory(): ?EntityFactoryInterface
     {
         return $this->entityFactory;
     }
 
-    /**
-     * @return string
-     */
     public function getScrollContextKeepalive(): string
     {
         return static::DEFAULT_SCROLL_CONTEXT_KEEPALIVE;
@@ -135,9 +84,11 @@ class RepositoryConfiguration
         return $this->forceRefreshOnWrite;
     }
 
-    /**
-     * @param array $config
-     */
+    public function getTrackTotalHits(): ?bool
+    {
+        return $this->trackTotalHits;
+    }
+
     protected function parseConfig(array $config): void
     {
         $this->index = array_filter(
@@ -165,32 +116,21 @@ class RepositoryConfiguration
 
         if (isset($config[static::OPTION_ENTITY_SERIALIZER])) {
             $this->entitySerializer = $config[static::OPTION_ENTITY_SERIALIZER];
-            if (!($this->entitySerializer instanceof EntitySerializerInterface)) {
-                throw new RepositoryConfigurationException(
-                    'Invalid entity serializer given. Must be of type \Kununu\Elasticsearch\Repository\EntitySerializerInterface'
-                );
-            }
         }
 
         if (isset($config[static::OPTION_ENTITY_FACTORY])) {
             $this->entityFactory = $config[static::OPTION_ENTITY_FACTORY];
-            if (!($this->entityFactory instanceof EntityFactoryInterface)) {
-                throw new RepositoryConfigurationException(
-                    'Invalid entity factory given. Must be of type \Kununu\Elasticsearch\Repository\EntityFactoryInterface'
-                );
-            }
         }
 
         if (isset($config[static::OPTION_FORCE_REFRESH_ON_WRITE])) {
             $this->forceRefreshOnWrite = (bool)$config[static::OPTION_FORCE_REFRESH_ON_WRITE];
         }
+
+        if (isset($config[static::OPTION_TRACK_TOTAL_HITS])) {
+            $this->trackTotalHits = (bool)$config[static::OPTION_TRACK_TOTAL_HITS];
+        }
     }
 
-    /**
-     * @param array $config
-     *
-     * @return array
-     */
     protected function inflateConfig(array $config): array
     {
         if (isset($config[self::OPTION_INDEX])) {

@@ -5,11 +5,6 @@ namespace Kununu\Elasticsearch\Query\Aggregation;
 
 use Kununu\Elasticsearch\Util\ConstantContainerTrait;
 
-/**
- * Class Bucket
- *
- * @package Kununu\Elasticsearch\Query\Aggregation
- */
 final class Bucket
 {
     use ConstantContainerTrait;

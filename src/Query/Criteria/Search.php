@@ -27,32 +27,11 @@ class Search implements SearchInterface
     public const QUERY_STRING = QueryStringQuery::KEYWORD;
     public const TERM = TermQuery::KEYWORD;
 
-    /**
-     * @var array
-     */
-    protected $fields = [];
+    protected array $fields = [];
+    protected string $queryString;
+    protected string $type;
+    protected array $options = [];
 
-    /**
-     * @var string
-     */
-    protected $queryString;
-
-    /**
-     * @var string
-     */
-    protected $type;
-
-    /**
-     * @var array
-     */
-    protected $options = [];
-
-    /**
-     * @param array  $fields
-     * @param string $queryString
-     * @param string $type
-     * @param array  $options
-     */
     public function __construct(
         array $fields,
         string $queryString,
@@ -73,14 +52,6 @@ class Search implements SearchInterface
         $this->options = $options;
     }
 
-    /**
-     * @param array  $fields
-     * @param string $queryString
-     * @param string $type
-     * @param array  $options
-     *
-     * @return \Kununu\Elasticsearch\Query\Criteria\Search
-     */
     public static function create(
         array $fields,
         string $queryString,
@@ -90,17 +61,11 @@ class Search implements SearchInterface
         return new static($fields, $queryString, $type, $options);
     }
 
-    /**
-     * @return array
-     */
     public function toArray(): array
     {
         return $this->mapType();
     }
 
-    /**
-     * @return array
-     */
     protected function mapType(): array
     {
         return match ($this->type) {

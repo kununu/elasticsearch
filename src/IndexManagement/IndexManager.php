@@ -16,24 +16,10 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
-    /**
-     * @var \Elasticsearch\Client
-     */
-    protected $client;
-
-    /**
-     * IndexManager constructor.
-     *
-     * @param \Elasticsearch\Client $client
-     */
-    public function __construct(Client $client)
+    public function __construct(protected Client $client)
     {
-        $this->client = $client;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function addAlias(string $index, string $alias): IndexManagerInterface
     {
         $this->execute(
@@ -48,9 +34,6 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
         return $this;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function removeAlias(string $index, string $alias): IndexManagerInterface
     {
         $this->execute(
@@ -65,9 +48,6 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
         return $this;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function switchAlias(string $alias, string $fromIndex, string $toIndex): IndexManagerInterface
     {
         $this->execute(
@@ -91,9 +71,6 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
         return $this;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function createIndex(
         string $index,
         array $mappings = [],
@@ -128,9 +105,6 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
         return $this;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function deleteIndex(string $index): IndexManagerInterface
     {
         $this->execute(
@@ -145,9 +119,6 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
         return $this;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function putMapping(string $index, string $type, array $mapping, array $extraParams = []): IndexManagerInterface
     {
         $params = array_merge(['index' => $index, 'type' => $type, 'body' => $mapping], $extraParams);
@@ -164,9 +135,6 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
         return $this;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function getIndicesByAlias(string $alias): array
     {
         return array_keys(
@@ -185,9 +153,6 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
         );
     }
 
-    /**
-     * @inheritDoc
-     */
     public function getIndicesAliasesMapping(): array
     {
         $indices = $this->execute(
@@ -210,9 +175,6 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
         );
     }
 
-    /**
-     * @inheritDoc
-     */
     public function reindex(string $source, string $destination): void
     {
         $this->execute(
@@ -264,16 +226,7 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
             ['index' => $index, 'body' => $body]
         );
     }
-
-    /**
-     * @param callable $operation
-     * @param bool     $checkAcknowledged
-     * @param string   $logMessage
-     * @param array    $extra
-     *
-     * @return array
-     * @throws \Kununu\Elasticsearch\Exception\IndexManagementException
-     */
+    
     protected function execute(
         callable $operation,
         bool $checkAcknowledged,

@@ -7,11 +7,6 @@ use InvalidArgumentException;
 use Kununu\Elasticsearch\Query\Aggregation\Bucket;
 use Kununu\Elasticsearch\Query\Aggregation\Metric;
 
-/**
- * Class Aggregation
- *
- * @package Kununu\Elasticsearch\Query
- */
 class Aggregation implements AggregationInterface
 {
     /**
@@ -19,37 +14,15 @@ class Aggregation implements AggregationInterface
      */
     public const GLOBAL = 'global';
 
-    /**
-     * @var string
-     */
-    protected $name;
-
-    /**
-     * @var string
-     */
-    protected $type;
-
-    /**
-     * @var string|null
-     */
-    protected $field;
-
-    /**
-     * @var array
-     */
-    protected $options = [];
-
+    protected string $name;
+    protected string $type;
+    protected string|null $field;
+    protected array $options = [];
     /**
      * @var \Kununu\Elasticsearch\Query\AggregationInterface[]
      */
-    protected $nestedAggregations = [];
+    protected array $nestedAggregations = [];
 
-    /**
-     * @param string|null $field
-     * @param string      $type
-     * @param string      $name
-     * @param array       $options
-     */
     public function __construct(?string $field, string $type, string $name = '', array $options = [])
     {
         if (!Metric::hasConstant($type) && !Bucket::hasConstant($type) && $type !== static::GLOBAL) {
@@ -66,55 +39,26 @@ class Aggregation implements AggregationInterface
         $this->options = $options;
     }
 
-    /**
-     * @param string $field
-     * @param string $type
-     * @param string $name
-     * @param array  $options
-     *
-     * @return \Kununu\Elasticsearch\Query\Aggregation
-     */
     public static function create(string $field, string $type, string $name = '', array $options = []): Aggregation
     {
         return new self($field, $type, $name, $options);
     }
 
-    /**
-     * @param string $name
-     * @param array  $options
-     *
-     * @return \Kununu\Elasticsearch\Query\Aggregation
-     */
     public static function createGlobal(string $name = '', array $options = []): Aggregation
     {
         return new self('', static::GLOBAL, $name, $options);
     }
 
-    /**
-     * @param string $type
-     * @param string $name
-     * @param array  $options
-     *
-     * @return \Kununu\Elasticsearch\Query\Aggregation
-     */
     public static function createFieldless(string $type, string $name = '', array $options = []): Aggregation
     {
         return new self(null, $type, $name, $options);
     }
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @param \Kununu\Elasticsearch\Query\AggregationInterface $aggregation
-     *
-     * @return \Kununu\Elasticsearch\Query\Aggregation
-     */
     public function nest(AggregationInterface $aggregation): Aggregation
     {
         $this->nestedAggregations[] = $aggregation;
@@ -122,9 +66,6 @@ class Aggregation implements AggregationInterface
         return $this;
     }
 
-    /**
-     * @return array
-     */
     public function toArray(): array
     {
         if ($this->type === static::GLOBAL) {
