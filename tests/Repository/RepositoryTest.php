@@ -26,6 +26,7 @@ use Mockery;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Psr\Log\LoggerInterface;
 use stdClass;
+use TypeError;
 
 /**
  * @group unit
@@ -228,7 +229,7 @@ class RepositoryTest extends MockeryTestCase
      */
     public function testSaveFailsWithInvalidDataType(mixed $entity): void
     {
-        $this->expectError(\TypeError::class);
+        $this->expectException(TypeError::class);
 
         $this->getRepository()->save(
             self::ID,
@@ -427,7 +428,7 @@ class RepositoryTest extends MockeryTestCase
      */
     public function testSaveBulkFailsWithInvalidDataType(mixed $entity): void
     {
-        $this->expectError(\TypeError::class);
+        $this->expectException(TypeError::class);
 
         $this->getRepository()->saveBulk([self::ID => $entity]);
     }
@@ -2210,7 +2211,7 @@ class RepositoryTest extends MockeryTestCase
      */
     public function testUpsertFailsWithInvalidDataType(mixed $entity): void
     {
-        $this->expectError(\TypeError::class);
+        $this->expectException(TypeError::class);
 
         $this->getRepository()->upsert(
             self::ID,

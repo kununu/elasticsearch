@@ -160,7 +160,7 @@ class RepositoryConfigurationTest extends TestCase
     {
         $mySerializer = new \stdClass();
 
-        $this->expectError(TypeError::class);
+        $this->expectException(TypeError::class);
 
         $config = new RepositoryConfiguration(['entity_serializer' => $mySerializer]); // NOSONAR
     }
@@ -184,7 +184,7 @@ class RepositoryConfigurationTest extends TestCase
     {
         $myFactory = new \stdClass();
 
-        $this->expectError(TypeError::class);
+        $this->expectException(TypeError::class);
 
         $config = new RepositoryConfiguration(['entity_factory' => $myFactory]); // NOSONAR
     }
