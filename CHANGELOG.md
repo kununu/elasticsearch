@@ -16,6 +16,20 @@ to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
+## [3.0.3](https://github.com/kununu/elasticsearch/compare/v3.0.2...v3.0.3)
+
+### Backward Compatibility Breaks
+
+### Bugfixes
+
+* Avoid this version to be installed on PHP 8 (because of "match" now being a reserved keyword)
+
+### Added
+
+### Improvements
+
+### Deprecated
+
 ## [3.0.2](https://github.com/kununu/elasticsearch/compare/v3.0.1...v3.0.2)
 
 ### Backward Compatibility Breaks
