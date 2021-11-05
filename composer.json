@@ -14,7 +14,7 @@
         "psr/log": "~1.0"
     },
     "require-dev": {
-        "mockery/mockery": "^1.2",
+        "mockery/mockery": "^1.2.4",
         "phpunit/phpunit": "^8.3"
     },
     "config": {
