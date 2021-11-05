@@ -8,7 +8,7 @@ on:
         types: [ opened, synchronize, reopened ]
 
 env:
-    fail-fast: true
+    fail-fast: false
 
 jobs:
     build:
