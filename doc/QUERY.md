@@ -1,50 +1,56 @@
 # Query
+
 The kununu way of writing Elasticsearch queries :)
 
-This class provides a fluent interface with a syntax inspired by [groovy](https://groovy-lang.org/).
-Currently, the most important Elasticsearch queries and aggregations are available:
- - Full text queries:
-    - [Match Query](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/query-dsl-match-query.html)
-    - [Match Phrase Query](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/query-dsl-match-query-phrase.html)
-    - [Match Phrase Prefix Query](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/query-dsl-match-query-phrase-prefix.html)
-    - [Query String Query](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/query-dsl-query-string-query.html)
- - Compound queries:
-    - [Boolean Query](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/query-dsl-bool-query.html)
- - Term-level queries:
-    - [Exists Query](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/query-dsl-exists-query.html)
-    - [Prefix Query](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/query-dsl-prefix-query.html)
-    - [Range Query](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/query-dsl-range-query.html)
-    - [Regexp Query](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/query-dsl-regexp-query.html)
-    - [Term Query](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/query-dsl-term-query.html)
-    - [Terms Query](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/query-dsl-terms-query.html)
- - Geo queries:
-    - [Geo-distance Query](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/query-dsl-geo-distance-query.html)
-    - [Geo-shape Query](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/query-dsl-geo-shape-query.html)
- - Nested queries:
-    - [Nested Query](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/query-dsl-nested-query.html)
- - Aggregations:
-    - [Terms Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-bucket-terms-aggregation.html)
-    - [Filters Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-bucket-filters-aggregation.html)
-    - [Avg Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-metrics-avg-aggregation.html)
-    - [Cardinality Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-metrics-cardinality-aggregation.html)
-    - [Extended Stats Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-metrics-extendedstats-aggregation.html)
-    - [Geo Bounds Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-metrics-geobounds-aggregation.html)
-    - [Geo Centroid Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-metrics-geocentroid-aggregation.html)
-    - [Max Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-metrics-max-aggregation.html)
-    - [Min Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-metrics-min-aggregation.html)
-    - [Percentiles Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-metrics-percentile-aggregation.html)
-    - [Stats Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-metrics-stats-aggregation.html)
-    - [Sum Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-metrics-sum-aggregation.html)
-    - [Value Count Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-metrics-valuecount-aggregation.html)
-    
+This class provides a fluent interface with a syntax inspired by [groovy](https://groovy-lang.org/). Currently, the most
+important Elasticsearch queries and aggregations are available:
+
+- Full text queries:
+  - [Match Query](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/query-dsl-match-query.html)
+  - [Match Phrase Query](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/query-dsl-match-query-phrase.html)
+  - [Match Phrase Prefix Query](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/query-dsl-match-query-phrase-prefix.html)
+  - [Query String Query](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/query-dsl-query-string-query.html)
+- Compound queries:
+  - [Boolean Query](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/query-dsl-bool-query.html)
+- Term-level queries:
+  - [Exists Query](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/query-dsl-exists-query.html)
+  - [Prefix Query](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/query-dsl-prefix-query.html)
+  - [Range Query](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/query-dsl-range-query.html)
+  - [Regexp Query](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/query-dsl-regexp-query.html)
+  - [Term Query](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/query-dsl-term-query.html)
+  - [Terms Query](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/query-dsl-terms-query.html)
+- Geo queries:
+  - [Geo-distance Query](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/query-dsl-geo-distance-query.html)
+  - [Geo-shape Query](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/query-dsl-geo-shape-query.html)
+- Nested queries:
+  - [Nested Query](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/query-dsl-nested-query.html)
+- Aggregations:
+  - [Terms Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/search-aggregations-bucket-terms-aggregation.html)
+  - [Filters Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/search-aggregations-bucket-filters-aggregation.html)
+  - [Avg Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/search-aggregations-metrics-avg-aggregation.html)
+  - [Cardinality Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/search-aggregations-metrics-cardinality-aggregation.html)
+  - [Extended Stats Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/search-aggregations-metrics-extendedstats-aggregation.html)
+  - [Geo Bounds Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/search-aggregations-metrics-geobounds-aggregation.html)
+  - [Geo Centroid Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/search-aggregations-metrics-geocentroid-aggregation.html)
+  - [Max Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/search-aggregations-metrics-max-aggregation.html)
+  - [Min Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/search-aggregations-metrics-min-aggregation.html)
+  - [Percentiles Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/search-aggregations-metrics-percentile-aggregation.html)
+  - [Stats Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/search-aggregations-metrics-stats-aggregation.html)
+  - [Sum Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/search-aggregations-metrics-sum-aggregation.html)
+  - [Value Count Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/search-aggregations-metrics-valuecount-aggregation.html)
 
 `Query` drastically simplifies the way queries are built by differentiating between two types of criteria:
- - filter (corresponds with [Term-level queries](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/term-level-queries.html))
- - search (corresponds with [Full text queries](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/full-text-queries.html))
 
-Within those two groups, all instances have the same interface. For instance, the syntax for writing a `Terms` query is the same as for writing a `GeoShape` query; `QueryStringQuery` works the same as a `MatchQuery`, etc.
+- filter (corresponds
+  with [Term-level queries](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/term-level-queries.html))
+- search (corresponds
+  with [Full text queries](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/full-text-queries.html))
+
+Within those two groups, all instances have the same interface. For instance, the syntax for writing a `Terms` query is
+the same as for writing a `GeoShape` query; `QueryStringQuery` works the same as a `MatchQuery`, etc.
 
 Example:
+
 ```php
 $nestedBoolQuery = Query::create(
     Should::create(
@@ -61,15 +67,21 @@ $nestedBoolQuery = Query::create(
 ```
 
 ## Understanding Filter vs. Query Context
-When querying for documents Elasticsearch differentiates [two contexts](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/query-filter-context.html):
- - filter context: does not contribute to the score of matching documents
- - query context: does indeed contribute to the score
 
-When using the factory method (`Query::create()`) to build a query, all `Search` objects will be put into the query context, while all `Filter` objects (this includes all bool queries `Must`, `Should` and `MustNot`!) will be put in the filter context.
+When querying for documents Elasticsearch
+differentiates [two contexts](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/query-filter-context.html):
+
+- filter context: does not contribute to the score of matching documents
+- query context: does indeed contribute to the score
+
+When using the factory method (`Query::create()`) to build a query, all `Search` objects will be put into the query
+context, while all `Filter` objects (this includes all bool queries `Must`, `Should` and `MustNot`!) will be put in the
+filter context.
 
 This should support the vast majority of use-cases while keeping query creation simple.
 
-For use-cases which require more advanced boolean combination of `Search` objects it's possible to use the `Query::search()` method. This method accepts objects of type `SearchInterface` as well as `BoolQueryInterface`.
+For use-cases which require more advanced boolean combination of `Search` objects it's possible to use
+the `Query::search()` method. This method accepts objects of type `SearchInterface` as well as `BoolQueryInterface`.
 
 See examples below.
 
@@ -105,9 +117,10 @@ Will produce
 }
 ```
 
-[Advanced sorting](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-request-body.html#request-body-search-sort):
-The third parameter of the `sort()` method allows for injecting any of the advanced optional sorting parameters that Elasticsearch offers. 
-This `$options` array will be taken as-is and merged with the internal sorting data-structure, therefore making the by-default simple syntax easily extensible for advanced use-cases.
+[Advanced sorting](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/search-request-body.html#request-body-search-sort):
+The third parameter of the `sort()` method allows for injecting any of the advanced optional sorting parameters that
+Elasticsearch offers. This `$options` array will be taken as-is and merged with the internal sorting data-structure,
+therefore making the by-default simple syntax easily extensible for advanced use-cases.
 ```php
 Query::create()
     ->sort('field', SortDirection::DESC, ['mode' => 'avg', 'missing' => '_last']);
@@ -430,14 +443,19 @@ Will produce
 ```
 
 #### Multi-field searches
-Some Elasticsearch full-text queries (f.e. [Query String Query](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/query-dsl-query-string-query.html)) can operate on multiple fields. It's possible to boost separate fields individually.
+
+Some Elasticsearch full-text queries (
+f.e. [Query String Query](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/query-dsl-query-string-query.html))
+can operate on multiple fields. It's possible to boost separate fields individually.
 
 ```php
 $query = Query::create(
     Search::create(['field_a' => ['boost' => 2], 'field_b'], 'my query', Search::QUERY_STRING)
 );
 ```
+
 Will produce
+
 ```json
 {
   "query": {
@@ -472,21 +490,30 @@ Query::create()
 ```
 
 ### Nested queries
-Nested queries can be used to search/filter within [nested fields](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/nested.html).
-The nested query searches nested field objects as if they were indexed as separate documents. If an object matches the search, the nested query returns the root parent document.
-For more information see [the Elasticsearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/query-dsl-nested-query.html).
 
-To create a nested query, simply use the `Query::createNested()` factory method. Pass the path of the nested field as first argument and an arbitrary number of Filters/Searches after that. 
+Nested queries can be used to search/filter
+within [nested fields](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/nested.html). The nested query
+searches nested field objects as if they were indexed as separate documents. If an object matches the search, the nested
+query returns the root parent document. For more information
+see [the Elasticsearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/query-dsl-nested-query.html)
+.
+
+To create a nested query, simply use the `Query::createNested()` factory method. Pass the path of the nested field as
+first argument and an arbitrary number of Filters/Searches after that.
 
 Examples:
 
-In the first example a query is nested inside the filter context. This is the default behavior when passing a nested query to the `Query::create()` factory method.
+In the first example a query is nested inside the filter context. This is the default behavior when passing a nested
+query to the `Query::create()` factory method.
+
 ```php
 Query::create(
     Query::createNested('my_field', Filter::create('my_field.subfield', 'foobar'))
 );
 ```
+
 Will produce
+
 ```json
 {
   "query": {
@@ -653,10 +680,14 @@ Will produce
 Please find all available aggregation types in `Query\Aggregation\Metric` and `Query\Aggregation\Bucket`, respectively.
 
 #### Fieldless Aggregations
-Usually aggregations operate on a field. However, there are a few exceptions to this rule, for example [Filters Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-bucket-filters-aggregation.html).
-Use the `Aggregation::createFieldless()` factory method to create an aggregation which is not bound to a specific field.
+
+Usually aggregations operate on a field. However, there are a few exceptions to this rule, for
+example [Filters Aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/search-aggregations-bucket-filters-aggregation.html)
+. Use the `Aggregation::createFieldless()` factory method to create an aggregation which is not bound to a specific
+field.
 
 For example:
+
 ```php
 Aggregation::createFieldless(
     Bucket::FILTERS,
@@ -688,11 +719,16 @@ Will produce
 ```
 
 #### Global Aggregations
-Global aggregations work as defined [here](https://www.elastic.co/guide/en/elasticsearch/reference/6.4/search-aggregations-bucket-global-aggregation.html).
 
-To create a global aggregation simply use the dedicated factory method and nest other aggregations within, just as usual.
+Global aggregations work as
+defined [here](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/search-aggregations-bucket-global-aggregation.html)
+.
+
+To create a global aggregation simply use the dedicated factory method and nest other aggregations within, just as
+usual.
 
 For example:
+
 ```php
 Aggregation::createGlobal('all_products')
     ->nest(Aggregation::create('price', Metric::AVG, 'avg_price'));

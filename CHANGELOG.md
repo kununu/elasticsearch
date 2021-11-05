@@ -16,6 +16,27 @@ to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
+## [4.0.0](https://github.com/kununu/elasticsearch/compare/v3.0.2...v4.0.0)
+
+### Backward Compatibility Breaks
+
+* Dropped support for PHP 7.x
+* Dropped support for Elasticsearch < 7.x
+* Changed class names of full-text queries (e.g. `Match` to `MatchQuery`). This is due to `"match"`becoming a reserved
+  keyword in PHP 8
+
+### Bugfixes
+
+### Added
+
+* Support for `track_total_hits` option on read requests (
+  see https://www.elastic.co/guide/en/elasticsearch/reference/current/breaking-changes-7.0.html#hits-total-now-object-search-response)
+* Version matrix in [README](README.md)
+
+### Improvements
+
+### Deprecated
+
 ## [3.0.2](https://github.com/kununu/elasticsearch/compare/v3.0.1...v3.0.2)
 
 ### Backward Compatibility Breaks

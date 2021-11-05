@@ -18,7 +18,6 @@ use Kununu\Elasticsearch\Query\Query;
 use Kununu\Elasticsearch\Query\QueryInterface;
 use Kununu\Elasticsearch\Query\RawQuery;
 use Kununu\Elasticsearch\Repository\EntityFactoryInterface;
-use Kununu\Elasticsearch\Repository\EntitySerializerInterface;
 use Kununu\Elasticsearch\Repository\PersistableEntityInterface;
 use Kununu\Elasticsearch\Repository\Repository;
 use Kununu\Elasticsearch\Repository\RepositoryConfiguration;
@@ -27,6 +26,7 @@ use Mockery;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Psr\Log\LoggerInterface;
 use stdClass;
+use TypeError;
 
 /**
  * @group unit
@@ -137,13 +137,6 @@ class RepositoryTest extends MockeryTestCase
 
     public function testSaveObjectWithEntitySerializer(): void
     {
-        $mySerializer = new class implements EntitySerializerInterface {
-            public function toElastic($entity): array
-            {
-                return (array)$entity;
-            }
-        };
-
         $document = new stdClass();
         $document->property_a = 'a';
         $document->property_b = 'b';
@@ -166,7 +159,7 @@ class RepositoryTest extends MockeryTestCase
         $this->loggerMock
             ->shouldNotReceive('error');
 
-        $this->getRepository(['entity_serializer' => $mySerializer])->save(
+        $this->getRepository(['entity_serializer' => new EntitySerializerStub()])->save(
             self::ID,
             $document
         );
@@ -234,10 +227,9 @@ class RepositoryTest extends MockeryTestCase
      *
      * @param mixed $entity
      */
-    public function testSaveFailsWithInvalidDataType($entity): void
+    public function testSaveFailsWithInvalidDataType(mixed $entity): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Entity must be of type array or object');
+        $this->expectException(TypeError::class);
 
         $this->getRepository()->save(
             self::ID,
@@ -354,13 +346,6 @@ class RepositoryTest extends MockeryTestCase
 
     public function testSaveBulkObjectsWithEntitySerializer(): void
     {
-        $mySerializer = new class implements EntitySerializerInterface {
-            public function toElastic($entity): array
-            {
-                return (array)$entity;
-            }
-        };
-
         $documents = [];
         for ($ii = 0; $ii < 3; $ii++) {
             $document = new stdClass();
@@ -391,7 +376,7 @@ class RepositoryTest extends MockeryTestCase
         $this->loggerMock
             ->shouldNotReceive('error');
 
-        $this->getRepository(['entity_serializer' => $mySerializer])->saveBulk($documents);
+        $this->getRepository(['entity_serializer' => new EntitySerializerStub()])->saveBulk($documents);
     }
 
     public function testSaveBulkObjectsWithEntityClass(): void
@@ -441,10 +426,9 @@ class RepositoryTest extends MockeryTestCase
      *
      * @param mixed $entity
      */
-    public function testSaveBulkFailsWithInvalidDataType($entity): void
+    public function testSaveBulkFailsWithInvalidDataType(mixed $entity): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Entity must be of type array or object');
+        $this->expectException(TypeError::class);
 
         $this->getRepository()->saveBulk([self::ID => $entity]);
     }
@@ -768,9 +752,6 @@ class RepositoryTest extends MockeryTestCase
         }
     }
 
-    /**
-     * @return array
-     */
     public function searchResultData(): array
     {
         return [
@@ -778,7 +759,7 @@ class RepositoryTest extends MockeryTestCase
                 'es_result' => [
                     'hits' => [
                         'total' => [
-                            'value' => self::DOCUMENT_COUNT
+                            'value' => self::DOCUMENT_COUNT,
                         ],
                         'hits' => [
 
@@ -790,8 +771,9 @@ class RepositoryTest extends MockeryTestCase
             'one result' => [
                 'es_result' => [
                     'hits' => [
-                        /** Validated Response for Elasticsearch 6.x */
-                        'total' => self::DOCUMENT_COUNT,
+                        'total' => [
+                            'value' => self::DOCUMENT_COUNT,
+                        ],
                         'hits' => [
                             [
                                 '_index' => self::INDEX['read'],
@@ -816,8 +798,6 @@ class RepositoryTest extends MockeryTestCase
             'two results' => [
                 'es_result' => [
                     'hits' => [
-                        /** Validated Response for Elasticsearch 7.x */
-                        /** https://www.elastic.co/guide/en/elasticsearch/reference/current/breaking-changes-7.0.html#hits-total-now-object-search-response */
                         'total' => [
                             'value' => self::DOCUMENT_COUNT
                         ],
@@ -1655,7 +1635,7 @@ class RepositoryTest extends MockeryTestCase
             function (array $variables) {
                 $variables['end_result'] = array_map(
                     function (array $result) {
-                        $entity = new stdClass();
+                        $entity = new PersistableEntityStub();
                         foreach ($result['_source'] as $key => $value) {
                             $entity->$key = $value;
                         }
@@ -1701,19 +1681,7 @@ class RepositoryTest extends MockeryTestCase
      */
     protected function getEntityFactory(): EntityFactoryInterface
     {
-        return new class implements EntityFactoryInterface
-        {
-            public function fromDocument(array $document, array $metaData)
-            {
-                $entity = new stdClass();
-                foreach ($document as $key => $value) {
-                    $entity->$key = $value;
-                }
-                $entity->_meta = $metaData;
-
-                return $entity;
-            }
-        };
+        return new EntityFactoryStub();
     }
 
     /**
@@ -1857,33 +1825,7 @@ class RepositoryTest extends MockeryTestCase
      */
     protected function getEntityClass(): PersistableEntityInterface
     {
-        return new class extends stdClass implements PersistableEntityInterface
-        {
-            /**
-             * @return array
-             */
-            public function toElastic(): array
-            {
-                return (array)$this;
-            }
-
-            /**
-             * @param array $document the raw document as found in the _source field of the raw Elasticsearch response
-             * @param array $metaData contains all "underscore-fields" delivered in the raw Elasticsearch response (e.g. _score)
-             *
-             * @return mixed
-             */
-            public static function fromElasticDocument(array $document, array $metaData)
-            {
-                $entity = new stdClass();
-                foreach ($document as $key => $value) {
-                    $entity->$key = $value;
-                }
-                $entity->_meta = $metaData;
-
-                return $entity;
-            }
-        };
+        return new PersistableEntityStub();
     }
 
     /**
@@ -2032,7 +1974,7 @@ class RepositoryTest extends MockeryTestCase
         return array_map(
             function (array $variables) {
                 if ($variables['es_result']['found']) {
-                    $entity = new stdClass();
+                    $entity = new PersistableEntityStub();
                     foreach ($variables['es_result']['_source'] as $key => $value) {
                         $entity->$key = $value;
                     }
@@ -2187,13 +2129,6 @@ class RepositoryTest extends MockeryTestCase
 
     public function testUpsertObjectWithEntitySerializer(): void
     {
-        $mySerializer = new class implements EntitySerializerInterface {
-            public function toElastic($entity): array
-            {
-                return (array)$entity;
-            }
-        };
-
         $document = new stdClass();
         $document->property_a = 'a';
         $document->property_b = 'b';
@@ -2219,7 +2154,7 @@ class RepositoryTest extends MockeryTestCase
         $this->loggerMock
             ->shouldNotReceive('error');
 
-        $this->getRepository(['entity_serializer' => $mySerializer])->upsert(
+        $this->getRepository(['entity_serializer' => new EntitySerializerStub()])->upsert(
             self::ID,
             $document
         );
@@ -2274,10 +2209,9 @@ class RepositoryTest extends MockeryTestCase
      *
      * @param mixed $entity
      */
-    public function testUpsertFailsWithInvalidDataType($entity): void
+    public function testUpsertFailsWithInvalidDataType(mixed $entity): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Entity must be of type array or object');
+        $this->expectException(TypeError::class);
 
         $this->getRepository()->upsert(
             self::ID,

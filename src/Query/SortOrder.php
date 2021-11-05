@@ -5,11 +5,6 @@ namespace Kununu\Elasticsearch\Query;
 
 use Kununu\Elasticsearch\Util\ConstantContainerTrait;
 
-/**
- * Class SortOrder
- *
- * @package Kununu\Elasticsearch\Query
- */
 final class SortOrder
 {
     use ConstantContainerTrait;
