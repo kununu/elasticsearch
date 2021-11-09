@@ -40,6 +40,15 @@ interface RepositoryInterface
     public function upsert(string $id, $entity): void;
 
     /**
+     * This method uses the _update API to update the entity with given $id,
+     * i.e. it overrides all attributes present in $partialEntity
+     *
+     * @param string       $id
+     * @param array|object $partialEntity
+     */
+    public function update(string $id, $partialEntity): void;
+
+    /**
      * This method deletes a single document with given $id.
      *
      * @param string $id
