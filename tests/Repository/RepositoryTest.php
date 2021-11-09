@@ -2386,6 +2386,13 @@ class RepositoryTest extends MockeryTestCase
 
     public function testUpdateObjectWithEntitySerializer(): void
     {
+        $mySerializer = new class implements EntitySerializerInterface {
+            public function toElastic($entity): array
+            {
+                return (array)$entity;
+            }
+        };
+
         $document = new stdClass();
         $document->property_a = 'a';
         $document->property_b = 'b';
@@ -2410,7 +2417,7 @@ class RepositoryTest extends MockeryTestCase
         $this->loggerMock
             ->shouldNotReceive('error');
 
-        $this->getRepository(['entity_serializer' => new EntitySerializerStub()])->update(
+        $this->getRepository(['entity_serializer' => $mySerializer])->update(
             self::ID,
             $document
         );
@@ -2464,9 +2471,10 @@ class RepositoryTest extends MockeryTestCase
      *
      * @param mixed $entity
      */
-    public function testUpdateFailsWithInvalidDataType(mixed $entity): void
+    public function testUpdateFailsWithInvalidDataType($entity): void
     {
-        $this->expectException(TypeError::class);
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Entity must be of type array or object');
 
         $this->getRepository()->update(
             self::ID,
