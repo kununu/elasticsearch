@@ -16,6 +16,20 @@ to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
+## [2.5.4](https://github.com/kununu/elasticsearch/compare/v2.5.3...v2.5.4)
+
+### Backward Compatibility Breaks
+
+### Bugfixes
+
+### Added
+
+* Support for simple document updates (see https://www.elastic.co/guide/en/elasticsearch/reference/6.4/docs-update.html)
+
+### Improvements
+
+### Deprecated
+
 ## [2.5.3](https://github.com/kununu/elasticsearch/compare/v2.5.2...v2.5.3)
 
 ### Backward Compatibility Breaks
