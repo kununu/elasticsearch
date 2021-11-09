@@ -7,13 +7,27 @@ use Throwable;
 
 class UpdateException extends WriteOperationException
 {
-    protected mixed $documentId;
-    protected array $document;
+    /**
+     * @var mixed
+     */
+    protected $documentId;
+
+    /**
+     * @var array
+     */
+    protected $document;
+
+    /**
+     * @param string          $message
+     * @param \Throwable|null $previous
+     * @param mixed           $documentId
+     * @param array|null      $document
+     */
 
     public function __construct(
         string $message = "",
         Throwable $previous = null,
-        mixed $documentId = null,
+        $documentId = null,
         ?array $document = null
     ) {
         parent::__construct($message, $previous);
@@ -22,7 +36,7 @@ class UpdateException extends WriteOperationException
         $this->document = $document;
     }
 
-    public function getDocumentId(): mixed
+    public function getDocumentId()
     {
         return $this->documentId;
     }
