@@ -16,7 +16,7 @@ to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
-## [4.0.1](https://github.com/kununu/elasticsearch/compare/v3.0.0...v4.0.1)
+## [4.0.1](https://github.com/kununu/elasticsearch/compare/v4.0.0...v4.0.1)
 
 ### Backward Compatibility Breaks
 
