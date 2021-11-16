@@ -13,6 +13,7 @@ use Kununu\Elasticsearch\Exception\DocumentNotFoundException;
 use Kununu\Elasticsearch\Exception\ReadOperationException;
 use Kununu\Elasticsearch\Exception\RepositoryConfigurationException;
 use Kununu\Elasticsearch\Exception\RepositoryException;
+use Kununu\Elasticsearch\Exception\UpdateException;
 use Kununu\Elasticsearch\Exception\UpsertException;
 use Kununu\Elasticsearch\Exception\WriteOperationException;
 use Kununu\Elasticsearch\Query\Query;
@@ -300,6 +301,9 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         );
     }
 
+    /**
+     * @inheritdoc
+     */
     public function upsert(string $id, $entity): void
     {
         $document = $this->prepareDocument($entity);
@@ -325,6 +329,34 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
      * @param array  $document
      */
     protected function postUpsert(string $id, array $document): void
+    {
+        // ready to be overwritten :)
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function update(string $id, $partialEntity): void
+    {
+        $document = $this->prepareDocument($partialEntity);
+
+        try {
+            $this->client->update(
+                array_merge(
+                    $this->buildRequestBase(OperationType::WRITE),
+                    ['id' => $id, 'body' => ['doc' => $document]]
+                )
+            );
+
+            $this->postUpdate($id, $document);
+        } catch (\Exception $e) {
+            $this->getLogger()->error(self::EXCEPTION_PREFIX . $e->getMessage());
+
+            throw new UpdateException($e->getMessage(), $e, $id, $document);
+        }
+    }
+
+    protected function postUpdate(string $id, array $document): void
     {
         // ready to be overwritten :)
     }
