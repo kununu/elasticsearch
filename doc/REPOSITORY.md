@@ -10,6 +10,7 @@ Every `Repository` instance is bound to an index (and a type).
 The default `Repository` shipped with this package includes standard functionality such as
 
 - inserting/replacing a document
+- updating a document
 - upserting (partial) documents
 - deleting a document
 - deleting documents by query
@@ -264,6 +265,7 @@ of course is an order of precedence:
 * `Repository::postUpsert()` is called directly after every upsert operation (i.e. after a document is upserted to
   Elasticsearch).
 * `Repository::postDelete()` is called after every delete operation.
+* `Repository::postUpdate()` is called after every single document update operation.
 
 Overwrite these methods in your own repository classes to hook into these events.
 
