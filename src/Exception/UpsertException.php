@@ -8,7 +8,7 @@ use Throwable;
 class UpsertException extends WriteOperationException
 {
     protected mixed $documentId;
-    protected array $document;
+    protected ?array $document;
 
     public function __construct(
         string $message = "",
