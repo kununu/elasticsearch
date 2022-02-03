@@ -4,13 +4,32 @@ All notable changes to this project will be documented in this file based on
 the [Keep a Changelog](http://keepachangelog.com/) Standard. This project adheres
 to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased](https://github.com/kununu/elasticsearch/compare/v2.4.6...master)
+## [Unreleased](https://github.com/kununu/elasticsearch/compare/v2.6.0...master)
 
 ### Backward Compatibility Breaks
 
 ### Bugfixes
 
 ### Added
+
+### Improvements
+
+### Deprecated
+
+## [2.6.0](https://github.com/kununu/elasticsearch/compare/v2.5.4...v2.6.0)
+
+### Backward Compatibility Breaks
+
+* Changed class names of full-text queries (e.g. `Match` to `MatchQuery`). This is due to `"match"`becoming a reserved keyword in PHP 8
+
+### Bugfixes
+
+### Added
+
+* Bring back support for PHP 8
+* Use kununu elasticsearch 6.5.1 client fork (`kununu/elasticsearch-client`) with PHP 8 support
+* This should be **only used as a transitional version** for applications that need to be on PHP 8 but are still using Elasticsearch 6 servers
+  * Those applications should upgrade to use Elasticsearch 7 servers and converted to use 4.x releases of this library
 
 ### Improvements
 

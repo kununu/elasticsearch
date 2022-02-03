@@ -4,11 +4,11 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\Query\Criteria\Search;
 
 /**
- * Class Match
+ * Class MatchQuery
  *
  * @package Kununu\Elasticsearch\Query\Criteria\Search
  */
-class Match
+class MatchQuery
 {
     use MultiFieldTrait;
 
