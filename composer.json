@@ -4,18 +4,25 @@
     "type": "library",
     "license": "proprietary",
     "minimum-stability": "stable",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/kununu/elasticsearch-client.git",
+            "no-api": true
+        }
+    ],
     "require": {
-        "php": "^7.2",
+        "php": "^7.2 || ^8.0",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-json": "*",
         "ext-mbstring": "*",
-        "elasticsearch/elasticsearch": "~6.5.0",
+        "kununu/elasticsearch-client": "~6.5.1",
         "psr/log": "~1.0"
     },
     "require-dev": {
         "mockery/mockery": "^1.2.4",
-        "phpunit/phpunit": "^8.3"
+        "phpunit/phpunit": "^8.5 || ^9.5"
     },
     "config": {
         "preferred-install": {

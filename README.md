@@ -64,7 +64,7 @@ This package contains two implementations of the `QueryInterface`:
  - [RawQuery](doc/RAWQUERY.md)
 
 ### IndexManager
-This package provides easy access to a a few commonly used Elasticsearch index management features like creating indices and managing aliases.
+This package provides easy access to a few commonly used Elasticsearch index management features like creating indices and managing aliases.
 
 [More explanation and examples](doc/INDEX_MANAGER.md)
 
