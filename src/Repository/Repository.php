@@ -164,7 +164,7 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         );
     }
 
-    public function findById(string $id, array $sourceFields = []): PersistableEntityInterface|array|null
+    public function findById(string $id, array $sourceFields = []): object|array|null
     {
         return $this->executeRead(
             function () use ($id, $sourceFields) {

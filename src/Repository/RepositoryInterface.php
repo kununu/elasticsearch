@@ -63,7 +63,7 @@ interface RepositoryInterface
     /**
      * This method retrieves a single document based on a given $id.
      */
-    public function findById(string $id, array $sourceFields = []): PersistableEntityInterface|array|null;
+    public function findById(string $id, array $sourceFields = []): object|array|null;
 
     /**
      * This method returns the total document count in an index.
