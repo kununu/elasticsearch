@@ -333,7 +333,7 @@ class RepositoryConfigurationTest extends TestCase
             'valid time unit given' => [
                 'input' => [
                     'index' => 'foobar',
-                    'track_total_hits' => '10m',
+                    'scroll_context_keepalive' => '10m',
                 ],
                 'expected' => '10m',
             ],
@@ -343,7 +343,7 @@ class RepositoryConfigurationTest extends TestCase
     /**
      * @dataProvider scrollContextKeepaliveVariations
      */
-    public function testScrollContextKeepalive(array $input, ?bool $expected): void
+    public function testScrollContextKeepalive(array $input, string $expected): void
     {
         $config = new RepositoryConfiguration($input);
 
