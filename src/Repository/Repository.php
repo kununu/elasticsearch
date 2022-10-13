@@ -134,14 +134,12 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         );
     }
 
-    public function findScrollableByQuery(
-        QueryInterface $query,
-        string|null $scrollContextKeepalive = null
-    ): ResultIteratorInterface {
+    public function findScrollableByQuery(QueryInterface $query): ResultIteratorInterface
+    {
         return $this->executeRead(
-            function () use ($query, $scrollContextKeepalive) {
+            function () use ($query) {
                 $rawQuery = $this->buildRawQuery($query, OperationType::READ);
-                $rawQuery['scroll'] = $scrollContextKeepalive ?: $this->config->getScrollContextKeepalive();
+                $rawQuery['scroll'] = $this->config->getScrollContextKeepalive();
 
                 return $this->parseRawSearchResponse(
                     $this->client->search($rawQuery)
@@ -150,17 +148,15 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         );
     }
 
-    public function findByScrollId(
-        string $scrollId,
-        string|null $scrollContextKeepalive = null
-    ): ResultIteratorInterface {
+    public function findByScrollId(string $scrollId): ResultIteratorInterface
+    {
         return $this->executeRead(
-            function () use ($scrollId, $scrollContextKeepalive) {
+            function () use ($scrollId) {
                 return $this->parseRawSearchResponse(
                     $this->client->scroll(
                         [
                             'scroll_id' => $scrollId,
-                            'scroll' => $scrollContextKeepalive ?: $this->config->getScrollContextKeepalive(),
+                            'scroll' => $this->config->getScrollContextKeepalive(),
                         ]
                     )
                 );
@@ -320,6 +316,7 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
     {
         $base = [
             'index' => $this->config->getIndex($operationType),
+            'type' => $this->config->getType(),
         ];
 
         if ($operationType === OperationType::WRITE && $this->config->getForceRefreshOnWrite()) {
