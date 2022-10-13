@@ -52,13 +52,19 @@ interface RepositoryInterface
     /**
      * This method retrieves all documents matching the given $query and initializes a scroll cursor.
      */
-    public function findScrollableByQuery(QueryInterface $query): ResultIteratorInterface;
+    public function findScrollableByQuery(
+        QueryInterface $query,
+        string|null $scrollContextKeepalive = null
+    ): ResultIteratorInterface;
 
     /**
      * This method retrieves all documents available for an existing scroll cursor, identified by $scrollId.
      * Use RepositoryInterface::findScrollableByQuery() to initialize the scroll cursor.
      */
-    public function findByScrollId(string $scrollId): ResultIteratorInterface;
+    public function findByScrollId(
+        string $scrollId,
+        string|null $scrollContextKeepalive = null
+    ): ResultIteratorInterface;
 
     /**
      * This method retrieves a single document based on a given $id.
