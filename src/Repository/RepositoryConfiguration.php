@@ -10,12 +10,12 @@ class RepositoryConfiguration
     protected const OPTION_INDEX = 'index';
     protected const OPTION_INDEX_READ = 'index_read';
     protected const OPTION_INDEX_WRITE = 'index_write';
-    protected const OPTION_TYPE = 'type';
     protected const OPTION_ENTITY_SERIALIZER = 'entity_serializer';
     protected const OPTION_ENTITY_FACTORY = 'entity_factory';
     protected const OPTION_ENTITY_CLASS = 'entity_class';
     protected const OPTION_FORCE_REFRESH_ON_WRITE = 'force_refresh_on_write';
     protected const OPTION_TRACK_TOTAL_HITS = 'track_total_hits';
+    protected const OPTION_SCROLL_CONTEXT_KEEPALIVE = 'scroll_context_keepalive';
 
     /**
      * 1 minute per default
@@ -25,12 +25,12 @@ class RepositoryConfiguration
     public const DEFAULT_SCROLL_CONTEXT_KEEPALIVE = '1m';
 
     protected array $index = [];
-    protected string|null $type = null;
     protected EntitySerializerInterface|null $entitySerializer = null;
     protected EntityFactoryInterface|null $entityFactory = null;
     protected string|null $entityClass = null;
     protected bool $forceRefreshOnWrite = false;
     protected bool|null $trackTotalHits = null;
+    protected string|null $scrollContextKeepalive = null;
 
     public function __construct(array $config)
     {
@@ -50,15 +50,6 @@ class RepositoryConfiguration
         return $indexForOperationType;
     }
 
-    public function getType(): string
-    {
-        if (!$this->type) {
-            throw new RepositoryConfigurationException('No valid type configured');
-        }
-
-        return $this->type;
-    }
-
     public function getEntityClass(): ?string
     {
         return $this->entityClass;
@@ -76,7 +67,7 @@ class RepositoryConfiguration
 
     public function getScrollContextKeepalive(): string
     {
-        return static::DEFAULT_SCROLL_CONTEXT_KEEPALIVE;
+        return $this->scrollContextKeepalive ?: static::DEFAULT_SCROLL_CONTEXT_KEEPALIVE;
     }
 
     public function getForceRefreshOnWrite(): bool
@@ -97,7 +88,6 @@ class RepositoryConfiguration
                 OperationType::WRITE => $config[static::OPTION_INDEX_WRITE] ?? null,
             ]
         );
-        $this->type = $config[static::OPTION_TYPE] ?? null;
 
         if (isset($config[static::OPTION_ENTITY_CLASS])) {
             $this->entityClass = $config[static::OPTION_ENTITY_CLASS];
@@ -128,6 +118,16 @@ class RepositoryConfiguration
 
         if (isset($config[static::OPTION_TRACK_TOTAL_HITS])) {
             $this->trackTotalHits = (bool)$config[static::OPTION_TRACK_TOTAL_HITS];
+        }
+
+        if (isset($config[static::OPTION_SCROLL_CONTEXT_KEEPALIVE])) {
+            if (!preg_match('/\d+(d|h|m|s|ms|micros|nanos)/', $config[static::OPTION_SCROLL_CONTEXT_KEEPALIVE])) {
+                // see https://www.elastic.co/guide/en/elasticsearch/reference/7.9/common-options.html#time-units
+                throw new RepositoryConfigurationException(
+                    'Invalid value for scroll_context_keepalive given. Must be a valid time unit.'
+                );
+            }
+            $this->scrollContextKeepalive = $config[static::OPTION_SCROLL_CONTEXT_KEEPALIVE];
         }
     }
 

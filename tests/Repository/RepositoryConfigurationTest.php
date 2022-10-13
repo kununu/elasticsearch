@@ -14,14 +14,6 @@ use TypeError;
 
 class RepositoryConfigurationTest extends TestCase
 {
-    public function testGetDefaultScrollContextKeepalive(): void
-    {
-        $config = new RepositoryConfiguration([]);
-
-        $this->assertSame('1m', $config->getScrollContextKeepalive());
-        $this->assertFalse($config->getForceRefreshOnWrite());
-    }
-
     public function inflatableConfigData(): array
     {
         return [
@@ -111,34 +103,6 @@ class RepositoryConfigurationTest extends TestCase
         $this->expectExceptionMessage($expectedExceptionMsg);
 
         $config->getIndex($operationType);
-    }
-
-    public function invalidTypeConfigData(): array
-    {
-        return [
-            'nothing given' => [
-                'input' => [],
-            ],
-            'empty type name given' => [
-                'input' => ['type' => ''],
-            ],
-            'null type name given' => [
-                'input' => ['type' => null],
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider invalidIndexConfigData
-     */
-    public function testNoValidTypeConfigured(array $input): void
-    {
-        $config = new RepositoryConfiguration($input);
-
-        $this->expectException(RepositoryConfigurationException::class);
-        $this->expectExceptionMessage('No valid type configured');
-
-        $config->getType();
     }
 
     public function testValidEntitySerializer(): void
@@ -235,14 +199,12 @@ class RepositoryConfigurationTest extends TestCase
             'param not given' => [
                 'input' => [
                     'index' => 'foobar',
-                    'type' => '_doc',
                 ],
                 'expected' => false,
             ],
             'false given' => [
                 'input' => [
                     'index' => 'foobar',
-                    'type' => '_doc',
                     'force_refresh_on_write' => false,
                 ],
                 'expected' => false,
@@ -250,7 +212,6 @@ class RepositoryConfigurationTest extends TestCase
             'falsy value given' => [
                 'input' => [
                     'index' => 'foobar',
-                    'type' => '_doc',
                     'force_refresh_on_write' => 0,
                 ],
                 'expected' => false,
@@ -258,7 +219,6 @@ class RepositoryConfigurationTest extends TestCase
             'true given' => [
                 'input' => [
                     'index' => 'foobar',
-                    'type' => '_doc',
                     'force_refresh_on_write' => true,
                 ],
                 'expected' => true,
@@ -266,7 +226,6 @@ class RepositoryConfigurationTest extends TestCase
             'true-ish integer given' => [
                 'input' => [
                     'index' => 'foobar',
-                    'type' => '_doc',
                     'force_refresh_on_write' => 1,
                 ],
                 'expected' => true,
@@ -274,7 +233,6 @@ class RepositoryConfigurationTest extends TestCase
             'true-ish string given' => [
                 'input' => [
                     'index' => 'foobar',
-                    'type' => '_doc',
                     'force_refresh_on_write' => 'yes',
                 ],
                 'expected' => true,
@@ -282,7 +240,6 @@ class RepositoryConfigurationTest extends TestCase
             'not-so-clever-but-still-true-ish string given' => [
                 'input' => [
                     'index' => 'foobar',
-                    'type' => '_doc',
                     'force_refresh_on_write' => 'no',
                 ],
                 'expected' => true,
@@ -306,14 +263,12 @@ class RepositoryConfigurationTest extends TestCase
             'param not given' => [
                 'input' => [
                     'index' => 'foobar',
-                    'type' => '_doc',
                 ],
                 'expected' => null,
             ],
             'false given' => [
                 'input' => [
                     'index' => 'foobar',
-                    'type' => '_doc',
                     'track_total_hits' => false,
                 ],
                 'expected' => false,
@@ -321,7 +276,6 @@ class RepositoryConfigurationTest extends TestCase
             'falsy value given' => [
                 'input' => [
                     'index' => 'foobar',
-                    'type' => '_doc',
                     'track_total_hits' => 0,
                 ],
                 'expected' => false,
@@ -329,7 +283,6 @@ class RepositoryConfigurationTest extends TestCase
             'true given' => [
                 'input' => [
                     'index' => 'foobar',
-                    'type' => '_doc',
                     'track_total_hits' => true,
                 ],
                 'expected' => true,
@@ -337,7 +290,6 @@ class RepositoryConfigurationTest extends TestCase
             'true-ish integer given' => [
                 'input' => [
                     'index' => 'foobar',
-                    'type' => '_doc',
                     'track_total_hits' => 1,
                 ],
                 'expected' => true,
@@ -345,7 +297,6 @@ class RepositoryConfigurationTest extends TestCase
             'true-ish string given' => [
                 'input' => [
                     'index' => 'foobar',
-                    'type' => '_doc',
                     'track_total_hits' => 'yes',
                 ],
                 'expected' => true,
@@ -353,7 +304,6 @@ class RepositoryConfigurationTest extends TestCase
             'not-so-clever-but-still-true-ish string given' => [
                 'input' => [
                     'index' => 'foobar',
-                    'type' => '_doc',
                     'track_total_hits' => 'no',
                 ],
                 'expected' => true,
@@ -369,5 +319,52 @@ class RepositoryConfigurationTest extends TestCase
         $config = new RepositoryConfiguration($input);
 
         $this->assertSame($expected, $config->getTrackTotalHits());
+    }
+
+    public function scrollContextKeepaliveVariations(): array
+    {
+        return [
+            'param not given' => [
+                'input' => [
+                    'index' => 'foobar',
+                ],
+                'expected' => '1m', // the default
+            ],
+            'valid time unit given' => [
+                'input' => [
+                    'index' => 'foobar',
+                    'scroll_context_keepalive' => '10m',
+                ],
+                'expected' => '10m',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider scrollContextKeepaliveVariations
+     */
+    public function testScrollContextKeepalive(array $input, string $expected): void
+    {
+        $config = new RepositoryConfiguration($input);
+
+        $this->assertSame($expected, $config->getScrollContextKeepalive());
+    }
+
+    public function testInvalidScrollContextKeepalive(): void
+    {
+        $this->expectException(RepositoryConfigurationException::class);
+        $this->expectExceptionMessage(
+            'Invalid value for scroll_context_keepalive given. Must be a valid time unit.'
+        );
+
+        $config = new RepositoryConfiguration(['index' => 'foobar', 'scroll_context_keepalive' => 'xxx']); // NOSONAR
+    }
+
+    public function testGetDefaultScrollContextKeepalive(): void
+    {
+        $config = new RepositoryConfiguration([]);
+
+        $this->assertSame('1m', $config->getScrollContextKeepalive());
+        $this->assertFalse($config->getForceRefreshOnWrite());
     }
 }
