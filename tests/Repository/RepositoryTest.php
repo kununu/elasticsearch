@@ -38,9 +38,8 @@ class RepositoryTest extends MockeryTestCase
         'read' => 'some_index_read',
         'write' => 'some_index_write',
     ];
-    protected const TYPE = '_doc';
     protected const ERROR_PREFIX = 'Elasticsearch exception: ';
-    protected const ERROR_MESSAGE = 'Any error, for example: missing type';
+    protected const ERROR_MESSAGE = 'Any error';
     public const ID = 'can_be_anything';
     protected const DOCUMENT_COUNT = 42;
     protected const SCROLL_ID = 'DnF1ZXJ5VGhlbkZldGNoBQAAAAAAAAFbFkJVNEdjZWVjU';
@@ -70,7 +69,6 @@ class RepositoryTest extends MockeryTestCase
                 [
                     'index_read' => self::INDEX['read'],
                     'index_write' => self::INDEX['write'],
-                    'type' => self::TYPE,
                 ],
                 $additionalConfig
             )
@@ -93,7 +91,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                     'body' => $document,
                 ]
@@ -120,7 +117,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                     'body' => $document,
                     'refresh' => true,
@@ -148,7 +144,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                     'body' => [
                         'property_a' => 'a',
@@ -178,7 +173,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                     'body' => [
                         'property_a' => 'a',
@@ -250,7 +244,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                     'body' => $document,
                 ]
@@ -289,7 +282,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'body' => [
                         ['index' => ['_id' => 'document_id_1']],
                         $documents['document_id_1'],
@@ -324,7 +316,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'body' => [
                         ['index' => ['_id' => 'document_id_1']],
                         $documents['document_id_1'],
@@ -361,7 +352,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'body' => [
                         ['index' => ['_id' => 'doc_0']],
                         ['property_a' => 'a0', 'property_b' => 'b0'],
@@ -396,7 +386,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'body' => [
                         ['index' => ['_id' => 'doc_0']],
                         ['property_a' => 'a0', 'property_b' => 'b0'],
@@ -453,7 +442,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'body' => $expectedOperations,
                 ]
             )
@@ -480,7 +468,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                 ]
             );
@@ -501,7 +488,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                     'refresh' => true,
                 ]
@@ -523,7 +509,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                 ]
             )
@@ -552,7 +537,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                 ]
             )
@@ -582,7 +566,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'body' => [
                         'query' => [
                             'bool' => [
@@ -626,7 +609,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'body' => [
                         'query' => [
                             'bool' => [
@@ -671,7 +653,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'body' => [
                         'query' => [
                             'bool' => [
@@ -715,7 +696,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'body' => [
                         'query' => [
                             'bool' => [
@@ -933,7 +913,6 @@ class RepositoryTest extends MockeryTestCase
     {
         $rawParams = [
             'index' => self::INDEX['read'],
-            'type' => self::TYPE,
             'body' => $query->toArray(),
         ];
 
@@ -1052,7 +1031,6 @@ class RepositoryTest extends MockeryTestCase
             'document found' => [
                 'es_result' => [
                     '_index' => self::INDEX['read'],
-                    '_type' => self::TYPE,
                     '_version' => 1,
                     'found' => true,
                     '_source' => [
@@ -1061,7 +1039,6 @@ class RepositoryTest extends MockeryTestCase
                 ],
                 'end_result' => [
                     '_index' => self::INDEX['read'],
-                    '_type' => self::TYPE,
                     '_version' => 1,
                     'found' => true,
                     '_source' => [
@@ -1086,7 +1063,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['read'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                 ]
             )
@@ -1112,7 +1088,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['read'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                     '_source' => ['foo', 'foo2']
                 ]
@@ -1139,7 +1114,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['read'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                 ]
             )
@@ -1159,7 +1133,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['read'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                 ]
             )
@@ -1186,7 +1159,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['read'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                 ]
             )
@@ -1208,7 +1180,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['read'],
-                    'type' => self::TYPE,
                     'body' => $query->toArray(),
                 ]
             )
@@ -1247,7 +1218,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['read'],
-                    'type' => self::TYPE,
                     'body' => $query->toArray(),
                 ]
             )
@@ -1290,7 +1260,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['read'],
-                    'type' => self::TYPE,
                     'body' => $query->toArray(),
                 ]
             )
@@ -1370,7 +1339,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'body' => array_merge(
                         $query->toArray(),
                         [
@@ -1427,7 +1395,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'body' => array_merge(
                         $query->toArray(),
                         [
@@ -1485,7 +1452,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                     'body' => $document,
                 ]
@@ -1496,7 +1462,6 @@ class RepositoryTest extends MockeryTestCase
 
         $manager = new class($this->clientMock, [
             'index_write' => self::INDEX['write'],
-            'type' => self::TYPE,
         ], $this) extends Repository
         {
             /**
@@ -1542,7 +1507,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'body' => [
                         ['index' => ['_id' => self::ID]],
                         ['whatever' => 'just some data'],
@@ -1555,7 +1519,6 @@ class RepositoryTest extends MockeryTestCase
 
         $manager = new class($this->clientMock, [
             'index_write' => self::INDEX['write'],
-            'type' => self::TYPE,
         ], $this) extends Repository {
             /**
              * @var \Mockery\Adapter\Phpunit\MockeryTestCase
@@ -1592,7 +1555,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                 ]
             );
@@ -1602,7 +1564,6 @@ class RepositoryTest extends MockeryTestCase
 
         $manager = new class($this->clientMock, [
             'index_write' => self::INDEX['write'],
-            'type' => self::TYPE,
         ], $this) extends Repository
         {
             /**
@@ -1701,7 +1662,6 @@ class RepositoryTest extends MockeryTestCase
     ): void {
         $rawParams = [
             'index' => self::INDEX['read'],
-            'type' => self::TYPE,
             'body' => $query->toArray(),
         ];
 
@@ -1794,7 +1754,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['read'],
-                    'type' => self::TYPE,
                     'body' => $query->toArray(),
                 ]
             )
@@ -1845,7 +1804,6 @@ class RepositoryTest extends MockeryTestCase
     ): void {
         $rawParams = [
             'index' => self::INDEX['read'],
-            'type' => self::TYPE,
             'body' => $query->toArray(),
         ];
 
@@ -1940,7 +1898,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['read'],
-                    'type' => self::TYPE,
                     'body' => $query->toArray(),
                 ]
             )
@@ -1981,7 +1938,6 @@ class RepositoryTest extends MockeryTestCase
                     }
                     $entity->_meta = [
                         '_index' => $variables['es_result']['_index'],
-                        '_type' => $variables['es_result']['_type'],
                         '_version' => $variables['es_result']['_version'],
                         'found' => $variables['es_result']['found'],
                     ];
@@ -2009,7 +1965,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['read'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                 ]
             )
@@ -2025,7 +1980,7 @@ class RepositoryTest extends MockeryTestCase
         $this->assertEquals($endResult, $result);
         if ($endResult) {
             $this->assertEquals(
-                ['_index' => self::INDEX['read'], '_type' => self::TYPE, '_version' => 1, 'found' => true],
+                ['_index' => self::INDEX['read'], '_version' => 1, 'found' => true],
                 $result->_meta
             );
         }
@@ -2045,7 +2000,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['read'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                 ]
             )
@@ -2061,7 +2015,7 @@ class RepositoryTest extends MockeryTestCase
         $this->assertEquals($endResult, $result);
         if ($endResult) {
             $this->assertEquals(
-                ['_index' => self::INDEX['read'], '_type' => self::TYPE, '_version' => 1, 'found' => true],
+                ['_index' => self::INDEX['read'], '_version' => 1, 'found' => true],
                 $result->_meta
             );
         }
@@ -2079,7 +2033,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                     'body' => [
                         'doc' => $document,
@@ -2109,7 +2062,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                     'body' => [
                         'doc' => $document,
@@ -2140,7 +2092,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                     'body' => [
                         'doc' => [
@@ -2173,7 +2124,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                     'body' => [
                         'doc' => [
@@ -2232,7 +2182,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                     'body' => [
                         'doc' => $document,
@@ -2271,7 +2220,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                     'body' => [
                         'doc' => $document,
@@ -2300,7 +2248,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                     'body' => [
                         'doc' => $document,
@@ -2330,7 +2277,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                     'body' => [
                         'doc' => [
@@ -2362,7 +2308,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                     'body' => [
                         'doc' => [
@@ -2420,7 +2365,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                     'body' => [
                         'doc' => $document,
