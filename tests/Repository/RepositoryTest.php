@@ -939,6 +939,34 @@ class RepositoryTest extends MockeryTestCase
         }
     }
 
+    /**
+     * @dataProvider searchResultData
+     *
+     * @param array $esResult
+     * @param array $endResult
+     */
+    public function testFindScrollableByQueryCanOverrideScrollContextKeepalive(array $esResult, array $endResult): void
+    {
+        $query = Query::create();
+        $keepalive = '10m';
+
+        $rawParams = [
+            'index' => self::INDEX['read'],
+            'body' => $query->toArray(),
+            'scroll' => $keepalive,
+        ];
+
+        $this->clientMock
+            ->shouldReceive('search')
+            ->once()
+            ->with($rawParams)
+            ->andReturn($esResult);
+
+        $result = $this->getRepository()->findScrollableByQuery($query, $keepalive);
+
+        $this->assertEquals($endResult, $result->asArray());
+    }
+
     public function testFindByQueryFails(): void
     {
         $this->clientMock
@@ -984,6 +1012,36 @@ class RepositoryTest extends MockeryTestCase
             ->shouldNotReceive('error');
 
         $result = $this->getRepository()->findByScrollId($scrollId);
+
+        $this->assertEquals($endResult, $result->asArray());
+    }
+
+    /**
+     * @dataProvider searchResultData
+     *
+     * @param array $esResult
+     * @param array $endResult
+     */
+    public function testFindByScrollIdCanOverrideScrollContextKeepalive(array $esResult, array $endResult): void
+    {
+        $scrollId = 'foobar';
+        $keepalive = '20m';
+
+        $this->clientMock
+            ->shouldReceive('scroll')
+            ->once()
+            ->with(
+                [
+                    'scroll_id' => $scrollId,
+                    'scroll' => $keepalive,
+                ]
+            )
+            ->andReturn($esResult);
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $result = $this->getRepository()->findByScrollId($scrollId, $keepalive);
 
         $this->assertEquals($endResult, $result->asArray());
     }
