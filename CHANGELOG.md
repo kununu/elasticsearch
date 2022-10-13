@@ -16,9 +16,12 @@ to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
-## [4.1](https://github.com/kununu/elasticsearch/compare/v4.0.2...v4.1)
+## [5.0.0](https://github.com/kununu/elasticsearch/compare/v4.0.2...v5.0.0)
 
 ### Backward Compatibility Breaks
+
+* Removed support for mapping types in `IndexManager::putMapping()` (
+  see https://www.elastic.co/guide/en/elasticsearch/reference/7.17/removal-of-types.html)
 
 ### Bugfixes
 
