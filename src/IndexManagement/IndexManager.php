@@ -119,9 +119,9 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
         return $this;
     }
 
-    public function putMapping(string $index, array $mapping, array $extraParams = []): IndexManagerInterface
+    public function putMapping(string $index, string $type, array $mapping, array $extraParams = []): IndexManagerInterface
     {
-        $params = array_merge(['index' => $index, 'body' => $mapping], $extraParams);
+        $params = array_merge(['index' => $index, 'type' => $type, 'body' => $mapping], $extraParams);
 
         $this->execute(
             function () use ($params) {
@@ -129,7 +129,7 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
             },
             true,
             'Could not put mapping',
-            ['index' => $index, 'mapping' => $mapping]
+            ['index' => $index, 'type' => $type, 'mapping' => $mapping]
         );
 
         return $this;
@@ -226,7 +226,7 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
             ['index' => $index, 'body' => $body]
         );
     }
-
+    
     protected function execute(
         callable $operation,
         bool $checkAcknowledged,

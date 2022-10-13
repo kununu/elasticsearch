@@ -16,39 +16,6 @@ to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
-## [4.1](https://github.com/kununu/elasticsearch/compare/v4.0.2...v4.1)
-
-### Backward Compatibility Breaks
-
-### Bugfixes
-
-### Added
-
-* Config option for setting `scroll_context_keepalive` per `Repository` and/or per `Query` (
-  see https://www.elastic.co/guide/en/elasticsearch/reference/7.9/paginate-search-results.html#scroll-search-results)
-
-### Improvements
-
-* Removed support for mapping types (
-  see https://www.elastic.co/guide/en/elasticsearch/reference/7.17/removal-of-types.html)
-
-### Deprecated
-
-## [4.0.2](https://github.com/kununu/elasticsearch/compare/v4.0.1...v4.0.2)
-
-### Backward Compatibility Breaks
-
-### Bugfixes
-
-* Include `null` as an acceptable value to the document attribute of `UpsertException` and `UpdateException`
-* Replace `PersistableEntityInterface` by object in `Repository::findById()` method
-
-### Added
-
-### Improvements
-
-### Deprecated
-
 ## [4.0.1](https://github.com/kununu/elasticsearch/compare/v4.0.0...v4.0.1)
 
 ### Backward Compatibility Breaks

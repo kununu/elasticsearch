@@ -6,7 +6,7 @@ The default `IndexManager` shipped with this package includes standard functiona
  - deleting indices
  - retrieving index-to-alias mappings
  - adding, removing and switching aliases
- - putting mappings
+ - putting type mappings
  - reindexing
  - updating documents (with update scripts)
  - aggregations
