@@ -4,7 +4,9 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\IndexManagement;
 
 use Elasticsearch\Client;
+use Elasticsearch6\Client as Es6Client;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
+use Elasticsearch6\Common\Exceptions\Missing404Exception as Es6Missing404Exception;
 use Exception;
 use Kununu\Elasticsearch\Exception\IndexManagementException;
 use Kununu\Elasticsearch\Util\LoggerAwareTrait;
@@ -17,18 +19,10 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
     use LoggerAwareTrait;
 
     /**
-     * @var \Elasticsearch\Client
-     */
-    protected $client;
-
-    /**
      * IndexManager constructor.
-     *
-     * @param \Elasticsearch\Client $client
      */
-    public function __construct(Client $client)
+    public function __construct(protected Client|Es6Client $client)
     {
-        $this->client = $client;
     }
 
     /**
@@ -174,7 +168,7 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
                 function () use ($alias) {
                     try {
                         return $this->client->indices()->getAlias(['name' => $alias]);
-                    } catch (Missing404Exception $exception) {
+                    } catch (Missing404Exception|Es6Missing404Exception) {
                         return [];
                     }
                 },
@@ -194,7 +188,7 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
             function () {
                 try {
                     return $this->client->indices()->get(['index' => '_all']);
-                } catch (Missing404Exception $exception) {
+                } catch (Missing404Exception|Es6Missing404Exception) {
                     return [];
                 }
             },

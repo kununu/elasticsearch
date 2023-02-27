@@ -12,17 +12,18 @@
         }
     ],
     "require": {
-        "php": "^7.2 || ^8.0",
+        "php": ">=8.0",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-json": "*",
         "ext-mbstring": "*",
-        "kununu/elasticsearch-client": "~6.5.1",
+        "kununu/elasticsearch-client": "~6.5.1.2",
+        "elasticsearch/elasticsearch": "^7.0",
         "psr/log": "~1.0"
     },
     "require-dev": {
         "mockery/mockery": "^1.2.4",
-        "phpunit/phpunit": "^8.5 || ^9.5"
+        "phpunit/phpunit": "^9.5"
     },
     "config": {
         "preferred-install": {

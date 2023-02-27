@@ -4,7 +4,9 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\Repository;
 
 use Elasticsearch\Client;
+use Elasticsearch6\Client as Es6Client;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
+use Elasticsearch6\Common\Exceptions\Missing404Exception as Es6Missing404Exception;
 use Exception;
 use InvalidArgumentException;
 use Kununu\Elasticsearch\Exception\BulkException;
@@ -36,23 +38,11 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
 
     protected const EXCEPTION_PREFIX = 'Elasticsearch exception: ';
 
-    /**
-     * @var \Elasticsearch\Client
-     */
-    protected $client;
+    protected Client|Es6Client $client;
 
-    /**
-     * @var \Kununu\Elasticsearch\Repository\RepositoryConfiguration
-     */
-    protected $config;
+    protected RepositoryConfiguration $config;
 
-    /**
-     * Repository constructor.
-     *
-     * @param \Elasticsearch\Client $client
-     * @param array                 $config
-     */
-    public function __construct(Client $client, array $config)
+    public function __construct(Client|Es6Client $client, array $config)
     {
         $this->client = $client;
         $this->config = new RepositoryConfiguration($config);
@@ -130,7 +120,7 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
             );
 
             $this->postDelete($id);
-        } catch (Missing404Exception $e) {
+        } catch (Missing404Exception|Es6Missing404Exception $e) {
             throw new DocumentNotFoundException('No document found with id ' . $id, $e, $id);
         } catch (\Exception $e) {
             $this->getLogger()->error(self::EXCEPTION_PREFIX . $e->getMessage());
@@ -232,7 +222,7 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
                     if (!($response['found'] ?? false)) {
                         throw new Missing404Exception();
                     }
-                } catch (Missing404Exception $e) {
+                } catch (Missing404Exception|Es6Missing404Exception $e) {
                     return null;
                 }
 
