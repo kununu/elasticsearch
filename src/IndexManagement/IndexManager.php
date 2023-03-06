@@ -144,12 +144,14 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
      */
     public function putMapping(string $index, string $type, array $mapping, array $extraParams = []): IndexManagerInterface
     {
-        $params = array_merge(['index' => $index, 'type' => $type, 'body' => $mapping], $extraParams);
+        $params = array_merge(
+            ['index' => $index, 'body' => $mapping],
+            $this->client instanceof Client ? [] : ['type' => $type],
+            $extraParams
+        );
 
         $this->execute(
-            function () use ($params) {
-                return $this->client->indices()->putMapping($params);
-            },
+            fn() => $this->client->indices()->putMapping($params),
             true,
             'Could not put mapping',
             ['index' => $index, 'type' => $type, 'mapping' => $mapping]
