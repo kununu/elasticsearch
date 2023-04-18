@@ -9,6 +9,7 @@ important Elasticsearch queries and aggregations are available:
   - [Match Query](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/query-dsl-match-query.html)
   - [Match Phrase Query](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/query-dsl-match-query-phrase.html)
   - [Match Phrase Prefix Query](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/query-dsl-match-query-phrase-prefix.html)
+  - [Prefix Query](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/query-dsl-prefix-query.html)
   - [Query String Query](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/query-dsl-query-string-query.html)
 - Compound queries:
   - [Boolean Query](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/query-dsl-bool-query.html)
