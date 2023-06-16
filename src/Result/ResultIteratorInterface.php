@@ -3,7 +3,9 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Result;
 
-interface ResultIteratorInterface
+use Iterator;
+
+interface ResultIteratorInterface extends Iterator
 {
     public function setTotal(int $total): ResultIteratorInterface;
 

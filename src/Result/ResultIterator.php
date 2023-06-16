@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Result;
 
-class ResultIterator implements \Iterator, \ArrayAccess, \Countable, ResultIteratorInterface
+class ResultIterator implements \ArrayAccess, \Countable, ResultIteratorInterface
 {
     use IterableTrait, ArrayAccessTrait, CountableTrait;
 
