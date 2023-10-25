@@ -3,50 +3,28 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Result;
 
-/**
- * Trait ArrayAccessTrait
- *
- * @package Kununu\Elasticsearch\Result
- */
 trait ArrayAccessTrait
 {
-    /**
-     * @var array
-     */
-    protected $results = [];
-
-    /**
-     * @inheritdoc
-     */
-    public function offsetExists($offset)
+    public function offsetExists(mixed $offset): bool
     {
         return isset($this->results[$offset]);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function offsetGet($offset)
+    public function offsetGet(mixed $offset): mixed
     {
         return $this->results[$offset] ?? null;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function offsetSet($offset, $result)
+    public function offsetSet(mixed $offset, mixed $result): void
     {
-        if (is_null($offset)) {
+        if (null === $offset) {
             $this->results[] = $result;
         } else {
             $this->results[$offset] = $result;
         }
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         unset($this->results[$offset]);
     }

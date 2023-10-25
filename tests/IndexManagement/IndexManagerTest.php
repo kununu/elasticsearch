@@ -475,7 +475,6 @@ class IndexManagerTest extends MockeryTestCase
                 [
                     'index' => self::INDEX,
                     'body' => self::MAPPING,
-                    'type' => self::TYPE,
                     'extra_param' => true,
                 ]
             )
@@ -503,7 +502,6 @@ class IndexManagerTest extends MockeryTestCase
                 [
                     'index' => self::INDEX,
                     'body' => self::MAPPING,
-                    'type' => self::TYPE,
                 ]
             )
             ->andReturn($response);

@@ -11,3 +11,4 @@ log/
 .phpunit.result.cache
 tests/.results
 composer.lock
+.php-cs-fixer.cache
