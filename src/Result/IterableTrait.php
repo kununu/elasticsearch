@@ -3,59 +3,32 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Result;
 
-/**
- * Trait IterableTrait
- *
- * @package Kununu\Elasticsearch\Result
- */
 trait IterableTrait
 {
-    /**
-     * @var array
-     */
-    protected $results = [];
+    protected array $results = [];
+    protected int $position = 0;
 
-    /**
-     * @var int
-     */
-    protected $position = 0;
-
-    /**
-     * @inheritdoc
-     */
-    public function current()
+    public function current(): mixed
     {
         return $this->results[$this->position];
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function next()
+    public function next(): void
     {
         $this->position++;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function key()
+    public function key(): mixed
     {
         return $this->position;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function valid()
+    public function valid(): bool
     {
         return isset($this->results[$this->position]);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function rewind()
+    public function rewind(): void
     {
         $this->position = 0;
     }

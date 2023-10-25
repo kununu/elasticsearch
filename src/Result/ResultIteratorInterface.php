@@ -5,51 +5,22 @@ namespace Kununu\Elasticsearch\Result;
 
 /**
  * Interface ResultIteratorInterface
- *
- * @package Kununu\Elasticsearch\Result
  */
 interface ResultIteratorInterface
 {
-    /**
-     * @param int $total
-     *
-     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
-     */
     public function setTotal(int $total): ResultIteratorInterface;
 
-    /**
-     * @return int
-     */
     public function getTotal(): int;
 
-    /**
-     * @return int
-     */
     public function getCount(): int;
 
-    /**
-     * @return string|null
-     */
     public function getScrollId(): ?string;
 
-    /**
-     * @param string|null $scrollId
-     *
-     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
-     */
     public function setScrollId(?string $scrollId): ResultIteratorInterface;
 
-    /**
-     * @return array
-     */
     public function asArray(): array;
 
-    /**
-     * @param array $result
-     *
-     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
-     */
-    public function push(array $result): ResultIteratorInterface;
+    public function push(array|object $result): ResultIteratorInterface;
 
     /**
      * Returns the first result in this iterator for which the given callable returns a true-ish value.
@@ -104,10 +75,10 @@ interface ResultIteratorInterface
     public function map(callable $fn): array;
 
     /**
-     * @param callable $fn (carry, result, key)
-     * @param mixed    $initial
+     * @param callable   $fn      (carry, result, key)
+     * @param mixed|null $initial
      *
      * @return mixed
      */
-    public function reduce(callable $fn, $initial = null);
+    public function reduce(callable $fn, mixed $initial = null): mixed;
 }
