@@ -1,10 +1,11 @@
 <?php
+declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Tests\Repository;
 
 use Kununu\Elasticsearch\Repository\EntityFactoryInterface;
 
-class EntityFactoryStub implements EntityFactoryInterface
+final class EntityFactoryStub implements EntityFactoryInterface
 {
     public function fromDocument(array $document, array $metaData): object
     {

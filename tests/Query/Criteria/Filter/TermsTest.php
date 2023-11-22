@@ -4,12 +4,9 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\Tests\Query\Criteria\Filter;
 
 use Kununu\Elasticsearch\Query\Criteria\Filter\Terms;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
+use PHPUnit\Framework\TestCase;
 
-/**
- * @group unit
- */
-class TermsTest extends MockeryTestCase
+final class TermsTest extends TestCase
 {
     public function testWithoutOptions(): void
     {
@@ -29,7 +26,7 @@ class TermsTest extends MockeryTestCase
             [
                 'terms' => [
                     'field_a' => ['foo', 'bar'],
-                    'boost' => 7,
+                    'boost'   => 7,
                 ],
             ],
             Terms::asArray('field_a', ['foo', 'bar'], ['boost' => 7])

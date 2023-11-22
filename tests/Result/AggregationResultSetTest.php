@@ -1,19 +1,16 @@
 <?php
 declare(strict_types=1);
 
-namespace Kununu\Elasticsearch\Tests\Adapter;
+namespace Kununu\Elasticsearch\Tests\Result;
 
 use Kununu\Elasticsearch\Result\AggregationResult;
 use Kununu\Elasticsearch\Result\AggregationResultSet;
 use Kununu\Elasticsearch\Result\ResultIterator;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
-/**
- * @group unit
- */
-class AggregationResultSetTest extends MockeryTestCase
+final class AggregationResultSetTest extends MockeryTestCase
 {
-    public function createData(): array
+    public static function createDataProvider(): array
     {
         return [
             'empty result' => [
@@ -33,11 +30,7 @@ class AggregationResultSetTest extends MockeryTestCase
         ];
     }
 
-    /**
-     * @dataProvider createData
-     *
-     * @param array $rawResult
-     */
+    /** @dataProvider createDataProvider */
     public function testCreate(array $rawResult): void
     {
         $result = AggregationResultSet::create($rawResult);
@@ -62,11 +55,7 @@ class AggregationResultSetTest extends MockeryTestCase
         $this->assertEquals($documentIterator, $result->getDocuments());
     }
 
-    /**
-     * @dataProvider createData
-     *
-     * @param array $rawResult
-     */
+    /** @dataProvider createDataProvider */
     public function testGetResultByName(array $rawResult): void
     {
         $result = AggregationResultSet::create($rawResult);

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Tests\Repository;
 
@@ -8,6 +9,6 @@ class EntitySerializerStub implements EntitySerializerInterface
 {
     public function toElastic(mixed $entity): array
     {
-        return (array)$entity;
+        return (array) $entity;
     }
 }

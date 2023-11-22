@@ -16,7 +16,7 @@ class QueryStringQuery
                 $options,
                 [
                     'fields' => self::prepareFields($fields),
-                    'query' => $queryString,
+                    'query'  => $queryString,
                 ]
             ),
         ];

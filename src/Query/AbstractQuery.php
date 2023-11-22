@@ -51,13 +51,11 @@ abstract class AbstractQuery implements QueryInterface
         } elseif (is_array($field)) {
             array_walk(
                 $field,
-                function ($value, $key) {
-                    $this->sort(
-                        $key,
-                        $value['order'] ?? SortOrder::ASC,
-                        $value['options'] ?? []
-                    );
-                }
+                fn($value, $key) => $this->sort(
+                    $key,
+                    $value['order'] ?? SortOrder::ASC,
+                    $value['options'] ?? []
+                )
             );
         }
 

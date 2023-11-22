@@ -4,12 +4,9 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\Tests\Query\Criteria\Bool;
 
 use Kununu\Elasticsearch\Query\Criteria\Bool\MustNot;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
+use PHPUnit\Framework\TestCase;
 
-/**
- * @group unit
- */
-class MustNotTest extends MockeryTestCase
+final class MustNotTest extends TestCase
 {
     public function testOperator(): void
     {

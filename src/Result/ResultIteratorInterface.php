@@ -63,9 +63,6 @@ interface ResultIteratorInterface
 
     /**
      * @param callable $fn (carry, result, key)
-     * @param mixed    $initial
-     *
-     * @return mixed
      */
     public function reduce(callable $fn, mixed $initial = null): mixed;
 }

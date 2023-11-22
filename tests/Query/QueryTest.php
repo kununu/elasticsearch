@@ -6,41 +6,59 @@ namespace Kununu\Elasticsearch\Tests\Query;
 use InvalidArgumentException;
 use Kununu\Elasticsearch\Query\Aggregation;
 use Kununu\Elasticsearch\Query\Aggregation\Metric;
+use Kununu\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface;
 use Kununu\Elasticsearch\Query\Criteria\Bool\Must;
 use Kununu\Elasticsearch\Query\Criteria\Bool\MustNot;
 use Kununu\Elasticsearch\Query\Criteria\Bool\Should;
+use Kununu\Elasticsearch\Query\Criteria\CriteriaInterface;
 use Kununu\Elasticsearch\Query\Criteria\Filter;
 use Kununu\Elasticsearch\Query\Criteria\NestableQueryInterface;
 use Kununu\Elasticsearch\Query\Criteria\Search;
+use Kununu\Elasticsearch\Query\Criteria\SearchInterface;
 use Kununu\Elasticsearch\Query\Query;
 use Kununu\Elasticsearch\Query\SortOrder;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
+use PHPUnit\Framework\TestCase;
+use ReflectionProperty;
 
-/**
- * @group unit
- */
-class QueryTest extends MockeryTestCase
+final class QueryTest extends TestCase
 {
-    protected const FIELD_NAME_SEARCHES = 'searches';
-    protected const FIELD_NAME_FILTERS = 'filters';
-    protected const FIELD_NAME_AGGREGATIONS = 'aggregations';
+    private const FIELD_NAME_SEARCHES = 'searches';
+    private const FIELD_NAME_FILTERS = 'filters';
+    private const FIELD_NAME_AGGREGATIONS = 'aggregations';
 
-    /**
-     * @return array
-     */
-    public function createData(): array
+    /** @dataProvider createDataProvider */
+    public function testCreate(array $input): void
+    {
+        $children = [
+            Search::class      => [],
+            Filter::class      => [],
+            Aggregation::class => [],
+        ];
+
+        foreach ($input as $child) {
+            $children[$child::class][] = $child;
+        }
+
+        $query = Query::create(...$input);
+
+        $this->assertChildren($query, self::FIELD_NAME_SEARCHES, $children[Search::class]);
+        $this->assertChildren($query, self::FIELD_NAME_FILTERS, $children[Filter::class]);
+        $this->assertChildren($query, self::FIELD_NAME_AGGREGATIONS, $children[Aggregation::class]);
+    }
+
+    public static function createDataProvider(): array
     {
         return [
-            'empty' => [
+            'empty'                           => [
                 'input' => [],
             ],
-            'with a filter' => [
+            'with a filter'                   => [
                 'input' => [Filter::create('field', 'value')],
             ],
-            'with a search' => [
+            'with a search'                   => [
                 'input' => [Search::create(['field'], 'value')],
             ],
-            'with an aggregation' => [
+            'with an aggregation'             => [
                 'input' => [Aggregation::create('field', Metric::SUM)],
             ],
             'with a little bit of everything' => [
@@ -53,69 +71,17 @@ class QueryTest extends MockeryTestCase
         ];
     }
 
-    /**
-     * @param \Kununu\Elasticsearch\Query\Query $query
-     * @param string                            $fieldName
-     *
-     * @return \ReflectionProperty
-     */
-    protected function getPublicReflectionProperty(Query $query, string $fieldName): \ReflectionProperty
-    {
-        $property = new \ReflectionProperty(Query::class, $fieldName);
-        $property->setAccessible(true);
-
-        return $property;
-    }
-
-    /**
-     * @param \Kununu\Elasticsearch\Query\Query $query
-     * @param string                            $fieldName
-     * @param array                             $expected
-     */
-    protected function assertChildren(Query $query, string $fieldName, array $expected): void
-    {
-        $this->assertEquals($expected, $this->getPublicReflectionProperty($query, $fieldName)->getValue($query));
-    }
-
-    /**
-     * @dataProvider createData
-     *
-     * @param array $input
-     */
-    public function testCreate(array $input): void
-    {
-        $children = [
-            Search::class => [],
-            Filter::class => [],
-            Aggregation::class => [],
-        ];
-
-        foreach ($input as $child) {
-            $children[get_class($child)][] = $child;
-        }
-
-        $query = Query::create(...$input);
-
-        $this->assertChildren($query, self::FIELD_NAME_SEARCHES, $children[Search::class]);
-        $this->assertChildren($query, self::FIELD_NAME_FILTERS, $children[Filter::class]);
-        $this->assertChildren($query, self::FIELD_NAME_AGGREGATIONS, $children[Aggregation::class]);
-    }
-
-    /**
-     * @dataProvider createData
-     *
-     * @param array $input
-     */
+    /** @dataProvider createDataProvider */
     public function testCreateNested(array $input): void
     {
         $children = [
-            Search::class => [],
-            Filter::class => [],
+            Search::class      => [],
+            Filter::class      => [],
             Aggregation::class => [],
         ];
 
         foreach ($input as $child) {
-            $children[get_class($child)][] = $child;
+            $children[$child::class][] = $child;
         }
 
         $path = 'mypath';
@@ -130,16 +96,12 @@ class QueryTest extends MockeryTestCase
         $this->assertNull($query->getOption(NestableQueryInterface::OPTION_SCORE_MODE));
     }
 
-    /**
-     * @dataProvider createData
-     *
-     * @param array $input
-     */
+    /** @dataProvider createDataProvider */
     public function testAdd(array $input): void
     {
         $children = [
-            Search::class => [],
-            Filter::class => [],
+            Search::class      => [],
+            Filter::class      => [],
             Aggregation::class => [],
         ];
 
@@ -150,7 +112,7 @@ class QueryTest extends MockeryTestCase
         $this->assertChildren($query, self::FIELD_NAME_AGGREGATIONS, $children[Aggregation::class]);
 
         foreach ($input as $child) {
-            $children[get_class($child)][] = $child;
+            $children[$child::class][] = $child;
             $query->add($child);
         }
 
@@ -164,7 +126,14 @@ class QueryTest extends MockeryTestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Argument #0 is of unknown type');
 
-        Query::create('foo');
+        Query::create(
+            new class() implements CriteriaInterface {
+                public function toArray(): array
+                {
+                    return [];
+                }
+            }
+        );
     }
 
     public function testCreateWithValidAndInvalid(): void
@@ -172,7 +141,15 @@ class QueryTest extends MockeryTestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Argument #1 is of unknown type');
 
-        Query::create(Filter::create('field', 'value'), 'foo');
+        Query::create(
+            Filter::create('field', 'value'),
+            new class() implements CriteriaInterface {
+                public function toArray(): array
+                {
+                    return [];
+                }
+            }
+        );
     }
 
     public function testSearch(): void
@@ -195,7 +172,12 @@ class QueryTest extends MockeryTestCase
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
-            'Argument $search must be one of [\Kununu\Elasticsearch\Query\Criteria\SearchInterface, \Kununu\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface, \Kununu\Elasticsearch\Query\Criteria\NestableQueryInterface'
+            sprintf(
+                'Argument $search must be one of [%s, %s, %s]',
+                SearchInterface::class,
+                BoolQueryInterface::class,
+                NestableQueryInterface::class
+            )
         );
 
         Query::create()->search(Filter::create('field', 'value'));
@@ -274,11 +256,11 @@ class QueryTest extends MockeryTestCase
 
         $this->assertEquals(
             [
-                'query' => ['bool' => ['filter' => ['bool' => ['must' => [['term' => ['field' => 'value']]]]]]],
+                'query'   => ['bool' => ['filter' => ['bool' => ['must' => [['term' => ['field' => 'value']]]]]]],
                 '_source' => ['field_a'],
-                'size' => 10,
-                'from' => 1,
-                'sort' => [
+                'size'    => 10,
+                'from'    => 1,
+                'sort'    => [
                     'field_a' => ['order' => SortOrder::ASC],
                 ],
             ],
@@ -286,41 +268,44 @@ class QueryTest extends MockeryTestCase
         );
     }
 
-    /**
-     * @return array
-     */
-    public function toArrayData(): array
+    /** @dataProvider toArrayDataProvider */
+    public function testToArray(Query $query, array $expected): void
+    {
+        $this->assertEquals($expected, $query->toArray());
+    }
+
+    public static function toArrayDataProvider(): array
     {
         return [
-            'empty' => [
-                'query' => Query::create(),
+            'empty'                                                 => [
+                'query'    => Query::create(),
                 'expected' => [],
             ],
-            'with a min_score' => [
-                'query' => Query::create()->setMinScore(42),
+            'with a min_score'                                      => [
+                'query'    => Query::create()->setMinScore(42),
                 'expected' => [
                     'min_score' => 42,
                 ],
             ],
-            'with a filter' => [
-                'query' => Query::create(Filter::create('field', 'value')),
+            'with a filter'                                         => [
+                'query'    => Query::create(Filter::create('field', 'value')),
                 'expected' => [
                     'query' => ['bool' => ['filter' => ['bool' => ['must' => [['term' => ['field' => 'value']]]]]]],
                 ],
             ],
-            'with a search, default search operator' => [
-                'query' => Query::create(Search::create(['field_a'], 'foo')),
+            'with a search, default search operator'                => [
+                'query'    => Query::create(Search::create(['field_a'], 'foo')),
                 'expected' => [
                     'query' => [
                         'bool' => [
-                            'should' => [['query_string' => ['fields' => ['field_a'], 'query' => 'foo']]],
+                            'should'               => [['query_string' => ['fields' => ['field_a'], 'query' => 'foo']]],
                             'minimum_should_match' => 1,
                         ],
                     ],
                 ],
             ],
-            'with two searches, AND connected' => [
-                'query' => Query::create(
+            'with two searches, AND connected'                      => [
+                'query'    => Query::create(
                     Search::create(['field_a'], 'foo'),
                     Search::create(['field_b'], 'bar')
                 )->setSearchOperator(Must::OPERATOR),
@@ -335,8 +320,8 @@ class QueryTest extends MockeryTestCase
                     ],
                 ],
             ],
-            'with an aggregation' => [
-                'query' => Query::create(Aggregation::create('field_a', Metric::SUM, 'my_agg')),
+            'with an aggregation'                                   => [
+                'query'    => Query::create(Aggregation::create('field_a', Metric::SUM, 'my_agg')),
                 'expected' => [
                     'aggs' => [
                         'my_agg' => [
@@ -345,23 +330,23 @@ class QueryTest extends MockeryTestCase
                     ],
                 ],
             ],
-            'with a little bit of everything' => [
-                'query' => Query::create(
+            'with a little bit of everything'                       => [
+                'query'    => Query::create(
                     Filter::create('field', 'value'),
                     Search::create(['field_a'], 'foo'),
                     Aggregation::create('field_a', Metric::SUM, 'my_agg')
                 )->setMinScore(42),
                 'expected' => [
-                    'query' => [
+                    'query'     => [
                         'bool' => [
-                            'should' => [
+                            'should'               => [
                                 ['query_string' => ['fields' => ['field_a'], 'query' => 'foo']],
                             ],
-                            'filter' => ['bool' => ['must' => [['term' => ['field' => 'value']]]]],
+                            'filter'               => ['bool' => ['must' => [['term' => ['field' => 'value']]]]],
                             'minimum_should_match' => 1,
                         ],
                     ],
-                    'aggs' => [
+                    'aggs'      => [
                         'my_agg' => [
                             'sum' => ['field' => 'field_a'],
                         ],
@@ -370,7 +355,7 @@ class QueryTest extends MockeryTestCase
                 ],
             ],
             'advanced full text queries combined with bool queries' => [
-                'query' => Query::create(
+                'query'    => Query::create(
                     Filter::create('field', 'value')
                 )
                     ->search(
@@ -388,9 +373,9 @@ class QueryTest extends MockeryTestCase
                     ->setSearchOperator(Must::OPERATOR)
                     ->setMinScore(42),
                 'expected' => [
-                    'query' => [
+                    'query'     => [
                         'bool' => [
-                            'must' => [
+                            'must'   => [
                                 [
                                     'bool' => [
                                         'must' => [
@@ -400,7 +385,7 @@ class QueryTest extends MockeryTestCase
                                                         [
                                                             'query_string' => [
                                                                 'fields' => ['field_a'],
-                                                                'query' => 'foo',
+                                                                'query'  => 'foo',
                                                             ],
                                                         ],
                                                         [
@@ -415,7 +400,7 @@ class QueryTest extends MockeryTestCase
                                                         [
                                                             'query_string' => [
                                                                 'fields' => ['field_b'],
-                                                                'query' => 'foo',
+                                                                'query'  => 'foo',
                                                             ],
                                                         ],
                                                         [
@@ -434,8 +419,8 @@ class QueryTest extends MockeryTestCase
                     'min_score' => 42,
                 ],
             ],
-            'basic nested query as filter' => [
-                'query' => Query::create(
+            'basic nested query as filter'                          => [
+                'query'    => Query::create(
                     Query::createNested('my_field', Filter::create('my_field.subfield', 'foobar'))
                 ),
                 'expected' => [
@@ -446,7 +431,7 @@ class QueryTest extends MockeryTestCase
                                     'must' => [
                                         [
                                             'nested' => [
-                                                'path' => 'my_field',
+                                                'path'  => 'my_field',
                                                 'query' => [
                                                     'bool' => [
                                                         'filter' => [
@@ -471,16 +456,16 @@ class QueryTest extends MockeryTestCase
                     ],
                 ],
             ],
-            'basic nested query as search' => [
-                'query' => Query::create()
+            'basic nested query as search'                          => [
+                'query'    => Query::create()
                     ->search(Query::createNested('my_field', Filter::create('my_field.subfield', 'foobar'))),
                 'expected' => [
                     'query' => [
                         'bool' => [
-                            'should' => [
+                            'should'               => [
                                 [
                                     'nested' => [
-                                        'path' => 'my_field',
+                                        'path'  => 'my_field',
                                         'query' => [
                                             'bool' => [
                                                 'filter' => [
@@ -504,8 +489,8 @@ class QueryTest extends MockeryTestCase
                     ],
                 ],
             ],
-            'nested query with options' => [
-                'query' => Query::create(
+            'nested query with options'                             => [
+                'query'    => Query::create(
                     Query::createNested('my_field', Filter::create('my_field.subfield', 'foobar'))
                         ->setOption(NestableQueryInterface::OPTION_SCORE_MODE, 'max')
                         ->setOption(NestableQueryInterface::OPTION_IGNORE_UNMAPPED, true)
@@ -518,10 +503,10 @@ class QueryTest extends MockeryTestCase
                                     'must' => [
                                         [
                                             'nested' => [
-                                                'path' => 'my_field',
-                                                'score_mode' => 'max',
+                                                'path'            => 'my_field',
+                                                'score_mode'      => 'max',
                                                 'ignore_unmapped' => true,
-                                                'query' => [
+                                                'query'           => [
                                                     'bool' => [
                                                         'filter' => [
                                                             'bool' => [
@@ -548,14 +533,16 @@ class QueryTest extends MockeryTestCase
         ];
     }
 
-    /**
-     * @dataProvider toArrayData
-     *
-     * @param \Kununu\Elasticsearch\Query\Query $query
-     * @param array                             $expected
-     */
-    public function testToArray(Query $query, array $expected): void
+    private function getPublicReflectionProperty(Query $query, string $fieldName): ReflectionProperty
     {
-        $this->assertEquals($expected, $query->toArray());
+        $property = new ReflectionProperty(Query::class, $fieldName);
+        $property->setAccessible(true);
+
+        return $property;
+    }
+
+    private function assertChildren(Query $query, string $fieldName, array $expected): void
+    {
+        $this->assertEquals($expected, $this->getPublicReflectionProperty($query, $fieldName)->getValue($query));
     }
 }

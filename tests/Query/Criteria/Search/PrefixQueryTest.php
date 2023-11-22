@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace Query\Criteria\Search;
+namespace Kununu\Elasticsearch\Tests\Query\Criteria\Search;
 
 use Kununu\Elasticsearch\Query\Criteria\Search\PrefixQuery;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
+use PHPUnit\Framework\TestCase;
 
-class PrefixQueryTest extends MockeryTestCase
+final class PrefixQueryTest extends TestCase
 {
     protected const QUERY_STRING = 'what was i looking for?';
 

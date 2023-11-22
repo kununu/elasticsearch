@@ -4,12 +4,9 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\Tests\Query\Criteria\Filter;
 
 use Kununu\Elasticsearch\Query\Criteria\Filter\Exists;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
+use PHPUnit\Framework\TestCase;
 
-/**
- * @group unit
- */
-class ExistsTest extends MockeryTestCase
+final class ExistsTest extends TestCase
 {
     public function testTrue(): void
     {

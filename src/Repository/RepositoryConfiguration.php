@@ -42,9 +42,7 @@ class RepositoryConfiguration
         $indexForOperationType = $this->index[$operationType] ?? '';
 
         if (!$indexForOperationType) {
-            throw new RepositoryConfigurationException(
-                'No valid index name configured for operation "' . $operationType . '"'
-            );
+            throw new RepositoryConfigurationException('No valid index name configured for operation "' . $operationType . '"');
         }
 
         return $indexForOperationType;
@@ -84,7 +82,7 @@ class RepositoryConfiguration
     {
         $this->index = array_filter(
             [
-                OperationType::READ => $config[static::OPTION_INDEX_READ] ?? null,
+                OperationType::READ  => $config[static::OPTION_INDEX_READ] ?? null,
                 OperationType::WRITE => $config[static::OPTION_INDEX_WRITE] ?? null,
             ]
         );
@@ -92,15 +90,11 @@ class RepositoryConfiguration
         if (isset($config[static::OPTION_ENTITY_CLASS])) {
             $this->entityClass = $config[static::OPTION_ENTITY_CLASS];
             if (!class_exists($this->entityClass)) {
-                throw new RepositoryConfigurationException(
-                    'Given entity class does not exist.'
-                );
+                throw new RepositoryConfigurationException('Given entity class does not exist.');
             }
 
             if (!is_a($this->entityClass, PersistableEntityInterface::class, true)) {
-                throw new RepositoryConfigurationException(
-                    'Invalid entity class given. Must be of type \Kununu\Elasticsearch\Repository\PersistableEntityInterface'
-                );
+                throw new RepositoryConfigurationException(sprintf('Invalid entity class given. Must be of type %s', PersistableEntityInterface::class));
             }
         }
 
@@ -113,19 +107,17 @@ class RepositoryConfiguration
         }
 
         if (isset($config[static::OPTION_FORCE_REFRESH_ON_WRITE])) {
-            $this->forceRefreshOnWrite = (bool)$config[static::OPTION_FORCE_REFRESH_ON_WRITE];
+            $this->forceRefreshOnWrite = (bool) $config[static::OPTION_FORCE_REFRESH_ON_WRITE];
         }
 
         if (isset($config[static::OPTION_TRACK_TOTAL_HITS])) {
-            $this->trackTotalHits = (bool)$config[static::OPTION_TRACK_TOTAL_HITS];
+            $this->trackTotalHits = (bool) $config[static::OPTION_TRACK_TOTAL_HITS];
         }
 
         if (isset($config[static::OPTION_SCROLL_CONTEXT_KEEPALIVE])) {
             if (!preg_match('/\d+(d|h|m|s|ms|micros|nanos)/', $config[static::OPTION_SCROLL_CONTEXT_KEEPALIVE])) {
                 // see https://www.elastic.co/guide/en/elasticsearch/reference/7.9/common-options.html#time-units
-                throw new RepositoryConfigurationException(
-                    'Invalid value for scroll_context_keepalive given. Must be a valid time unit.'
-                );
+                throw new RepositoryConfigurationException('Invalid value for scroll_context_keepalive given. Must be a valid time unit.');
             }
             $this->scrollContextKeepalive = $config[static::OPTION_SCROLL_CONTEXT_KEEPALIVE];
         }

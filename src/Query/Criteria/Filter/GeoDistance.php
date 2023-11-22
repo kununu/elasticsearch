@@ -16,7 +16,7 @@ class GeoDistance
                 $options,
                 [
                     'distance' => $value->getDistance(),
-                    $field => $value->getLocation(),
+                    $field     => $value->getLocation(),
                 ]
             ),
         ];

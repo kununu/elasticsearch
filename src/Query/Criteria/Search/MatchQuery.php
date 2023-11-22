@@ -17,7 +17,7 @@ class MatchQuery
                     $options,
                     [
                         'fields' => self::prepareFields($fields),
-                        'query' => $queryString,
+                        'query'  => $queryString,
                     ]
                 ),
             ];

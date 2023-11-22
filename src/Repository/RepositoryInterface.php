@@ -45,6 +45,11 @@ interface RepositoryInterface
     public function deleteByQuery(QueryInterface $query, bool $proceedOnConflicts = false): array;
 
     /**
+     * This method bulk deletes all documents matching the given $ids.
+     */
+    public function deleteBulk(string ...$ids): void;
+
+    /**
      * This method retrieves all documents matching the given $query.
      */
     public function findByQuery(QueryInterface $query): ResultIteratorInterface;
@@ -59,6 +64,7 @@ interface RepositoryInterface
 
     /**
      * This method retrieves all documents available for an existing scroll cursor, identified by $scrollId.
+     *
      * Use RepositoryInterface::findScrollableByQuery() to initialize the scroll cursor.
      */
     public function findByScrollId(
@@ -67,9 +73,19 @@ interface RepositoryInterface
     ): ResultIteratorInterface;
 
     /**
+     * This method clears the $scrollId
+     */
+    public function clearScrollId(string $scrollId): void;
+
+    /**
      * This method retrieves a single document based on a given $id.
      */
     public function findById(string $id, array $sourceFields = []): object|array|null;
+
+    /**
+     * This method bulk retrieves multiple documents based on the given $ids.
+     */
+    public function findByIds(array $ids, array $sourceFields = []): array;
 
     /**
      * This method returns the total document count in an index.

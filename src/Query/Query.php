@@ -17,42 +17,34 @@ class Query extends AbstractQuery implements NestableQueryInterface
 {
     use OptionableTrait;
 
-    protected const MINIMUM_SHOULD_MATCH = 1; // relevant when $searchOperator === 'should'
     public const OPTION_MIN_SCORE = 'min_score';
+
+    protected const MINIMUM_SHOULD_MATCH = 1; // relevant when $searchOperator === 'should'
 
     protected bool $nested = false;
 
-    /**
-     * @var \Kununu\Elasticsearch\Query\Criteria\SearchInterface[]
-     */
+    /** @var SearchInterface[] */
     protected array $searches = [];
-
-    /**
-     * @var \Kununu\Elasticsearch\Query\Criteria\FilterInterface[]
-     */
+    /** @var FilterInterface[] */
     protected array $filters = [];
-
-    /**
-     * @var \Kununu\Elasticsearch\Query\AggregationInterface[]
-     */
+    /** @var AggregationInterface[] */
     protected array $aggregations = [];
 
     protected string $searchOperator = Should::OPERATOR;
 
-    public function __construct(...$children)
+    public function __construct(CriteriaInterface|AggregationInterface ...$children)
     {
-        $children = array_filter($children);
-        foreach ($children as $ii => $child) {
-            $this->addChild($child, $ii);
+        foreach ($children as $i => $child) {
+            $this->addChild($child, $i);
         }
     }
 
-    public static function create(...$children): Query
+    public static function create(CriteriaInterface|AggregationInterface ...$children): Query
     {
         return new static(...$children);
     }
 
-    public static function createNested(string $path, ...$children): Query
+    public static function createNested(string $path, CriteriaInterface|AggregationInterface ...$children): Query
     {
         return (new static(...$children))->nestAt($path);
     }
@@ -71,9 +63,7 @@ class Query extends AbstractQuery implements NestableQueryInterface
         $isNestedQuery = $search instanceof NestableQueryInterface;
 
         if (!$isSearch && !$isBool && !$isNestedQuery) {
-            throw new InvalidArgumentException(
-                'Argument $search must be one of [\Kununu\Elasticsearch\Query\Criteria\SearchInterface, \Kununu\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface, \Kununu\Elasticsearch\Query\Criteria\NestableQueryInterface]'
-            );
+            throw new InvalidArgumentException(sprintf('Argument $search must be one of [%s, %s, %s]', SearchInterface::class, BoolQueryInterface::class, NestableQueryInterface::class));
         }
 
         $this->searches[] = $search;
@@ -98,18 +88,13 @@ class Query extends AbstractQuery implements NestableQueryInterface
         $body = $this->nested ? [] : $this->buildBaseBody();
 
         if (!empty($this->searches)) {
-            $preparedSearches = array_map(
-                function (CriteriaInterface $search): array {
-                    return $search->toArray();
-                },
-                $this->searches
-            );
+            $preparedSearches = array_map(fn(CriteriaInterface $search): array => $search->toArray(), $this->searches);
 
             $body['query'] = match ($this->searchOperator) {
                 Must::OPERATOR => ['bool' => ['must' => $preparedSearches]],
-                default => [
+                default        => [
                     'bool' => [
-                        'should' => $preparedSearches,
+                        'should'               => $preparedSearches,
                         'minimum_should_match' => static::MINIMUM_SHOULD_MATCH,
                     ],
                 ],
@@ -144,7 +129,7 @@ class Query extends AbstractQuery implements NestableQueryInterface
 
     public function setSearchOperator(string $logicalOperator): Query
     {
-        if (!\in_array($logicalOperator, [Must::OPERATOR, Should::OPERATOR], true)) {
+        if (!in_array($logicalOperator, [Must::OPERATOR, Should::OPERATOR], true)) {
             throw new InvalidArgumentException("The value '$logicalOperator' is not valid.");
         }
 
@@ -175,19 +160,12 @@ class Query extends AbstractQuery implements NestableQueryInterface
 
     protected function addChild(mixed $child, int $argumentIndex = 0): void
     {
-        switch (true) {
-            case $child instanceof FilterInterface:
-            case $child instanceof NestableQueryInterface:
-                $this->filters[] = $child;
-                break;
-            case $child instanceof SearchInterface:
-                $this->searches[] = $child;
-                break;
-            case $child instanceof AggregationInterface:
-                $this->aggregations[] = $child;
-                break;
-            default:
-                throw new InvalidArgumentException('Argument #' . $argumentIndex . ' is of unknown type');
-        }
+        match (true) {
+            $child instanceof FilterInterface,
+            $child instanceof NestableQueryInterface     => $this->filters[] = $child,
+            $child instanceof SearchInterface            => $this->searches[] = $child,
+            $child instanceof AggregationInterface       => $this->aggregations[] = $child,
+            default                                      => throw new InvalidArgumentException('Argument #' . $argumentIndex . ' is of unknown type')
+        };
     }
 }

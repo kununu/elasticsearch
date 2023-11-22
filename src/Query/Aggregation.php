@@ -6,6 +6,7 @@ namespace Kununu\Elasticsearch\Query;
 use InvalidArgumentException;
 use Kununu\Elasticsearch\Query\Aggregation\Bucket;
 use Kununu\Elasticsearch\Query\Aggregation\Metric;
+use stdClass;
 
 class Aggregation implements AggregationInterface
 {
@@ -14,17 +15,15 @@ class Aggregation implements AggregationInterface
      */
     public const GLOBAL = 'global';
 
-    protected string $name;
-    protected string $type;
-    protected string|null $field;
-    protected array $options = [];
-    /**
-     * @var \Kununu\Elasticsearch\Query\AggregationInterface[]
-     */
+    /** @var AggregationInterface[] */
     protected array $nestedAggregations = [];
 
-    public function __construct(?string $field, string $type, string $name = '', array $options = [])
-    {
+    public function __construct(
+        protected ?string $field,
+        protected string $type,
+        protected string $name = '',
+        protected array $options = []
+    ) {
         if (!Metric::hasConstant($type) && !Bucket::hasConstant($type) && $type !== static::GLOBAL) {
             throw new InvalidArgumentException('Unknown type "' . $type . '" given');
         }
@@ -34,9 +33,6 @@ class Aggregation implements AggregationInterface
         }
 
         $this->name = $name;
-        $this->type = $type;
-        $this->field = $field;
-        $this->options = $options;
     }
 
     public static function create(string $field, string $type, string $name = '', array $options = []): Aggregation
@@ -71,7 +67,7 @@ class Aggregation implements AggregationInterface
         if ($this->type === static::GLOBAL) {
             $body = [
                 $this->name => array_merge(
-                    ['global' => new \stdClass()],
+                    ['global' => new stdClass()],
                     $this->options
                 ),
             ];
@@ -89,9 +85,7 @@ class Aggregation implements AggregationInterface
         if (count($this->nestedAggregations) > 0) {
             $body[$this->name]['aggs'] = array_reduce(
                 $this->nestedAggregations,
-                function (array $carry, AggregationInterface $aggregation): array {
-                    return array_merge($carry, $aggregation->toArray());
-                },
+                fn(array $carry, AggregationInterface $aggregation): array => array_merge($carry, $aggregation->toArray()),
                 []
             );
         }
