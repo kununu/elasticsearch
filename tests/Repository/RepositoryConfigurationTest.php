@@ -165,7 +165,7 @@ final class RepositoryConfigurationTest extends TestCase
 
         $config = new RepositoryConfiguration(['entity_class' => $myEntity::class]);
 
-        $this->assertEquals($myEntity::class, $config->getEntityClass());
+        self::assertEquals($myEntity::class, $config->getEntityClass());
     }
 
     public function testInvalidEntityClass(): void
