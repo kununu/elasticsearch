@@ -5,34 +5,18 @@ namespace Kununu\Elasticsearch\Exception;
 
 use Throwable;
 
-/**
- * Class ReadOperationException
- *
- * @package Kununu\Elasticsearch\Exception
- */
 class ReadOperationException extends RepositoryException
 {
-    /**
-     * @var mixed
-     */
-    protected $query;
+    protected mixed $query;
 
-    /**
-     * @param string          $message
-     * @param \Throwable|null $previous
-     * @param mixed|null      $query
-     */
-    public function __construct($message = "", Throwable $previous = null, $query = null)
+    public function __construct(string $message = "", Throwable $previous = null, mixed $query = null)
     {
         parent::__construct($message, $previous);
 
         $this->query = $query;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getQuery()
+    public function getQuery(): mixed
     {
         return $this->query;
     }

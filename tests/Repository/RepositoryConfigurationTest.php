@@ -10,20 +10,10 @@ use Kununu\Elasticsearch\Repository\OperationType;
 use Kununu\Elasticsearch\Repository\PersistableEntityInterface;
 use Kununu\Elasticsearch\Repository\RepositoryConfiguration;
 use PHPUnit\Framework\TestCase;
+use TypeError;
 
 class RepositoryConfigurationTest extends TestCase
 {
-    public function testGetDefaultScrollContextKeepalive(): void
-    {
-        $config = new RepositoryConfiguration([]);
-
-        $this->assertSame('1m', $config->getScrollContextKeepalive());
-        $this->assertFalse($config->getForceRefreshOnWrite());
-    }
-
-    /**
-     * @return array
-     */
     public function inflatableConfigData(): array
     {
         return [
@@ -61,10 +51,6 @@ class RepositoryConfigurationTest extends TestCase
 
     /**
      * @dataProvider inflatableConfigData
-     *
-     * @param array  $input
-     * @param string $expectedReadAlias
-     * @param string $expectedWriteAlias
      */
     public function testInflateConfig(array $input, string $expectedReadAlias, string $expectedWriteAlias): void
     {
@@ -74,9 +60,6 @@ class RepositoryConfigurationTest extends TestCase
         $this->assertEquals($expectedWriteAlias, $config->getIndex(OperationType::WRITE));
     }
 
-    /**
-     * @return array
-     */
     public function invalidIndexConfigData(): array
     {
         $cases = [
@@ -111,10 +94,6 @@ class RepositoryConfigurationTest extends TestCase
 
     /**
      * @dataProvider invalidIndexConfigData
-     *
-     * @param array  $input
-     * @param string $operationType
-     * @param string $expectedExceptionMsg
      */
     public function testNoValidIndexConfigured(array $input, string $operationType, string $expectedExceptionMsg): void
     {
@@ -124,39 +103,6 @@ class RepositoryConfigurationTest extends TestCase
         $this->expectExceptionMessage($expectedExceptionMsg);
 
         $config->getIndex($operationType);
-    }
-
-    /**
-     * @return array
-     */
-    public function invalidTypeConfigData(): array
-    {
-        return [
-            'nothing given' => [
-                'input' => [],
-            ],
-            'empty type name given' => [
-                'input' => ['type' => ''],
-            ],
-            'null type name given' => [
-                'input' => ['type' => null],
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider invalidIndexConfigData
-     *
-     * @param array $input
-     */
-    public function testNoValidTypeConfigured(array $input): void
-    {
-        $config = new RepositoryConfiguration($input);
-
-        $this->expectException(RepositoryConfigurationException::class);
-        $this->expectExceptionMessage('No valid type configured');
-
-        $config->getType();
     }
 
     public function testValidEntitySerializer(): void
@@ -178,10 +124,7 @@ class RepositoryConfigurationTest extends TestCase
     {
         $mySerializer = new \stdClass();
 
-        $this->expectException(RepositoryConfigurationException::class);
-        $this->expectExceptionMessage(
-            'Invalid entity serializer given. Must be of type \Kununu\Elasticsearch\Repository\EntitySerializerInterface'
-        );
+        $this->expectException(TypeError::class);
 
         $config = new RepositoryConfiguration(['entity_serializer' => $mySerializer]); // NOSONAR
     }
@@ -190,9 +133,9 @@ class RepositoryConfigurationTest extends TestCase
     {
         $myFactory = new class implements EntityFactoryInterface
         {
-            public function fromDocument(array $document, array $metaData)
+            public function fromDocument(array $document, array $metaData): object
             {
-                return null;
+                return new \stdClass();
             }
         };
 
@@ -205,10 +148,7 @@ class RepositoryConfigurationTest extends TestCase
     {
         $myFactory = new \stdClass();
 
-        $this->expectException(RepositoryConfigurationException::class);
-        $this->expectExceptionMessage(
-            'Invalid entity factory given. Must be of type \Kununu\Elasticsearch\Repository\EntityFactoryInterface'
-        );
+        $this->expectException(TypeError::class);
 
         $config = new RepositoryConfiguration(['entity_factory' => $myFactory]); // NOSONAR
     }
@@ -222,8 +162,9 @@ class RepositoryConfigurationTest extends TestCase
                 return [];
             }
 
-            public static function fromElasticDocument(array $document, array $metaData)
+            public static function fromElasticDocument(array $document, array $metaData): object
             {
+                return new \stdClass();
             }
         };
 
@@ -252,23 +193,18 @@ class RepositoryConfigurationTest extends TestCase
         $config = new RepositoryConfiguration(['entity_class' => '\Foo\Bar']); // NOSONAR
     }
 
-    /**
-     * @return array
-     */
     public function forceRefreshOnWriteVariations(): array
     {
         return [
             'param not given' => [
                 'input' => [
                     'index' => 'foobar',
-                    'type' => '_doc',
                 ],
                 'expected' => false,
             ],
             'false given' => [
                 'input' => [
                     'index' => 'foobar',
-                    'type' => '_doc',
                     'force_refresh_on_write' => false,
                 ],
                 'expected' => false,
@@ -276,7 +212,6 @@ class RepositoryConfigurationTest extends TestCase
             'falsy value given' => [
                 'input' => [
                     'index' => 'foobar',
-                    'type' => '_doc',
                     'force_refresh_on_write' => 0,
                 ],
                 'expected' => false,
@@ -284,7 +219,6 @@ class RepositoryConfigurationTest extends TestCase
             'true given' => [
                 'input' => [
                     'index' => 'foobar',
-                    'type' => '_doc',
                     'force_refresh_on_write' => true,
                 ],
                 'expected' => true,
@@ -292,7 +226,6 @@ class RepositoryConfigurationTest extends TestCase
             'true-ish integer given' => [
                 'input' => [
                     'index' => 'foobar',
-                    'type' => '_doc',
                     'force_refresh_on_write' => 1,
                 ],
                 'expected' => true,
@@ -300,7 +233,6 @@ class RepositoryConfigurationTest extends TestCase
             'true-ish string given' => [
                 'input' => [
                     'index' => 'foobar',
-                    'type' => '_doc',
                     'force_refresh_on_write' => 'yes',
                 ],
                 'expected' => true,
@@ -308,7 +240,6 @@ class RepositoryConfigurationTest extends TestCase
             'not-so-clever-but-still-true-ish string given' => [
                 'input' => [
                     'index' => 'foobar',
-                    'type' => '_doc',
                     'force_refresh_on_write' => 'no',
                 ],
                 'expected' => true,
@@ -318,14 +249,122 @@ class RepositoryConfigurationTest extends TestCase
 
     /**
      * @dataProvider forceRefreshOnWriteVariations
-     *
-     * @param array $input
-     * @param bool  $expected
      */
     public function testForceRefreshOnWrite(array $input, bool $expected): void
     {
         $config = new RepositoryConfiguration($input);
 
         $this->assertSame($expected, $config->getForceRefreshOnWrite());
+    }
+
+    public function trackTotalHitsVariations(): array
+    {
+        return [
+            'param not given' => [
+                'input' => [
+                    'index' => 'foobar',
+                ],
+                'expected' => null,
+            ],
+            'false given' => [
+                'input' => [
+                    'index' => 'foobar',
+                    'track_total_hits' => false,
+                ],
+                'expected' => false,
+            ],
+            'falsy value given' => [
+                'input' => [
+                    'index' => 'foobar',
+                    'track_total_hits' => 0,
+                ],
+                'expected' => false,
+            ],
+            'true given' => [
+                'input' => [
+                    'index' => 'foobar',
+                    'track_total_hits' => true,
+                ],
+                'expected' => true,
+            ],
+            'true-ish integer given' => [
+                'input' => [
+                    'index' => 'foobar',
+                    'track_total_hits' => 1,
+                ],
+                'expected' => true,
+            ],
+            'true-ish string given' => [
+                'input' => [
+                    'index' => 'foobar',
+                    'track_total_hits' => 'yes',
+                ],
+                'expected' => true,
+            ],
+            'not-so-clever-but-still-true-ish string given' => [
+                'input' => [
+                    'index' => 'foobar',
+                    'track_total_hits' => 'no',
+                ],
+                'expected' => true,
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider trackTotalHitsVariations
+     */
+    public function testTrackTotalHits(array $input, ?bool $expected): void
+    {
+        $config = new RepositoryConfiguration($input);
+
+        $this->assertSame($expected, $config->getTrackTotalHits());
+    }
+
+    public function scrollContextKeepaliveVariations(): array
+    {
+        return [
+            'param not given' => [
+                'input' => [
+                    'index' => 'foobar',
+                ],
+                'expected' => '1m', // the default
+            ],
+            'valid time unit given' => [
+                'input' => [
+                    'index' => 'foobar',
+                    'scroll_context_keepalive' => '10m',
+                ],
+                'expected' => '10m',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider scrollContextKeepaliveVariations
+     */
+    public function testScrollContextKeepalive(array $input, string $expected): void
+    {
+        $config = new RepositoryConfiguration($input);
+
+        $this->assertSame($expected, $config->getScrollContextKeepalive());
+    }
+
+    public function testInvalidScrollContextKeepalive(): void
+    {
+        $this->expectException(RepositoryConfigurationException::class);
+        $this->expectExceptionMessage(
+            'Invalid value for scroll_context_keepalive given. Must be a valid time unit.'
+        );
+
+        $config = new RepositoryConfiguration(['index' => 'foobar', 'scroll_context_keepalive' => 'xxx']); // NOSONAR
+    }
+
+    public function testGetDefaultScrollContextKeepalive(): void
+    {
+        $config = new RepositoryConfiguration([]);
+
+        $this->assertSame('1m', $config->getScrollContextKeepalive());
+        $this->assertFalse($config->getForceRefreshOnWrite());
     }
 }

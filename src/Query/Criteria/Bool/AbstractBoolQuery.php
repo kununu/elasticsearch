@@ -16,14 +16,8 @@ abstract class AbstractBoolQuery implements BoolQueryInterface
 {
     public const OPERATOR = null;
 
-    /**
-     * @var array
-     */
-    protected $children = [];
+    protected array $children = [];
 
-    /**
-     * @return string
-     */
     protected function getOperator(): string
     {
         if (!static::OPERATOR) {
@@ -33,9 +27,6 @@ abstract class AbstractBoolQuery implements BoolQueryInterface
         return static::OPERATOR;
     }
 
-    /**
-     * @param \Kununu\Elasticsearch\Query\Criteria\CriteriaInterface[] ...$children
-     */
     public function __construct(...$children)
     {
         $children = array_filter($children);
@@ -48,31 +39,18 @@ abstract class AbstractBoolQuery implements BoolQueryInterface
         $this->children = $children;
     }
 
-    /**
-     * @param \Kununu\Elasticsearch\Query\Criteria\CriteriaInterface[] ...$children
-     *
-     * @return \Kununu\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface
-     */
     public static function create(...$children): BoolQueryInterface
     {
         return new static(...$children);
     }
 
-    /**
-     * @param \Kununu\Elasticsearch\Query\Criteria\CriteriaInterface $child
-     *
-     * @return \Kununu\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface
-     */
     public function add(CriteriaInterface $child): BoolQueryInterface
     {
         $this->children[] = $child;
 
         return $this;
     }
-
-    /**
-     * @return array
-     */
+    
     public function toArray(): array
     {
         return [

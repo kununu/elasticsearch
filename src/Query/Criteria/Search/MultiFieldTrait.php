@@ -3,18 +3,8 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Query\Criteria\Search;
 
-/**
- * Trait MultiFieldTrait
- *
- * @package Kununu\Elasticsearch\Query\Criteria\Search
- */
 trait MultiFieldTrait
 {
-    /**
-     * @param array $fields
-     *
-     * @return array
-     */
     protected static function prepareFields(array $fields): array
     {
         $prepared = [];

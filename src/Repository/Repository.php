@@ -6,13 +6,13 @@ namespace Kununu\Elasticsearch\Repository;
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
 use Exception;
-use InvalidArgumentException;
 use Kununu\Elasticsearch\Exception\BulkException;
 use Kununu\Elasticsearch\Exception\DeleteException;
 use Kununu\Elasticsearch\Exception\DocumentNotFoundException;
 use Kununu\Elasticsearch\Exception\ReadOperationException;
 use Kununu\Elasticsearch\Exception\RepositoryConfigurationException;
 use Kununu\Elasticsearch\Exception\RepositoryException;
+use Kununu\Elasticsearch\Exception\UpdateException;
 use Kununu\Elasticsearch\Exception\UpsertException;
 use Kununu\Elasticsearch\Exception\WriteOperationException;
 use Kununu\Elasticsearch\Query\Query;
@@ -24,43 +24,22 @@ use Kununu\Elasticsearch\Result\ResultIteratorInterface;
 use Kununu\Elasticsearch\Util\LoggerAwareTrait;
 use Psr\Log\LoggerAwareInterface;
 
-/**
- * Class Repository
- *
- * @package Kununu\Elasticsearch\Repository
- */
 class Repository implements RepositoryInterface, LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
     protected const EXCEPTION_PREFIX = 'Elasticsearch exception: ';
 
-    /**
-     * @var \Elasticsearch\Client
-     */
-    protected $client;
+    protected Client $client;
+    protected RepositoryConfiguration $config;
 
-    /**
-     * @var \Kununu\Elasticsearch\Repository\RepositoryConfiguration
-     */
-    protected $config;
-
-    /**
-     * Repository constructor.
-     *
-     * @param \Elasticsearch\Client $client
-     * @param array                 $config
-     */
     public function __construct(Client $client, array $config)
     {
         $this->client = $client;
         $this->config = new RepositoryConfiguration($config);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function save(string $id, $entity): void
+    public function save(string $id, array|object $entity): void
     {
         $document = $this->prepareDocument($entity);
 
@@ -77,18 +56,11 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         }
     }
 
-    /**
-     * @param string $id
-     * @param array  $document
-     */
     protected function postSave(string $id, array $document): void
     {
         // ready to be overwritten :)
     }
 
-    /**
-     * @inheritdoc
-     */
     public function saveBulk(array $entities): void
     {
         $body = [];
@@ -110,17 +82,11 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         }
     }
 
-    /**
-     * @param array $entities
-     */
     protected function postSaveBulk(array $entities): void
     {
         // ready to be overwritten :)
     }
 
-    /**
-     * @inheritdoc
-     */
     public function delete(string $id): void
     {
         try {
@@ -143,9 +109,6 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         // ready to be overwritten :)
     }
 
-    /**
-     * @inheritdoc
-     */
     public function deleteByQuery(QueryInterface $query, bool $proceedOnConflicts = false): array
     {
         return $this->executeWrite(
@@ -160,9 +123,6 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         );
     }
 
-    /**
-     * @inheritdoc
-     */
     public function findByQuery(QueryInterface $query): ResultIteratorInterface
     {
         return $this->executeRead(
@@ -174,17 +134,14 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         );
     }
 
-    /**
-     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
-     *
-     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
-     */
-    public function findScrollableByQuery(QueryInterface $query): ResultIteratorInterface
-    {
+    public function findScrollableByQuery(
+        QueryInterface $query,
+        string|null $scrollContextKeepalive = null
+    ): ResultIteratorInterface {
         return $this->executeRead(
-            function () use ($query) {
+            function () use ($query, $scrollContextKeepalive) {
                 $rawQuery = $this->buildRawQuery($query, OperationType::READ);
-                $rawQuery['scroll'] = $this->config->getScrollContextKeepalive();
+                $rawQuery['scroll'] = $scrollContextKeepalive ?: $this->config->getScrollContextKeepalive();
 
                 return $this->parseRawSearchResponse(
                     $this->client->search($rawQuery)
@@ -193,18 +150,17 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         );
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function findByScrollId(string $scrollId): ResultIteratorInterface
-    {
+    public function findByScrollId(
+        string $scrollId,
+        string|null $scrollContextKeepalive = null
+    ): ResultIteratorInterface {
         return $this->executeRead(
-            function () use ($scrollId) {
+            function () use ($scrollId, $scrollContextKeepalive) {
                 return $this->parseRawSearchResponse(
                     $this->client->scroll(
                         [
                             'scroll_id' => $scrollId,
-                            'scroll' => $this->config->getScrollContextKeepalive(),
+                            'scroll' => $scrollContextKeepalive ?: $this->config->getScrollContextKeepalive(),
                         ]
                     )
                 );
@@ -212,10 +168,7 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         );
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function findById(string $id, array $sourceFields = [])
+    public function findById(string $id, array $sourceFields = []): object|array|null
     {
         return $this->executeRead(
             function () use ($id, $sourceFields) {
@@ -248,17 +201,11 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         );
     }
 
-    /**
-     * @inheritdoc
-     */
     public function count(): int
     {
         return $this->countByQuery(Query::create());
     }
 
-    /**
-     * @inheritdoc
-     */
     public function countByQuery(QueryInterface $query): int
     {
         return $this->executeRead(
@@ -268,9 +215,6 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         );
     }
 
-    /**
-     * @inheritdoc
-     */
     public function aggregateByQuery(QueryInterface $query): AggregationResultSetInterface
     {
         return $this->executeRead(
@@ -285,9 +229,6 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         );
     }
 
-    /**
-     * @inheritdoc
-     */
     public function updateByQuery(QueryInterface $query, array $updateScript): array
     {
         return $this->executeWrite(
@@ -300,77 +241,98 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         );
     }
 
-    /**
-     * @param callable $operation
-     *
-     * @return mixed
-     */
-    protected function executeRead(callable $operation)
+    public function upsert(string $id, array|object $entity): void
+    {
+        $document = $this->prepareDocument($entity);
+
+        try {
+            $this->client->update(
+                array_merge(
+                    $this->buildRequestBase(OperationType::WRITE),
+                    ['id' => $id, 'body' => ['doc' => $document, 'doc_as_upsert' => true]]
+                )
+            );
+
+            $this->postUpsert($id, $document);
+        } catch (\Exception $e) {
+            $this->getLogger()->error(self::EXCEPTION_PREFIX . $e->getMessage());
+
+            throw new UpsertException($e->getMessage(), $e, $id, $document);
+        }
+    }
+
+    protected function postUpsert(string $id, array $document): void
+    {
+        // ready to be overwritten :)
+    }
+
+    public function update(string $id, array|object $partialEntity): void
+    {
+        $document = $this->prepareDocument($partialEntity);
+
+        try {
+            $this->client->update(
+                array_merge(
+                    $this->buildRequestBase(OperationType::WRITE),
+                    ['id' => $id, 'body' => ['doc' => $document]]
+                )
+            );
+
+            $this->postUpdate($id, $document);
+        } catch (\Exception $e) {
+            $this->getLogger()->error(self::EXCEPTION_PREFIX . $e->getMessage());
+
+            throw new UpdateException($e->getMessage(), $e, $id, $document);
+        }
+    }
+
+    protected function postUpdate(string $id, array $document): void
+    {
+        // ready to be overwritten :)
+    }
+
+    protected function executeRead(callable $operation): mixed
     {
         return $this->execute($operation, OperationType::READ);
     }
 
-    /**
-     * @param callable $operation
-     *
-     * @return mixed
-     */
-    protected function executeWrite(callable $operation)
+    protected function executeWrite(callable $operation): mixed
     {
         return $this->execute($operation, OperationType::WRITE);
     }
 
-    /**
-     * @param callable $operation
-     * @param string   $operationType
-     *
-     * @return mixed
-     */
-    protected function execute(callable $operation, string $operationType)
+    protected function execute(callable $operation, string $operationType): mixed
     {
         try {
             return $operation();
         } catch (Exception $e) {
             $this->getLogger()->error(self::EXCEPTION_PREFIX . $e->getMessage());
 
-            switch ($operationType) {
-                case OperationType::READ:
-                    throw new ReadOperationException($e->getMessage(), $e);
-                    break;
-                case OperationType::WRITE:
-                    throw new WriteOperationException($e->getMessage(), $e);
-                    break;
-                default:
-                    throw new RepositoryException($e->getMessage(), $e);
-            }
+            throw match ($operationType) {
+                OperationType::READ => new ReadOperationException($e->getMessage(), $e),
+                OperationType::WRITE => new WriteOperationException($e->getMessage(), $e),
+                default => new RepositoryException($e->getMessage(), $e),
+            };
         }
     }
 
-    /**
-     * @param string $operationType
-     *
-     * @return array
-     */
     protected function buildRequestBase(string $operationType): array
     {
         $base = [
             'index' => $this->config->getIndex($operationType),
-            'type' => $this->config->getType(),
         ];
 
         if ($operationType === OperationType::WRITE && $this->config->getForceRefreshOnWrite()) {
             $base['refresh'] = true;
         }
 
+        if ($operationType === OperationType::READ && null !== $this->config->getTrackTotalHits()) {
+            $base['track_total_hits'] = $this->config->getTrackTotalHits();
+        }
+
         return $base;
     }
 
-    /**
-     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
-     * @param string                                     $operationType
-     *
-     * @return array
-     */
     protected function buildRawQuery(QueryInterface $query, string $operationType): array
     {
         return array_merge(
@@ -379,11 +341,6 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         );
     }
 
-    /**
-     * @param array $rawResult
-     *
-     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
-     */
     protected function parseRawSearchResponse(array $rawResult): ResultIteratorInterface
     {
         $results = $hits = $rawResult['hits']['hits'] ?? [];
@@ -408,25 +365,11 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
             );
         }
 
-        /**
-         * This makes it compatible with Elasticsearch 6.x and 7.x.
-         * Versions before 7.x total hits are passed on ['hits']['total'] while on newer versions 7.x
-         * total hits are passed on ['hits']['total']['value']
-         */
-        $total = isset($rawResult['hits']['total']['value']) ?
-            ($rawResult['hits']['total']['value'] ?? 0) :
-            ($rawResult['hits']['total'] ?? 0);
-
         return ResultIterator::create($results)
-            ->setTotal($total)
+            ->setTotal($rawResult['hits']['total']['value'] ?? 0)
             ->setScrollId($rawResult['_scroll_id'] ?? null);
     }
 
-    /**
-     * @param array $hit
-     *
-     * @return array
-     */
     protected function splitSourceAndMetaData(array $hit): array
     {
         $metaData = $hit;
@@ -435,11 +378,6 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         return ['source' => $hit['_source'], 'meta' => $metaData];
     }
 
-    /**
-     * @param array $updateScript
-     *
-     * @return array
-     */
     protected function sanitizeUpdateScript(array $updateScript): array
     {
         if (!isset($updateScript['script']) && count($updateScript) > 1) {
@@ -457,12 +395,7 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         return $sanitizedUpdateScript;
     }
 
-    /**
-     * @param array|object $entity
-     *
-     * @return array
-     */
-    protected function prepareDocument($entity): array
+    protected function prepareDocument(array|object $entity): array
     {
         if (is_array($entity)) {
             $document = $entity;
@@ -477,8 +410,6 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
                     'No entity serializer configured while trying to persist object'
                 );
             }
-        } else {
-            throw new InvalidArgumentException('Entity must be of type array or object');
         }
 
         return $document;

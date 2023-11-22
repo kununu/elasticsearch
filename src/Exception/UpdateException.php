@@ -5,7 +5,7 @@ namespace Kununu\Elasticsearch\Exception;
 
 use Throwable;
 
-class UpsertException extends WriteOperationException
+class UpdateException extends WriteOperationException
 {
     protected mixed $documentId;
     protected ?array $document;

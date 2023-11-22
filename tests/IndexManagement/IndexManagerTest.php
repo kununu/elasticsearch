@@ -19,15 +19,11 @@ use Psr\Log\LoggerInterface;
 class IndexManagerTest extends MockeryTestCase
 {
     protected const INDEX = 'my_index';
-    protected const TYPE = '_doc';
     protected const ALIAS = 'my_alias';
     protected const MAPPING = [
         'properties' => [
             'field_a' => ['type' => 'text'],
         ],
-    ];
-    protected const SCHEMA = [
-        self::TYPE => self::MAPPING,
     ];
 
     /** @var \Elasticsearch\Client|\Mockery\MockInterface */
@@ -308,47 +304,47 @@ class IndexManagerTest extends MockeryTestCase
             'no aliases, no settings' => [
                 'input' => [
                     self::INDEX,
-                    self::SCHEMA,
+                    self::MAPPING,
                 ],
                 'expected_request_body' => [
                     'index' => self::INDEX,
-                    'body' => ['mappings' => self::SCHEMA],
+                    'body' => ['mappings' => self::MAPPING],
                 ],
             ],
             'with alias, no settings' => [
                 'input' => [
                     self::INDEX,
-                    self::SCHEMA,
+                    self::MAPPING,
                     [self::ALIAS],
                 ],
                 'expected_request_body' => [
                     'index' => self::INDEX,
-                    'body' => ['mappings' => self::SCHEMA, 'aliases' => [self::ALIAS => new \stdClass()]],
+                    'body' => ['mappings' => self::MAPPING, 'aliases' => [self::ALIAS => new \stdClass()]],
                 ],
             ],
             'no aliases, with settings' => [
                 'input' => [
                     self::INDEX,
-                    self::SCHEMA,
+                    self::MAPPING,
                     [],
                     $settings,
                 ],
                 'expected_request_body' => [
                     'index' => self::INDEX,
-                    'body' => ['mappings' => self::SCHEMA, 'settings' => $settings],
+                    'body' => ['mappings' => self::MAPPING, 'settings' => $settings],
                 ],
             ],
             'with alias and settings' => [
                 'input' => [
                     self::INDEX,
-                    self::SCHEMA,
+                    self::MAPPING,
                     [self::ALIAS],
                     $settings,
                 ],
                 'expected_request_body' => [
                     'index' => self::INDEX,
                     'body' => [
-                        'mappings' => self::SCHEMA,
+                        'mappings' => self::MAPPING,
                         'aliases' => [self::ALIAS => new \stdClass()],
                         'settings' => $settings,
                     ],
@@ -475,7 +471,6 @@ class IndexManagerTest extends MockeryTestCase
                 [
                     'index' => self::INDEX,
                     'body' => self::MAPPING,
-                    'type' => self::TYPE,
                     'extra_param' => true,
                 ]
             )
@@ -484,7 +479,7 @@ class IndexManagerTest extends MockeryTestCase
         $this->loggerMock
             ->shouldNotReceive('error');
 
-        $this->getManager()->putMapping(self::INDEX, self::TYPE, self::MAPPING, ['extra_param' => true]);
+        $this->getManager()->putMapping(self::INDEX, self::MAPPING, ['extra_param' => true]);
     }
 
     /**
@@ -503,7 +498,6 @@ class IndexManagerTest extends MockeryTestCase
                 [
                     'index' => self::INDEX,
                     'body' => self::MAPPING,
-                    'type' => self::TYPE,
                 ]
             )
             ->andReturn($response);
@@ -516,7 +510,6 @@ class IndexManagerTest extends MockeryTestCase
                 [
                     'message' => 'Operation not acknowledged',
                     'index' => self::INDEX,
-                    'type' => self::TYPE,
                     'mapping' => self::MAPPING,
                 ]
             );
@@ -524,7 +517,7 @@ class IndexManagerTest extends MockeryTestCase
         $this->expectException(IndexManagementException::class);
         $this->expectExceptionMessage('Elasticsearch exception: Operation not acknowledged');
 
-        $this->getManager()->putMapping(self::INDEX, self::TYPE, self::MAPPING);
+        $this->getManager()->putMapping(self::INDEX, self::MAPPING);
     }
 
     /**

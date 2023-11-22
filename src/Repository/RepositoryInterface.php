@@ -7,90 +7,87 @@ use Kununu\Elasticsearch\Query\QueryInterface;
 use Kununu\Elasticsearch\Result\AggregationResultSetInterface;
 use Kununu\Elasticsearch\Result\ResultIteratorInterface;
 
-/**
- * Interface RepositoryInterface
- *
- * @package Kununu\Elasticsearch\Repository
- */
 interface RepositoryInterface
 {
     /**
-     * @param string       $id
-     * @param array|object $entity
+     * This method indexes the given $entity, i.e. it either inserts or replaces the whole document.
      */
-    public function save(string $id, $entity): void;
+    public function save(string $id, array|object $entity): void;
 
     /**
+     * This method indexes the given array of $entities, i.e. it either inserts or replaces the whole documents.
+     *
      * @param array[]|object[] $entities Associative array with document IDs as keys and documents as values
      */
     public function saveBulk(array $entities): void;
 
     /**
-     * @param string $id
+     * This method uses the _update API with doc_as_upsert option to persist the given $entity,
+     * i.e. it either inserts the whole document or updates an existing document partially
+     * (with what's present on $entity)
+     */
+    public function upsert(string $id, array|object $entity): void;
+
+    /**
+     * This method uses the _update API to update the entity with given $id,
+     * i.e. it overrides all attributes present in $partialEntity
+     */
+    public function update(string $id, array|object $partialEntity): void;
+
+    /**
+     * This method deletes a single document with given $id.
      */
     public function delete(string $id): void;
 
     /**
-     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
-     * @param bool                                       $proceedOnConflicts
-     *
-     * @return array
+     * This method deletes all documents matching the given $query.
      */
     public function deleteByQuery(QueryInterface $query, bool $proceedOnConflicts = false): array;
 
     /**
-     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
-     *
-     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
+     * This method retrieves all documents matching the given $query.
      */
     public function findByQuery(QueryInterface $query): ResultIteratorInterface;
 
     /**
-     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
-     *
-     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
+     * This method retrieves all documents matching the given $query and initializes a scroll cursor.
      */
-    public function findScrollableByQuery(QueryInterface $query): ResultIteratorInterface;
+    public function findScrollableByQuery(
+        QueryInterface $query,
+        string|null $scrollContextKeepalive = null
+    ): ResultIteratorInterface;
 
     /**
-     * @param string $scrollId
-     *
-     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
+     * This method retrieves all documents available for an existing scroll cursor, identified by $scrollId.
+     * Use RepositoryInterface::findScrollableByQuery() to initialize the scroll cursor.
      */
-    public function findByScrollId(string $scrollId): ResultIteratorInterface;
+    public function findByScrollId(
+        string $scrollId,
+        string|null $scrollContextKeepalive = null
+    ): ResultIteratorInterface;
 
     /**
-     * @param string $id
-     * @param array  $sourceFields
-     *
-     * @return array|\Kununu\Elasticsearch\Repository\PersistableEntityInterface|object
+     * This method retrieves a single document based on a given $id.
      */
-    public function findById(string $id, array $sourceFields = []);
+    public function findById(string $id, array $sourceFields = []): object|array|null;
 
     /**
-     * @return int
+     * This method returns the total document count in an index.
      */
     public function count(): int;
 
     /**
-     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
-     *
-     * @return int
+     * This method returns the total number of documents matching a given $query.
      */
     public function countByQuery(QueryInterface $query): int;
 
     /**
-     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
-     *
-     * @return \Kununu\Elasticsearch\Result\AggregationResultSetInterface
+     * This method executes aggregations specified in $query and retrieves their results as well as the matching documents.
      */
     public function aggregateByQuery(QueryInterface $query): AggregationResultSetInterface;
 
     /**
-     * @param \Kununu\Elasticsearch\Query\QueryInterface $query
-     * @param array                                      $updateScript
-     *
-     * @return array
+     * This method updates all documents matching a given $query using a given $updateScript.
      */
     public function updateByQuery(QueryInterface $query, array $updateScript): array;
 }

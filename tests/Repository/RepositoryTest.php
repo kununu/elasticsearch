@@ -10,6 +10,7 @@ use Kununu\Elasticsearch\Exception\DeleteException;
 use Kununu\Elasticsearch\Exception\DocumentNotFoundException;
 use Kununu\Elasticsearch\Exception\ReadOperationException;
 use Kununu\Elasticsearch\Exception\RepositoryConfigurationException;
+use Kununu\Elasticsearch\Exception\UpdateException;
 use Kununu\Elasticsearch\Exception\UpsertException;
 use Kununu\Elasticsearch\Exception\WriteOperationException;
 use Kununu\Elasticsearch\Query\Aggregation;
@@ -18,7 +19,6 @@ use Kununu\Elasticsearch\Query\Query;
 use Kununu\Elasticsearch\Query\QueryInterface;
 use Kununu\Elasticsearch\Query\RawQuery;
 use Kununu\Elasticsearch\Repository\EntityFactoryInterface;
-use Kununu\Elasticsearch\Repository\EntitySerializerInterface;
 use Kununu\Elasticsearch\Repository\PersistableEntityInterface;
 use Kununu\Elasticsearch\Repository\Repository;
 use Kununu\Elasticsearch\Repository\RepositoryConfiguration;
@@ -27,6 +27,7 @@ use Mockery;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Psr\Log\LoggerInterface;
 use stdClass;
+use TypeError;
 
 /**
  * @group unit
@@ -37,9 +38,8 @@ class RepositoryTest extends MockeryTestCase
         'read' => 'some_index_read',
         'write' => 'some_index_write',
     ];
-    protected const TYPE = '_doc';
     protected const ERROR_PREFIX = 'Elasticsearch exception: ';
-    protected const ERROR_MESSAGE = 'Any error, for example: missing type';
+    protected const ERROR_MESSAGE = 'Any error';
     public const ID = 'can_be_anything';
     protected const DOCUMENT_COUNT = 42;
     protected const SCROLL_ID = 'DnF1ZXJ5VGhlbkZldGNoBQAAAAAAAAFbFkJVNEdjZWVjU';
@@ -69,7 +69,6 @@ class RepositoryTest extends MockeryTestCase
                 [
                     'index_read' => self::INDEX['read'],
                     'index_write' => self::INDEX['write'],
-                    'type' => self::TYPE,
                 ],
                 $additionalConfig
             )
@@ -92,7 +91,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                     'body' => $document,
                 ]
@@ -119,7 +117,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                     'body' => $document,
                     'refresh' => true,
@@ -137,13 +134,6 @@ class RepositoryTest extends MockeryTestCase
 
     public function testSaveObjectWithEntitySerializer(): void
     {
-        $mySerializer = new class implements EntitySerializerInterface {
-            public function toElastic($entity): array
-            {
-                return (array)$entity;
-            }
-        };
-
         $document = new stdClass();
         $document->property_a = 'a';
         $document->property_b = 'b';
@@ -154,7 +144,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                     'body' => [
                         'property_a' => 'a',
@@ -166,7 +155,7 @@ class RepositoryTest extends MockeryTestCase
         $this->loggerMock
             ->shouldNotReceive('error');
 
-        $this->getRepository(['entity_serializer' => $mySerializer])->save(
+        $this->getRepository(['entity_serializer' => new EntitySerializerStub()])->save(
             self::ID,
             $document
         );
@@ -184,7 +173,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                     'body' => [
                         'property_a' => 'a',
@@ -216,7 +204,7 @@ class RepositoryTest extends MockeryTestCase
     /**
      * @return array
      */
-    public function invalidDataTypesForSave(): array
+    public function invalidDataTypesForSaveAndUpsert(): array
     {
         return [
             [7],
@@ -230,14 +218,13 @@ class RepositoryTest extends MockeryTestCase
     }
 
     /**
-     * @dataProvider invalidDataTypesForSave
+     * @dataProvider invalidDataTypesForSaveAndUpsert
      *
      * @param mixed $entity
      */
-    public function testSaveFailsWithInvalidDataType($entity): void
+    public function testSaveFailsWithInvalidDataType(mixed $entity): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Entity must be of type array or object');
+        $this->expectException(TypeError::class);
 
         $this->getRepository()->save(
             self::ID,
@@ -257,7 +244,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                     'body' => $document,
                 ]
@@ -296,7 +282,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'body' => [
                         ['index' => ['_id' => 'document_id_1']],
                         $documents['document_id_1'],
@@ -331,7 +316,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'body' => [
                         ['index' => ['_id' => 'document_id_1']],
                         $documents['document_id_1'],
@@ -354,13 +338,6 @@ class RepositoryTest extends MockeryTestCase
 
     public function testSaveBulkObjectsWithEntitySerializer(): void
     {
-        $mySerializer = new class implements EntitySerializerInterface {
-            public function toElastic($entity): array
-            {
-                return (array)$entity;
-            }
-        };
-
         $documents = [];
         for ($ii = 0; $ii < 3; $ii++) {
             $document = new stdClass();
@@ -375,7 +352,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'body' => [
                         ['index' => ['_id' => 'doc_0']],
                         ['property_a' => 'a0', 'property_b' => 'b0'],
@@ -391,7 +367,7 @@ class RepositoryTest extends MockeryTestCase
         $this->loggerMock
             ->shouldNotReceive('error');
 
-        $this->getRepository(['entity_serializer' => $mySerializer])->saveBulk($documents);
+        $this->getRepository(['entity_serializer' => new EntitySerializerStub()])->saveBulk($documents);
     }
 
     public function testSaveBulkObjectsWithEntityClass(): void
@@ -410,7 +386,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'body' => [
                         ['index' => ['_id' => 'doc_0']],
                         ['property_a' => 'a0', 'property_b' => 'b0'],
@@ -437,14 +412,13 @@ class RepositoryTest extends MockeryTestCase
     }
 
     /**
-     * @dataProvider invalidDataTypesForSave
+     * @dataProvider invalidDataTypesForSaveAndUpsert
      *
      * @param mixed $entity
      */
-    public function testSaveBulkFailsWithInvalidDataType($entity): void
+    public function testSaveBulkFailsWithInvalidDataType(mixed $entity): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Entity must be of type array or object');
+        $this->expectException(TypeError::class);
 
         $this->getRepository()->saveBulk([self::ID => $entity]);
     }
@@ -468,7 +442,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'body' => $expectedOperations,
                 ]
             )
@@ -495,7 +468,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                 ]
             );
@@ -516,7 +488,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                     'refresh' => true,
                 ]
@@ -538,7 +509,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                 ]
             )
@@ -567,7 +537,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                 ]
             )
@@ -597,7 +566,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'body' => [
                         'query' => [
                             'bool' => [
@@ -641,7 +609,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'body' => [
                         'query' => [
                             'bool' => [
@@ -686,7 +653,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'body' => [
                         'query' => [
                             'bool' => [
@@ -730,7 +696,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'body' => [
                         'query' => [
                             'bool' => [
@@ -768,9 +733,6 @@ class RepositoryTest extends MockeryTestCase
         }
     }
 
-    /**
-     * @return array
-     */
     public function searchResultData(): array
     {
         return [
@@ -778,7 +740,7 @@ class RepositoryTest extends MockeryTestCase
                 'es_result' => [
                     'hits' => [
                         'total' => [
-                            'value' => self::DOCUMENT_COUNT
+                            'value' => self::DOCUMENT_COUNT,
                         ],
                         'hits' => [
 
@@ -790,8 +752,9 @@ class RepositoryTest extends MockeryTestCase
             'one result' => [
                 'es_result' => [
                     'hits' => [
-                        /** Validated Response for Elasticsearch 6.x */
-                        'total' => self::DOCUMENT_COUNT,
+                        'total' => [
+                            'value' => self::DOCUMENT_COUNT,
+                        ],
                         'hits' => [
                             [
                                 '_index' => self::INDEX['read'],
@@ -816,8 +779,6 @@ class RepositoryTest extends MockeryTestCase
             'two results' => [
                 'es_result' => [
                     'hits' => [
-                        /** Validated Response for Elasticsearch 7.x */
-                        /** https://www.elastic.co/guide/en/elasticsearch/reference/current/breaking-changes-7.0.html#hits-total-now-object-search-response */
                         'total' => [
                             'value' => self::DOCUMENT_COUNT
                         ],
@@ -952,7 +913,6 @@ class RepositoryTest extends MockeryTestCase
     {
         $rawParams = [
             'index' => self::INDEX['read'],
-            'type' => self::TYPE,
             'body' => $query->toArray(),
         ];
 
@@ -977,6 +937,34 @@ class RepositoryTest extends MockeryTestCase
         } else {
             $this->assertNull($result->getScrollId());
         }
+    }
+
+    /**
+     * @dataProvider searchResultData
+     *
+     * @param array $esResult
+     * @param array $endResult
+     */
+    public function testFindScrollableByQueryCanOverrideScrollContextKeepalive(array $esResult, array $endResult): void
+    {
+        $query = Query::create();
+        $keepalive = '10m';
+
+        $rawParams = [
+            'index' => self::INDEX['read'],
+            'body' => $query->toArray(),
+            'scroll' => $keepalive,
+        ];
+
+        $this->clientMock
+            ->shouldReceive('search')
+            ->once()
+            ->with($rawParams)
+            ->andReturn($esResult);
+
+        $result = $this->getRepository()->findScrollableByQuery($query, $keepalive);
+
+        $this->assertEquals($endResult, $result->asArray());
     }
 
     public function testFindByQueryFails(): void
@@ -1028,6 +1016,36 @@ class RepositoryTest extends MockeryTestCase
         $this->assertEquals($endResult, $result->asArray());
     }
 
+    /**
+     * @dataProvider searchResultData
+     *
+     * @param array $esResult
+     * @param array $endResult
+     */
+    public function testFindByScrollIdCanOverrideScrollContextKeepalive(array $esResult, array $endResult): void
+    {
+        $scrollId = 'foobar';
+        $keepalive = '20m';
+
+        $this->clientMock
+            ->shouldReceive('scroll')
+            ->once()
+            ->with(
+                [
+                    'scroll_id' => $scrollId,
+                    'scroll' => $keepalive,
+                ]
+            )
+            ->andReturn($esResult);
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $result = $this->getRepository()->findByScrollId($scrollId, $keepalive);
+
+        $this->assertEquals($endResult, $result->asArray());
+    }
+
     public function testFindByScrollIdFails(): void
     {
         $scrollId = 'foobar';
@@ -1071,7 +1089,6 @@ class RepositoryTest extends MockeryTestCase
             'document found' => [
                 'es_result' => [
                     '_index' => self::INDEX['read'],
-                    '_type' => self::TYPE,
                     '_version' => 1,
                     'found' => true,
                     '_source' => [
@@ -1080,7 +1097,6 @@ class RepositoryTest extends MockeryTestCase
                 ],
                 'end_result' => [
                     '_index' => self::INDEX['read'],
-                    '_type' => self::TYPE,
                     '_version' => 1,
                     'found' => true,
                     '_source' => [
@@ -1105,7 +1121,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['read'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                 ]
             )
@@ -1131,7 +1146,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['read'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                     '_source' => ['foo', 'foo2']
                 ]
@@ -1158,7 +1172,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['read'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                 ]
             )
@@ -1178,7 +1191,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['read'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                 ]
             )
@@ -1205,7 +1217,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['read'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                 ]
             )
@@ -1227,7 +1238,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['read'],
-                    'type' => self::TYPE,
                     'body' => $query->toArray(),
                 ]
             )
@@ -1266,7 +1276,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['read'],
-                    'type' => self::TYPE,
                     'body' => $query->toArray(),
                 ]
             )
@@ -1309,7 +1318,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['read'],
-                    'type' => self::TYPE,
                     'body' => $query->toArray(),
                 ]
             )
@@ -1389,7 +1397,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'body' => array_merge(
                         $query->toArray(),
                         [
@@ -1446,7 +1453,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'body' => array_merge(
                         $query->toArray(),
                         [
@@ -1504,7 +1510,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                     'body' => $document,
                 ]
@@ -1515,7 +1520,6 @@ class RepositoryTest extends MockeryTestCase
 
         $manager = new class($this->clientMock, [
             'index_write' => self::INDEX['write'],
-            'type' => self::TYPE,
         ], $this) extends Repository
         {
             /**
@@ -1561,7 +1565,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'body' => [
                         ['index' => ['_id' => self::ID]],
                         ['whatever' => 'just some data'],
@@ -1574,7 +1577,6 @@ class RepositoryTest extends MockeryTestCase
 
         $manager = new class($this->clientMock, [
             'index_write' => self::INDEX['write'],
-            'type' => self::TYPE,
         ], $this) extends Repository {
             /**
              * @var \Mockery\Adapter\Phpunit\MockeryTestCase
@@ -1611,7 +1613,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['write'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                 ]
             );
@@ -1621,7 +1622,6 @@ class RepositoryTest extends MockeryTestCase
 
         $manager = new class($this->clientMock, [
             'index_write' => self::INDEX['write'],
-            'type' => self::TYPE,
         ], $this) extends Repository
         {
             /**
@@ -1655,7 +1655,7 @@ class RepositoryTest extends MockeryTestCase
             function (array $variables) {
                 $variables['end_result'] = array_map(
                     function (array $result) {
-                        $entity = new stdClass();
+                        $entity = new PersistableEntityStub();
                         foreach ($result['_source'] as $key => $value) {
                             $entity->$key = $value;
                         }
@@ -1701,19 +1701,7 @@ class RepositoryTest extends MockeryTestCase
      */
     protected function getEntityFactory(): EntityFactoryInterface
     {
-        return new class implements EntityFactoryInterface
-        {
-            public function fromDocument(array $document, array $metaData)
-            {
-                $entity = new stdClass();
-                foreach ($document as $key => $value) {
-                    $entity->$key = $value;
-                }
-                $entity->_meta = $metaData;
-
-                return $entity;
-            }
-        };
+        return new EntityFactoryStub();
     }
 
     /**
@@ -1732,7 +1720,6 @@ class RepositoryTest extends MockeryTestCase
     ): void {
         $rawParams = [
             'index' => self::INDEX['read'],
-            'type' => self::TYPE,
             'body' => $query->toArray(),
         ];
 
@@ -1825,7 +1812,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['read'],
-                    'type' => self::TYPE,
                     'body' => $query->toArray(),
                 ]
             )
@@ -1857,33 +1843,7 @@ class RepositoryTest extends MockeryTestCase
      */
     protected function getEntityClass(): PersistableEntityInterface
     {
-        return new class extends stdClass implements PersistableEntityInterface
-        {
-            /**
-             * @return array
-             */
-            public function toElastic(): array
-            {
-                return (array)$this;
-            }
-
-            /**
-             * @param array $document the raw document as found in the _source field of the raw Elasticsearch response
-             * @param array $metaData contains all "underscore-fields" delivered in the raw Elasticsearch response (e.g. _score)
-             *
-             * @return mixed
-             */
-            public static function fromElasticDocument(array $document, array $metaData)
-            {
-                $entity = new stdClass();
-                foreach ($document as $key => $value) {
-                    $entity->$key = $value;
-                }
-                $entity->_meta = $metaData;
-
-                return $entity;
-            }
-        };
+        return new PersistableEntityStub();
     }
 
     /**
@@ -1902,7 +1862,6 @@ class RepositoryTest extends MockeryTestCase
     ): void {
         $rawParams = [
             'index' => self::INDEX['read'],
-            'type' => self::TYPE,
             'body' => $query->toArray(),
         ];
 
@@ -1997,7 +1956,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['read'],
-                    'type' => self::TYPE,
                     'body' => $query->toArray(),
                 ]
             )
@@ -2032,13 +1990,12 @@ class RepositoryTest extends MockeryTestCase
         return array_map(
             function (array $variables) {
                 if ($variables['es_result']['found']) {
-                    $entity = new stdClass();
+                    $entity = new PersistableEntityStub();
                     foreach ($variables['es_result']['_source'] as $key => $value) {
                         $entity->$key = $value;
                     }
                     $entity->_meta = [
                         '_index' => $variables['es_result']['_index'],
-                        '_type' => $variables['es_result']['_type'],
                         '_version' => $variables['es_result']['_version'],
                         'found' => $variables['es_result']['found'],
                     ];
@@ -2066,7 +2023,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['read'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                 ]
             )
@@ -2082,7 +2038,7 @@ class RepositoryTest extends MockeryTestCase
         $this->assertEquals($endResult, $result);
         if ($endResult) {
             $this->assertEquals(
-                ['_index' => self::INDEX['read'], '_type' => self::TYPE, '_version' => 1, 'found' => true],
+                ['_index' => self::INDEX['read'], '_version' => 1, 'found' => true],
                 $result->_meta
             );
         }
@@ -2102,7 +2058,6 @@ class RepositoryTest extends MockeryTestCase
             ->with(
                 [
                     'index' => self::INDEX['read'],
-                    'type' => self::TYPE,
                     'id' => self::ID,
                 ]
             )
@@ -2118,9 +2073,378 @@ class RepositoryTest extends MockeryTestCase
         $this->assertEquals($endResult, $result);
         if ($endResult) {
             $this->assertEquals(
-                ['_index' => self::INDEX['read'], '_type' => self::TYPE, '_version' => 1, 'found' => true],
+                ['_index' => self::INDEX['read'], '_version' => 1, 'found' => true],
                 $result->_meta
             );
+        }
+    }
+
+    public function testUpsertArray(): void
+    {
+        $document = [
+            'whatever' => 'just some data',
+        ];
+
+        $this->clientMock
+            ->shouldReceive('update')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX['write'],
+                    'id' => self::ID,
+                    'body' => [
+                        'doc' => $document,
+                        'doc_as_upsert' => true,
+                    ],
+                ]
+            );
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $this->getRepository()->upsert(
+            self::ID,
+            $document
+        );
+    }
+
+    public function testUpsertWithForcedRefresh(): void
+    {
+        $document = [
+            'whatever' => 'just some data',
+        ];
+
+        $this->clientMock
+            ->shouldReceive('update')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX['write'],
+                    'id' => self::ID,
+                    'body' => [
+                        'doc' => $document,
+                        'doc_as_upsert' => true,
+                    ],
+                    'refresh' => true,
+                ]
+            );
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $this->getRepository(['force_refresh_on_write' => true])->upsert(
+            self::ID,
+            $document
+        );
+    }
+
+    public function testUpsertObjectWithEntitySerializer(): void
+    {
+        $document = new stdClass();
+        $document->property_a = 'a';
+        $document->property_b = 'b';
+
+        $this->clientMock
+            ->shouldReceive('update')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX['write'],
+                    'id' => self::ID,
+                    'body' => [
+                        'doc' => [
+                            'property_a' => 'a',
+                            'property_b' => 'b',
+                        ],
+                        'doc_as_upsert' => true,
+                    ],
+                ]
+            );
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $this->getRepository(['entity_serializer' => new EntitySerializerStub()])->upsert(
+            self::ID,
+            $document
+        );
+    }
+
+    public function testUpsertObjectWithEntityClass(): void
+    {
+        $document = $this->getEntityClass();
+        $document->property_a = 'a';
+        $document->property_b = 'b';
+
+        $this->clientMock
+            ->shouldReceive('update')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX['write'],
+                    'id' => self::ID,
+                    'body' => [
+                        'doc' => [
+                            'property_a' => 'a',
+                            'property_b' => 'b',
+                        ],
+                        'doc_as_upsert' => true,
+                    ],
+                ]
+            );
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $this->getRepository(['entity_class' => get_class($this->getEntityClass())])->upsert(
+            self::ID,
+            $document
+        );
+    }
+
+    public function testUpsertObjectFailsWithoutEntitySerializerAndEntityClass(): void
+    {
+        $this->expectException(RepositoryConfigurationException::class);
+        $this->expectExceptionMessage('No entity serializer configured while trying to persist object');
+
+        $this->getRepository()->upsert(
+            self::ID,
+            new stdClass()
+        );
+    }
+
+    /**
+     * @dataProvider invalidDataTypesForSaveAndUpsert
+     *
+     * @param mixed $entity
+     */
+    public function testUpsertFailsWithInvalidDataType(mixed $entity): void
+    {
+        $this->expectException(TypeError::class);
+
+        $this->getRepository()->upsert(
+            self::ID,
+            $entity
+        );
+    }
+
+    public function testUpsertArrayFails(): void
+    {
+        $document = [
+            'foo' => 'bar',
+        ];
+
+        $this->clientMock
+            ->shouldReceive('update')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX['write'],
+                    'id' => self::ID,
+                    'body' => [
+                        'doc' => $document,
+                        'doc_as_upsert' => true,
+                    ],
+                ]
+            )
+            ->andThrow(new \Exception(self::ERROR_MESSAGE));
+
+        $this->loggerMock
+            ->shouldReceive('error')
+            ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
+
+        try {
+            $this->getRepository()->upsert(
+                self::ID,
+                $document
+            );
+        } catch (UpsertException $e) {
+            $this->assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
+            $this->assertEquals(0, $e->getCode());
+            $this->assertEquals(self::ID, $e->getDocumentId());
+            $this->assertEquals($document, $e->getDocument());
+        }
+    }
+
+    public function testUpdateArray(): void
+    {
+        $document = [
+            'whatever' => 'just some data',
+        ];
+
+        $this->clientMock
+            ->shouldReceive('update')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX['write'],
+                    'id' => self::ID,
+                    'body' => [
+                        'doc' => $document,
+                    ],
+                ]
+            );
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $this->getRepository()->update(
+            self::ID,
+            $document
+        );
+    }
+
+    public function testUpdateWithForcedRefresh(): void
+    {
+        $document = [
+            'whatever' => 'just some data',
+        ];
+
+        $this->clientMock
+            ->shouldReceive('update')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX['write'],
+                    'id' => self::ID,
+                    'body' => [
+                        'doc' => $document,
+                    ],
+                    'refresh' => true,
+                ]
+            );
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $this->getRepository(['force_refresh_on_write' => true])->update(
+            self::ID,
+            $document
+        );
+    }
+
+    public function testUpdateObjectWithEntitySerializer(): void
+    {
+        $document = new stdClass();
+        $document->property_a = 'a';
+        $document->property_b = 'b';
+
+        $this->clientMock
+            ->shouldReceive('update')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX['write'],
+                    'id' => self::ID,
+                    'body' => [
+                        'doc' => [
+                            'property_a' => 'a',
+                            'property_b' => 'b',
+                        ],
+                    ],
+                ]
+            );
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $this->getRepository(['entity_serializer' => new EntitySerializerStub()])->update(
+            self::ID,
+            $document
+        );
+    }
+
+    public function testUpdateObjectWithEntityClass(): void
+    {
+        $document = $this->getEntityClass();
+        $document->property_a = 'a';
+        $document->property_b = 'b';
+
+        $this->clientMock
+            ->shouldReceive('update')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX['write'],
+                    'id' => self::ID,
+                    'body' => [
+                        'doc' => [
+                            'property_a' => 'a',
+                            'property_b' => 'b',
+                        ],
+                    ],
+                ]
+            );
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $this->getRepository(['entity_class' => get_class($this->getEntityClass())])->update(
+            self::ID,
+            $document
+        );
+    }
+
+    public function testUpdateObjectFailsWithoutEntitySerializerAndEntityClass(): void
+    {
+        $this->expectException(RepositoryConfigurationException::class);
+        $this->expectExceptionMessage('No entity serializer configured while trying to persist object');
+
+        $this->getRepository()->update(
+            self::ID,
+            new stdClass()
+        );
+    }
+
+    /**
+     * @dataProvider invalidDataTypesForSaveAndUpsert
+     *
+     * @param mixed $entity
+     */
+    public function testUpdateFailsWithInvalidDataType(mixed $entity): void
+    {
+        $this->expectException(TypeError::class);
+
+        $this->getRepository()->update(
+            self::ID,
+            $entity
+        );
+    }
+
+    public function testUpdateArrayFails(): void
+    {
+        $document = [
+            'foo' => 'bar',
+        ];
+
+        $this->clientMock
+            ->shouldReceive('update')
+            ->once()
+            ->with(
+                [
+                    'index' => self::INDEX['write'],
+                    'id' => self::ID,
+                    'body' => [
+                        'doc' => $document,
+                    ],
+                ]
+            )
+            ->andThrow(new \Exception(self::ERROR_MESSAGE));
+
+        $this->loggerMock
+            ->shouldReceive('error')
+            ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
+
+        try {
+            $this->getRepository()->update(
+                self::ID,
+                $document
+            );
+        } catch (UpdateException $e) {
+            $this->assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
+            $this->assertEquals(0, $e->getCode());
+            $this->assertEquals(self::ID, $e->getDocumentId());
+            $this->assertEquals($document, $e->getDocument());
         }
     }
 }
