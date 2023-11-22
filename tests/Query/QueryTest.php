@@ -276,24 +276,33 @@ final class QueryTest extends TestCase
 
     public static function toArrayDataProvider(): array
     {
+        return array_merge(
+            self::toArrayBatch1(),
+            self::toArrayBatch2(),
+            self::toArrayBatch3()
+        );
+    }
+
+    private static function toArrayBatch1(): array
+    {
         return [
-            'empty'                                                 => [
+            'empty'                                  => [
                 'query'    => Query::create(),
                 'expected' => [],
             ],
-            'with a min_score'                                      => [
+            'with a min_score'                       => [
                 'query'    => Query::create()->setMinScore(42),
                 'expected' => [
                     'min_score' => 42,
                 ],
             ],
-            'with a filter'                                         => [
+            'with a filter'                          => [
                 'query'    => Query::create(Filter::create('field', 'value')),
                 'expected' => [
                     'query' => ['bool' => ['filter' => ['bool' => ['must' => [['term' => ['field' => 'value']]]]]]],
                 ],
             ],
-            'with a search, default search operator'                => [
+            'with a search, default search operator' => [
                 'query'    => Query::create(Search::create(['field_a'], 'foo')),
                 'expected' => [
                     'query' => [
@@ -304,6 +313,12 @@ final class QueryTest extends TestCase
                     ],
                 ],
             ],
+        ];
+    }
+
+    private static function toArrayBatch2(): array
+    {
+        return [
             'with two searches, AND connected'                      => [
                 'query'    => Query::create(
                     Search::create(['field_a'], 'foo'),
@@ -419,7 +434,13 @@ final class QueryTest extends TestCase
                     'min_score' => 42,
                 ],
             ],
-            'basic nested query as filter'                          => [
+        ];
+    }
+
+    private static function toArrayBatch3(): array
+    {
+        return [
+            'basic nested query as filter' => [
                 'query'    => Query::create(
                     Query::createNested('my_field', Filter::create('my_field.subfield', 'foobar'))
                 ),
@@ -456,7 +477,7 @@ final class QueryTest extends TestCase
                     ],
                 ],
             ],
-            'basic nested query as search'                          => [
+            'basic nested query as search' => [
                 'query'    => Query::create()
                     ->search(Query::createNested('my_field', Filter::create('my_field.subfield', 'foobar'))),
                 'expected' => [
@@ -489,7 +510,7 @@ final class QueryTest extends TestCase
                     ],
                 ],
             ],
-            'nested query with options'                             => [
+            'nested query with options'    => [
                 'query'    => Query::create(
                     Query::createNested('my_field', Filter::create('my_field.subfield', 'foobar'))
                         ->setOption(NestableQueryInterface::OPTION_SCORE_MODE, 'max')

@@ -123,7 +123,7 @@ final class RepositoryConfigurationTest extends TestCase
 
         $this->expectException(TypeError::class);
 
-        new RepositoryConfiguration(['entity_serializer' => $mySerializer]);
+        $this->assertNull(new RepositoryConfiguration(['entity_serializer' => $mySerializer]));
     }
 
     public function testValidEntityFactory(): void
@@ -146,7 +146,7 @@ final class RepositoryConfigurationTest extends TestCase
 
         $this->expectException(TypeError::class);
 
-        new RepositoryConfiguration(['entity_factory' => $myFactory]);
+        $this->assertNull(new RepositoryConfiguration(['entity_factory' => $myFactory]));
     }
 
     public function testValidEntityClass(): void
@@ -178,7 +178,7 @@ final class RepositoryConfigurationTest extends TestCase
             )
         );
 
-        new RepositoryConfiguration(['entity_class' => stdClass::class]);
+        $this->assertNull(new RepositoryConfiguration(['entity_class' => stdClass::class]));
     }
 
     public function testNonExistentEntityClass(): void
@@ -188,7 +188,7 @@ final class RepositoryConfigurationTest extends TestCase
             'Given entity class does not exist.'
         );
 
-        new RepositoryConfiguration(['entity_class' => '\Foo\Bar']);
+        $this->assertNull(new RepositoryConfiguration(['entity_class' => '\Foo\Bar']));
     }
 
     /** @dataProvider forceRefreshOnWriteDataProvider */
@@ -349,7 +349,7 @@ final class RepositoryConfigurationTest extends TestCase
             'Invalid value for scroll_context_keepalive given. Must be a valid time unit.'
         );
 
-        new RepositoryConfiguration(['index' => 'foobar', 'scroll_context_keepalive' => 'xxx']);
+        $this->assertNull(new RepositoryConfiguration(['index' => 'foobar', 'scroll_context_keepalive' => 'xxx']));
     }
 
     public function testGetDefaultScrollContextKeepalive(): void
