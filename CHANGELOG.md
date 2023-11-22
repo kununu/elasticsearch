@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file based on
 the [Keep a Changelog](http://keepachangelog.com/) Standard. This project adheres
 to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased](https://github.com/kununu/elasticsearch/compare/v5.1.0...master)
+## [Unreleased](https://github.com/kununu/elasticsearch/compare/v6.0.0...master)
 
 ### Backward Compatibility Breaks
 
