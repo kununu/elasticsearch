@@ -556,7 +556,7 @@ final class QueryTest extends TestCase
 
     private function getPublicReflectionProperty(Query $query, string $fieldName): ReflectionProperty
     {
-        $property = new ReflectionProperty(Query::class, $fieldName);
+        $property = new ReflectionProperty($query, $fieldName);
         $property->setAccessible(true);
 
         return $property;
