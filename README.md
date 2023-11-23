@@ -83,11 +83,13 @@ and managing aliases.
 This package is developed against and used on very specific versions of Elasticsearch and the official elasticsearch-php
 library. Any other version may or may not work.
 
-| `kununu/elasticsearch` | `elasticsearch/elasticsearch-php` | Elasticsearch | PHP         |
-|------------------------|-----------------------------------|---------------|-------------|
+| `kununu/elasticsearch` | `elasticsearch/elasticsearch-php` | Elasticsearch | PHP          |
+|------------------------|-----------------------------------|---------------|--------------|
 | 2.x                    | 6.5.x                             | 6.4           | \>=7.2, <8.0 |
 | 3.x                    | 7.x                               | 7.9           | \>=7.2, <8.0 |
 | 4.x                    | 7.x                               | 7.9           | \>=8.0       |
+| 5.x                    | 7.x                               | 7.9           | \>=8.0       |
+| 6.x                    | 7.x                               | 7.9           | \>=8.0       |
 
 See also https://github.com/elastic/elasticsearch-php#version-matrix
 

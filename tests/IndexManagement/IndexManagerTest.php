@@ -8,6 +8,8 @@ use Elasticsearch\Common\Exceptions\Missing404Exception;
 use Elasticsearch\Namespaces\IndicesNamespace;
 use Exception;
 use Kununu\Elasticsearch\Exception\IndexManagementException;
+use Kununu\Elasticsearch\Exception\MoreThanOneIndexForAliasException;
+use Kununu\Elasticsearch\Exception\NoIndexForAliasException;
 use Kununu\Elasticsearch\IndexManagement\IndexManager;
 use Kununu\Elasticsearch\IndexManagement\IndexManagerInterface;
 use Mockery;
@@ -768,6 +770,51 @@ final class IndexManagerTest extends MockeryTestCase
                 'number_of_shards'   => 1,
             ]
         );
+    }
+
+    /** @dataProvider getSingleIndexByAliasDataProvider */
+    public function testGetSingleIndexByAlias(array $esResponse, ?string $expectedResult): void
+    {
+        $this->setUpIndexOperation();
+
+        $this->indicesMock
+            ->shouldReceive('getAlias')
+            ->once()
+            ->with(['name' => self::ALIAS])
+            ->andReturn($esResponse);
+
+        if (empty($esResponse)) {
+            $this->expectException(NoIndexForAliasException::class);
+        }
+
+        if (count($esResponse) > 1) {
+            $this->expectException(MoreThanOneIndexForAliasException::class);
+        }
+
+        $this->loggerMock
+            ->shouldNotReceive('error');
+
+        $result = $this->getManager()->getSingleIndexByAlias(self::ALIAS);
+
+        $this->assertEquals($expectedResult, $result);
+    }
+
+    public static function getSingleIndexByAliasDataProvider(): array
+    {
+        return [
+            'no indices mapped to alias'       => [
+                'es_response'     => [],
+                'expected_result' => null,
+            ],
+            'one index mapped to alias'        => [
+                'es_response'     => [self::INDEX => ['foo' => 'bar']],
+                'expected_result' => self::INDEX,
+            ],
+            'multiple indices mapped to alias' => [
+                'es_response'     => [self::INDEX => ['foo' => 'bar'], 'another_index' => []],
+                'expected_result' => null,
+            ],
+        ];
     }
 
     protected function setUp(): void

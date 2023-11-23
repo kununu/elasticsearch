@@ -6,6 +6,8 @@ namespace Kununu\Elasticsearch\IndexManagement;
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
 use Kununu\Elasticsearch\Exception\IndexManagementException;
+use Kununu\Elasticsearch\Exception\MoreThanOneIndexForAliasException;
+use Kununu\Elasticsearch\Exception\NoIndexForAliasException;
 use Kununu\Elasticsearch\Util\LoggerAwareTrait;
 use Psr\Log\LoggerAwareInterface;
 use RuntimeException;
@@ -203,6 +205,21 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
             'Unable to put settings',
             ['index' => $index, 'body' => $body]
         );
+    }
+
+    public function getSingleIndexByAlias(string $alias): string
+    {
+        $indices = $this->getIndicesByAlias($alias);
+
+        if (count($indices) === 0) {
+            throw new NoIndexForAliasException();
+        }
+
+        if (count($indices) > 1) {
+            throw new MoreThanOneIndexForAliasException();
+        }
+
+        return current($indices);
     }
 
     protected function execute(

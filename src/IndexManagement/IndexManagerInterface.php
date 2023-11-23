@@ -29,4 +29,6 @@ interface IndexManagerInterface
     public function reindex(string $source, string $destination): void;
 
     public function putSettings(string $index, array $settings = []): void;
+
+    public function getSingleIndexByAlias(string $alias): string;
 }

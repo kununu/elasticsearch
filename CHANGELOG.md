@@ -36,6 +36,10 @@ to [Semantic Versioning](http://semver.org/).
   * `findByIds`
     * To bulk retrieve multiple documents based on the given ids (see https://www.elastic.co/guide/en/elasticsearch/reference/7.9/docs-multi-get.html)
 
+* Added the following methods to `IndexManager`
+  * `getSingleIndexByAlias`
+    * To get a single index by an alias
+
 ### Improvements
 
 * Fixed code standards
