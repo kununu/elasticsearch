@@ -5,8 +5,6 @@ namespace Kununu\Elasticsearch\Result;
 
 trait IterableTrait
 {
-    protected array $results = [];
-
     protected int $position = 0;
 
     public function current(): mixed

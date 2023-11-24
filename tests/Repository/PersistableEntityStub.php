@@ -1,14 +1,15 @@
 <?php
+declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Tests\Repository;
 
 use Kununu\Elasticsearch\Repository\PersistableEntityInterface;
 
-class PersistableEntityStub implements PersistableEntityInterface
+final class PersistableEntityStub implements PersistableEntityInterface
 {
     public function toElastic(): array
     {
-        return (array)$this;
+        return (array) $this;
     }
 
     public static function fromElasticDocument(array $document, array $metaData): object

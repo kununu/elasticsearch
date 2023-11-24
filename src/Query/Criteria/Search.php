@@ -13,11 +13,6 @@ use Kununu\Elasticsearch\Query\Criteria\Search\TermQuery;
 use Kununu\Elasticsearch\Util\ConstantContainerTrait;
 use LogicException;
 
-/**
- * Class Search
- *
- * @package Kununu\Elasticsearch\Query\Criteria
- */
 class Search implements SearchInterface
 {
     use ConstantContainerTrait;
@@ -29,16 +24,11 @@ class Search implements SearchInterface
     public const QUERY_STRING = QueryStringQuery::KEYWORD;
     public const TERM = TermQuery::KEYWORD;
 
-    protected array $fields = [];
-    protected string $queryString;
-    protected string $type;
-    protected array $options = [];
-
     public function __construct(
-        array $fields,
-        string $queryString,
-        string $type = self::QUERY_STRING,
-        array $options = []
+        protected array $fields,
+        protected string $queryString,
+        protected string $type = self::QUERY_STRING,
+        protected array $options = []
     ) {
         if (empty($fields)) {
             throw new InvalidArgumentException('No fields given');
@@ -47,11 +37,6 @@ class Search implements SearchInterface
         if (!static::hasConstant($type)) {
             throw new InvalidArgumentException('Unknown full text search type "' . $type . '" given');
         }
-
-        $this->fields = $fields;
-        $this->queryString = $queryString;
-        $this->type = $type;
-        $this->options = $options;
     }
 
     public static function create(
@@ -71,19 +56,17 @@ class Search implements SearchInterface
     protected function mapType(): array
     {
         return match ($this->type) {
-            static::QUERY_STRING => QueryStringQuery::asArray($this->fields, $this->queryString, $this->options),
-            static::MATCH => MatchQuery::asArray($this->fields, $this->queryString, $this->options),
-            static::MATCH_PHRASE => MatchPhraseQuery::asArray($this->fields, $this->queryString, $this->options),
+            static::QUERY_STRING        => QueryStringQuery::asArray($this->fields, $this->queryString, $this->options),
+            static::MATCH               => MatchQuery::asArray($this->fields, $this->queryString, $this->options),
+            static::MATCH_PHRASE        => MatchPhraseQuery::asArray($this->fields, $this->queryString, $this->options),
             static::MATCH_PHRASE_PREFIX => MatchPhrasePrefixQuery::asArray(
                 $this->fields,
                 $this->queryString,
                 $this->options
             ),
-            static::PREFIX => PrefixQuery::asArray($this->fields, $this->queryString, $this->options),
-            static::TERM => TermQuery::asArray($this->fields[0], $this->queryString, $this->options),
-            default => throw new LogicException(
-                'Unhandled full text search type "' . $this->type . '". Please add an appropriate switch case.'
-            ),
+            static::PREFIX              => PrefixQuery::asArray($this->fields, $this->queryString, $this->options),
+            static::TERM                => TermQuery::asArray($this->fields[0], $this->queryString, $this->options),
+            default                     => throw new LogicException('Unhandled full text search type "' . $this->type . '". Please add an appropriate switch case.'),
         };
     }
 }

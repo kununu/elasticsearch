@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file based on
 the [Keep a Changelog](http://keepachangelog.com/) Standard. This project adheres
 to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased](https://github.com/kununu/elasticsearch/compare/v2.4.6...master)
+## [Unreleased](https://github.com/kununu/elasticsearch/compare/v6.0.0...master)
 
 ### Backward Compatibility Breaks
 
@@ -13,6 +13,67 @@ to [Semantic Versioning](http://semver.org/).
 ### Added
 
 ### Improvements
+
+### Deprecated
+
+## [6.0.0](https://github.com/kununu/elasticsearch/compare/v5.2.0...v6.0.0)
+
+### Backward Compatibility Breaks
+
+* `AbstractBoolQuery` class is now strongly typed to only accept `CriteriaInterface` instances on constructor and `create` method   
+* `Query` class is now strongly typed to only accept `CriteriaInterface|AggregationInterface` instance on constructor and `create` and `createNested` methods
+  * But those methods still will only properly accept `FilterInterface`, `NestableQueryInterface`, `SearchInterface` or `AggregationInterface` implementations
+
+### Bugfixes
+
+### Added
+
+* Added the following methods to `Repository`
+  * `clearScrollId`
+    * To clear a scroll id after running scroll operations (see https://www.elastic.co/guide/en/elasticsearch/reference/7.9/clear-scroll-api.html)
+  * `deleteBulk`
+    * To bulk delete all documents matching the given ids (see https://www.elastic.co/guide/en/elasticsearch/reference/7.9/docs-bulk.html)
+  * `findByIds`
+    * To bulk retrieve multiple documents based on the given ids (see https://www.elastic.co/guide/en/elasticsearch/reference/7.9/docs-multi-get.html)
+
+* Added the following methods to `IndexManager`
+  * `getSingleIndexByAlias`
+    * To get a single index by an alias
+
+### Improvements
+
+* Fixed code standards
+* Refactor some code to take advantage of PHP 8.0 features (promoted properties, match, arrow functions, etc.)
+* Split repository tests class into multiple classes (one per method) to simplify maintenance of tests
+
+### Deprecated
+
+## [5.2.0](https://github.com/kununu/elasticsearch/compare/v5.1.0...v5.2.0)
+
+### Backward Compatibility Breaks
+
+### Bugfixes
+
+### Added
+
+* Added the possibility of using the range aggregation (see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-range-aggregation.html).
+
+### Improvements
+
+### Deprecated
+
+## [5.1.0](https://github.com/kununu/elasticsearch/compare/v5.0.0...v5.1.0)
+
+### Backward Compatibility Breaks
+
+### Bugfixes
+
+### Added
+
+* Added functionality for PrefixQuery (see https://www.elastic.co/guide/en/elasticsearch/reference/7.9/query-dsl-prefix-query.html).
+
+### Improvements
+
 
 ### Deprecated
 
@@ -32,8 +93,7 @@ to [Semantic Versioning](http://semver.org/).
 
 ### Improvements
 
-* Removed support for mapping types (
-  see https://www.elastic.co/guide/en/elasticsearch/reference/7.17/removal-of-types.html)
+* Removed support for mapping types (see https://www.elastic.co/guide/en/elasticsearch/reference/7.17/removal-of-types.html)
 
 ### Deprecated
 

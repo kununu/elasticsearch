@@ -7,13 +7,9 @@ use Throwable;
 
 class ReadOperationException extends RepositoryException
 {
-    protected mixed $query;
-
-    public function __construct(string $message = "", Throwable $previous = null, mixed $query = null)
+    public function __construct(string $message = '', ?Throwable $previous = null, protected mixed $query = null)
     {
         parent::__construct($message, $previous);
-
-        $this->query = $query;
     }
 
     public function getQuery(): mixed

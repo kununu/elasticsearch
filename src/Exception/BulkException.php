@@ -7,13 +7,9 @@ use Throwable;
 
 class BulkException extends WriteOperationException
 {
-    protected array $operations;
-
-    public function __construct(string $message = "", Throwable $previous = null, ?array $operations = null)
+    public function __construct(string $message = '', ?Throwable $previous = null, protected ?array $operations = null)
     {
         parent::__construct($message, $previous);
-
-        $this->operations = $operations;
     }
 
     public function getOperations(): ?array

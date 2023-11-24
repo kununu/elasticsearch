@@ -5,7 +5,6 @@ namespace Kununu\Elasticsearch\Repository;
 
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
-use Exception;
 use Kununu\Elasticsearch\Exception\BulkException;
 use Kununu\Elasticsearch\Exception\DeleteException;
 use Kununu\Elasticsearch\Exception\DocumentNotFoundException;
@@ -23,6 +22,7 @@ use Kununu\Elasticsearch\Result\ResultIterator;
 use Kununu\Elasticsearch\Result\ResultIteratorInterface;
 use Kununu\Elasticsearch\Util\LoggerAwareTrait;
 use Psr\Log\LoggerAwareInterface;
+use Throwable;
 
 class Repository implements RepositoryInterface, LoggerAwareInterface
 {
@@ -30,12 +30,10 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
 
     protected const EXCEPTION_PREFIX = 'Elasticsearch exception: ';
 
-    protected Client $client;
     protected RepositoryConfiguration $config;
 
-    public function __construct(Client $client, array $config)
+    public function __construct(protected Client $client, array $config)
     {
-        $this->client = $client;
         $this->config = new RepositoryConfiguration($config);
     }
 
@@ -49,16 +47,11 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
             );
 
             $this->postSave($id, $document);
-        } catch (\Exception $e) {
+        } catch (Throwable $e) {
             $this->getLogger()->error(self::EXCEPTION_PREFIX . $e->getMessage());
 
             throw new UpsertException($e->getMessage(), $e, $id, $document);
         }
-    }
-
-    protected function postSave(string $id, array $document): void
-    {
-        // ready to be overwritten :)
     }
 
     public function saveBulk(array $entities): void
@@ -75,16 +68,11 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
             );
 
             $this->postSaveBulk($entities);
-        } catch (\Exception $e) {
+        } catch (Throwable $e) {
             $this->getLogger()->error(self::EXCEPTION_PREFIX . $e->getMessage());
 
             throw new BulkException($e->getMessage(), $e, $body);
         }
-    }
-
-    protected function postSaveBulk(array $entities): void
-    {
-        // ready to be overwritten :)
     }
 
     public function delete(string $id): void
@@ -97,22 +85,17 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
             $this->postDelete($id);
         } catch (Missing404Exception $e) {
             throw new DocumentNotFoundException('No document found with id ' . $id, $e, $id);
-        } catch (\Exception $e) {
+        } catch (Throwable $e) {
             $this->getLogger()->error(self::EXCEPTION_PREFIX . $e->getMessage());
 
             throw new DeleteException($e->getMessage(), $e, $id);
         }
     }
 
-    protected function postDelete(string $id): void
-    {
-        // ready to be overwritten :)
-    }
-
     public function deleteByQuery(QueryInterface $query, bool $proceedOnConflicts = false): array
     {
         return $this->executeWrite(
-            function () use ($query, $proceedOnConflicts) {
+            function() use ($query, $proceedOnConflicts) {
                 $rawQuery = $this->buildRawQuery($query, OperationType::WRITE);
                 if ($proceedOnConflicts) {
                     $rawQuery['conflicts'] = 'proceed';
@@ -123,14 +106,36 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         );
     }
 
+    public function deleteBulk(string ...$ids): void
+    {
+        if (empty($ids)) {
+            return;
+        }
+
+        $body = [];
+        foreach ($ids as $id) {
+            $body[] = ['delete' => ['_id' => $id]];
+        }
+
+        try {
+            $this->client->bulk(
+                array_merge($this->buildRequestBase(OperationType::WRITE), ['body' => $body])
+            );
+
+            $this->postDeleteBulk(...$ids);
+        } catch (Throwable $e) {
+            $this->getLogger()->error(self::EXCEPTION_PREFIX . $e->getMessage());
+
+            throw new BulkException($e->getMessage(), $e, $body);
+        }
+    }
+
     public function findByQuery(QueryInterface $query): ResultIteratorInterface
     {
         return $this->executeRead(
-            function () use ($query) {
-                return $this->parseRawSearchResponse(
-                    $this->client->search($this->buildRawQuery($query, OperationType::READ))
-                );
-            }
+            fn() => $this->parseRawSearchResponse(
+                $this->client->search($this->buildRawQuery($query, OperationType::READ))
+            )
         );
     }
 
@@ -139,7 +144,7 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         string|null $scrollContextKeepalive = null
     ): ResultIteratorInterface {
         return $this->executeRead(
-            function () use ($query, $scrollContextKeepalive) {
+            function() use ($query, $scrollContextKeepalive) {
                 $rawQuery = $this->buildRawQuery($query, OperationType::READ);
                 $rawQuery['scroll'] = $scrollContextKeepalive ?: $this->config->getScrollContextKeepalive();
 
@@ -155,23 +160,31 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         string|null $scrollContextKeepalive = null
     ): ResultIteratorInterface {
         return $this->executeRead(
-            function () use ($scrollId, $scrollContextKeepalive) {
-                return $this->parseRawSearchResponse(
-                    $this->client->scroll(
-                        [
-                            'scroll_id' => $scrollId,
-                            'scroll' => $scrollContextKeepalive ?: $this->config->getScrollContextKeepalive(),
-                        ]
-                    )
-                );
-            }
+            fn() => $this->parseRawSearchResponse(
+                $this->client->scroll([
+                    'scroll_id' => $scrollId,
+                    'scroll'    => $scrollContextKeepalive ?: $this->config->getScrollContextKeepalive(),
+                ])
+            )
+        );
+    }
+
+    public function clearScrollId(string $scrollId): void
+    {
+        $this->execute(
+            fn() => $this->client->clearScroll([
+                'body' => [
+                    'scroll_id' => $scrollId,
+                ],
+            ]),
+            ''
         );
     }
 
     public function findById(string $id, array $sourceFields = []): object|array|null
     {
         return $this->executeRead(
-            function () use ($id, $sourceFields) {
+            function() use ($id, $sourceFields) {
                 try {
                     $response = $this->client->get(
                         array_merge(
@@ -184,7 +197,7 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
                     if (!($response['found'] ?? false)) {
                         throw new Missing404Exception();
                     }
-                } catch (Missing404Exception $e) {
+                } catch (Missing404Exception) {
                     return null;
                 }
 
@@ -201,6 +214,47 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         );
     }
 
+    public function findByIds(array $ids, array $sourceFields = []): array
+    {
+        if (empty($ids)) {
+            return [];
+        }
+
+        return $this->executeRead(
+            function() use ($ids, $sourceFields) {
+                $requestBody = array_merge(
+                    $this->buildRequestBase(OperationType::READ),
+                    ['body' => $this->getMgetBody($ids, $sourceFields)],
+                );
+
+                try {
+                    $docs = $this->client->mget($requestBody);
+                } catch (Throwable $exception) {
+                    $this->logger->critical('Elasticsearch request error', ['request' => json_encode($requestBody)]);
+
+                    throw $exception;
+                }
+
+                $docs = array_filter($docs['docs'] ?? [], fn($v) => $v['found'] ?? false);
+
+                if ($this->config->getEntityClass() || $this->config->getEntityFactory()) {
+                    $response = [];
+                    foreach ($docs as $doc) {
+                        ['source' => $source, 'meta' => $metaData] = $this->splitSourceAndMetaData($doc);
+
+                        $response[] = $this->config->getEntityClass()
+                            ? $this->config->getEntityClass()::fromElasticDocument($source, $metaData)
+                            : $this->config->getEntityFactory()->fromDocument($source, $metaData);
+                    }
+
+                    return $response;
+                }
+
+                return $docs;
+            }
+        );
+    }
+
     public function count(): int
     {
         return $this->countByQuery(Query::create());
@@ -209,16 +263,14 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
     public function countByQuery(QueryInterface $query): int
     {
         return $this->executeRead(
-            function () use ($query) {
-                return $this->client->count($this->buildRawQuery($query, OperationType::READ))['count'];
-            }
+            fn() => $this->client->count($this->buildRawQuery($query, OperationType::READ))['count']
         );
     }
 
     public function aggregateByQuery(QueryInterface $query): AggregationResultSetInterface
     {
         return $this->executeRead(
-            function () use ($query) {
+            function() use ($query) {
                 $result = $this->client->search(
                     $this->buildRawQuery($query, OperationType::READ)
                 );
@@ -232,7 +284,7 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
     public function updateByQuery(QueryInterface $query, array $updateScript): array
     {
         return $this->executeWrite(
-            function () use ($query, $updateScript) {
+            function() use ($query, $updateScript) {
                 $rawQuery = $this->buildRawQuery($query, OperationType::WRITE);
                 $rawQuery['body']['script'] = $this->sanitizeUpdateScript($updateScript)['script'];
 
@@ -254,16 +306,11 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
             );
 
             $this->postUpsert($id, $document);
-        } catch (\Exception $e) {
+        } catch (Throwable $e) {
             $this->getLogger()->error(self::EXCEPTION_PREFIX . $e->getMessage());
 
             throw new UpsertException($e->getMessage(), $e, $id, $document);
         }
-    }
-
-    protected function postUpsert(string $id, array $document): void
-    {
-        // ready to be overwritten :)
     }
 
     public function update(string $id, array|object $partialEntity): void
@@ -279,11 +326,36 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
             );
 
             $this->postUpdate($id, $document);
-        } catch (\Exception $e) {
+        } catch (Throwable $e) {
             $this->getLogger()->error(self::EXCEPTION_PREFIX . $e->getMessage());
 
             throw new UpdateException($e->getMessage(), $e, $id, $document);
         }
+    }
+
+    protected function postSave(string $id, array $document): void
+    {
+        // ready to be overwritten :)
+    }
+
+    protected function postSaveBulk(array $entities): void
+    {
+        // ready to be overwritten :)
+    }
+
+    protected function postDelete(string $id): void
+    {
+        // ready to be overwritten :)
+    }
+
+    protected function postDeleteBulk(string ...$ids): void
+    {
+        // ready to be overwritten :)
+    }
+
+    protected function postUpsert(string $id, array $document): void
+    {
+        // ready to be overwritten :)
     }
 
     protected function postUpdate(string $id, array $document): void
@@ -305,13 +377,13 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
     {
         try {
             return $operation();
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $this->getLogger()->error(self::EXCEPTION_PREFIX . $e->getMessage());
 
             throw match ($operationType) {
-                OperationType::READ => new ReadOperationException($e->getMessage(), $e),
+                OperationType::READ  => new ReadOperationException($e->getMessage(), $e),
                 OperationType::WRITE => new WriteOperationException($e->getMessage(), $e),
-                default => new RepositoryException($e->getMessage(), $e),
+                default              => new RepositoryException($e->getMessage(), $e),
             };
         }
     }
@@ -347,7 +419,7 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
 
         if ($this->config->getEntityClass()) {
             $results = array_map(
-                function (array $hit) {
+                function(array $hit) {
                     ['source' => $source, 'meta' => $metaData] = $this->splitSourceAndMetaData($hit);
 
                     return $this->config->getEntityClass()::fromElasticDocument($source, $metaData);
@@ -356,7 +428,7 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
             );
         } elseif ($this->config->getEntityFactory()) {
             $results = array_map(
-                function (array $hit) {
+                function(array $hit) {
                     ['source' => $source, 'meta' => $metaData] = $this->splitSourceAndMetaData($hit);
 
                     return $this->config->getEntityFactory()->fromDocument($source, $metaData);
@@ -383,7 +455,7 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         if (!isset($updateScript['script']) && count($updateScript) > 1) {
             $sanitizedUpdateScript = [
                 'script' => [
-                    'lang' => $updateScript['lang'] ?? null,
+                    'lang'   => $updateScript['lang'] ?? null,
                     'source' => $updateScript['source'] ?? [],
                     'params' => $updateScript['params'] ?? [],
                 ],
@@ -397,6 +469,8 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
 
     protected function prepareDocument(array|object $entity): array
     {
+        $document = [];
+
         if (is_array($entity)) {
             $document = $entity;
         } elseif (is_object($entity)) {
@@ -406,12 +480,26 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
             } elseif ($this->config->getEntitySerializer()) {
                 $document = $this->config->getEntitySerializer()->toElastic($entity);
             } else {
-                throw new RepositoryConfigurationException(
-                    'No entity serializer configured while trying to persist object'
-                );
+                throw new RepositoryConfigurationException('No entity serializer configured while trying to persist object');
             }
         }
 
         return $document;
+    }
+
+    private function getMgetBody(array $ids, array $sourceFields): array
+    {
+        $docs = [];
+        foreach ($ids as $id) {
+            $doc['_id'] = $id;
+
+            if (!empty($sourceFields)) {
+                $doc['_source'] = $sourceFields;
+            }
+
+            $docs[] = $doc;
+        }
+
+        return ['docs' => $docs];
     }
 }

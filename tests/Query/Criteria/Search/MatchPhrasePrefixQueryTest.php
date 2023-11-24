@@ -4,12 +4,9 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\Tests\Query\Criteria\Search;
 
 use Kununu\Elasticsearch\Query\Criteria\Search\MatchPhrasePrefixQuery;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
+use PHPUnit\Framework\TestCase;
 
-/**
- * @group unit
- */
-class MatchPhrasePrefixQueryTest extends MockeryTestCase
+final class MatchPhrasePrefixQueryTest extends TestCase
 {
     protected const QUERY_STRING = 'what was i looking for?';
 

@@ -1,68 +1,50 @@
 <?php
 declare(strict_types=1);
 
-namespace Kununu\Elasticsearch\Tests\Adapter;
+namespace Kununu\Elasticsearch\Tests\Result;
 
 use Kununu\Elasticsearch\Result\AggregationResult;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
+use PHPUnit\Framework\TestCase;
 
-/**
- * @group unit
- */
-class AggregationResultTest extends MockeryTestCase
+final class AggregationResultTest extends TestCase
 {
-    public function createData(): array
+    public static function createDataProvider(): array
     {
         return [
-            'empty name, empty fields' => [
-                'name' => '',
+            'empty name, empty fields'         => [
+                'name'   => '',
                 'fields' => [],
             ],
-            'non-empty name, empty fields' => [
-                'name' => 'my_agg',
+            'non-empty name, empty fields'     => [
+                'name'   => 'my_agg',
                 'fields' => [],
             ],
-            'empty name, non-empty fields' => [
-                'name' => '',
+            'empty name, non-empty fields'     => [
+                'name'   => '',
                 'fields' => ['some' => 'thing', 'foo' => 'bar'],
             ],
             'non-empty name, non-empty fields' => [
-                'name' => 'my_agg',
+                'name'   => 'my_agg',
                 'fields' => ['some' => 'thing', 'foo' => 'bar'],
             ],
         ];
     }
 
-    /**
-     * @dataProvider createData
-     *
-     * @param string $name
-     * @param array  $fields
-     */
+    /** @dataProvider createDataProvider */
     public function testCreate(string $name, array $fields): void
     {
         $result = AggregationResult::create($name, $fields);
         $this->assertEquals([$name => $fields], $result->toArray());
     }
 
-    /**
-     * @dataProvider createData
-     *
-     * @param string $name
-     * @param array  $fields
-     */
+    /** @dataProvider createDataProvider */
     public function testGetName(string $name, array $fields): void
     {
         $result = AggregationResult::create($name, $fields);
         $this->assertEquals($name, $result->getName());
     }
 
-    /**
-     * @dataProvider createData
-     *
-     * @param string $name
-     * @param array  $fields
-     */
+    /** @dataProvider createDataProvider */
     public function testGetFields(string $name, array $fields): void
     {
         $result = AggregationResult::create($name, $fields);

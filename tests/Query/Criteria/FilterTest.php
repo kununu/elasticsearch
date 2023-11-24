@@ -8,12 +8,9 @@ use Kununu\Elasticsearch\Query\Criteria\Filter;
 use Kununu\Elasticsearch\Query\Criteria\GeoDistanceInterface;
 use Kununu\Elasticsearch\Query\Criteria\GeoShapeInterface;
 use Kununu\Elasticsearch\Query\Criteria\Operator;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
+use PHPUnit\Framework\TestCase;
 
-/**
- * @group unit
- */
-class FilterTest extends MockeryTestCase
+final class FilterTest extends TestCase
 {
     public function testCreateWithInvalidOperator(): void
     {
@@ -23,44 +20,34 @@ class FilterTest extends MockeryTestCase
         Filter::create('my_field', 'foo', 'bar');
     }
 
-    public function createData(): array
+    /** @dataProvider createDataProvider */
+    public function testCreate(string $operator, mixed $value): void
+    {
+        $serialized = Filter::create('my_field', $value, $operator)->toArray();
+
+        $this->assertNotEmpty($serialized);
+    }
+
+    public function createDataProvider(): array
     {
         $ret = [];
 
         foreach (Operator::all() as $operator) {
             if (!in_array($operator, [Operator::GEO_DISTANCE, Operator::GEO_SHAPE])) {
-                switch ($operator) {
-                    case Operator::TERMS:
-                        $value = ['a', 'b'];
-                        break;
-                    case Operator::EXISTS:
-                        $value = true;
-                        break;
-                    default:
-                        $value = 'foo';
-                }
+                $value = match ($operator) {
+                    Operator::TERMS  => ['a', 'b'],
+                    Operator::EXISTS => true,
+                    default          => 'foo',
+                };
 
                 $ret[$operator] = [
                     'operator' => $operator,
-                    'value' => $value,
+                    'value'    => $value,
                 ];
             }
         }
 
         return $ret;
-    }
-
-    /**
-     * @dataProvider createData
-     *
-     * @param string $operator
-     * @param mixed  $value
-     */
-    public function testCreate(string $operator, $value): void
-    {
-        $serialized = Filter::create('my_field', $value, $operator)->toArray();
-
-        $this->assertNotEmpty($serialized);
     }
 
     public function testCreateWithoutOperatorCreatesTermFilter(): void
@@ -73,12 +60,12 @@ class FilterTest extends MockeryTestCase
 
     public function testCreateGeoShape(): void
     {
-        $geoShape = \Mockery::mock(GeoShapeInterface::class);
+        $geoShape = $this->createMock(GeoShapeInterface::class);
 
         $geoShape
-            ->shouldReceive('toArray')
-            ->once()
-            ->andReturn([]);
+            ->expects($this->once())
+            ->method('toArray')
+            ->willReturn([]);
 
         $serialized = Filter::create('my_field', $geoShape, Operator::GEO_SHAPE)->toArray();
 
@@ -88,17 +75,17 @@ class FilterTest extends MockeryTestCase
 
     public function testCreateGeoDistance(): void
     {
-        $geoDistance = \Mockery::mock(GeoDistanceInterface::class);
+        $geoDistance = $this->createMock(GeoDistanceInterface::class);
 
         $geoDistance
-            ->shouldReceive('getDistance')
-            ->once()
-            ->andReturn('42km');
+            ->expects($this->once())
+            ->method('getDistance')
+            ->willReturn('42km');
 
         $geoDistance
-            ->shouldReceive('getLocation')
-            ->once()
-            ->andReturn([0, 0]);
+            ->expects($this->once())
+            ->method('getLocation')
+            ->willReturn([0, 0]);
 
         $serialized = Filter::create('my_field', $geoDistance, Operator::GEO_DISTANCE)->toArray();
 

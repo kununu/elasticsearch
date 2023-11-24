@@ -10,7 +10,7 @@ class IndexManagementException extends RuntimeException
 {
     public const MESSAGE_PREFIX = 'Elasticsearch exception: ';
 
-    public function __construct(string $message = "", Throwable $previous = null)
+    public function __construct(string $message = '', ?Throwable $previous = null)
     {
         parent::__construct(static::MESSAGE_PREFIX . $message, 0, $previous);
     }

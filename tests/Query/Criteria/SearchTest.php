@@ -5,12 +5,9 @@ namespace Kununu\Elasticsearch\Tests\Query\Criteria;
 
 use InvalidArgumentException;
 use Kununu\Elasticsearch\Query\Criteria\Search;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
+use PHPUnit\Framework\TestCase;
 
-/**
- * @group unit
- */
-class SearchTest extends MockeryTestCase
+final class SearchTest extends TestCase
 {
     public function testCreateWithoutFields(): void
     {
@@ -28,7 +25,16 @@ class SearchTest extends MockeryTestCase
         Search::create(['my_field'], 'foo', 'bar');
     }
 
-    public function createData(): array
+    /** @dataProvider createDataProvider */
+    public function testCreate(string $type): void
+    {
+        $serialized = Search::create(['my_field'], 'i am looking for something', $type)->toArray();
+
+        $this->assertNotEmpty($serialized);
+        $this->assertArrayHasKey($type, $serialized);
+    }
+
+    public static function createDataProvider(): array
     {
         $ret = [];
 
@@ -39,18 +45,5 @@ class SearchTest extends MockeryTestCase
         }
 
         return $ret;
-    }
-
-    /**
-     * @dataProvider createData
-     *
-     * @param string $type
-     */
-    public function testCreate(string $type): void
-    {
-        $serialized = Search::create(['my_field'], 'i am looking for something', $type)->toArray();
-
-        $this->assertNotEmpty($serialized);
-        $this->assertArrayHasKey($type, $serialized);
     }
 }

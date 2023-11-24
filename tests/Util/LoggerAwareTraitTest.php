@@ -9,25 +9,9 @@ use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
-class LoggerAwareTraitTest extends TestCase
+final class LoggerAwareTraitTest extends TestCase
 {
-    /**
-     * @return \Psr\Log\LoggerAwareInterface
-     */
-    public function getLoggerAwareObject(): LoggerAwareInterface
-    {
-        return new class implements LoggerAwareInterface
-        {
-            use LoggerAwareTrait;
-
-            public function publiclyGetLogger()
-            {
-                return $this->getLogger();
-            }
-        };
-    }
-
-    public function testSetLogger()
+    public function testSetLogger(): void
     {
         $loggerAwareObject = $this->getLoggerAwareObject();
 
@@ -38,10 +22,22 @@ class LoggerAwareTraitTest extends TestCase
         $this->assertEquals($logger, $loggerAwareObject->publiclyGetLogger());
     }
 
-    public function testGetNullLoggerAsDefault()
+    public function testGetNullLoggerAsDefault(): void
     {
         $loggerAwareObject = $this->getLoggerAwareObject();
 
         $this->assertInstanceOf(NullLogger::class, $loggerAwareObject->publiclyGetLogger());
+    }
+
+    public function getLoggerAwareObject(): LoggerAwareInterface
+    {
+        return new class() implements LoggerAwareInterface {
+            use LoggerAwareTrait;
+
+            public function publiclyGetLogger()
+            {
+                return $this->getLogger();
+            }
+        };
     }
 }

@@ -5,12 +5,14 @@ namespace Kununu\Elasticsearch\IndexManagement;
 
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
-use Exception;
 use Kununu\Elasticsearch\Exception\IndexManagementException;
+use Kununu\Elasticsearch\Exception\MoreThanOneIndexForAliasException;
+use Kununu\Elasticsearch\Exception\NoIndexForAliasException;
 use Kununu\Elasticsearch\Util\LoggerAwareTrait;
 use Psr\Log\LoggerAwareInterface;
 use RuntimeException;
 use stdClass;
+use Throwable;
 
 class IndexManager implements IndexManagerInterface, LoggerAwareInterface
 {
@@ -23,9 +25,7 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
     public function addAlias(string $index, string $alias): IndexManagerInterface
     {
         $this->execute(
-            function () use ($index, $alias) {
-                return $this->client->indices()->putAlias(['index' => $index, 'name' => $alias]);
-            },
+            fn() => $this->client->indices()->putAlias(['index' => $index, 'name' => $alias]),
             true,
             'Could not add alias for index',
             ['index' => $index, 'alias' => $alias]
@@ -37,9 +37,7 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
     public function removeAlias(string $index, string $alias): IndexManagerInterface
     {
         $this->execute(
-            function () use ($index, $alias) {
-                return $this->client->indices()->deleteAlias(['index' => $index, 'name' => $alias]);
-            },
+            fn() => $this->client->indices()->deleteAlias(['index' => $index, 'name' => $alias]),
             true,
             'Could not remove alias for index',
             ['index' => $index, 'alias' => $alias]
@@ -51,18 +49,14 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
     public function switchAlias(string $alias, string $fromIndex, string $toIndex): IndexManagerInterface
     {
         $this->execute(
-            function () use ($alias, $fromIndex, $toIndex) {
-                return $this->client->indices()->updateAliases(
-                    [
-                        'body' => [
-                            'actions' => [
-                                ['remove' => ['index' => $fromIndex, 'alias' => $alias]],
-                                ['add' => ['index' => $toIndex, 'alias' => $alias]],
-                            ],
-                        ],
-                    ]
-                );
-            },
+            fn() => $this->client->indices()->updateAliases([
+                'body' => [
+                    'actions' => [
+                        ['remove' => ['index' => $fromIndex, 'alias' => $alias]],
+                        ['add' => ['index' => $toIndex, 'alias' => $alias]],
+                    ],
+                ],
+            ]),
             true,
             'Could not switch alias for index',
             ['alias' => $alias, 'from_index' => $fromIndex, 'to_index' => $toIndex]
@@ -94,9 +88,7 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
         }
 
         $this->execute(
-            function () use ($params) {
-                return $this->client->indices()->create($params);
-            },
+            fn() => $this->client->indices()->create($params),
             true,
             'Could not create index',
             ['index' => $index, 'aliases' => $aliases, 'settings' => $settings]
@@ -108,9 +100,7 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
     public function deleteIndex(string $index): IndexManagerInterface
     {
         $this->execute(
-            function () use ($index) {
-                return $this->client->indices()->delete(['index' => $index]);
-            },
+            fn() => $this->client->indices()->delete(['index' => $index]),
             true,
             'Could not delete index',
             ['index' => $index]
@@ -124,9 +114,7 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
         $params = array_merge(['index' => $index, 'body' => $mapping], $extraParams);
 
         $this->execute(
-            function () use ($params) {
-                return $this->client->indices()->putMapping($params);
-            },
+            fn() => $this->client->indices()->putMapping($params),
             true,
             'Could not put mapping',
             ['index' => $index, 'mapping' => $mapping]
@@ -139,10 +127,10 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
     {
         return array_keys(
             $this->execute(
-                function () use ($alias) {
+                function() use ($alias) {
                     try {
                         return $this->client->indices()->getAlias(['name' => $alias]);
-                    } catch (Missing404Exception $exception) {
+                    } catch (Missing404Exception) {
                         return [];
                     }
                 },
@@ -156,10 +144,10 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
     public function getIndicesAliasesMapping(): array
     {
         $indices = $this->execute(
-            function () {
+            function() {
                 try {
                     return $this->client->indices()->get(['index' => '_all']);
-                } catch (Missing404Exception $exception) {
+                } catch (Missing404Exception) {
                     return [];
                 }
             },
@@ -168,9 +156,7 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
         );
 
         return array_map(
-            function (array $indexProperties): array {
-                return array_keys($indexProperties['aliases'] ?? []);
-            },
+            fn(array $indexProperties): array => array_keys($indexProperties['aliases'] ?? []),
             $indices
         );
     }
@@ -178,20 +164,16 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
     public function reindex(string $source, string $destination): void
     {
         $this->execute(
-            function () use ($source, $destination) {
-                return $this->client->reindex(
-                    [
-                        'refresh' => true,
-                        'slices' => 'auto',
-                        'wait_for_completion' => true,
-                        'body' => [
-                            'conflicts' => 'proceed',
-                            'source' => ['index' => $source],
-                            'dest' => ['index' => $destination],
-                        ],
-                    ]
-                );
-            },
+            fn() => $this->client->reindex([
+                'refresh'             => true,
+                'slices'              => 'auto',
+                'wait_for_completion' => true,
+                'body'                => [
+                    'conflicts' => 'proceed',
+                    'source'    => ['index' => $source],
+                    'dest'      => ['index' => $destination],
+                ],
+            ]),
             false,
             'Unable to reindex',
             ['source' => $source, 'destination' => $destination]
@@ -203,28 +185,41 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
         $allowedSettings = ['refresh_interval', 'number_of_replicas'];
 
         $body = [
-            'index' => array_filter($settings, function($key) use($allowedSettings) {
-                return in_array($key, $allowedSettings, true);
-            }, ARRAY_FILTER_USE_KEY)
+            'index' => array_filter(
+                $settings,
+                fn($key) => in_array($key, $allowedSettings, true),
+                ARRAY_FILTER_USE_KEY
+            ),
         ];
 
         if (count($settings) != count($body['index'])) {
-            throw new IndexManagementException(
-                'Allowed settings are [refresh_interval, number_of_replicas]. Other settings are not allowed.'
-            );
+            throw new IndexManagementException('Allowed settings are [refresh_interval, number_of_replicas]. Other settings are not allowed.');
         }
 
         $this->execute(
-            function () use ($index, $body) {
-                return $this->client->indices()->putSettings([
-                    'index' => $index,
-                    'body' => $body,
-                ]);
-            },
+            fn() => $this->client->indices()->putSettings([
+                'index' => $index,
+                'body'  => $body,
+            ]),
             true,
             'Unable to put settings',
             ['index' => $index, 'body' => $body]
         );
+    }
+
+    public function getSingleIndexByAlias(string $alias): string
+    {
+        $indices = $this->getIndicesByAlias($alias);
+
+        if (count($indices) === 0) {
+            throw new NoIndexForAliasException();
+        }
+
+        if (count($indices) > 1) {
+            throw new MoreThanOneIndexForAliasException();
+        }
+
+        return current($indices);
     }
 
     protected function execute(
@@ -240,7 +235,7 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
             }
 
             return $result;
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $this->getLogger()->error(
                 IndexManagementException::MESSAGE_PREFIX . $logMessage,
                 array_merge(['message' => $e->getMessage()], $extra)

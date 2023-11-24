@@ -10,11 +10,6 @@ trait LoggerAwareTrait
 {
     protected LoggerInterface|null $logger = null;
 
-    /**
-     * Sets a logger.
-     *
-     * @required
-     */
     public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;

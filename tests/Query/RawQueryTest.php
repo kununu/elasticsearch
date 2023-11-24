@@ -5,38 +5,28 @@ namespace Kununu\Elasticsearch\Tests\Query;
 
 use Kununu\Elasticsearch\Query\RawQuery;
 use Kununu\Elasticsearch\Query\SortOrder;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
+use PHPUnit\Framework\TestCase;
 
-/**
- * @group unit
- */
-class RawQueryTest extends MockeryTestCase
+final class RawQueryTest extends TestCase
 {
-    /**
-     * @return array
-     */
-    public function createData(): array
+    /** @dataProvider createDataProvider */
+    public function testCreate(array $rawQuery): void
+    {
+        $query = RawQuery::create($rawQuery);
+
+        $this->assertEquals($rawQuery, $query->toArray());
+    }
+
+    public static function createDataProvider(): array
     {
         return [
-            'empty' => [
+            'empty'     => [
                 'rawQuery' => [],
             ],
             'non-empty' => [
                 'rawQuery' => ['query' => ['term' => ['field' => 'value']]],
             ],
         ];
-    }
-
-    /**
-     * @dataProvider createData
-     *
-     * @param array $rawQuery
-     */
-    public function testCreate(array $rawQuery): void
-    {
-        $query = RawQuery::create($rawQuery);
-
-        $this->assertEquals($rawQuery, $query->toArray());
     }
 
     public function testCommonFunctionalityIsPreservedOnToArray(): void
@@ -49,11 +39,11 @@ class RawQueryTest extends MockeryTestCase
 
         $this->assertEquals(
             [
-                'query' => ['term' => ['field' => 'value']],
+                'query'   => ['term' => ['field' => 'value']],
                 '_source' => ['field_a'],
-                'size' => 10,
-                'from' => 1,
-                'sort' => [
+                'size'    => 10,
+                'from'    => 1,
+                'sort'    => [
                     'field_a' => ['order' => SortOrder::ASC],
                 ],
             ],

@@ -4,12 +4,9 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\Tests\Query\Criteria\Search;
 
 use Kununu\Elasticsearch\Query\Criteria\Search\TermQuery;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
+use PHPUnit\Framework\TestCase;
 
-/**
- * @group unit
- */
-class TermQueryTest extends MockeryTestCase
+final class TermQueryTest extends TestCase
 {
     protected const TERM = 'what was i looking for?';
     protected const FIELD = 'field_a';

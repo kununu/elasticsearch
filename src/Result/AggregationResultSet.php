@@ -8,9 +8,6 @@ class AggregationResultSet implements AggregationResultSetInterface
     protected ResultIterator|null $documents = null;
     protected array $aggregationResults = [];
 
-    /**
-     * @param array $rawResult
-     */
     public function __construct(array $rawResult = [])
     {
         foreach ($rawResult as $aggregationName => $fields) {

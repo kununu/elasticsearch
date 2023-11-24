@@ -5,8 +5,6 @@ namespace Kununu\Elasticsearch\Result;
 
 trait ArrayAccessTrait
 {
-    protected array $results = [];
-
     public function offsetExists(mixed $offset): bool
     {
         return isset($this->results[$offset]);
@@ -19,7 +17,7 @@ trait ArrayAccessTrait
 
     public function offsetSet(mixed $offset, mixed $result): void
     {
-        if (is_null($offset)) {
+        if (null === $offset) {
             $this->results[] = $result;
         } else {
             $this->results[$offset] = $result;

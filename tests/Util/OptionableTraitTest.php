@@ -7,35 +7,18 @@ use Kununu\Elasticsearch\Exception\UnknownOptionException;
 use Kununu\Elasticsearch\Util\OptionableTrait;
 use PHPUnit\Framework\TestCase;
 
-class OptionableTraitTest extends TestCase
+final class OptionableTraitTest extends TestCase
 {
     public const OPTION_A = 'option_a';
     public const OPTION_B = 'option_b';
     protected const NOT_AN_OPTION = 'foobar';
 
-    /**
-     * @return object
-     */
-    public function getOptionableObject(): object
-    {
-        return new class
-        {
-            use OptionableTrait;
-
-            protected function getAvailableOptions(): array
-            {
-                return [OptionableTraitTest::OPTION_A, OptionableTraitTest::OPTION_B];
-            }
-
-        };
-    }
-
     public function testGetNotSetOption(): void
     {
         $optionable = $this->getOptionableObject();
 
-        $this->assertNull($optionable->getOption(static::OPTION_A));
-        $this->assertNull($optionable->getOption(static::OPTION_B));
+        $this->assertNull($optionable->getOption(self::OPTION_A));
+        $this->assertNull($optionable->getOption(self::OPTION_B));
         $this->assertEmpty($optionable->getOptions());
     }
 
@@ -45,21 +28,21 @@ class OptionableTraitTest extends TestCase
 
         $myOption = 'whatever';
 
-        $optionable->setOption(static::OPTION_A, $myOption);
+        $optionable->setOption(self::OPTION_A, $myOption);
 
-        $this->assertEquals($myOption, $optionable->getOption(static::OPTION_A));
-        $this->assertNull($optionable->getOption(static::OPTION_B));
-        $this->assertEquals([static::OPTION_A => $myOption], $optionable->getOptions());
+        $this->assertEquals($myOption, $optionable->getOption(self::OPTION_A));
+        $this->assertNull($optionable->getOption(self::OPTION_B));
+        $this->assertEquals([self::OPTION_A => $myOption], $optionable->getOptions());
     }
 
     public function testSetNull(): void
     {
         $optionable = $this->getOptionableObject();
 
-        $optionable->setOption(static::OPTION_A, null);
+        $optionable->setOption(self::OPTION_A, null);
 
-        $this->assertNull($optionable->getOption(static::OPTION_A));
-        $this->assertNull($optionable->getOption(static::OPTION_B));
+        $this->assertNull($optionable->getOption(self::OPTION_A));
+        $this->assertNull($optionable->getOption(self::OPTION_B));
         $this->assertEmpty($optionable->getOptions());
     }
 
@@ -68,9 +51,9 @@ class OptionableTraitTest extends TestCase
         $optionable = $this->getOptionableObject();
 
         $this->expectException(UnknownOptionException::class);
-        $this->expectExceptionMessage('Unknown option "' . static::NOT_AN_OPTION . '" given.');
+        $this->expectExceptionMessage('Unknown option "' . self::NOT_AN_OPTION . '" given.');
 
-        $optionable->getOption(static::NOT_AN_OPTION);
+        $optionable->getOption(self::NOT_AN_OPTION);
     }
 
     public function testSetUnknownOption(): void
@@ -78,8 +61,20 @@ class OptionableTraitTest extends TestCase
         $optionable = $this->getOptionableObject();
 
         $this->expectException(UnknownOptionException::class);
-        $this->expectExceptionMessage('Unknown option "' . static::NOT_AN_OPTION . '" given.');
+        $this->expectExceptionMessage('Unknown option "' . self::NOT_AN_OPTION . '" given.');
 
-        $optionable->setOption(static::NOT_AN_OPTION, 'foo');
+        $optionable->setOption(self::NOT_AN_OPTION, 'foo');
+    }
+
+    private function getOptionableObject(): object
+    {
+        return new class() {
+            use OptionableTrait;
+
+            protected function getAvailableOptions(): array
+            {
+                return [OptionableTraitTest::OPTION_A, OptionableTraitTest::OPTION_B];
+            }
+        };
     }
 }

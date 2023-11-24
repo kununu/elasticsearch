@@ -29,9 +29,7 @@ trait OptionableTrait
     {
         return array_filter(
             $this->options,
-            function ($option, $optionKey) {
-                return in_array($optionKey, $this->getAvailableOptions(), true) && $option !== null;
-            },
+            fn($option, $optionKey) => in_array($optionKey, $this->getAvailableOptions(), true) && $option !== null,
             ARRAY_FILTER_USE_BOTH
         );
     }
