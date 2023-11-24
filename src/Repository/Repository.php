@@ -133,11 +133,9 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
     public function findByQuery(QueryInterface $query): ResultIteratorInterface
     {
         return $this->executeRead(
-            function() use ($query) {
-                return $this->parseRawSearchResponse(
-                    $this->client->search($this->buildRawQuery($query, OperationType::READ))
-                );
-            }
+            fn() => $this->parseRawSearchResponse(
+                $this->client->search($this->buildRawQuery($query, OperationType::READ))
+            )
         );
     }
 
@@ -162,16 +160,12 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         string|null $scrollContextKeepalive = null
     ): ResultIteratorInterface {
         return $this->executeRead(
-            function() use ($scrollId, $scrollContextKeepalive) {
-                return $this->parseRawSearchResponse(
-                    $this->client->scroll(
-                        [
-                            'scroll_id' => $scrollId,
-                            'scroll'    => $scrollContextKeepalive ?: $this->config->getScrollContextKeepalive(),
-                        ]
-                    )
-                );
-            }
+            fn() => $this->parseRawSearchResponse(
+                $this->client->scroll([
+                    'scroll_id' => $scrollId,
+                    'scroll'    => $scrollContextKeepalive ?: $this->config->getScrollContextKeepalive(),
+                ])
+            )
         );
     }
 
