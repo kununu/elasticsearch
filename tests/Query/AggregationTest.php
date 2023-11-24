@@ -242,4 +242,25 @@ class AggregationTest extends MockeryTestCase
             $aggregation->toArray()
         );
     }
+
+    public function testCreateAggregationWithRange(): void
+    {
+        $aggregation = Aggregation::create(
+            'my_field',
+            Metric::RANGE,
+            'my_agg',
+            ['ranges' => [['from' => 1, 'to' => 2]]]
+        );
+
+        $this->assertEquals([
+            'my_agg' => [
+                'range' => [
+                    'field'       => 'my_field',
+                    'ranges' => [
+                        ['from' => 1 , 'to' => 2]
+                    ],
+                ],
+            ],
+        ], $aggregation->toArray());
+    }
 }
