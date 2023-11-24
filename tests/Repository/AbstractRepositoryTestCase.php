@@ -11,12 +11,11 @@ use Kununu\Elasticsearch\Repository\EntityFactoryInterface;
 use Kununu\Elasticsearch\Repository\PersistableEntityInterface;
 use Kununu\Elasticsearch\Repository\Repository;
 use Kununu\Elasticsearch\Repository\RepositoryInterface;
-use Mockery;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
-use Mockery\MockInterface;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
-abstract class AbstractRepositoryTestCase extends MockeryTestCase
+abstract class AbstractRepositoryTestCase extends TestCase
 {
     public const ID = 'can_be_anything';
     public const ID_2 = 'can_also_be_anything';
@@ -30,8 +29,8 @@ abstract class AbstractRepositoryTestCase extends MockeryTestCase
     protected const DOCUMENT_COUNT = 42;
     protected const SCROLL_ID = 'DnF1ZXJ5VGhlbkZldGNoBQAAAAAAAAFbFkJVNEdjZWVjU';
 
-    protected MockInterface|Client $clientMock;
-    protected MockInterface|LoggerInterface $loggerMock;
+    protected Client|MockObject $clientMock;
+    protected LoggerInterface|MockObject $loggerMock;
 
     public static function invalidDataTypesForSaveAndUpsertDataProvider(): array
     {
@@ -203,8 +202,8 @@ abstract class AbstractRepositoryTestCase extends MockeryTestCase
 
     protected function setUp(): void
     {
-        $this->clientMock = Mockery::mock(Client::class);
-        $this->loggerMock = Mockery::mock(LoggerInterface::class);
+        $this->clientMock = $this->createMock(Client::class);
+        $this->loggerMock = $this->createMock(LoggerInterface::class);
     }
 
     protected function getEntityClassInstance(): PersistableEntityInterface

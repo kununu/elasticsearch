@@ -17,8 +17,8 @@ final class RepositorySaveTest extends AbstractRepositoryTestCase
         ];
 
         $this->clientMock
-            ->shouldReceive('index')
-            ->once()
+            ->expects($this->once())
+            ->method('index')
             ->with([
                 'index' => self::INDEX['write'],
                 'id'    => self::ID,
@@ -26,7 +26,8 @@ final class RepositorySaveTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $this->getRepository()->save(self::ID, $document);
     }
@@ -38,8 +39,8 @@ final class RepositorySaveTest extends AbstractRepositoryTestCase
         ];
 
         $this->clientMock
-            ->shouldReceive('index')
-            ->once()
+            ->expects($this->once())
+            ->method('index')
             ->with([
                 'index'   => self::INDEX['write'],
                 'id'      => self::ID,
@@ -48,7 +49,8 @@ final class RepositorySaveTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $this->getRepository(['force_refresh_on_write' => true])->save(self::ID, $document);
     }
@@ -60,17 +62,17 @@ final class RepositorySaveTest extends AbstractRepositoryTestCase
         ];
 
         $this->clientMock
-            ->shouldReceive('index')
-            ->once()
+            ->expects($this->once())
+            ->method('index')
             ->with([
                 'index' => self::INDEX['write'],
                 'id'    => self::ID,
                 'body'  => $document,
             ])
-            ->andThrow(new Exception(self::ERROR_MESSAGE));
+            ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
-            ->shouldReceive('error')
+            ->method('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
         try {
@@ -90,8 +92,8 @@ final class RepositorySaveTest extends AbstractRepositoryTestCase
         ];
 
         $this->clientMock
-            ->shouldReceive('index')
-            ->once()
+            ->expects($this->once())
+            ->method('index')
             ->with([
                 'index' => self::INDEX['write'],
                 'id'    => self::ID,
@@ -99,7 +101,8 @@ final class RepositorySaveTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $manager = new class($this->clientMock, ['index_write' => self::INDEX['write']]) extends Repository {
             protected function postSave(string $id, array $document): void

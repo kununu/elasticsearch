@@ -16,13 +16,13 @@ final class RepositoryAggregateByQueryTest extends AbstractRepositoryTestCase
     public function testAggregateByQuery(QueryInterface $query, array $esResult): void
     {
         $this->clientMock
-            ->shouldReceive('search')
-            ->once()
+            ->expects($this->once())
+            ->method('search')
             ->with([
                 'index' => self::INDEX['read'],
                 'body'  => $query->toArray(),
             ])
-            ->andReturn(array_merge($esResult, ['aggregations' => ['my_aggregation' => ['value' => 0.1]]]));
+            ->willReturn(array_merge($esResult, ['aggregations' => ['my_aggregation' => ['value' => 0.1]]]));
 
         $aggregationResult = $this->getRepository()->aggregateByQuery($query);
 
@@ -32,7 +32,7 @@ final class RepositoryAggregateByQueryTest extends AbstractRepositoryTestCase
         $this->assertNull($aggregationResult->getDocuments()->getScrollId());
         $this->assertEquals($esResult['hits']['hits'], $aggregationResult->getDocuments()->asArray());
 
-        $this->assertEquals(1, count($aggregationResult->getResults()));
+        $this->assertCount(1, $aggregationResult->getResults());
         $this->assertEquals('my_aggregation', $aggregationResult->getResultByName('my_aggregation')->getName());
         $this->assertEquals(0.1, $aggregationResult->getResultByName('my_aggregation')->getValue());
     }
@@ -44,13 +44,13 @@ final class RepositoryAggregateByQueryTest extends AbstractRepositoryTestCase
         mixed $endResult
     ): void {
         $this->clientMock
-            ->shouldReceive('search')
-            ->once()
+            ->expects($this->once())
+            ->method('search')
             ->with([
                 'index' => self::INDEX['read'],
                 'body'  => $query->toArray(),
             ])
-            ->andReturn(array_merge($esResult, ['aggregations' => ['my_aggregation' => ['value' => 0.1]]]));
+            ->willReturn(array_merge($esResult, ['aggregations' => ['my_aggregation' => ['value' => 0.1]]]));
 
         $aggregationResult = $this
             ->getRepository(['entity_factory' => $this->getEntityFactory()])
@@ -68,7 +68,7 @@ final class RepositoryAggregateByQueryTest extends AbstractRepositoryTestCase
             }
         }
 
-        $this->assertEquals(1, count($aggregationResult->getResults()));
+        $this->assertCount(1, $aggregationResult->getResults());
         $this->assertEquals('my_aggregation', $aggregationResult->getResultByName('my_aggregation')->getName());
         $this->assertEquals(0.1, $aggregationResult->getResultByName('my_aggregation')->getValue());
     }
@@ -80,13 +80,13 @@ final class RepositoryAggregateByQueryTest extends AbstractRepositoryTestCase
         mixed $endResult
     ): void {
         $this->clientMock
-            ->shouldReceive('search')
-            ->once()
+            ->expects($this->once())
+            ->method('search')
             ->with([
                 'index' => self::INDEX['read'],
                 'body'  => $query->toArray(),
             ])
-            ->andReturn(array_merge($esResult, ['aggregations' => ['my_aggregation' => ['value' => 0.1]]]));
+            ->willReturn(array_merge($esResult, ['aggregations' => ['my_aggregation' => ['value' => 0.1]]]));
 
         $aggregationResult = $this
             ->getRepository(['entity_class' => $this->getEntityClass()])
@@ -117,12 +117,12 @@ final class RepositoryAggregateByQueryTest extends AbstractRepositoryTestCase
         );
 
         $this->clientMock
-            ->shouldReceive('search')
-            ->once()
-            ->andThrow(new Exception(self::ERROR_MESSAGE));
+            ->expects($this->once())
+            ->method('search')
+            ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
-            ->shouldReceive('error')
+            ->method('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
         try {

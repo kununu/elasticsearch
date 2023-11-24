@@ -4,9 +4,9 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\Tests\Result;
 
 use Kununu\Elasticsearch\Result\AggregationResult;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
+use PHPUnit\Framework\TestCase;
 
-final class AggregationResultTest extends MockeryTestCase
+final class AggregationResultTest extends TestCase
 {
     public static function createDataProvider(): array
     {

@@ -4,11 +4,10 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\Tests\Result;
 
 use Kununu\Elasticsearch\Result\ResultIterator;
-use Mockery;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
+use PHPUnit\Framework\TestCase;
 use stdClass;
 
-final class ResultIteratorTest extends MockeryTestCase
+final class ResultIteratorTest extends TestCase
 {
     public static function createDataProvider(): array
     {
@@ -234,15 +233,22 @@ final class ResultIteratorTest extends MockeryTestCase
 
     public function testEach(): void
     {
-        $spies = [
-            Mockery::spy(),
-            Mockery::spy(),
-            Mockery::spy(),
+        $mockBuilder = $this->getMockBuilder(stdClass::class)->addMethods(['someMethod']);
+        $mocks = [
+            $mockBuilder->getMock(),
+            $mockBuilder->getMock(),
+            $mockBuilder->getMock(),
         ];
+
+        foreach ($mocks as $mock) {
+            $mock
+                ->expects($this->once())
+                ->method('someMethod');
+        }
 
         $calls = 0;
 
-        $iterator = ResultIterator::create($spies);
+        $iterator = ResultIterator::create($mocks);
 
         $iterator->each(
             function($element) use (&$calls): void {
@@ -252,10 +258,7 @@ final class ResultIteratorTest extends MockeryTestCase
             }
         );
 
-        $this->assertEquals(count($spies), $calls);
-        foreach ($spies as $spy) {
-            $spy->shouldHaveReceived()->someMethod();
-        }
+        $this->assertEquals(count($mocks), $calls);
     }
 
     public function testMap(): void

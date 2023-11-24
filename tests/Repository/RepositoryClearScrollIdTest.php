@@ -13,8 +13,8 @@ final class RepositoryClearScrollIdTest extends AbstractRepositoryTestCase
         $scrollId = 'foobar';
 
         $this->clientMock
-            ->shouldReceive('clearScroll')
-            ->once()
+            ->expects($this->once())
+            ->method('clearScroll')
             ->with([
                 'body' => [
                     'scroll_id' => $scrollId,
@@ -22,7 +22,8 @@ final class RepositoryClearScrollIdTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $this->getRepository()->clearScrollId($scrollId);
     }
@@ -32,18 +33,18 @@ final class RepositoryClearScrollIdTest extends AbstractRepositoryTestCase
         $scrollId = 'foobar';
 
         $this->clientMock
-            ->shouldReceive('clearScroll')
-            ->once()
+            ->expects($this->once())
+            ->method('clearScroll')
             ->with([
                 'body' => [
                     'scroll_id' => $scrollId,
                 ],
             ])
-            ->andThrow(new Exception(self::ERROR_MESSAGE));
+            ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
-            ->shouldReceive('error')
-            ->once()
+            ->expects($this->once())
+            ->method('error')
             ->with(
                 self::ERROR_PREFIX . self::ERROR_MESSAGE
             );

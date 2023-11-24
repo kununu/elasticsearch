@@ -15,15 +15,16 @@ final class RepositoryDeleteTest extends AbstractRepositoryTestCase
     public function testDelete(): void
     {
         $this->clientMock
-            ->shouldReceive('delete')
-            ->once()
+            ->expects($this->once())
+            ->method('delete')
             ->with([
                 'index' => self::INDEX['write'],
                 'id'    => self::ID,
             ]);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $this->getRepository()->delete(self::ID);
     }
@@ -31,8 +32,8 @@ final class RepositoryDeleteTest extends AbstractRepositoryTestCase
     public function testDeleteWithForcedRefresh(): void
     {
         $this->clientMock
-            ->shouldReceive('delete')
-            ->once()
+            ->expects($this->once())
+            ->method('delete')
             ->with([
                 'index'   => self::INDEX['write'],
                 'id'      => self::ID,
@@ -40,7 +41,8 @@ final class RepositoryDeleteTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $this->getRepository(['force_refresh_on_write' => true])->delete(self::ID);
     }
@@ -48,16 +50,16 @@ final class RepositoryDeleteTest extends AbstractRepositoryTestCase
     public function testDeleteFails(): void
     {
         $this->clientMock
-            ->shouldReceive('delete')
-            ->once()
+            ->expects($this->once())
+            ->method('delete')
             ->with([
                 'index' => self::INDEX['write'],
                 'id'    => self::ID,
             ])
-            ->andThrow(new Exception(self::ERROR_MESSAGE));
+            ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
-            ->shouldReceive('error')
+            ->method('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
         try {
@@ -72,16 +74,17 @@ final class RepositoryDeleteTest extends AbstractRepositoryTestCase
     public function testDeleteFailsBecauseDocumentNotFound(): void
     {
         $this->clientMock
-            ->shouldReceive('delete')
-            ->once()
+            ->expects($this->once())
+            ->method('delete')
             ->with([
                 'index' => self::INDEX['write'],
                 'id'    => self::ID,
             ])
-            ->andThrow(new Missing404Exception(self::ERROR_MESSAGE));
+            ->willThrowException(new Missing404Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         try {
             $this->getRepository()->delete(self::ID);
@@ -95,15 +98,16 @@ final class RepositoryDeleteTest extends AbstractRepositoryTestCase
     public function testPostDeleteIsCalled(): void
     {
         $this->clientMock
-            ->shouldReceive('delete')
-            ->once()
+            ->expects($this->once())
+            ->method('delete')
             ->with([
                 'index' => self::INDEX['write'],
                 'id'    => self::ID,
             ]);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $manager = new class($this->clientMock, ['index_write' => self::INDEX['write']]) extends Repository {
             protected function postDelete(string $id): void

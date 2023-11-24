@@ -8,10 +8,9 @@ use Kununu\Elasticsearch\Query\Criteria\Filter;
 use Kununu\Elasticsearch\Query\Criteria\GeoDistanceInterface;
 use Kununu\Elasticsearch\Query\Criteria\GeoShapeInterface;
 use Kununu\Elasticsearch\Query\Criteria\Operator;
-use Mockery;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
+use PHPUnit\Framework\TestCase;
 
-final class FilterTest extends MockeryTestCase
+final class FilterTest extends TestCase
 {
     public function testCreateWithInvalidOperator(): void
     {
@@ -61,12 +60,12 @@ final class FilterTest extends MockeryTestCase
 
     public function testCreateGeoShape(): void
     {
-        $geoShape = Mockery::mock(GeoShapeInterface::class);
+        $geoShape = $this->createMock(GeoShapeInterface::class);
 
         $geoShape
-            ->shouldReceive('toArray')
-            ->once()
-            ->andReturn([]);
+            ->expects($this->once())
+            ->method('toArray')
+            ->willReturn([]);
 
         $serialized = Filter::create('my_field', $geoShape, Operator::GEO_SHAPE)->toArray();
 
@@ -76,17 +75,17 @@ final class FilterTest extends MockeryTestCase
 
     public function testCreateGeoDistance(): void
     {
-        $geoDistance = Mockery::mock(GeoDistanceInterface::class);
+        $geoDistance = $this->createMock(GeoDistanceInterface::class);
 
         $geoDistance
-            ->shouldReceive('getDistance')
-            ->once()
-            ->andReturn('42km');
+            ->expects($this->once())
+            ->method('getDistance')
+            ->willReturn('42km');
 
         $geoDistance
-            ->shouldReceive('getLocation')
-            ->once()
-            ->andReturn([0, 0]);
+            ->expects($this->once())
+            ->method('getLocation')
+            ->willReturn([0, 0]);
 
         $serialized = Filter::create('my_field', $geoDistance, Operator::GEO_DISTANCE)->toArray();
 

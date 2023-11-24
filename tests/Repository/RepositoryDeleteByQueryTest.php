@@ -15,8 +15,8 @@ final class RepositoryDeleteByQueryTest extends AbstractRepositoryTestCase
         $expectedResult = ['some_fake_es_response' => 'deletion was successful'];
 
         $this->clientMock
-            ->shouldReceive('deleteByQuery')
-            ->once()
+            ->expects($this->once())
+            ->method('deleteByQuery')
             ->with([
                 'index' => self::INDEX['write'],
                 'body'  => [
@@ -37,10 +37,11 @@ final class RepositoryDeleteByQueryTest extends AbstractRepositoryTestCase
                     ],
                 ],
             ])
-            ->andReturn($expectedResult);
+            ->willReturn($expectedResult);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $result = $this->getRepository()->deleteByQuery(
             Query::create(
@@ -56,8 +57,8 @@ final class RepositoryDeleteByQueryTest extends AbstractRepositoryTestCase
         $expectedResult = ['some_fake_es_response' => 'deletion was successful'];
 
         $this->clientMock
-            ->shouldReceive('deleteByQuery')
-            ->once()
+            ->expects($this->once())
+            ->method('deleteByQuery')
             ->with([
                 'index'   => self::INDEX['write'],
                 'body'    => [
@@ -79,10 +80,11 @@ final class RepositoryDeleteByQueryTest extends AbstractRepositoryTestCase
                 ],
                 'refresh' => true,
             ])
-            ->andReturn($expectedResult);
+            ->willReturn($expectedResult);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $result = $this->getRepository(['force_refresh_on_write' => true])->deleteByQuery(
             Query::create(
@@ -98,8 +100,8 @@ final class RepositoryDeleteByQueryTest extends AbstractRepositoryTestCase
         $expectedResult = ['some_fake_es_response' => 'deletion was successful'];
 
         $this->clientMock
-            ->shouldReceive('deleteByQuery')
-            ->once()
+            ->expects($this->once())
+            ->method('deleteByQuery')
             ->with([
                 'index'     => self::INDEX['write'],
                 'body'      => [
@@ -121,10 +123,11 @@ final class RepositoryDeleteByQueryTest extends AbstractRepositoryTestCase
                 ],
                 'conflicts' => 'proceed',
             ])
-            ->andReturn($expectedResult);
+            ->willReturn($expectedResult);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $result = $this->getRepository()->deleteByQuery(
             Query::create(
@@ -139,8 +142,8 @@ final class RepositoryDeleteByQueryTest extends AbstractRepositoryTestCase
     public function testDeleteByQueryFails(): void
     {
         $this->clientMock
-            ->shouldReceive('deleteByQuery')
-            ->once()
+            ->expects($this->once())
+            ->method('deleteByQuery')
             ->with([
                 'index' => self::INDEX['write'],
                 'body'  => [
@@ -161,10 +164,10 @@ final class RepositoryDeleteByQueryTest extends AbstractRepositoryTestCase
                     ],
                 ],
             ])
-            ->andThrow(new Exception(self::ERROR_MESSAGE));
+            ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
-            ->shouldReceive('error')
+            ->method('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
         try {

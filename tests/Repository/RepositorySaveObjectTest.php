@@ -16,8 +16,8 @@ final class RepositorySaveObjectTest extends AbstractRepositoryTestCase
         $document->property_b = 'b';
 
         $this->clientMock
-            ->shouldReceive('index')
-            ->once()
+            ->expects($this->once())
+            ->method('index')
             ->with([
                 'index' => self::INDEX['write'],
                 'id'    => self::ID,
@@ -28,7 +28,8 @@ final class RepositorySaveObjectTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $this->getRepository(['entity_serializer' => new EntitySerializerStub()])->save(self::ID, $document);
     }
@@ -40,8 +41,8 @@ final class RepositorySaveObjectTest extends AbstractRepositoryTestCase
         $document->property_b = 'b';
 
         $this->clientMock
-            ->shouldReceive('index')
-            ->once()
+            ->expects($this->once())
+            ->method('index')
             ->with([
                 'index' => self::INDEX['write'],
                 'id'    => self::ID,
@@ -52,7 +53,8 @@ final class RepositorySaveObjectTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $this->getRepository(['entity_class' => $this->getEntityClass()])->save(self::ID, $document);
     }

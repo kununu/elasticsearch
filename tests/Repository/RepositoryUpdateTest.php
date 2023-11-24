@@ -18,8 +18,8 @@ final class RepositoryUpdateTest extends AbstractRepositoryTestCase
         ];
 
         $this->clientMock
-            ->shouldReceive('update')
-            ->once()
+            ->expects($this->once())
+            ->method('update')
             ->with([
                 'index' => self::INDEX['write'],
                 'id'    => self::ID,
@@ -29,7 +29,8 @@ final class RepositoryUpdateTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $this->getRepository()->update(self::ID, $document);
     }
@@ -41,8 +42,8 @@ final class RepositoryUpdateTest extends AbstractRepositoryTestCase
         ];
 
         $this->clientMock
-            ->shouldReceive('update')
-            ->once()
+            ->expects($this->once())
+            ->method('update')
             ->with([
                 'index'   => self::INDEX['write'],
                 'id'      => self::ID,
@@ -53,7 +54,8 @@ final class RepositoryUpdateTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $this->getRepository(['force_refresh_on_write' => true])->update(self::ID, $document);
     }
@@ -65,8 +67,8 @@ final class RepositoryUpdateTest extends AbstractRepositoryTestCase
         $document->property_b = 'b';
 
         $this->clientMock
-            ->shouldReceive('update')
-            ->once()
+            ->expects($this->once())
+            ->method('update')
             ->with([
                 'index' => self::INDEX['write'],
                 'id'    => self::ID,
@@ -79,7 +81,8 @@ final class RepositoryUpdateTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $this->getRepository(['entity_serializer' => new EntitySerializerStub()])->update(self::ID, $document);
     }
@@ -91,8 +94,8 @@ final class RepositoryUpdateTest extends AbstractRepositoryTestCase
         $document->property_b = 'b';
 
         $this->clientMock
-            ->shouldReceive('update')
-            ->once()
+            ->expects($this->once())
+            ->method('update')
             ->with([
                 'index' => self::INDEX['write'],
                 'id'    => self::ID,
@@ -105,7 +108,8 @@ final class RepositoryUpdateTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $this->getRepository(['entity_class' => $this->getEntityClass()])->update(self::ID, $document);
     }
@@ -133,8 +137,8 @@ final class RepositoryUpdateTest extends AbstractRepositoryTestCase
         ];
 
         $this->clientMock
-            ->shouldReceive('update')
-            ->once()
+            ->expects($this->once())
+            ->method('update')
             ->with([
                 'index' => self::INDEX['write'],
                 'id'    => self::ID,
@@ -142,10 +146,10 @@ final class RepositoryUpdateTest extends AbstractRepositoryTestCase
                     'doc' => $document,
                 ],
             ])
-            ->andThrow(new Exception(self::ERROR_MESSAGE));
+            ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
-            ->shouldReceive('error')
+            ->method('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
         try {

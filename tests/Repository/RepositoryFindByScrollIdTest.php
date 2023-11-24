@@ -15,16 +15,17 @@ final class RepositoryFindByScrollIdTest extends AbstractRepositoryTestCase
         $scrollId = 'foobar';
 
         $this->clientMock
-            ->shouldReceive('scroll')
-            ->once()
+            ->expects($this->once())
+            ->method('scroll')
             ->with([
                 'scroll_id' => $scrollId,
                 'scroll'    => RepositoryConfiguration::DEFAULT_SCROLL_CONTEXT_KEEPALIVE,
             ])
-            ->andReturn($esResult);
+            ->willReturn($esResult);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $result = $this->getRepository()->findByScrollId($scrollId);
 
@@ -38,16 +39,17 @@ final class RepositoryFindByScrollIdTest extends AbstractRepositoryTestCase
         $keepalive = '20m';
 
         $this->clientMock
-            ->shouldReceive('scroll')
-            ->once()
+            ->expects($this->once())
+            ->method('scroll')
             ->with([
                 'scroll_id' => $scrollId,
                 'scroll'    => $keepalive,
             ])
-            ->andReturn($esResult);
+            ->willReturn($esResult);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $result = $this->getRepository()->findByScrollId($scrollId, $keepalive);
 
@@ -60,16 +62,17 @@ final class RepositoryFindByScrollIdTest extends AbstractRepositoryTestCase
         $scrollId = 'foobar';
 
         $this->clientMock
-            ->shouldReceive('scroll')
-            ->once()
+            ->expects($this->once())
+            ->method('scroll')
             ->with([
                 'scroll_id' => $scrollId,
                 'scroll'    => RepositoryConfiguration::DEFAULT_SCROLL_CONTEXT_KEEPALIVE,
             ])
-            ->andReturn(array_merge($esResult, ['_scroll_id' => $scrollId]));
+            ->willReturn(array_merge($esResult, ['_scroll_id' => $scrollId]));
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $result = $this->getRepository(['entity_factory' => $this->getEntityFactory()])->findByScrollId($scrollId);
 
@@ -90,16 +93,17 @@ final class RepositoryFindByScrollIdTest extends AbstractRepositoryTestCase
         $scrollId = 'foobar';
 
         $this->clientMock
-            ->shouldReceive('scroll')
-            ->once()
+            ->expects($this->once())
+            ->method('scroll')
             ->with([
                 'scroll_id' => $scrollId,
                 'scroll'    => RepositoryConfiguration::DEFAULT_SCROLL_CONTEXT_KEEPALIVE,
             ])
-            ->andReturn(array_merge($esResult, ['_scroll_id' => $scrollId]));
+            ->willReturn(array_merge($esResult, ['_scroll_id' => $scrollId]));
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $result = $this
             ->getRepository(['entity_class' => $this->getEntityClass()])
@@ -121,16 +125,17 @@ final class RepositoryFindByScrollIdTest extends AbstractRepositoryTestCase
         $scrollId = 'foobar';
 
         $this->clientMock
-            ->shouldReceive('scroll')
-            ->once()
+            ->expects($this->once())
+            ->method('scroll')
             ->with([
                 'scroll_id' => $scrollId,
                 'scroll'    => RepositoryConfiguration::DEFAULT_SCROLL_CONTEXT_KEEPALIVE,
             ])
-            ->andThrow(new Exception(self::ERROR_MESSAGE));
+            ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
-            ->shouldReceive('error')
+            ->expects($this->once())
+            ->method('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
         try {

@@ -5,13 +5,12 @@ namespace Kununu\Elasticsearch\Tests\Query\Criteria\Filter;
 
 use Kununu\Elasticsearch\Query\Criteria\Filter\GeoDistance;
 use Kununu\Elasticsearch\Query\Criteria\GeoDistanceInterface;
-use Mockery;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
-use Mockery\MockInterface;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-final class GeoDistanceTest extends MockeryTestCase
+final class GeoDistanceTest extends TestCase
 {
-    protected MockInterface|GeoDistanceInterface $geoDistance;
+    protected GeoDistanceInterface|MockObject $geoDistance;
 
     public function testWithoutOptions(): void
     {
@@ -42,16 +41,16 @@ final class GeoDistanceTest extends MockeryTestCase
 
     protected function setUp(): void
     {
-        $this->geoDistance = Mockery::mock(GeoDistanceInterface::class);
+        $this->geoDistance = $this->createMock(GeoDistanceInterface::class);
 
         $this->geoDistance
-            ->shouldReceive('getDistance')
-            ->once()
-            ->andReturn('42km');
+            ->expects($this->once())
+            ->method('getDistance')
+            ->willReturn('42km');
 
         $this->geoDistance
-            ->shouldReceive('getLocation')
-            ->once()
-            ->andReturn([0, 0]);
+            ->expects($this->once())
+            ->method('getLocation')
+            ->willReturn([0, 0]);
     }
 }

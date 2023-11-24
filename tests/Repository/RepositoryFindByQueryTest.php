@@ -24,10 +24,10 @@ final class RepositoryFindByQueryTest extends AbstractRepositoryTestCase
         }
 
         $this->clientMock
-            ->shouldReceive('search')
-            ->once()
+            ->expects($this->once())
+            ->method('search')
             ->with($rawParams)
-            ->andReturn($esResult);
+            ->willReturn($esResult);
 
         $result = $scroll
             ? $this->getRepository()->findScrollableByQuery($query)
@@ -59,13 +59,14 @@ final class RepositoryFindByQueryTest extends AbstractRepositoryTestCase
         }
 
         $this->clientMock
-            ->shouldReceive('search')
-            ->once()
+            ->expects($this->once())
+            ->method('search')
             ->with($rawParams)
-            ->andReturn($esResult);
+            ->willReturn($esResult);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $repository = $this->getRepository(['entity_factory' => $this->getEntityFactory()]);
 
@@ -105,13 +106,14 @@ final class RepositoryFindByQueryTest extends AbstractRepositoryTestCase
         }
 
         $this->clientMock
-            ->shouldReceive('search')
-            ->once()
+            ->expects($this->once())
+            ->method('search')
             ->with($rawParams)
-            ->andReturn($esResult);
+            ->willReturn($esResult);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $repository = $this->getRepository(['entity_class' => get_class($this->getEntityClassInstance())]);
 
@@ -137,12 +139,13 @@ final class RepositoryFindByQueryTest extends AbstractRepositoryTestCase
     public function testFindByQueryFails(): void
     {
         $this->clientMock
-            ->shouldReceive('search')
-            ->once()
-            ->andThrow(new Exception(self::ERROR_MESSAGE));
+            ->expects($this->once())
+            ->method('search')
+            ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
-            ->shouldReceive('error')
+            ->expects($this->once())
+            ->method('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
         try {

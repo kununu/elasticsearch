@@ -14,13 +14,13 @@ final class RepositoryCountByQueryTest extends AbstractRepositoryTestCase
     public function testCountByQuery(QueryInterface $query): void
     {
         $this->clientMock
-            ->shouldReceive('count')
-            ->once()
+            ->expects($this->once())
+            ->method('count')
             ->with([
                 'index' => self::INDEX['read'],
                 'body'  => $query->toArray(),
             ])
-            ->andReturn(['count' => self::DOCUMENT_COUNT]);
+            ->willReturn(['count' => self::DOCUMENT_COUNT]);
 
         $this->assertEquals(self::DOCUMENT_COUNT, $this->getRepository()->countByQuery($query));
     }
@@ -28,12 +28,12 @@ final class RepositoryCountByQueryTest extends AbstractRepositoryTestCase
     public function testCountByQueryFails(): void
     {
         $this->clientMock
-            ->shouldReceive('count')
-            ->once()
-            ->andThrow(new Exception(self::ERROR_MESSAGE));
+            ->expects($this->once())
+            ->method('count')
+            ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
-            ->shouldReceive('error')
+            ->method('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
         try {

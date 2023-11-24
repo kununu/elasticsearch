@@ -67,16 +67,17 @@ final class RepositoryFindByIdTest extends AbstractRepositoryTestCase
     public function testFindById(array $esResult, mixed $endResult): void
     {
         $this->clientMock
-            ->shouldReceive('get')
-            ->once()
+            ->expects($this->once())
+            ->method('get')
             ->with([
                 'index' => self::INDEX['read'],
                 'id'    => self::ID,
             ])
-            ->andReturn($esResult);
+            ->willReturn($esResult);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $this->assertEquals($endResult, $this->getRepository()->findById(self::ID));
     }
@@ -85,17 +86,18 @@ final class RepositoryFindByIdTest extends AbstractRepositoryTestCase
     public function testFindByIdTrackingTotalHits(array $esResult, mixed $endResult): void
     {
         $this->clientMock
-            ->shouldReceive('get')
-            ->once()
+            ->expects($this->once())
+            ->method('get')
             ->with([
                 'index'            => self::INDEX['read'],
                 'id'               => self::ID,
                 'track_total_hits' => true,
             ])
-            ->andReturn($esResult);
+            ->willReturn($esResult);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $this->assertEquals($endResult, $this->getRepository(['track_total_hits' => true])->findById(self::ID));
     }
@@ -104,17 +106,18 @@ final class RepositoryFindByIdTest extends AbstractRepositoryTestCase
     public function testFindByIdWithSourceField(array $esResult, mixed $endResult): void
     {
         $this->clientMock
-            ->shouldReceive('get')
-            ->once()
+            ->expects($this->once())
+            ->method('get')
             ->with([
                 'index'   => self::INDEX['read'],
                 'id'      => self::ID,
                 '_source' => ['foo', 'foo2'],
             ])
-            ->andReturn($esResult);
+            ->willReturn($esResult);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $this->assertEquals($endResult, $this->getRepository()->findById(self::ID, ['foo', 'foo2']));
     }
@@ -123,16 +126,17 @@ final class RepositoryFindByIdTest extends AbstractRepositoryTestCase
     public function testFindByIdWithEntityClass(array $esResult, mixed $endResult): void
     {
         $this->clientMock
-            ->shouldReceive('get')
-            ->once()
+            ->expects($this->once())
+            ->method('get')
             ->with([
                 'index' => self::INDEX['read'],
                 'id'    => self::ID,
             ])
-            ->andReturn($esResult);
+            ->willReturn($esResult);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $result = $this
             ->getRepository(['entity_class' => $this->getEntityClass()])
@@ -151,16 +155,17 @@ final class RepositoryFindByIdTest extends AbstractRepositoryTestCase
     public function testFindByIdWithEntityFactory(array $esResult, mixed $endResult): void
     {
         $this->clientMock
-            ->shouldReceive('get')
-            ->once()
+            ->expects($this->once())
+            ->method('get')
             ->with([
                 'index' => self::INDEX['read'],
                 'id'    => self::ID,
             ])
-            ->andReturn($esResult);
+            ->willReturn($esResult);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $result = $this
             ->getRepository(['entity_factory' => $this->getEntityFactory()])
@@ -178,16 +183,16 @@ final class RepositoryFindByIdTest extends AbstractRepositoryTestCase
     public function testFindByIdFails(): void
     {
         $this->clientMock
-            ->shouldReceive('get')
-            ->once()
+            ->expects($this->once())
+            ->method('get')
             ->with([
                 'index' => self::INDEX['read'],
                 'id'    => self::ID,
             ])
-            ->andThrow(new Exception(self::ERROR_MESSAGE));
+            ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
-            ->shouldReceive('error')
+            ->method('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
         try {
@@ -202,13 +207,13 @@ final class RepositoryFindByIdTest extends AbstractRepositoryTestCase
     public function testFindByIdFailsWith404(): void
     {
         $this->clientMock
-            ->shouldReceive('get')
-            ->once()
+            ->expects($this->once())
+            ->method('get')
             ->with([
                 'index' => self::INDEX['read'],
                 'id'    => self::ID,
             ])
-            ->andThrow(new Missing404Exception());
+            ->willThrowException(new Missing404Exception());
 
         $this->assertNull($this->getRepository()->findById(self::ID));
     }

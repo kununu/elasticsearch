@@ -20,10 +20,10 @@ final class RepositoryFindScrollableByQueryTest extends AbstractRepositoryTestCa
         ];
 
         $this->clientMock
-            ->shouldReceive('search')
-            ->once()
+            ->expects($this->once())
+            ->method('search')
             ->with($rawParams)
-            ->andReturn($esResult);
+            ->willReturn($esResult);
 
         $result = $this->getRepository()->findScrollableByQuery($query, $keepalive);
 

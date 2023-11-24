@@ -7,9 +7,9 @@ use InvalidArgumentException;
 use Kununu\Elasticsearch\Query\AbstractQuery;
 use Kununu\Elasticsearch\Query\QueryInterface;
 use Kununu\Elasticsearch\Query\SortOrder;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
+use PHPUnit\Framework\TestCase;
 
-final class AbstractQueryTest extends MockeryTestCase
+final class AbstractQueryTest extends TestCase
 {
     public function testBuildBaseBodyEmpty(): void
     {

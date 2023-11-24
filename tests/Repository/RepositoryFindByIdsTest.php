@@ -138,8 +138,8 @@ final class RepositoryFindByIdsTest extends AbstractRepositoryTestCase
     public function testFindByIds(array $esResult, mixed $endResult): void
     {
         $this->clientMock
-            ->shouldReceive('mget')
-            ->once()
+            ->expects($this->once())
+            ->method('mget')
             ->with([
                 'index' => self::INDEX['read'],
                 'body'  => [
@@ -153,13 +153,15 @@ final class RepositoryFindByIdsTest extends AbstractRepositoryTestCase
                     ],
                 ],
             ])
-            ->andReturn($esResult);
+            ->willReturn($esResult);
 
         $this->loggerMock
-            ->shouldNotReceive('critical');
+            ->expects($this->never())
+            ->method('critical');
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $this->assertEquals($endResult, $this->getRepository()->findByIds([self::ID, self::ID_2]));
     }
@@ -168,8 +170,8 @@ final class RepositoryFindByIdsTest extends AbstractRepositoryTestCase
     public function testFindByIdsWithSourceField(array $esResult, mixed $endResult): void
     {
         $this->clientMock
-            ->shouldReceive('mget')
-            ->once()
+            ->expects($this->once())
+            ->method('mget')
             ->with([
                 'index' => self::INDEX['read'],
                 'body'  => [
@@ -185,13 +187,15 @@ final class RepositoryFindByIdsTest extends AbstractRepositoryTestCase
                     ],
                 ],
             ])
-            ->andReturn($esResult);
+            ->willReturn($esResult);
 
         $this->loggerMock
-            ->shouldNotReceive('critical');
+            ->expects($this->never())
+            ->method('critical');
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $this->assertEquals($endResult, $this->getRepository()->findByIds([self::ID, self::ID_2], ['foo', 'foo2']));
     }
@@ -200,8 +204,8 @@ final class RepositoryFindByIdsTest extends AbstractRepositoryTestCase
     public function testFindByIdWithEntityClass(array $esResult, mixed $endResult): void
     {
         $this->clientMock
-            ->shouldReceive('mget')
-            ->once()
+            ->expects($this->once())
+            ->method('mget')
             ->with([
                 'index' => self::INDEX['read'],
                 'body'  => [
@@ -215,13 +219,15 @@ final class RepositoryFindByIdsTest extends AbstractRepositoryTestCase
                     ],
                 ],
             ])
-            ->andReturn($esResult);
+            ->willReturn($esResult);
 
         $this->loggerMock
-            ->shouldNotReceive('critical');
+            ->expects($this->never())
+            ->method('critical');
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $results = $this
             ->getRepository(['entity_class' => $this->getEntityClass()])
@@ -242,8 +248,8 @@ final class RepositoryFindByIdsTest extends AbstractRepositoryTestCase
     public function testFindByIdsWithEntityFactory(array $esResult, mixed $endResult): void
     {
         $this->clientMock
-            ->shouldReceive('mget')
-            ->once()
+            ->expects($this->once())
+            ->method('mget')
             ->with([
                 'index' => self::INDEX['read'],
                 'body'  => [
@@ -257,13 +263,15 @@ final class RepositoryFindByIdsTest extends AbstractRepositoryTestCase
                     ],
                 ],
             ])
-            ->andReturn($esResult);
+            ->willReturn($esResult);
 
         $this->loggerMock
-            ->shouldNotReceive('critical');
+            ->expects($this->never())
+            ->method('critical');
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $results = $this
             ->getRepository(['entity_factory' => $this->getEntityFactory()])
@@ -302,22 +310,22 @@ final class RepositoryFindByIdsTest extends AbstractRepositoryTestCase
         ];
 
         $this->clientMock
-            ->shouldReceive('mget')
-            ->once()
+            ->expects($this->once())
+            ->method('mget')
             ->with($body)
-            ->andThrow(new Exception(self::ERROR_MESSAGE));
+            ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
-            ->shouldReceive('critical')
-            ->once()
+            ->expects($this->once())
+            ->method('critical')
             ->with(
                 'Elasticsearch request error',
                 ['request' => json_encode($body)]
             );
 
         $this->loggerMock
-            ->shouldReceive('error')
-            ->once()
+            ->expects($this->once())
+            ->method('error')
             ->with(
                 self::ERROR_PREFIX . self::ERROR_MESSAGE
             );

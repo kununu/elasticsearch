@@ -5,13 +5,12 @@ namespace Kununu\Elasticsearch\Tests\Query\Criteria\Filter;
 
 use Kununu\Elasticsearch\Query\Criteria\Filter\GeoShape;
 use Kununu\Elasticsearch\Query\Criteria\GeoShapeInterface;
-use Mockery;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
-use Mockery\MockInterface;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-final class GeoShapeTest extends MockeryTestCase
+final class GeoShapeTest extends TestCase
 {
-    protected MockInterface|GeoShapeInterface $geoShape;
+    protected GeoShapeInterface|MockObject $geoShape;
 
     public function testWithoutOptions(): void
     {
@@ -44,11 +43,11 @@ final class GeoShapeTest extends MockeryTestCase
 
     protected function setUp(): void
     {
-        $this->geoShape = Mockery::mock(GeoShapeInterface::class);
+        $this->geoShape = $this->createMock(GeoShapeInterface::class);
 
         $this->geoShape
-            ->shouldReceive('toArray')
-            ->once()
-            ->andReturn([]);
+            ->expects($this->once())
+            ->method('toArray')
+            ->willReturn([]);
     }
 }

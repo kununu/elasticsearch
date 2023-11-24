@@ -41,8 +41,8 @@ final class RepositoryUpdateByQueryTest extends AbstractRepositoryTestCase
         ];
 
         $this->clientMock
-            ->shouldReceive('updateByQuery')
-            ->once()
+            ->expects($this->once())
+            ->method('updateByQuery')
             ->with([
                 'index' => self::INDEX['write'],
                 'body'  => array_merge(
@@ -56,10 +56,11 @@ final class RepositoryUpdateByQueryTest extends AbstractRepositoryTestCase
                     ]
                 ),
             ])
-            ->andReturn($responseBody);
+            ->willReturn($responseBody);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $this->assertEquals($responseBody, $this->getRepository()->updateByQuery($query, $updateScript));
     }
@@ -95,8 +96,8 @@ final class RepositoryUpdateByQueryTest extends AbstractRepositoryTestCase
         ];
 
         $this->clientMock
-            ->shouldReceive('updateByQuery')
-            ->once()
+            ->expects($this->once())
+            ->method('updateByQuery')
             ->with([
                 'index'   => self::INDEX['write'],
                 'body'    => array_merge(
@@ -111,10 +112,11 @@ final class RepositoryUpdateByQueryTest extends AbstractRepositoryTestCase
                 ),
                 'refresh' => true,
             ])
-            ->andReturn($responseBody);
+            ->willReturn($responseBody);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $repository = $this->getRepository(['force_refresh_on_write' => true]);
 
@@ -124,12 +126,12 @@ final class RepositoryUpdateByQueryTest extends AbstractRepositoryTestCase
     public function testUpdateByQueryFails(): void
     {
         $this->clientMock
-            ->shouldReceive('updateByQuery')
-            ->once()
-            ->andThrow(new Exception(self::ERROR_MESSAGE));
+            ->expects($this->once())
+            ->method('updateByQuery')
+            ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
-            ->shouldReceive('error')
+            ->method('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
         try {

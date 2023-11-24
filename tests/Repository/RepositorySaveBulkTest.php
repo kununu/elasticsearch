@@ -23,8 +23,8 @@ final class RepositorySaveBulkTest extends AbstractRepositoryTestCase
         ];
 
         $this->clientMock
-            ->shouldReceive('bulk')
-            ->once()
+            ->expects($this->once())
+            ->method('bulk')
             ->with([
                 'index' => self::INDEX['write'],
                 'body'  => [
@@ -40,7 +40,8 @@ final class RepositorySaveBulkTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $this->getRepository()->saveBulk($documents);
     }
@@ -55,8 +56,8 @@ final class RepositorySaveBulkTest extends AbstractRepositoryTestCase
         ];
 
         $this->clientMock
-            ->shouldReceive('bulk')
-            ->once()
+            ->expects($this->once())
+            ->method('bulk')
             ->with([
                 'index'   => self::INDEX['write'],
                 'body'    => [
@@ -73,7 +74,8 @@ final class RepositorySaveBulkTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $this->getRepository(['force_refresh_on_write' => true])->saveBulk($documents);
     }
@@ -89,8 +91,8 @@ final class RepositorySaveBulkTest extends AbstractRepositoryTestCase
         }
 
         $this->clientMock
-            ->shouldReceive('bulk')
-            ->once()
+            ->expects($this->once())
+            ->method('bulk')
             ->with([
                 'index' => self::INDEX['write'],
                 'body'  => [
@@ -104,7 +106,8 @@ final class RepositorySaveBulkTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $this->getRepository(['entity_serializer' => new EntitySerializerStub()])->saveBulk($documents);
     }
@@ -120,8 +123,8 @@ final class RepositorySaveBulkTest extends AbstractRepositoryTestCase
         }
 
         $this->clientMock
-            ->shouldReceive('bulk')
-            ->once()
+            ->expects($this->once())
+            ->method('bulk')
             ->with([
                 'index' => self::INDEX['write'],
                 'body'  => [
@@ -135,7 +138,8 @@ final class RepositorySaveBulkTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $this
             ->getRepository(['entity_class' => $this->getEntityClass()])
@@ -172,18 +176,19 @@ final class RepositorySaveBulkTest extends AbstractRepositoryTestCase
         ];
 
         $this->clientMock
-            ->shouldReceive('bulk')
-            ->once()
+            ->expects($this->once())
+            ->method('bulk')
             ->with(
                 [
                     'index' => self::INDEX['write'],
                     'body'  => $expectedOperations,
                 ]
             )
-            ->andThrow(new Exception(self::ERROR_MESSAGE));
+            ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
-            ->shouldReceive('error')
+            ->expects($this->once())
+            ->method('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
         try {
@@ -204,8 +209,8 @@ final class RepositorySaveBulkTest extends AbstractRepositoryTestCase
         ];
 
         $this->clientMock
-            ->shouldReceive('bulk')
-            ->once()
+            ->expects($this->once())
+            ->method('bulk')
             ->with([
                 'index' => self::INDEX['write'],
                 'body'  => [
@@ -215,7 +220,8 @@ final class RepositorySaveBulkTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $manager = new class($this->clientMock, ['index_write' => self::INDEX['write']]) extends Repository {
             protected function postSaveBulk(array $entities): void

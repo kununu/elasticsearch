@@ -6,9 +6,9 @@ namespace Kununu\Elasticsearch\Tests\Result;
 use Kununu\Elasticsearch\Result\AggregationResult;
 use Kununu\Elasticsearch\Result\AggregationResultSet;
 use Kununu\Elasticsearch\Result\ResultIterator;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
+use PHPUnit\Framework\TestCase;
 
-final class AggregationResultSetTest extends MockeryTestCase
+final class AggregationResultSetTest extends TestCase
 {
     public static function createDataProvider(): array
     {
