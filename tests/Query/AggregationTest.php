@@ -245,8 +245,8 @@ final class AggregationTest extends TestCase
             'my_agg' => [
                 'range' => [
                     'field'       => 'my_field',
-                    'ranges' => [
-                        ['from' => 1 , 'to' => 2]
+                    'ranges'      => [
+                        ['from' => 1, 'to' => 2],
                     ],
                 ],
             ],

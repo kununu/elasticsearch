@@ -16,7 +16,7 @@ to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
-## [6.0.0](https://github.com/kununu/elasticsearch/compare/v5.1.0...v6.0.0)
+## [6.0.0](https://github.com/kununu/elasticsearch/compare/v5.2.0...v6.0.0)
 
 ### Backward Compatibility Breaks
 
@@ -45,6 +45,20 @@ to [Semantic Versioning](http://semver.org/).
 * Fixed code standards
 * Refactor some code to take advantage of PHP 8.0 features (promoted properties, match, arrow functions, etc.)
 * Split repository tests class into multiple classes (one per method) to simplify maintenance of tests
+
+### Deprecated
+
+## [5.2.0](https://github.com/kununu/elasticsearch/compare/v5.1.0...v5.2.0)
+
+### Backward Compatibility Breaks
+
+### Bugfixes
+
+### Added
+
+* Added the possibility of using the range aggregation (see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-range-aggregation.html).
+
+### Improvements
 
 ### Deprecated
 
