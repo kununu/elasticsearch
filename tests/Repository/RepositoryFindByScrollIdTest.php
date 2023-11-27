@@ -18,8 +18,10 @@ final class RepositoryFindByScrollIdTest extends AbstractRepositoryTestCase
             ->expects($this->once())
             ->method('scroll')
             ->with([
-                'scroll_id' => $scrollId,
-                'scroll'    => RepositoryConfiguration::DEFAULT_SCROLL_CONTEXT_KEEPALIVE,
+                'body'   => [
+                    'scroll_id' => $scrollId,
+                ],
+                'scroll' => RepositoryConfiguration::DEFAULT_SCROLL_CONTEXT_KEEPALIVE,
             ])
             ->willReturn($esResult);
 
@@ -42,8 +44,10 @@ final class RepositoryFindByScrollIdTest extends AbstractRepositoryTestCase
             ->expects($this->once())
             ->method('scroll')
             ->with([
-                'scroll_id' => $scrollId,
-                'scroll'    => $keepalive,
+                'body'   => [
+                    'scroll_id' => $scrollId,
+                ],
+                'scroll' => $keepalive,
             ])
             ->willReturn($esResult);
 
@@ -65,8 +69,10 @@ final class RepositoryFindByScrollIdTest extends AbstractRepositoryTestCase
             ->expects($this->once())
             ->method('scroll')
             ->with([
-                'scroll_id' => $scrollId,
-                'scroll'    => RepositoryConfiguration::DEFAULT_SCROLL_CONTEXT_KEEPALIVE,
+                'body'   => [
+                    'scroll_id' => $scrollId,
+                ],
+                'scroll' => RepositoryConfiguration::DEFAULT_SCROLL_CONTEXT_KEEPALIVE,
             ])
             ->willReturn(array_merge($esResult, ['_scroll_id' => $scrollId]));
 
@@ -96,8 +102,10 @@ final class RepositoryFindByScrollIdTest extends AbstractRepositoryTestCase
             ->expects($this->once())
             ->method('scroll')
             ->with([
-                'scroll_id' => $scrollId,
-                'scroll'    => RepositoryConfiguration::DEFAULT_SCROLL_CONTEXT_KEEPALIVE,
+                'body'   => [
+                    'scroll_id' => $scrollId,
+                ],
+                'scroll' => RepositoryConfiguration::DEFAULT_SCROLL_CONTEXT_KEEPALIVE,
             ])
             ->willReturn(array_merge($esResult, ['_scroll_id' => $scrollId]));
 
@@ -128,7 +136,9 @@ final class RepositoryFindByScrollIdTest extends AbstractRepositoryTestCase
             ->expects($this->once())
             ->method('scroll')
             ->with([
-                'scroll_id' => $scrollId,
+                'body' => [
+                    'scroll_id' => $scrollId,
+                ],
                 'scroll'    => RepositoryConfiguration::DEFAULT_SCROLL_CONTEXT_KEEPALIVE,
             ])
             ->willThrowException(new Exception(self::ERROR_MESSAGE));
