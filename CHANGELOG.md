@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file based on
 the [Keep a Changelog](http://keepachangelog.com/) Standard. This project adheres
 to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased](https://github.com/kununu/elasticsearch/compare/v6.0.0...master)
+## [Unreleased](https://github.com/kununu/elasticsearch/compare/v6.0.1...master)
 
 ### Backward Compatibility Breaks
 
@@ -13,6 +13,20 @@ to [Semantic Versioning](http://semver.org/).
 ### Added
 
 ### Improvements
+
+### Deprecated
+
+## [6.0.1](https://github.com/kununu/elasticsearch/compare/v6.0.1...v6.0.0)
+
+### Backward Compatibility Breaks
+
+### Bugfixes
+
+### Added
+
+### Improvements
+
+* Send `scroll_id` in the body of the request in `Repository::findByScrollId` to get rid of deprecation notices
 
 ### Deprecated
 

@@ -162,7 +162,9 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         return $this->executeRead(
             fn() => $this->parseRawSearchResponse(
                 $this->client->scroll([
-                    'scroll_id' => $scrollId,
+                    'body' => [
+                        'scroll_id' => $scrollId,
+                    ],
                     'scroll'    => $scrollContextKeepalive ?: $this->config->getScrollContextKeepalive(),
                 ])
             )
