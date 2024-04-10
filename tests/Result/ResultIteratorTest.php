@@ -1,20 +1,18 @@
 <?php
 declare(strict_types=1);
 
-namespace Kununu\Elasticsearch\Tests\Adapter;
+namespace Kununu\Elasticsearch\Tests\Result;
 
 use Kununu\Elasticsearch\Result\ResultIterator;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
+use PHPUnit\Framework\TestCase;
+use stdClass;
 
-/**
- * @group unit
- */
-class ResultIteratorTest extends MockeryTestCase
+final class ResultIteratorTest extends TestCase
 {
-    public function createData(): array
+    public static function createDataProvider(): array
     {
         return [
-            'empty array' => [
+            'empty array'     => [
                 'input' => [],
             ],
             'non-empty array' => [
@@ -23,11 +21,7 @@ class ResultIteratorTest extends MockeryTestCase
         ];
     }
 
-    /**
-     * @dataProvider createData
-     *
-     * @param array $input
-     */
+    /** @dataProvider createDataProvider */
     public function testCreate(array $input): void
     {
         $iterator = ResultIterator::create($input);
@@ -36,14 +30,13 @@ class ResultIteratorTest extends MockeryTestCase
 
     public function testIterate(): void
     {
-        $input = [
+        $iterator = new ResultIterator([
             ['zero' => 0],
-            ['one' => 1],
-            ['two' => 2],
+            ['one'   => 1],
+            ['two'   => 2],
             ['three' => 3],
-            ['four' => 4],
-        ];
-        $iterator = new ResultIterator($input);
+            ['four'  => 4],
+        ]);
 
         $this->assertEquals(['zero' => 0], $iterator->current());
         $this->assertEquals(0, $iterator->key());
@@ -54,10 +47,10 @@ class ResultIteratorTest extends MockeryTestCase
     {
         $input = [
             ['zero' => 0],
-            ['one' => 1],
-            ['two' => 2],
+            ['one'   => 1],
+            ['two'   => 2],
             ['three' => 3],
-            ['four' => 4],
+            ['four'  => 4],
         ];
         $initialCount = count($input);
         $iterator = new ResultIterator($input);
@@ -78,11 +71,11 @@ class ResultIteratorTest extends MockeryTestCase
 
         $iterator->offsetUnset(0);
         $this->assertCount($initialCount - 1, $iterator);
-        $this->assertEquals(null, $iterator[0]);
+        $this->assertNull($iterator[0]);
 
         unset($iterator[1]);
         $this->assertCount($initialCount - 2, $iterator);
-        $this->assertEquals(null, $iterator[1]);
+        $this->assertNull($iterator[1]);
 
         $iterator->offsetSet(2, ['two' => 2.2]);
         $this->assertEquals(['two' => 2.2], $iterator[2]);
@@ -141,43 +134,35 @@ class ResultIteratorTest extends MockeryTestCase
         $this->assertEmpty($iterator->asArray());
         $this->assertEquals(0, $iterator->getCount());
 
-        $iterator->push(new \stdClass());
+        $iterator->push(new stdClass());
 
-        $this->assertEquals([new \stdClass()], $iterator->asArray());
+        $this->assertEquals([new stdClass()], $iterator->asArray());
         $this->assertEquals(1, $iterator->getCount());
     }
 
-    public function testFirst_Match(): void
+    public function testFirstMatch(): void
     {
-        $iterator = ResultIterator::create(
-            [
-                ['foo' => 'bar', 'num' => 0],
-                ['foo' => 'bar', 'num' => 1],
-            ]
-        );
+        $iterator = ResultIterator::create([
+            ['foo' => 'bar', 'num' => 0],
+            ['foo' => 'bar', 'num' => 1],
+        ]);
 
         $firstFooBar = $iterator->first(
-            function ($element) {
-                return $element['foo'] === 'bar';
-            }
+            fn($element): bool => $element['foo'] === 'bar'
         );
 
         $this->assertEquals(['foo' => 'bar', 'num' => 0], $firstFooBar);
     }
 
-    public function testFirst_NoMatch(): void
+    public function testFirstNoMatch(): void
     {
-        $iterator = ResultIterator::create(
-            [
-                ['foo' => 'bar', 'num' => 0],
-                ['foo' => 'bar', 'num' => 1],
-            ]
-        );
+        $iterator = ResultIterator::create([
+            ['foo' => 'bar', 'num' => 0],
+            ['foo' => 'bar', 'num' => 1],
+        ]);
 
         $firstBarFoo = $iterator->first(
-            function ($element) {
-                return isset($element['bar']) && $element['bar'] === 'foo';
-            }
+            fn($element): bool => isset($element['bar']) && $element['bar'] === 'foo'
         );
 
         $this->assertNull($firstBarFoo);
@@ -185,18 +170,14 @@ class ResultIteratorTest extends MockeryTestCase
 
     public function testFilter(): void
     {
-        $iterator = ResultIterator::create(
-            [
-                ['foo' => 'bar'],
-                ['foo' => 'bar'],
-                ['bar' => 'foo'],
-            ]
-        );
+        $iterator = ResultIterator::create([
+            ['foo' => 'bar'],
+            ['foo' => 'bar'],
+            ['bar' => 'foo'],
+        ]);
 
         $allFooBars = $iterator->filter(
-            function ($element) {
-                return isset($element['foo']) && $element['foo'] === 'bar';
-            }
+            fn($element) => isset($element['foo']) && $element['foo'] === 'bar'
         );
 
         $this->assertEquals([['foo' => 'bar'], ['foo' => 'bar']], $allFooBars);
@@ -204,61 +185,47 @@ class ResultIteratorTest extends MockeryTestCase
 
     public function testSome(): void
     {
-        $iterator = ResultIterator::create(
-            [
-                ['foo' => 'bar'],
-                ['foo' => 'bar'],
-            ]
-        );
+        $iterator = ResultIterator::create([
+            ['foo' => 'bar'],
+            ['foo' => 'bar'],
+        ]);
 
         $thereAreFooBars = $iterator->some(
-            function ($element) {
-                return isset($element['foo']) && $element['foo'] === 'bar';
-            }
+            fn($element) => isset($element['foo']) && $element['foo'] === 'bar'
         );
 
         $this->assertTrue($thereAreFooBars);
 
         $thereAreBarFoos = $iterator->some(
-            function ($element) {
-                return isset($element['bar']) && $element['bar'] === 'foo';
-            }
+            fn($element): bool => isset($element['bar']) && $element['bar'] === 'foo'
         );
 
         $this->assertFalse($thereAreBarFoos);
     }
 
-    public function testEvery_True(): void
+    public function testEveryTrue(): void
     {
-        $iterator = ResultIterator::create(
-            [
-                ['foo' => 'bar'],
-                ['foo' => 'bar'],
-            ]
-        );
+        $iterator = ResultIterator::create([
+            ['foo' => 'bar'],
+            ['foo' => 'bar'],
+        ]);
 
         $thereAreOnlyFooBars = $iterator->every(
-            function ($element) {
-                return isset($element['foo']) && $element['foo'] === 'bar';
-            }
+            fn($element): bool => isset($element['foo']) && $element['foo'] === 'bar'
         );
 
         $this->assertTrue($thereAreOnlyFooBars);
     }
 
-    public function testEvery_False(): void
+    public function testEveryFalse(): void
     {
-        $iterator = ResultIterator::create(
-            [
-                ['foo' => 'bar'],
-                ['bar' => 'foo'],
-            ]
-        );
+        $iterator = ResultIterator::create([
+            ['foo' => 'bar'],
+            ['bar' => 'foo'],
+        ]);
 
         $thereAreOnlyBarFoos = $iterator->every(
-            function ($element) {
-                return isset($element['bar']) && $element['bar'] === 'foo';
-            }
+            fn($element): bool => isset($element['bar']) && $element['bar'] === 'foo'
         );
 
         $this->assertFalse($thereAreOnlyBarFoos);
@@ -266,44 +233,44 @@ class ResultIteratorTest extends MockeryTestCase
 
     public function testEach(): void
     {
-        $spies = [
-            \Mockery::spy(),
-            \Mockery::spy(),
-            \Mockery::spy(),
+        $mockBuilder = $this->getMockBuilder(stdClass::class)->addMethods(['someMethod']);
+        $mocks = [
+            $mockBuilder->getMock(),
+            $mockBuilder->getMock(),
+            $mockBuilder->getMock(),
         ];
+
+        foreach ($mocks as $mock) {
+            $mock
+                ->expects($this->once())
+                ->method('someMethod');
+        }
 
         $calls = 0;
 
-        $iterator = ResultIterator::create($spies);
+        $iterator = ResultIterator::create($mocks);
 
         $iterator->each(
-            function ($element) use (&$calls) {
+            function($element) use (&$calls): void {
                 $calls++;
 
                 $element->someMethod();
             }
         );
 
-        $this->assertEquals(count($spies), $calls);
-        foreach ($spies as $spy) {
-            $spy->shouldHaveReceived()->someMethod();
-        }
+        $this->assertEquals(count($mocks), $calls);
     }
 
     public function testMap(): void
     {
-        $iterator = ResultIterator::create(
-            [
-                ['foo' => 'bar'],
-                ['foo' => 'bar'],
-                ['bar' => 'foo'],
-            ]
-        );
+        $iterator = ResultIterator::create([
+            ['foo' => 'bar'],
+            ['foo' => 'bar'],
+            ['bar' => 'foo'],
+        ]);
 
         $flipped = $iterator->map(
-            function ($element) {
-                return array_flip($element);
-            }
+            fn($element): array => array_flip($element)
         );
 
         $this->assertEquals([['bar' => 'foo'], ['bar' => 'foo'], ['foo' => 'bar']], $flipped);
@@ -311,18 +278,14 @@ class ResultIteratorTest extends MockeryTestCase
 
     public function testReduce(): void
     {
-        $iterator = ResultIterator::create(
-            [
-                ['foo' => 'bar'],
-                ['foo' => 'bar'],
-                ['bar' => 'foo'],
-            ]
-        );
+        $iterator = ResultIterator::create([
+            ['foo' => 'bar'],
+            ['foo' => 'bar'],
+            ['bar' => 'foo'],
+        ]);
 
         $numberOfFooBars = $iterator->reduce(
-            function ($carry, $element) {
-                return $carry += isset($element['foo']) && $element['foo'] === 'bar' ? 1 : 0;
-            },
+            fn($carry, $element): int => $carry + (($element['foo'] ?? null) === 'bar' ? 1 : 0),
             0
         );
 

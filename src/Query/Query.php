@@ -17,83 +17,45 @@ class Query extends AbstractQuery implements NestableQueryInterface
 {
     use OptionableTrait;
 
-    protected const MINIMUM_SHOULD_MATCH = 1; // relevant when $searchOperator === 'should'
     public const OPTION_MIN_SCORE = 'min_score';
 
-    /**
-     * @var bool
-     */
-    protected $nested = false;
+    protected const MINIMUM_SHOULD_MATCH = 1; // relevant when $searchOperator === 'should'
 
-    /**
-     * @var \Kununu\Elasticsearch\Query\Criteria\SearchInterface[]
-     */
-    protected $searches = [];
+    protected bool $nested = false;
 
-    /**
-     * @var \Kununu\Elasticsearch\Query\Criteria\FilterInterface[]
-     */
-    protected $filters = [];
+    /** @var SearchInterface[] */
+    protected array $searches = [];
+    /** @var FilterInterface[] */
+    protected array $filters = [];
+    /** @var AggregationInterface[] */
+    protected array $aggregations = [];
 
-    /**
-     * @var \Kununu\Elasticsearch\Query\AggregationInterface[]
-     */
-    protected $aggregations = [];
+    protected string $searchOperator = Should::OPERATOR;
 
-    /**
-     * @var string
-     */
-    protected $searchOperator = Should::OPERATOR;
-
-    /**
-     * @param \Kununu\Elasticsearch\Query\Criteria\CriteriaInterface[] ...$children
-     */
-    public function __construct(...$children)
+    public function __construct(CriteriaInterface|AggregationInterface ...$children)
     {
-        $children = array_filter($children);
-        foreach ($children as $ii => $child) {
-            $this->addChild($child, $ii);
+        foreach ($children as $i => $child) {
+            $this->addChild($child, $i);
         }
     }
 
-    /**
-     * @param \Kununu\Elasticsearch\Query\Criteria\CriteriaInterface[] ...$children
-     *
-     * @return \Kununu\Elasticsearch\Query\Query
-     */
-    public static function create(...$children): Query
+    public static function create(CriteriaInterface|AggregationInterface ...$children): Query
     {
         return new static(...$children);
     }
 
-    /**
-     * @param string                                                   $path
-     * @param \Kununu\Elasticsearch\Query\Criteria\CriteriaInterface[] ...$children
-     *
-     * @return \Kununu\Elasticsearch\Query\Query
-     */
-    public static function createNested(string $path, ...$children): Query
+    public static function createNested(string $path, CriteriaInterface|AggregationInterface ...$children): Query
     {
         return (new static(...$children))->nestAt($path);
     }
 
-    /**
-     * @param \Kununu\Elasticsearch\Query\Criteria\CriteriaInterface|\Kununu\Elasticsearch\Query\AggregationInterface $child
-     *
-     * @return \Kununu\Elasticsearch\Query\Query
-     */
-    public function add($child): Query
+    public function add(mixed $child): Query
     {
         $this->addChild($child);
 
         return $this;
     }
 
-    /**
-     * @param \Kununu\Elasticsearch\Query\Criteria\CriteriaInterface $search
-     *
-     * @return \Kununu\Elasticsearch\Query\Query
-     */
     public function search(CriteriaInterface $search): Query
     {
         $isSearch = $search instanceof SearchInterface;
@@ -101,9 +63,7 @@ class Query extends AbstractQuery implements NestableQueryInterface
         $isNestedQuery = $search instanceof NestableQueryInterface;
 
         if (!$isSearch && !$isBool && !$isNestedQuery) {
-            throw new InvalidArgumentException(
-                'Argument $search must be one of [\Kununu\Elasticsearch\Query\Criteria\SearchInterface, \Kununu\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface, \Kununu\Elasticsearch\Query\Criteria\NestableQueryInterface]'
-            );
+            throw new InvalidArgumentException(sprintf('Argument $search must be one of [%s, %s, %s]', SearchInterface::class, BoolQueryInterface::class, NestableQueryInterface::class));
         }
 
         $this->searches[] = $search;
@@ -111,21 +71,11 @@ class Query extends AbstractQuery implements NestableQueryInterface
         return $this;
     }
 
-    /**
-     * @param \Kununu\Elasticsearch\Query\Criteria\FilterInterface $filter
-     *
-     * @return \Kununu\Elasticsearch\Query\Query
-     */
     public function where(FilterInterface $filter): Query
     {
         return $this->add($filter);
     }
 
-    /**
-     * @param \Kununu\Elasticsearch\Query\AggregationInterface $aggregation
-     *
-     * @return \Kununu\Elasticsearch\Query\Query
-     */
     public function aggregate(AggregationInterface $aggregation): Query
     {
         $this->addChild($aggregation);
@@ -133,35 +83,22 @@ class Query extends AbstractQuery implements NestableQueryInterface
         return $this;
     }
 
-    /**
-     * @return array
-     */
     public function toArray(): array
     {
         $body = $this->nested ? [] : $this->buildBaseBody();
 
         if (!empty($this->searches)) {
-            $preparedSearches = array_map(
-                function (CriteriaInterface $search): array {
-                    return $search->toArray();
-                },
-                $this->searches
-            );
+            $preparedSearches = array_map(fn(CriteriaInterface $search): array => $search->toArray(), $this->searches);
 
-            switch ($this->searchOperator) {
-                case Must::OPERATOR:
-                    $body['query'] = ['bool' => ['must' => $preparedSearches]];
-                    break;
-                case Should::OPERATOR:
-                default:
-                    $body['query'] = [
-                        'bool' => [
-                            'should' => $preparedSearches,
-                            'minimum_should_match' => static::MINIMUM_SHOULD_MATCH,
-                        ],
-                    ];
-                    break;
-            }
+            $body['query'] = match ($this->searchOperator) {
+                Must::OPERATOR => ['bool' => ['must' => $preparedSearches]],
+                default        => [
+                    'bool' => [
+                        'should'               => $preparedSearches,
+                        'minimum_should_match' => static::MINIMUM_SHOULD_MATCH,
+                    ],
+                ],
+            };
         }
 
         if (!empty($this->filters)) {
@@ -180,32 +117,19 @@ class Query extends AbstractQuery implements NestableQueryInterface
         return $this->nested ? ['nested' => $body] : $body;
     }
 
-    /**
-     * @param float $minScore
-     *
-     * @return \Kununu\Elasticsearch\Query\Query
-     */
     public function setMinScore(float $minScore): Query
     {
         return $this->setOption(static::OPTION_MIN_SCORE, $minScore);
     }
 
-    /**
-     * @return string
-     */
     public function getSearchOperator(): string
     {
         return $this->searchOperator;
     }
 
-    /**
-     * @param string $logicalOperator
-     *
-     * @return \Kununu\Elasticsearch\Query\Query
-     */
     public function setSearchOperator(string $logicalOperator): Query
     {
-        if (!\in_array($logicalOperator, [Must::OPERATOR, Should::OPERATOR], true)) {
+        if (!in_array($logicalOperator, [Must::OPERATOR, Should::OPERATOR], true)) {
             throw new InvalidArgumentException("The value '$logicalOperator' is not valid.");
         }
 
@@ -214,9 +138,6 @@ class Query extends AbstractQuery implements NestableQueryInterface
         return $this;
     }
 
-    /**
-     * @return array
-     */
     protected function getAvailableOptions(): array
     {
         return $this->nested
@@ -229,11 +150,6 @@ class Query extends AbstractQuery implements NestableQueryInterface
             : [static::OPTION_MIN_SCORE];
     }
 
-    /**
-     * @param string $path
-     *
-     * @return \Kununu\Elasticsearch\Query\Query
-     */
     protected function nestAt(string $path): Query
     {
         $this->nested = true;
@@ -242,25 +158,14 @@ class Query extends AbstractQuery implements NestableQueryInterface
         return $this;
     }
 
-    /**
-     * @param mixed $child
-     * @param int   $argumentIndex
-     */
-    protected function addChild($child, int $argumentIndex = 0): void
+    protected function addChild(mixed $child, int $argumentIndex = 0): void
     {
-        switch (true) {
-            case $child instanceof FilterInterface:
-            case $child instanceof NestableQueryInterface:
-                $this->filters[] = $child;
-                break;
-            case $child instanceof SearchInterface:
-                $this->searches[] = $child;
-                break;
-            case $child instanceof AggregationInterface:
-                $this->aggregations[] = $child;
-                break;
-            default:
-                throw new InvalidArgumentException('Argument #' . $argumentIndex . ' is of unknown type');
-        }
+        match (true) {
+            $child instanceof FilterInterface,
+            $child instanceof NestableQueryInterface     => $this->filters[] = $child,
+            $child instanceof SearchInterface            => $this->searches[] = $child,
+            $child instanceof AggregationInterface       => $this->aggregations[] = $child,
+            default                                      => throw new InvalidArgumentException('Argument #' . $argumentIndex . ' is of unknown type')
+        };
     }
 }

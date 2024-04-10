@@ -12,11 +12,6 @@ use Kununu\Elasticsearch\Query\Criteria\Filter\Term;
 use Kununu\Elasticsearch\Query\Criteria\Filter\Terms;
 use Kununu\Elasticsearch\Util\ConstantContainerTrait;
 
-/**
- * Class Operator
- *
- * @package Kununu\Elasticsearch\Query\Criteria
- */
 final class Operator
 {
     use ConstantContainerTrait;

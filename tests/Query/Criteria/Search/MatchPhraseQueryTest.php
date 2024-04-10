@@ -3,13 +3,10 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Tests\Query\Criteria\Search;
 
-use Kununu\Elasticsearch\Query\Criteria\Search\MatchPhrase;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
+use Kununu\Elasticsearch\Query\Criteria\Search\MatchPhraseQuery;
+use PHPUnit\Framework\TestCase;
 
-/**
- * @group unit
- */
-class MatchPhraseTest extends MockeryTestCase
+final class MatchPhraseQueryTest extends TestCase
 {
     protected const QUERY_STRING = 'what was i looking for?';
 
@@ -23,7 +20,7 @@ class MatchPhraseTest extends MockeryTestCase
                     ],
                 ],
             ],
-            MatchPhrase::asArray(['field_a'], self::QUERY_STRING)
+            MatchPhraseQuery::asArray(['field_a'], self::QUERY_STRING)
         );
     }
 
@@ -38,7 +35,7 @@ class MatchPhraseTest extends MockeryTestCase
                     ],
                 ],
             ],
-            MatchPhrase::asArray(['field_a'], self::QUERY_STRING, ['boost' => 42])
+            MatchPhraseQuery::asArray(['field_a'], self::QUERY_STRING, ['boost' => 42])
         );
     }
 }

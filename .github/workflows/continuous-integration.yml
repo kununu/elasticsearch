@@ -4,6 +4,8 @@ on:
     push:
         branches:
             - master
+            - 6.0
+            - 5.0
             - 4.0
             - 3.0
             - 2.5
@@ -20,8 +22,7 @@ jobs:
         strategy:
             matrix:
                 php-version:
-                    - 7.2
-                    - 7.4
+                    - 8.0
                 dependencies:
                     - lowest
                     - highest
@@ -63,7 +64,7 @@ jobs:
 
             -   uses: actions/download-artifact@v2
                 with:
-                    name: build-7.4-coverage
+                    name: build-8-coverage
                     path: tests/.results/
 
             -   name: Fix Code Coverage Paths

@@ -7,40 +7,12 @@ use InvalidArgumentException;
 use Kununu\Elasticsearch\Query\Aggregation;
 use Kununu\Elasticsearch\Query\Aggregation\Bucket;
 use Kununu\Elasticsearch\Query\Aggregation\Metric;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
+use PHPUnit\Framework\TestCase;
+use stdClass;
 
-/**
- * @group unit
- */
-class AggregationTest extends MockeryTestCase
+final class AggregationTest extends TestCase
 {
-    /**
-     * @return array
-     */
-    public function createData(): array
-    {
-        $ret = [];
-        foreach (Metric::all() + Bucket::all() as $type) {
-            $ret['type ' . $type] = [
-                'field' => 'my_field',
-                'type' => $type,
-                'name' => 'my_agg',
-                'options' => [
-                    'some_option' => 'has_a_value',
-                ],
-            ];
-        }
-
-        return $ret;
-    }
-
-    /**
-     * @dataProvider createData
-     *
-     * @param string $field
-     * @param string $type
-     * @param string $name
-     */
+    /** @dataProvider createDataProvider */
     public function testCreateWithoutOptions(string $field, string $type, string $name): void
     {
         $aggregation = Aggregation::create($field, $type, $name);
@@ -58,6 +30,23 @@ class AggregationTest extends MockeryTestCase
         );
     }
 
+    public static function createDataProvider(): array
+    {
+        $ret = [];
+        foreach (Metric::all() + Bucket::all() as $type) {
+            $ret['type ' . $type] = [
+                'field'   => 'my_field',
+                'type'    => $type,
+                'name'    => 'my_agg',
+                'options' => [
+                    'some_option' => 'has_a_value',
+                ],
+            ];
+        }
+
+        return $ret;
+    }
+
     public function testCreateWithOptions(): void
     {
         $aggregation = Aggregation::create(
@@ -73,7 +62,7 @@ class AggregationTest extends MockeryTestCase
             [
                 'my_agg' => [
                     'sum' => [
-                        'field' => 'my_field',
+                        'field'       => 'my_field',
                         'some_option' => 'has_a_value',
                     ],
                 ],
@@ -108,7 +97,7 @@ class AggregationTest extends MockeryTestCase
                     'terms' => [
                         'field' => 'my_field',
                     ],
-                    'aggs' => [
+                    'aggs'  => [
                         'term_cardinality' => [
                             'cardinality' => [
                                 'field' => 'my_field',
@@ -133,7 +122,7 @@ class AggregationTest extends MockeryTestCase
                     'terms' => [
                         'field' => 'my_field',
                     ],
-                    'aggs' => [
+                    'aggs'  => [
                         'term_cardinality' => [
                             'cardinality' => [
                                 'field' => 'my_field',
@@ -159,7 +148,7 @@ class AggregationTest extends MockeryTestCase
             json_encode(
                 [
                     'my_global_agg' => [
-                        'global' => new \stdClass(),
+                        'global' => new stdClass(),
                     ],
                 ]
             ),
@@ -175,7 +164,7 @@ class AggregationTest extends MockeryTestCase
             json_encode(
                 [
                     'my_global_agg' => [
-                        'global' => new \stdClass(),
+                        'global'    => new stdClass(),
                         'my_option' => 'foobar',
                     ],
                 ]
@@ -193,8 +182,8 @@ class AggregationTest extends MockeryTestCase
             json_encode(
                 [
                     'all_products' => [
-                        'global' => new \stdClass(),
-                        'aggs' => [
+                        'global' => new stdClass(),
+                        'aggs'   => [
                             'avg_price' => [
                                 'avg' => [
                                     'field' => 'price',
@@ -235,11 +224,32 @@ class AggregationTest extends MockeryTestCase
                 'my_fieldless_agg' => [
                     'filters' => [
                         'other_bucket_key' => 'foobar',
-                        'filters' => ['bucket_a' => ['term' => ['field' => 'field_a']]],
+                        'filters'          => ['bucket_a' => ['term' => ['field' => 'field_a']]],
                     ],
                 ],
             ],
             $aggregation->toArray()
         );
+    }
+
+    public function testCreateAggregationWithRange(): void
+    {
+        $aggregation = Aggregation::create(
+            'my_field',
+            Metric::RANGE,
+            'my_agg',
+            ['ranges' => [['from' => 1, 'to' => 2]]]
+        );
+
+        $this->assertEquals([
+            'my_agg' => [
+                'range' => [
+                    'field'       => 'my_field',
+                    'ranges'      => [
+                        ['from' => 1, 'to' => 2],
+                    ],
+                ],
+            ],
+        ], $aggregation->toArray());
     }
 }

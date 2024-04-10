@@ -6,29 +6,14 @@ namespace Kununu\Elasticsearch\Tests\Util;
 use Kununu\Elasticsearch\Util\ConstantContainerTrait;
 use PHPUnit\Framework\TestCase;
 
-class ConstantContainerTraitTest extends TestCase
+final class ConstantContainerTraitTest extends TestCase
 {
-    /**
-     * @return object
-     */
-    public function getConstantContainer(): object
-    {
-        return new class
-        {
-            use ConstantContainerTrait;
-
-            public const FIRST = 'first';
-            protected const SECOND = 'second';
-            private const THIRD = 'third';
-        };
-    }
-
     public function testAll(): void
     {
         $this->assertEquals(['first', 'second', 'third'], $this->getConstantContainer()->all());
     }
 
-    public function testAll_PreserveKeys(): void
+    public function testAllPreserveKeys(): void
     {
         $this->assertEquals(
             ['FIRST' => 'first', 'SECOND' => 'second', 'THIRD' => 'third'],
@@ -36,7 +21,7 @@ class ConstantContainerTraitTest extends TestCase
         );
     }
 
-    public function testHasConstant_True(): void
+    public function testHasConstantTrue(): void
     {
         $container = $this->getConstantContainer();
         foreach ($container->all() as $constant) {
@@ -44,10 +29,21 @@ class ConstantContainerTraitTest extends TestCase
         }
     }
 
-    public function testHasConstant_False(): void
+    public function testHasConstantFalse(): void
     {
         $container = $this->getConstantContainer();
         $this->assertFalse($container->hasConstant(''));
         $this->assertFalse($container->hasConstant('foo'));
+    }
+
+    private function getConstantContainer(): object
+    {
+        return new class() {
+            use ConstantContainerTrait;
+
+            public const FIRST = 'first';
+            protected const SECOND = 'second';
+            private const THIRD = 'third';
+        };
     }
 }

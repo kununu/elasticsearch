@@ -3,13 +3,10 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Tests\Query\Criteria\Search;
 
-use Kununu\Elasticsearch\Query\Criteria\Search\Term;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
+use Kununu\Elasticsearch\Query\Criteria\Search\TermQuery;
+use PHPUnit\Framework\TestCase;
 
-/**
- * @group unit
- */
-class TermTest extends MockeryTestCase
+final class TermQueryTest extends TestCase
 {
     protected const TERM = 'what was i looking for?';
     protected const FIELD = 'field_a';
@@ -24,7 +21,7 @@ class TermTest extends MockeryTestCase
                     ],
                 ],
             ],
-            Term::asArray(self::FIELD, self::TERM)
+            TermQuery::asArray(self::FIELD, self::TERM)
         );
     }
 
@@ -39,7 +36,7 @@ class TermTest extends MockeryTestCase
                     ],
                 ],
             ],
-            Term::asArray(self::FIELD, self::TERM, ['boost' => 42])
+            TermQuery::asArray(self::FIELD, self::TERM, ['boost' => 42])
         );
     }
 }

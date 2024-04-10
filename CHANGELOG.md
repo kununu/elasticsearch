@@ -4,13 +4,245 @@ All notable changes to this project will be documented in this file based on
 the [Keep a Changelog](http://keepachangelog.com/) Standard. This project adheres
 to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased](https://github.com/kununu/elasticsearch/compare/v2.4.6...master)
+## [Unreleased](https://github.com/kununu/elasticsearch/compare/v6.0.1...master)
 
 ### Backward Compatibility Breaks
 
 ### Bugfixes
 
 ### Added
+
+### Improvements
+
+### Deprecated
+
+## [6.0.1](https://github.com/kununu/elasticsearch/compare/v6.0.1...v6.0.0)
+
+### Backward Compatibility Breaks
+
+### Bugfixes
+
+### Added
+
+### Improvements
+
+* Send `scroll_id` in the body of the request in `Repository::findByScrollId` to get rid of deprecation notices
+
+### Deprecated
+
+## [6.0.0](https://github.com/kununu/elasticsearch/compare/v5.2.0...v6.0.0)
+
+### Backward Compatibility Breaks
+
+* `AbstractBoolQuery` class is now strongly typed to only accept `CriteriaInterface` instances on constructor and `create` method   
+* `Query` class is now strongly typed to only accept `CriteriaInterface|AggregationInterface` instance on constructor and `create` and `createNested` methods
+  * But those methods still will only properly accept `FilterInterface`, `NestableQueryInterface`, `SearchInterface` or `AggregationInterface` implementations
+
+### Bugfixes
+
+### Added
+
+* Added the following methods to `Repository`
+  * `clearScrollId`
+    * To clear a scroll id after running scroll operations (see https://www.elastic.co/guide/en/elasticsearch/reference/7.9/clear-scroll-api.html)
+  * `deleteBulk`
+    * To bulk delete all documents matching the given ids (see https://www.elastic.co/guide/en/elasticsearch/reference/7.9/docs-bulk.html)
+  * `findByIds`
+    * To bulk retrieve multiple documents based on the given ids (see https://www.elastic.co/guide/en/elasticsearch/reference/7.9/docs-multi-get.html)
+
+* Added the following methods to `IndexManager`
+  * `getSingleIndexByAlias`
+    * To get a single index by an alias
+
+### Improvements
+
+* Fixed code standards
+* Refactor some code to take advantage of PHP 8.0 features (promoted properties, match, arrow functions, etc.)
+* Split repository tests class into multiple classes (one per method) to simplify maintenance of tests
+
+### Deprecated
+
+## [5.2.0](https://github.com/kununu/elasticsearch/compare/v5.1.0...v5.2.0)
+
+### Backward Compatibility Breaks
+
+### Bugfixes
+
+### Added
+
+* Added the possibility of using the range aggregation (see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-range-aggregation.html).
+
+### Improvements
+
+### Deprecated
+
+## [5.1.0](https://github.com/kununu/elasticsearch/compare/v5.0.0...v5.1.0)
+
+### Backward Compatibility Breaks
+
+### Bugfixes
+
+### Added
+
+* Added functionality for PrefixQuery (see https://www.elastic.co/guide/en/elasticsearch/reference/7.9/query-dsl-prefix-query.html).
+
+### Improvements
+
+
+### Deprecated
+
+## [5.0.0](https://github.com/kununu/elasticsearch/compare/v4.0.2...v5.0.0)
+
+### Backward Compatibility Breaks
+
+* Removed support for mapping types in `IndexManager::putMapping()` (
+  see https://www.elastic.co/guide/en/elasticsearch/reference/7.17/removal-of-types.html)
+
+### Bugfixes
+
+### Added
+
+* Config option for setting `scroll_context_keepalive` per `Repository` and/or per `Query` (
+  see https://www.elastic.co/guide/en/elasticsearch/reference/7.9/paginate-search-results.html#scroll-search-results)
+
+### Improvements
+
+* Removed support for mapping types (see https://www.elastic.co/guide/en/elasticsearch/reference/7.17/removal-of-types.html)
+
+### Deprecated
+
+## [4.0.2](https://github.com/kununu/elasticsearch/compare/v4.0.1...v4.0.2)
+
+### Backward Compatibility Breaks
+
+### Bugfixes
+
+* Include `null` as an acceptable value to the document attribute of `UpsertException` and `UpdateException`
+* Replace `PersistableEntityInterface` by object in `Repository::findById()` method
+
+### Added
+
+### Improvements
+
+### Deprecated
+
+## [4.0.1](https://github.com/kununu/elasticsearch/compare/v4.0.0...v4.0.1)
+
+### Backward Compatibility Breaks
+
+### Bugfixes
+
+### Added
+
+* Support for simple document updates (see https://www.elastic.co/guide/en/elasticsearch/reference/7.9/docs-update.html)
+
+### Improvements
+
+* Typehinting on `Repository` methods
+
+### Deprecated
+
+## [4.0.0](https://github.com/kununu/elasticsearch/compare/v3.0.2...v4.0.0)
+
+### Backward Compatibility Breaks
+
+* Dropped support for PHP 7.x
+* Dropped support for Elasticsearch < 7.x
+* Changed class names of full-text queries (e.g. `Match` to `MatchQuery`). This is due to `"match"`becoming a reserved
+  keyword in PHP 8
+
+### Bugfixes
+
+### Added
+
+* Support for `track_total_hits` option on read requests (
+  see https://www.elastic.co/guide/en/elasticsearch/reference/current/breaking-changes-7.0.html#hits-total-now-object-search-response)
+* Version matrix in [README](README.md)
+
+### Improvements
+
+### Deprecated
+
+## [3.0.2](https://github.com/kununu/elasticsearch/compare/v3.0.1...v3.0.2)
+
+### Backward Compatibility Breaks
+
+### Bugfixes
+
+* Fixed request format of `Repositry::upsert()`
+
+### Added
+
+### Improvements
+
+### Deprecated
+
+## [2.5.2](https://github.com/kununu/elasticsearch/compare/v2.5.1...v2.5.2)
+
+### Backward Compatibility Breaks
+
+### Bugfixes
+
+* Fixed request format of `Repositry::upsert()`
+
+### Added
+
+### Improvements
+
+### Deprecated
+
+## [3.0.1](https://github.com/kununu/elasticsearch/compare/v3.0.0...v3.0.1)
+
+### Backward Compatibility Breaks
+
+### Bugfixes
+
+### Added
+
+* `Repository::upsert()` method to make use of Elasticsearch' `update` API with `doc_as_upsert` option.
+
+### Improvements
+
+### Deprecated
+
+## [2.5.1](https://github.com/kununu/elasticsearch/compare/v2.5.0...v2.5.1)
+
+### Backward Compatibility Breaks
+
+### Bugfixes
+
+### Added
+
+* `Repository::upsert()` method to make use of Elasticsearch' `update` API with `doc_as_upsert` option.
+
+### Improvements
+
+### Deprecated
+
+## [3.0.0](https://github.com/kununu/elasticsearch/compare/v3.0.0...v2.5.0)
+
+### Backward Compatibility Breaks
+
+* Upgraded elasticsearch/elasticsearch to a version compatible with Elasticsearch 7. This comes with breaking changes
+  for Elasticsearch 6!
+
+### Bugfixes
+
+### Added
+
+### Improvements
+
+### Deprecated
+
+## [2.5.0](https://github.com/kununu/elasticsearch/compare/v2.4.7...v2.5.0)
+
+### Backward Compatibility Breaks
+
+### Bugfixes
+
+### Added
+
+* Compatibility to Elasticsearch 7.x versions on `Repository::parseRawSearchResponse`
 
 ### Improvements
 

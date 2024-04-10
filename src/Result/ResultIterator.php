@@ -3,89 +3,50 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Result;
 
-/**
- * Class ResultIterator
- *
- * @package Kununu\Elasticsearch\Result
- */
-class ResultIterator implements \Iterator, \ArrayAccess, \Countable, ResultIteratorInterface
+use ArrayAccess;
+use Countable;
+use Iterator;
+
+class ResultIterator implements Iterator, ArrayAccess, Countable, ResultIteratorInterface
 {
-    use IterableTrait, ArrayAccessTrait, CountableTrait;
+    use ArrayAccessTrait;
+    use CountableTrait;
+    use IterableTrait;
 
-    /**
-     * @var array
-     */
-    protected $results = [];
+    protected int $total = 0;
+    protected string|null $scrollId = null;
 
-    /**
-     * @var int
-     */
-    protected $total = 0;
-
-    /**
-     * @var string
-     */
-    protected $scrollId;
-
-    /**
-     * @param array $results
-     */
-    public function __construct(array $results = [])
+    public function __construct(protected array $results = [])
     {
-        $this->results = $results;
     }
 
-    /**
-     * @param array $results
-     *
-     * @return \Kununu\Elasticsearch\Result\ResultIterator
-     */
     public static function create(array $results = []): ResultIterator
     {
         return new static($results);
     }
 
-    /**
-     * @param int $total
-     *
-     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
-     */
     public function setTotal(int $total): ResultIteratorInterface
     {
-        $this->total = (int)$total;
+        $this->total = $total;
 
         return $this;
     }
 
-    /**
-     * @return int
-     */
     public function getTotal(): int
     {
         return $this->total;
     }
 
-    /**
-     * @return int
-     */
     public function getCount(): int
     {
         return $this->count();
     }
 
-    /**
-     * @return string|null
-     */
     public function getScrollId(): ?string
     {
         return $this->scrollId;
     }
 
-    /**
-     * @param string|null $scrollId
-     *
-     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
-     */
     public function setScrollId(?string $scrollId): ResultIteratorInterface
     {
         $this->scrollId = $scrollId;
@@ -93,20 +54,12 @@ class ResultIterator implements \Iterator, \ArrayAccess, \Countable, ResultItera
         return $this;
     }
 
-    /**
-     * @return array
-     */
     public function asArray(): array
     {
         return $this->results;
     }
 
-    /**
-     * @param array|object $result
-     *
-     * @return \Kununu\Elasticsearch\Result\ResultIteratorInterface
-     */
-    public function push($result): ResultIteratorInterface
+    public function push(array|object $result): ResultIteratorInterface
     {
         $this->results[] = $result;
 
@@ -116,9 +69,7 @@ class ResultIterator implements \Iterator, \ArrayAccess, \Countable, ResultItera
     /**
      * Returns the first result in this iterator for which the given callable returns a true-ish value.
      *
-     * @param callable $fn (result)
-     *
-     * @return array|null
+     * @param callable $fn(result)
      */
     public function first(callable $fn): ?array
     {
@@ -134,9 +85,7 @@ class ResultIterator implements \Iterator, \ArrayAccess, \Countable, ResultItera
     /**
      * Returns all results in this iterator for which the given callable returns a true-ish value.
      *
-     * @param callable $fn (result)
-     *
-     * @return array|null
+     * @param callable $fn(result)
      */
     public function filter(callable $fn): array
     {
@@ -146,9 +95,7 @@ class ResultIterator implements \Iterator, \ArrayAccess, \Countable, ResultItera
     /**
      * Returns true, if for at least one result in this iterator the given callable returns a true-ish value.
      *
-     * @param callable $fn (result, key)
-     *
-     * @return bool
+     * @param callable $fn(result, key)
      */
     public function some(callable $fn): bool
     {
@@ -164,9 +111,7 @@ class ResultIterator implements \Iterator, \ArrayAccess, \Countable, ResultItera
     /**
      * Returns true, if for all results in this iterator the given callable returns a true-ish value.
      *
-     * @param callable $fn (result, key)
-     *
-     * @return bool
+     * @param callable $fn(result, key)
      */
     public function every(callable $fn): bool
     {
@@ -182,7 +127,7 @@ class ResultIterator implements \Iterator, \ArrayAccess, \Countable, ResultItera
     /**
      * Calls given callable on every result in this iterator.
      *
-     * @param callable $fn (result, key)
+     * @param callable $fn(result, key)
      */
     public function each(callable $fn): void
     {
@@ -194,9 +139,7 @@ class ResultIterator implements \Iterator, \ArrayAccess, \Countable, ResultItera
     /**
      * Calls given callable on every result in this iterator and returns an array of the return values of the callable.
      *
-     * @param callable $fn (result, key)
-     *
-     * @return array
+     * @param callable $fn(result, key)
      */
     public function map(callable $fn): array
     {
@@ -208,13 +151,7 @@ class ResultIterator implements \Iterator, \ArrayAccess, \Countable, ResultItera
         return $arr;
     }
 
-    /**
-     * @param callable $fn (carry, result, key)
-     * @param mixed    $initial
-     *
-     * @return mixed
-     */
-    public function reduce(callable $fn, $initial = null)
+    public function reduce(callable $fn, mixed $initial = null): mixed
     {
         $carry = $initial;
         foreach ($this->results as $key => $result) {

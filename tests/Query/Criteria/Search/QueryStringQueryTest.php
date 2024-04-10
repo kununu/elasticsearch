@@ -3,13 +3,10 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Tests\Query\Criteria\Search;
 
-use Kununu\Elasticsearch\Query\Criteria\Search\QueryString;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
+use Kununu\Elasticsearch\Query\Criteria\Search\QueryStringQuery;
+use PHPUnit\Framework\TestCase;
 
-/**
- * @group unit
- */
-class QueryStringTest extends MockeryTestCase
+final class QueryStringQueryTest extends TestCase
 {
     protected const QUERY_STRING = 'what was i looking for?';
 
@@ -19,10 +16,10 @@ class QueryStringTest extends MockeryTestCase
             [
                 'query_string' => [
                     'fields' => ['field_a'],
-                    'query' => self::QUERY_STRING,
+                    'query'  => self::QUERY_STRING,
                 ],
             ],
-            QueryString::asArray(['field_a'], self::QUERY_STRING)
+            QueryStringQuery::asArray(['field_a'], self::QUERY_STRING)
         );
     }
 
@@ -32,10 +29,10 @@ class QueryStringTest extends MockeryTestCase
             [
                 'query_string' => [
                     'fields' => ['field_a', 'field_b'],
-                    'query' => self::QUERY_STRING,
+                    'query'  => self::QUERY_STRING,
                 ],
             ],
-            QueryString::asArray(['field_a', 'field_b'], self::QUERY_STRING)
+            QueryStringQuery::asArray(['field_a', 'field_b'], self::QUERY_STRING)
         );
     }
 
@@ -45,11 +42,11 @@ class QueryStringTest extends MockeryTestCase
             [
                 'query_string' => [
                     'fields' => ['field_a', 'field_b'],
-                    'query' => self::QUERY_STRING,
-                    'boost' => 42,
+                    'query'  => self::QUERY_STRING,
+                    'boost'  => 42,
                 ],
             ],
-            QueryString::asArray(['field_a', 'field_b'], self::QUERY_STRING, ['boost' => 42])
+            QueryStringQuery::asArray(['field_a', 'field_b'], self::QUERY_STRING, ['boost' => 42])
         );
     }
 }

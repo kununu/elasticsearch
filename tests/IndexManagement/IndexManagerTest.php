@@ -6,77 +6,35 @@ namespace Kununu\Elasticsearch\Tests\IndexManagement;
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
 use Elasticsearch\Namespaces\IndicesNamespace;
+use Exception;
 use Kununu\Elasticsearch\Exception\IndexManagementException;
+use Kununu\Elasticsearch\Exception\MoreThanOneIndexForAliasException;
+use Kununu\Elasticsearch\Exception\NoIndexForAliasException;
 use Kununu\Elasticsearch\IndexManagement\IndexManager;
 use Kununu\Elasticsearch\IndexManagement\IndexManagerInterface;
-use Mockery;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use stdClass;
 
-/**
- * @group unit
- */
-class IndexManagerTest extends MockeryTestCase
+final class IndexManagerTest extends TestCase
 {
     protected const INDEX = 'my_index';
-    protected const TYPE = '_doc';
     protected const ALIAS = 'my_alias';
     protected const MAPPING = [
         'properties' => [
             'field_a' => ['type' => 'text'],
         ],
     ];
-    protected const SCHEMA = [
-        self::TYPE => self::MAPPING,
-    ];
 
-    /** @var \Elasticsearch\Client|\Mockery\MockInterface */
-    protected $clientMock;
+    protected Client|MockObject $clientMock;
+    protected IndicesNamespace|MockObject $indicesMock;
+    protected LoggerInterface|MockObject $loggerMock;
 
-    /**
-     * @var \Elasticsearch\Namespaces\IndicesNamespace|\Mockery\MockInterface
-     */
-    protected $indicesMock;
-
-    /**
-     * @var \Psr\Log\LoggerInterface|\Mockery\MockInterface
-     */
-    protected $loggerMock;
-
-    protected function setUp(): void
-    {
-        $this->clientMock = Mockery::mock(Client::class);
-        $this->indicesMock = Mockery::mock(IndicesNamespace::class);
-        $this->loggerMock = Mockery::mock(LoggerInterface::class);
-    }
-
-    /**
-     * @return \Kununu\Elasticsearch\IndexManagement\IndexManagerInterface
-     */
-    private function getManager(): IndexManagerInterface
-    {
-        $manager = new IndexManager($this->clientMock);
-
-        $manager->setLogger($this->loggerMock);
-
-        return $manager;
-    }
-
-    private function setUpIndexOperation(): void
-    {
-        $this->clientMock
-            ->shouldReceive('indices')
-            ->once()
-            ->andReturn($this->indicesMock);
-    }
-
-    /**
-     * @return array
-     */
-    public function notAcknowledgedResponseData(): array
+    public static function notAcknowledgedResponseDataProvider(): array
     {
         return [
-            'acknowledged false' => [
+            'acknowledged false'         => [
                 'response' => ['acknowledged' => false],
             ],
             'acknowledged field missing' => [
@@ -90,18 +48,19 @@ class IndexManagerTest extends MockeryTestCase
         $this->setUpIndexOperation();
 
         $this->indicesMock
-            ->shouldReceive('putAlias')
-            ->once()
+            ->expects($this->once())
+            ->method('putAlias')
             ->with(
                 [
                     'index' => self::INDEX,
-                    'name' => self::ALIAS,
+                    'name'  => self::ALIAS,
                 ]
             )
-            ->andReturn(['acknowledged' => true]);
+            ->willReturn(['acknowledged' => true]);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $this->getManager()->addAlias(
             self::INDEX,
@@ -109,29 +68,25 @@ class IndexManagerTest extends MockeryTestCase
         );
     }
 
-    /**
-     * @dataProvider notAcknowledgedResponseData
-     *
-     * @param array $response
-     */
+    /** @dataProvider notAcknowledgedResponseDataProvider */
     public function testAddAliasFails(array $response): void
     {
         $this->setUpIndexOperation();
 
         $this->indicesMock
-            ->shouldReceive('putAlias')
-            ->once()
+            ->expects($this->once())
+            ->method('putAlias')
             ->with(
                 [
                     'index' => self::INDEX,
-                    'name' => self::ALIAS,
+                    'name'  => self::ALIAS,
                 ]
             )
-            ->andReturn($response);
+            ->willReturn($response);
 
         $this->loggerMock
-            ->shouldReceive('error')
-            ->once()
+            ->expects($this->once())
+            ->method('error')
             ->with(
                 'Elasticsearch exception: Could not add alias for index',
                 ['message' => 'Operation not acknowledged', 'index' => self::INDEX, 'alias' => self::ALIAS]
@@ -151,18 +106,19 @@ class IndexManagerTest extends MockeryTestCase
         $this->setUpIndexOperation();
 
         $this->indicesMock
-            ->shouldReceive('deleteAlias')
-            ->once()
+            ->expects($this->once())
+            ->method('deleteAlias')
             ->with(
                 [
                     'index' => self::INDEX,
-                    'name' => self::ALIAS,
+                    'name'  => self::ALIAS,
                 ]
             )
-            ->andReturn(['acknowledged' => true]);
+            ->willReturn(['acknowledged' => true]);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $this->getManager()->removeAlias(
             self::INDEX,
@@ -170,29 +126,25 @@ class IndexManagerTest extends MockeryTestCase
         );
     }
 
-    /**
-     * @dataProvider notAcknowledgedResponseData
-     *
-     * @param array $response
-     */
+    /** @dataProvider notAcknowledgedResponseDataProvider */
     public function testRemoveAliasFails(array $response): void
     {
         $this->setUpIndexOperation();
 
         $this->indicesMock
-            ->shouldReceive('deleteAlias')
-            ->once()
+            ->expects($this->once())
+            ->method('deleteAlias')
             ->with(
                 [
                     'index' => self::INDEX,
-                    'name' => self::ALIAS,
+                    'name'  => self::ALIAS,
                 ]
             )
-            ->andReturn($response);
+            ->willReturn($response);
 
         $this->loggerMock
-            ->shouldReceive('error')
-            ->once()
+            ->expects($this->once())
+            ->method('error')
             ->with(
                 'Elasticsearch exception: Could not remove alias for index',
                 ['message' => 'Operation not acknowledged', 'index' => self::INDEX, 'alias' => self::ALIAS]
@@ -215,8 +167,8 @@ class IndexManagerTest extends MockeryTestCase
         $toIndex = 'to_ ' . self::INDEX;
 
         $this->indicesMock
-            ->shouldReceive('updateAliases')
-            ->once()
+            ->expects($this->once())
+            ->method('updateAliases')
             ->with(
                 [
                     'body' => [
@@ -227,10 +179,11 @@ class IndexManagerTest extends MockeryTestCase
                     ],
                 ]
             )
-            ->andReturn(['acknowledged' => true]);
+            ->willReturn(['acknowledged' => true]);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $this->getManager()->switchAlias(
             self::ALIAS,
@@ -239,11 +192,7 @@ class IndexManagerTest extends MockeryTestCase
         );
     }
 
-    /**
-     * @dataProvider notAcknowledgedResponseData
-     *
-     * @param array $response
-     */
+    /** @dataProvider notAcknowledgedResponseDataProvider */
     public function testSwitchAliasFails(array $response): void
     {
         $this->setUpIndexOperation();
@@ -252,8 +201,8 @@ class IndexManagerTest extends MockeryTestCase
         $toIndex = 'to_ ' . self::INDEX;
 
         $this->indicesMock
-            ->shouldReceive('updateAliases')
-            ->once()
+            ->expects($this->once())
+            ->method('updateAliases')
             ->with(
                 [
                     'body' => [
@@ -264,18 +213,18 @@ class IndexManagerTest extends MockeryTestCase
                     ],
                 ]
             )
-            ->andReturn($response);
+            ->willReturn($response);
 
         $this->loggerMock
-            ->shouldReceive('error')
-            ->once()
+            ->expects($this->once())
+            ->method('error')
             ->with(
                 'Elasticsearch exception: Could not switch alias for index',
                 [
-                    'message' => 'Operation not acknowledged',
+                    'message'    => 'Operation not acknowledged',
                     'from_index' => $fromIndex,
-                    'to_index' => $toIndex,
-                    'alias' => self::ALIAS,
+                    'to_index'   => $toIndex,
+                    'alias'      => self::ALIAS,
                 ]
             );
 
@@ -289,67 +238,64 @@ class IndexManagerTest extends MockeryTestCase
         );
     }
 
-    /**
-     * @return array
-     */
-    public function createIndexData(): array
+    public static function createIndexDataProvider(): array
     {
         $settings = ['index' => ['number_of_shards' => 5, 'number_of_replicas' => 1]];
 
         return [
-            'completely blank' => [
-                'input' => [
+            'completely blank'          => [
+                'input'                 => [
                     self::INDEX,
                 ],
                 'expected_request_body' => [
                     'index' => self::INDEX,
                 ],
             ],
-            'no aliases, no settings' => [
-                'input' => [
+            'no aliases, no settings'   => [
+                'input'                 => [
                     self::INDEX,
-                    self::SCHEMA,
+                    self::MAPPING,
                 ],
                 'expected_request_body' => [
                     'index' => self::INDEX,
-                    'body' => ['mappings' => self::SCHEMA],
+                    'body'  => ['mappings' => self::MAPPING],
                 ],
             ],
-            'with alias, no settings' => [
-                'input' => [
+            'with alias, no settings'   => [
+                'input'                 => [
                     self::INDEX,
-                    self::SCHEMA,
+                    self::MAPPING,
                     [self::ALIAS],
                 ],
                 'expected_request_body' => [
                     'index' => self::INDEX,
-                    'body' => ['mappings' => self::SCHEMA, 'aliases' => [self::ALIAS => new \stdClass()]],
+                    'body'  => ['mappings' => self::MAPPING, 'aliases' => [self::ALIAS => new stdClass()]],
                 ],
             ],
             'no aliases, with settings' => [
-                'input' => [
+                'input'                 => [
                     self::INDEX,
-                    self::SCHEMA,
+                    self::MAPPING,
                     [],
                     $settings,
                 ],
                 'expected_request_body' => [
                     'index' => self::INDEX,
-                    'body' => ['mappings' => self::SCHEMA, 'settings' => $settings],
+                    'body'  => ['mappings' => self::MAPPING, 'settings' => $settings],
                 ],
             ],
-            'with alias and settings' => [
-                'input' => [
+            'with alias and settings'   => [
+                'input'                 => [
                     self::INDEX,
-                    self::SCHEMA,
+                    self::MAPPING,
                     [self::ALIAS],
                     $settings,
                 ],
                 'expected_request_body' => [
                     'index' => self::INDEX,
-                    'body' => [
-                        'mappings' => self::SCHEMA,
-                        'aliases' => [self::ALIAS => new \stdClass()],
+                    'body'  => [
+                        'mappings' => self::MAPPING,
+                        'aliases'  => [self::ALIAS => new stdClass()],
                         'settings' => $settings,
                     ],
                 ],
@@ -357,51 +303,43 @@ class IndexManagerTest extends MockeryTestCase
         ];
     }
 
-    /**
-     * @dataProvider  createIndexData
-     *
-     * @param array $input
-     * @param array $expectedRequestBody
-     */
+    /** @dataProvider createIndexDataProvider */
     public function testCreateIndex(array $input, array $expectedRequestBody): void
     {
         $this->setUpIndexOperation();
 
         $this->indicesMock
-            ->shouldReceive('create')
-            ->once()
+            ->expects($this->once())
+            ->method('create')
             ->with($expectedRequestBody)
-            ->andReturn(['acknowledged' => true]);
+            ->willReturn(['acknowledged' => true]);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $this->getManager()->createIndex(...$input);
     }
 
-    /**
-     * @dataProvider notAcknowledgedResponseData
-     *
-     * @param array $response
-     */
+    /** @dataProvider notAcknowledgedResponseDataProvider */
     public function testCreateIndexFails(array $response): void
     {
         $this->setUpIndexOperation();
 
         $this->indicesMock
-            ->shouldReceive('create')
-            ->once()
-            ->andReturn($response);
+            ->expects($this->once())
+            ->method('create')
+            ->willReturn($response);
 
         $this->loggerMock
-            ->shouldReceive('error')
-            ->once()
+            ->expects($this->once())
+            ->method('error')
             ->with(
                 'Elasticsearch exception: Could not create index',
                 [
-                    'message' => 'Operation not acknowledged',
-                    'index' => self::INDEX,
-                    'aliases' => [],
+                    'message'  => 'Operation not acknowledged',
+                    'index'    => self::INDEX,
+                    'aliases'  => [],
                     'settings' => [],
                 ]
             );
@@ -420,39 +358,36 @@ class IndexManagerTest extends MockeryTestCase
         $this->setUpIndexOperation();
 
         $this->indicesMock
-            ->shouldReceive('delete')
-            ->once()
+            ->expects($this->once())
+            ->method('delete')
             ->with(
                 ['index' => self::INDEX]
             )
-            ->andReturn(['acknowledged' => true]);
+            ->willReturn(['acknowledged' => true]);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $this->getManager()->deleteIndex(self::INDEX);
     }
 
-    /**
-     * @dataProvider notAcknowledgedResponseData
-     *
-     * @param array $response
-     */
+    /** @dataProvider notAcknowledgedResponseDataProvider */
     public function testDeleteIndexFails(array $response): void
     {
         $this->setUpIndexOperation();
 
         $this->indicesMock
-            ->shouldReceive('delete')
-            ->once()
+            ->expects($this->once())
+            ->method('delete')
             ->with(
                 ['index' => self::INDEX]
             )
-            ->andReturn($response);
+            ->willReturn($response);
 
         $this->loggerMock
-            ->shouldReceive('error')
-            ->once()
+            ->expects($this->once())
+            ->method('error')
             ->with(
                 'Elasticsearch exception: Could not delete index',
                 ['message' => 'Operation not acknowledged', 'index' => self::INDEX]
@@ -469,54 +404,48 @@ class IndexManagerTest extends MockeryTestCase
         $this->setUpIndexOperation();
 
         $this->indicesMock
-            ->shouldReceive('putMapping')
-            ->once()
+            ->expects($this->once())
+            ->method('putMapping')
             ->with(
                 [
-                    'index' => self::INDEX,
-                    'body' => self::MAPPING,
-                    'type' => self::TYPE,
+                    'index'       => self::INDEX,
+                    'body'        => self::MAPPING,
                     'extra_param' => true,
                 ]
             )
-            ->andReturn(['acknowledged' => true]);
+            ->willReturn(['acknowledged' => true]);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
-        $this->getManager()->putMapping(self::INDEX, self::TYPE, self::MAPPING, ['extra_param' => true]);
+        $this->getManager()->putMapping(self::INDEX, self::MAPPING, ['extra_param' => true]);
     }
 
-    /**
-     * @dataProvider notAcknowledgedResponseData
-     *
-     * @param array $response
-     */
+    /** @dataProvider notAcknowledgedResponseDataProvider */
     public function testPutMappingFails(array $response): void
     {
         $this->setUpIndexOperation();
 
         $this->indicesMock
-            ->shouldReceive('putMapping')
-            ->once()
+            ->expects($this->once())
+            ->method('putMapping')
             ->with(
                 [
                     'index' => self::INDEX,
-                    'body' => self::MAPPING,
-                    'type' => self::TYPE,
+                    'body'  => self::MAPPING,
                 ]
             )
-            ->andReturn($response);
+            ->willReturn($response);
 
         $this->loggerMock
-            ->shouldReceive('error')
-            ->once()
+            ->expects($this->once())
+            ->method('error')
             ->with(
                 'Elasticsearch exception: Could not put mapping',
                 [
                     'message' => 'Operation not acknowledged',
-                    'index' => self::INDEX,
-                    'type' => self::TYPE,
+                    'index'   => self::INDEX,
                     'mapping' => self::MAPPING,
                 ]
             );
@@ -524,50 +453,43 @@ class IndexManagerTest extends MockeryTestCase
         $this->expectException(IndexManagementException::class);
         $this->expectExceptionMessage('Elasticsearch exception: Operation not acknowledged');
 
-        $this->getManager()->putMapping(self::INDEX, self::TYPE, self::MAPPING);
+        $this->getManager()->putMapping(self::INDEX, self::MAPPING);
     }
 
-    /**
-     * @return array
-     */
-    public function indicesByAliasData(): array
+    public static function indicesByAliasDataProvider(): array
     {
         return [
-            'no indices mapped to alias' => [
-                'es_response' => [],
+            'no indices mapped to alias'       => [
+                'es_response'     => [],
                 'expected_result' => [],
             ],
-            'one index mapped to alias' => [
-                'es_response' => [self::INDEX => ['foo' => 'bar']],
+            'one index mapped to alias'        => [
+                'es_response'     => [self::INDEX => ['foo' => 'bar']],
                 'expected_result' => [self::INDEX],
             ],
             'multiple indices mapped to alias' => [
-                'es_response' => [self::INDEX => ['foo' => 'bar'], 'another_index' => []],
+                'es_response'     => [self::INDEX => ['foo' => 'bar'], 'another_index' => []],
                 'expected_result' => [self::INDEX, 'another_index'],
             ],
         ];
     }
 
-    /**
-     * @dataProvider indicesByAliasData
-     *
-     * @param array $esResponse
-     * @param array $expectedResult
-     */
+    /** @dataProvider indicesByAliasDataProvider */
     public function testGetIndicesByAlias(array $esResponse, array $expectedResult): void
     {
         $this->setUpIndexOperation();
 
         $this->indicesMock
-            ->shouldReceive('getAlias')
-            ->once()
+            ->expects($this->once())
+            ->method('getAlias')
             ->with(
                 ['name' => self::ALIAS]
             )
-            ->andReturn($esResponse);
+            ->willReturn($esResponse);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $this->assertEquals($expectedResult, $this->getManager()->getIndicesByAlias(self::ALIAS));
     }
@@ -577,18 +499,18 @@ class IndexManagerTest extends MockeryTestCase
         $this->setUpIndexOperation();
 
         $this->indicesMock
-            ->shouldReceive('getAlias')
-            ->once()
-            ->andThrow(new \Exception('something happened'));
+            ->expects($this->once())
+            ->method('getAlias')
+            ->willThrowException(new Exception('something happened'));
 
         $this->loggerMock
-            ->shouldReceive('error')
-            ->once()
+            ->expects($this->once())
+            ->method('error')
             ->with(
                 'Elasticsearch exception: Unable to get indices by alias',
                 [
                     'message' => 'something happened',
-                    'alias' => self::ALIAS,
+                    'alias'   => self::ALIAS,
                 ]
             );
 
@@ -603,82 +525,83 @@ class IndexManagerTest extends MockeryTestCase
         $this->setUpIndexOperation();
 
         $this->indicesMock
-            ->shouldReceive('getAlias')
-            ->once()
-            ->andThrow(new Missing404Exception());
+            ->expects($this->once())
+            ->method('getAlias')
+            ->willThrowException(new Missing404Exception());
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $this->assertEquals([], $this->getManager()->getIndicesByAlias(self::ALIAS));
     }
 
-    /**
-     * @return array
-     */
-    public function indexAliasMappingData(): array
+    public static function indexAliasMappingDataProvider(): array
     {
         return [
-            'no indices' => [
-                'es_response' => [],
+            'no indices'                             => [
+                'es_response'     => [],
                 'expected_result' => [],
             ],
-            'one index without alias' => [
-                'es_response' => [self::INDEX => ['aliases' => []]],
+            'one index without alias'                => [
+                'es_response'     => [self::INDEX => ['aliases' => []]],
                 'expected_result' => [self::INDEX => []],
             ],
-            'one index with one alias' => [
-                'es_response' => [self::INDEX => ['aliases' => [self::ALIAS => ['foo' => 'bar']]]],
+            'one index with one alias'               => [
+                'es_response'     => [self::INDEX => ['aliases' => [self::ALIAS => ['foo' => 'bar']]]],
                 'expected_result' => [self::INDEX => [self::ALIAS]],
             ],
-            'one index with multiple aliases' => [
-                'es_response' => [self::INDEX => ['aliases' => [self::ALIAS => ['foo' => 'bar'], 'other_alias' => []]]],
+            'one index with multiple aliases'        => [
+                'es_response'     => [
+                    self::INDEX => [
+                        'aliases' => [
+                            self::ALIAS   => ['foo' => 'bar'],
+                            'other_alias' => [],
+                        ],
+                    ],
+                ],
                 'expected_result' => [self::INDEX => [self::ALIAS, 'other_alias']],
             ],
-            'multiple indices without alias' => [
-                'es_response' => [self::INDEX => ['aliases' => []], 'another_index' => ['aliases' => []]],
+            'multiple indices without alias'         => [
+                'es_response'     => [self::INDEX => ['aliases' => []], 'another_index' => ['aliases' => []]],
                 'expected_result' => [self::INDEX => [], 'another_index' => []],
             ],
-            'multiple indices with one alias' => [
-                'es_response' => [
-                    self::INDEX => ['aliases' => [self::ALIAS => ['foo' => 'bar']]],
+            'multiple indices with one alias'        => [
+                'es_response'     => [
+                    self::INDEX     => ['aliases' => [self::ALIAS => ['foo' => 'bar']]],
                     'another_index' => ['aliases' => ['fancy_index_alias' => []]],
                 ],
                 'expected_result' => [self::INDEX => [self::ALIAS], 'another_index' => ['fancy_index_alias']],
             ],
             'multiple indices with multiple aliases' => [
-                'es_response' => [
-                    self::INDEX => ['aliases' => [self::ALIAS => ['foo' => 'bar'], 'other_alias' => []]],
+                'es_response'     => [
+                    self::INDEX   => ['aliases' => [self::ALIAS => ['foo' => 'bar'], 'other_alias' => []]],
                     'other_index' => ['aliases' => ['my_special_alias' => []]],
                 ],
                 'expected_result' => [
-                    self::INDEX => [self::ALIAS, 'other_alias'],
+                    self::INDEX   => [self::ALIAS, 'other_alias'],
                     'other_index' => ['my_special_alias'],
                 ],
             ],
         ];
     }
 
-    /**
-     * @dataProvider indexAliasMappingData
-     *
-     * @param array $esResponse
-     * @param array $expectedResult
-     */
+    /** @dataProvider indexAliasMappingDataProvider */
     public function testGetIndicesAliasesMapping(array $esResponse, array $expectedResult): void
     {
         $this->setUpIndexOperation();
 
         $this->indicesMock
-            ->shouldReceive('get')
-            ->once()
+            ->expects($this->once())
+            ->method('get')
             ->with(
                 ['index' => '_all']
             )
-            ->andReturn($esResponse);
+            ->willReturn($esResponse);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $this->assertEquals($expectedResult, $this->getManager()->getIndicesAliasesMapping());
     }
@@ -688,15 +611,16 @@ class IndexManagerTest extends MockeryTestCase
         $this->setUpIndexOperation();
 
         $this->indicesMock
-            ->shouldReceive('get')
-            ->once()
+            ->expects($this->once())
+            ->method('get')
             ->with(
                 ['index' => '_all']
             )
-            ->andThrow(new Missing404Exception());
+            ->willThrowException(new Missing404Exception());
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $this->assertEquals([], $this->getManager()->getIndicesAliasesMapping());
     }
@@ -706,16 +630,16 @@ class IndexManagerTest extends MockeryTestCase
         $this->setUpIndexOperation();
 
         $this->indicesMock
-            ->shouldReceive('get')
-            ->once()
+            ->expects($this->once())
+            ->method('get')
             ->with(
                 ['index' => '_all']
             )
-            ->andThrow(new \Exception('something happened'));
+            ->willThrowException(new Exception('something happened'));
 
         $this->loggerMock
-            ->shouldReceive('error')
-            ->once()
+            ->expects($this->once())
+            ->method('error')
             ->with(
                 'Elasticsearch exception: Unable to get indices',
                 [
@@ -732,24 +656,25 @@ class IndexManagerTest extends MockeryTestCase
     public function testReindex(): void
     {
         $this->clientMock
-            ->shouldReceive('reindex')
-            ->once()
+            ->expects($this->once())
+            ->method('reindex')
             ->with(
                 [
-                    'refresh' => true,
-                    'slices' => 'auto',
+                    'refresh'             => true,
+                    'slices'              => 'auto',
                     'wait_for_completion' => true,
-                    'body' => [
+                    'body'                => [
                         'conflicts' => 'proceed',
-                        'source' => ['index' => self::INDEX],
-                        'dest' => ['index' => self::INDEX . '_v2'],
+                        'source'    => ['index' => self::INDEX],
+                        'dest'      => ['index' => self::INDEX . '_v2'],
                     ],
                 ]
             )
-            ->andReturn(['acknowledged' => true]);
+            ->willReturn(['acknowledged' => true]);
 
         $this->loggerMock
-            ->shouldNotReceive('error');
+            ->expects($this->never())
+            ->method('error');
 
         $this->getManager()->reindex(self::INDEX, self::INDEX . '_v2');
     }
@@ -757,18 +682,18 @@ class IndexManagerTest extends MockeryTestCase
     public function testReindexFails(): void
     {
         $this->clientMock
-            ->shouldReceive('reindex')
-            ->once()
-            ->andThrow(new \Exception('something happened'));
+            ->expects($this->once())
+            ->method('reindex')
+            ->willThrowException(new Exception('something happened'));
 
         $this->loggerMock
-            ->shouldReceive('error')
-            ->once()
+            ->expects($this->once())
+            ->method('error')
             ->with(
                 'Elasticsearch exception: Unable to reindex',
                 [
-                    'message' => 'something happened',
-                    'source' => self::INDEX,
+                    'message'     => 'something happened',
+                    'source'      => self::INDEX,
                     'destination' => self::INDEX . '_v2',
                 ]
             );
@@ -782,29 +707,28 @@ class IndexManagerTest extends MockeryTestCase
     public function testPutSettings(): void
     {
         $this->clientMock
-            ->shouldReceive('indices')
-            ->once()
-            ->withNoArgs()
-            ->andReturn($this->indicesMock);
+            ->expects($this->once())
+            ->method('indices')
+            ->willReturn($this->indicesMock);
 
         $this->indicesMock
-            ->shouldReceive('putSettings')
-            ->once()
+            ->expects($this->once())
+            ->method('putSettings')
             ->with([
                 'index' => 'test',
-                'body' => [
+                'body'  => [
                     'index' => [
-                        'refresh_interval' => '3m',
+                        'refresh_interval'   => '3m',
                         'number_of_replicas' => 5,
                     ],
                 ],
             ])
-            ->andReturn(['acknowledged' => true]);
+            ->willReturn(['acknowledged' => true]);
 
         $this->getManager()->putSettings(
             'test',
             [
-                'refresh_interval' => '3m',
+                'refresh_interval'   => '3m',
                 'number_of_replicas' => 5,
             ]
         );
@@ -813,20 +737,22 @@ class IndexManagerTest extends MockeryTestCase
     public function testDisallowedPutSettings(): void
     {
         $this->clientMock
-            ->shouldReceive('indices')
-            ->never();
+            ->expects($this->never())
+            ->method('indices');
 
         $this->indicesMock
-            ->shouldReceive('putSettings')
-            ->never();
+            ->expects($this->never())
+            ->method('putSettings');
 
         $this->expectException(IndexManagementException::class);
-        $this->expectExceptionMessage('Elasticsearch exception: Allowed settings are [refresh_interval, number_of_replicas]. Other settings are not allowed.');
+        $this->expectExceptionMessage(
+            'Elasticsearch exception: Allowed settings are [refresh_interval, number_of_replicas]. Other settings are not allowed.'
+        );
 
         $this->getManager()->putSettings(
             'test',
             [
-                'number_of_shards' => 1
+                'number_of_shards' => 1,
             ]
         );
     }
@@ -834,22 +760,94 @@ class IndexManagerTest extends MockeryTestCase
     public function testAllowedAndDisallowedPutSettings(): void
     {
         $this->clientMock
-            ->shouldReceive('indices')
-            ->never();
+            ->expects($this->never())
+            ->method('indices');
 
         $this->indicesMock
-            ->shouldReceive('putSettings')
-            ->never();
+            ->expects($this->never())
+            ->method('putSettings');
 
         $this->expectException(IndexManagementException::class);
-        $this->expectExceptionMessage('Elasticsearch exception: Allowed settings are [refresh_interval, number_of_replicas]. Other settings are not allowed.');
+        $this->expectExceptionMessage(
+            'Elasticsearch exception: Allowed settings are [refresh_interval, number_of_replicas]. Other settings are not allowed.'
+        );
 
         $this->getManager()->putSettings(
             'test',
             [
                 'number_of_replicas' => 2,
-                'number_of_shards' => 1
+                'number_of_shards'   => 1,
             ]
         );
+    }
+
+    /** @dataProvider getSingleIndexByAliasDataProvider */
+    public function testGetSingleIndexByAlias(array $esResponse, ?string $expectedResult): void
+    {
+        $this->setUpIndexOperation();
+
+        $this->indicesMock
+            ->expects($this->once())
+            ->method('getAlias')
+            ->with(['name' => self::ALIAS])
+            ->willReturn($esResponse);
+
+        if (empty($esResponse)) {
+            $this->expectException(NoIndexForAliasException::class);
+        }
+
+        if (count($esResponse) > 1) {
+            $this->expectException(MoreThanOneIndexForAliasException::class);
+        }
+
+        $this->loggerMock
+            ->expects($this->never())
+            ->method('error');
+
+        $result = $this->getManager()->getSingleIndexByAlias(self::ALIAS);
+
+        $this->assertEquals($expectedResult, $result);
+    }
+
+    public static function getSingleIndexByAliasDataProvider(): array
+    {
+        return [
+            'no indices mapped to alias'       => [
+                'es_response'     => [],
+                'expected_result' => null,
+            ],
+            'one index mapped to alias'        => [
+                'es_response'     => [self::INDEX => ['foo' => 'bar']],
+                'expected_result' => self::INDEX,
+            ],
+            'multiple indices mapped to alias' => [
+                'es_response'     => [self::INDEX => ['foo' => 'bar'], 'another_index' => []],
+                'expected_result' => null,
+            ],
+        ];
+    }
+
+    protected function setUp(): void
+    {
+        $this->clientMock = $this->createMock(Client::class);
+        $this->indicesMock = $this->createMock(IndicesNamespace::class);
+        $this->loggerMock = $this->createMock(LoggerInterface::class);
+    }
+
+    private function getManager(): IndexManagerInterface
+    {
+        $manager = new IndexManager($this->clientMock);
+
+        $manager->setLogger($this->loggerMock);
+
+        return $manager;
+    }
+
+    private function setUpIndexOperation(): void
+    {
+        $this->clientMock
+            ->expects($this->once())
+            ->method('indices')
+            ->willReturn($this->indicesMock);
     }
 }

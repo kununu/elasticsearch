@@ -1,36 +1,47 @@
 {
-    "name": "kununu/elasticsearch",
-    "description": "Library for simplified querying and usage of Elasticsearch @ Kununu",
-    "type": "library",
-    "license": "proprietary",
-    "minimum-stability": "stable",
-    "require": {
-        "php": ">=7.2",
-        "ext-ctype": "*",
-        "ext-iconv": "*",
-        "ext-json": "*",
-        "ext-mbstring": "*",
-        "elasticsearch/elasticsearch": "~6.5.0",
-        "psr/log": "~1.0"
-    },
-    "require-dev": {
-        "mockery/mockery": "^1.2.4",
-        "phpunit/phpunit": "^8.3"
-    },
-    "config": {
-        "preferred-install": {
-            "*": "dist"
-        },
-        "sort-packages": true
-    },
-    "autoload": {
-        "psr-4": {
-            "Kununu\\Elasticsearch\\": "src"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Kununu\\Elasticsearch\\Tests\\": "tests/"
-        }
+  "name": "kununu/elasticsearch",
+  "description": "Library for simplified querying and usage of Elasticsearch @ Kununu",
+  "type": "library",
+  "license": "proprietary",
+  "minimum-stability": "stable",
+  "require": {
+    "php": ">=8.0",
+    "ext-ctype": "*",
+    "ext-iconv": "*",
+    "ext-json": "*",
+    "ext-mbstring": "*",
+    "elasticsearch/elasticsearch": "^7.0.0",
+    "psr/log": "~1.0"
+  },
+  "require-dev": {
+    "kununu/scripts": ">=4.0",
+    "phpunit/phpunit": "^9.6"
+  },
+  "autoload": {
+    "psr-4": {
+      "Kununu\\Elasticsearch\\": "src"
     }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Kununu\\Elasticsearch\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "phpunit --no-coverage tests",
+    "test-coverage": "XDEBUG_MODE=coverage phpunit --coverage-clover tests/.results/coverage.xml --coverage-html tests/.results/html/ tests"
+  },
+  "scripts-descriptions": {
+    "test": "Run all tests",
+    "test-coverage": "Run all tests with coverage report"
+  },
+  "config": {
+    "allow-plugins": {
+      "kununu/scripts": true
+    },
+    "preferred-install": {
+      "*": "dist"
+    },
+    "sort-packages": true
+  }
 }

@@ -5,36 +5,13 @@ namespace Kununu\Elasticsearch\Query;
 
 use InvalidArgumentException;
 
-/**
- * Class AbstractQuery
- *
- * @package Kununu\Elasticsearch\Query
- */
 abstract class AbstractQuery implements QueryInterface
 {
-    /**
-     * @var array|null
-     */
-    protected $select;
+    protected array|null $select = null;
+    protected int|null $limit = null;
+    protected int|null $offset = null;
+    protected array $sort = [];
 
-    /**
-     * @var int
-     */
-    protected $limit;
-
-    /**
-     * @var int
-     */
-    protected $offset;
-
-    /**
-     * @var array
-     */
-    protected $sort = [];
-
-    /**
-     * @return array
-     */
     protected function buildBaseBody(): array
     {
         $body = [];
@@ -57,11 +34,6 @@ abstract class AbstractQuery implements QueryInterface
         return $body;
     }
 
-    /**
-     * @param array $selectFields
-     *
-     * @return \Kununu\Elasticsearch\Query\QueryInterface
-     */
     public function select(array $selectFields): QueryInterface
     {
         $this->select = $selectFields;
@@ -69,57 +41,38 @@ abstract class AbstractQuery implements QueryInterface
         return $this;
     }
 
-    /**
-     * @param string|array $sort
-     * @param string       $order
-     * @param array        $options
-     *
-     * @return \Kununu\Elasticsearch\Query\QueryInterface
-     */
-    public function sort($sort, $order = SortOrder::ASC, array $options = []): QueryInterface
+    public function sort(string|array $field, string $order = SortOrder::ASC, array $options = []): QueryInterface
     {
-        if (is_string($sort)) {
+        if (is_string($field)) {
             if (!in_array($order, SortOrder::all(), true)) {
                 throw new InvalidArgumentException('Invalid sort direction given');
             }
-            $this->sort[$sort] = ['order' => $order];
-        } elseif (is_array($sort)) {
+            $this->sort[$field] = ['order' => $order];
+        } elseif (is_array($field)) {
             array_walk(
-                $sort,
-                function ($value, $key) {
-                    $this->sort(
-                        $key,
-                        $value['order'] ?? SortOrder::ASC,
-                        $value['options'] ?? []
-                    );
-                }
+                $field,
+                fn($value, $key) => $this->sort(
+                    $key,
+                    $value['order'] ?? SortOrder::ASC,
+                    $value['options'] ?? []
+                )
             );
         }
 
         if (count($options)) {
-            $this->sort[$sort] = array_merge($this->sort[$sort], $options);
+            $this->sort[$field] = array_merge($this->sort[$field], $options);
         }
 
         return $this;
     }
 
-    /**
-     * @param int $limit
-     *
-     * @return \Kununu\Elasticsearch\Query\QueryInterface
-     */
-    public function limit(int $limit): QueryInterface
+    public function limit(int $size): QueryInterface
     {
-        $this->limit = $limit;
+        $this->limit = $size;
 
         return $this;
     }
 
-    /**
-     * @param int $offset
-     *
-     * @return \Kununu\Elasticsearch\Query\QueryInterface
-     */
     public function skip(int $offset): QueryInterface
     {
         $this->offset = $offset;
@@ -127,33 +80,21 @@ abstract class AbstractQuery implements QueryInterface
         return $this;
     }
 
-    /**
-     * @return array|bool|null
-     */
-    public function getSelect()
+    public function getSelect(): array|bool|null
     {
         return $this->select;
     }
 
-    /**
-     * @return int|null
-     */
     public function getLimit(): ?int
     {
         return $this->limit;
     }
 
-    /**
-     * @return int|null
-     */
     public function getOffset(): ?int
     {
         return $this->offset;
     }
 
-    /**
-     * @return array
-     */
     public function getSort(): array
     {
         return $this->sort;

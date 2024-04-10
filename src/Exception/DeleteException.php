@@ -5,36 +5,15 @@ namespace Kununu\Elasticsearch\Exception;
 
 use Throwable;
 
-/**
- * Class DeleteException
- *
- * @package Kununu\Elasticsearch\Exception
- */
 class DeleteException extends RepositoryException
 {
-    /**
-     * @var mixed
-     */
-    protected $documentId;
-
-    /**
-     * @param string          $message
-     * @param \Throwable|null $previous
-     * @param mixed           $documentId
-     */
-    public function __construct($message = "", Throwable $previous = null, $documentId = null)
+    public function __construct(string $message = '', ?Throwable $previous = null, protected mixed $documentId = null)
     {
         parent::__construct($message, $previous);
-
-        $this->documentId = $documentId;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getDocumentId()
+    public function getDocumentId(): mixed
     {
         return $this->documentId;
     }
-
 }

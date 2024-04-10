@@ -5,12 +5,9 @@ namespace Kununu\Elasticsearch\Tests\Query\Criteria\Filter;
 
 use Kununu\Elasticsearch\Query\Criteria\Filter\Range;
 use Kununu\Elasticsearch\Query\Criteria\Operator;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
+use PHPUnit\Framework\TestCase;
 
-/**
- * @group unit
- */
-class RangeTest extends MockeryTestCase
+final class RangeTest extends TestCase
 {
     public function testOneElementWithoutOptions(): void
     {
@@ -33,7 +30,7 @@ class RangeTest extends MockeryTestCase
                 'range' => [
                     'field_a' => [
                         'gte' => 7,
-                        'lt' => 42,
+                        'lt'  => 42,
                     ],
                 ],
             ],
@@ -47,7 +44,7 @@ class RangeTest extends MockeryTestCase
             [
                 'range' => [
                     'field_a' => [
-                        'gte' => 7,
+                        'gte'   => 7,
                         'boost' => 10,
                     ],
                 ],
@@ -62,8 +59,8 @@ class RangeTest extends MockeryTestCase
             [
                 'range' => [
                     'field_a' => [
-                        'gte' => 7,
-                        'lt' => 42,
+                        'gte'   => 7,
+                        'lt'    => 42,
                         'boost' => 10,
                     ],
                 ],

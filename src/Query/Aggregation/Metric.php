@@ -5,11 +5,6 @@ namespace Kununu\Elasticsearch\Query\Aggregation;
 
 use Kununu\Elasticsearch\Util\ConstantContainerTrait;
 
-/**
- * Class Metric
- *
- * @package Kununu\Elasticsearch\Query\Aggregation
- */
 final class Metric
 {
     use ConstantContainerTrait;
@@ -25,4 +20,5 @@ final class Metric
     public const STATS = 'stats'; // https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-stats-aggregation.html
     public const SUM = 'sum'; // https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-sum-aggregation.html
     public const VALUE_COUNT = 'value_count'; // https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-valuecount-aggregation.html
+    public const RANGE = 'range'; // https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-range-aggregation.html
 }

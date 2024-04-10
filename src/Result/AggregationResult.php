@@ -3,47 +3,17 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Result;
 
-/**
- * Class AggregationResult
- *
- * @package Kununu\Elasticsearch\Result
- */
 class AggregationResult implements AggregationResultInterface
 {
-    /**
-     * @var string
-     */
-    protected $name;
-
-    /**
-     * @var array
-     */
-    protected $fields = [];
-
-    /**
-     * @param string $name
-     * @param array  $rawResult
-     */
-    public function __construct(string $name, array $rawResult = [])
+    public function __construct(protected string $name, protected array $fields = [])
     {
-        $this->name = $name;
-        $this->fields = $rawResult;
     }
 
-    /**
-     * @param string $name
-     * @param array  $rawResult
-     *
-     * @return \Kununu\Elasticsearch\Result\AggregationResult
-     */
     public static function create(string $name, array $rawResult): AggregationResult
     {
         return new static($name, $rawResult);
     }
 
-    /**
-     * @return array
-     */
     public function toArray(): array
     {
         return [
@@ -51,36 +21,23 @@ class AggregationResult implements AggregationResultInterface
         ];
     }
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @return array
-     */
     public function getFields(): array
     {
         return $this->fields;
     }
 
-    /**
-     * @param string $field
-     *
-     * @return mixed|null
-     */
-    public function get(string $field)
+    public function get(string $field): mixed
     {
         return $this->fields[$field] ?? null;
     }
 
     /**
      * Shortcut for bucket aggregations to directly retrieve the buckets list.
-     *
-     * @return array|null
      */
     public function getBuckets(): ?array
     {
@@ -89,8 +46,6 @@ class AggregationResult implements AggregationResultInterface
 
     /**
      * Shortcut method for single-value numeric metrics aggregations to directly retrieve the value field.
-     *
-     * @return float|null
      */
     public function getValue(): ?float
     {

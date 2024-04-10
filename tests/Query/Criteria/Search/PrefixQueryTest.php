@@ -3,13 +3,10 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Tests\Query\Criteria\Search;
 
-use Kununu\Elasticsearch\Query\Criteria\Search\MatchPhrasePrefix;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
+use Kununu\Elasticsearch\Query\Criteria\Search\PrefixQuery;
+use PHPUnit\Framework\TestCase;
 
-/**
- * @group unit
- */
-class MatchPhrasePrefixTest extends MockeryTestCase
+final class PrefixQueryTest extends TestCase
 {
     protected const QUERY_STRING = 'what was i looking for?';
 
@@ -17,13 +14,13 @@ class MatchPhrasePrefixTest extends MockeryTestCase
     {
         $this->assertEquals(
             [
-                'match_phrase_prefix' => [
+                'prefix' => [
                     'field_a' => [
-                        'query' => self::QUERY_STRING,
+                        'value' => self::QUERY_STRING,
                     ],
                 ],
             ],
-            MatchPhrasePrefix::asArray(['field_a'], self::QUERY_STRING)
+            PrefixQuery::asArray(['field_a'], self::QUERY_STRING)
         );
     }
 
@@ -31,14 +28,14 @@ class MatchPhrasePrefixTest extends MockeryTestCase
     {
         $this->assertEquals(
             [
-                'match_phrase_prefix' => [
+                'prefix' => [
                     'field_a' => [
-                        'query' => self::QUERY_STRING,
+                        'value' => self::QUERY_STRING,
                         'boost' => 42,
                     ],
                 ],
             ],
-            MatchPhrasePrefix::asArray(['field_a'], self::QUERY_STRING, ['boost' => 42])
+            PrefixQuery::asArray(['field_a'], self::QUERY_STRING, ['boost' => 42])
         );
     }
 }

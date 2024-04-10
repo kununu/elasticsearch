@@ -3,24 +3,12 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Query\Criteria\Search;
 
-/**
- * Class Match
- *
- * @package Kununu\Elasticsearch\Query\Criteria\Search
- */
-class Match
+class MatchQuery
 {
     use MultiFieldTrait;
 
     public const KEYWORD = 'match';
 
-    /**
-     * @param array  $fields
-     * @param string $queryString
-     * @param array  $options
-     *
-     * @return array
-     */
     public static function asArray(array $fields, string $queryString, array $options = []): array
     {
         if (count($fields) > 1) {
@@ -29,7 +17,7 @@ class Match
                     $options,
                     [
                         'fields' => self::prepareFields($fields),
-                        'query' => $queryString,
+                        'query'  => $queryString,
                     ]
                 ),
             ];
