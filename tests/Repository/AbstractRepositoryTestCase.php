@@ -151,8 +151,8 @@ abstract class AbstractRepositoryTestCase extends TestCase
                                 '_index'  => self::INDEX['read'],
                                 '_score'  => 77,
                                 '_source' => [
-                                    'second'         => 'result',
-                                    'with_more_than' => 'one field',
+                                    'second'       => 'result',
+                                    'withMoreThan' => 'one field',
                                 ],
                             ],
                         ],
@@ -170,8 +170,8 @@ abstract class AbstractRepositoryTestCase extends TestCase
                         '_index'  => self::INDEX['read'],
                         '_score'  => 77,
                         '_source' => [
-                            'second'         => 'result',
-                            'with_more_than' => 'one field',
+                            'second'       => 'result',
+                            'withMoreThan' => 'one field',
                         ],
                     ],
                 ],
