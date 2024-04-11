@@ -8,14 +8,13 @@ use Exception;
 use Kununu\Elasticsearch\Exception\DeleteException;
 use Kununu\Elasticsearch\Exception\DocumentNotFoundException;
 use Kununu\Elasticsearch\Repository\Repository;
-use PHPUnit\Framework\TestCase;
 
 final class RepositoryDeleteTest extends AbstractRepositoryTestCase
 {
     public function testDelete(): void
     {
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('delete')
             ->with([
                 'index' => self::INDEX['write'],
@@ -23,7 +22,7 @@ final class RepositoryDeleteTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
         $this->getRepository()->delete(self::ID);
@@ -32,7 +31,7 @@ final class RepositoryDeleteTest extends AbstractRepositoryTestCase
     public function testDeleteWithForcedRefresh(): void
     {
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('delete')
             ->with([
                 'index'   => self::INDEX['write'],
@@ -41,7 +40,7 @@ final class RepositoryDeleteTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
         $this->getRepository(['force_refresh_on_write' => true])->delete(self::ID);
@@ -50,7 +49,7 @@ final class RepositoryDeleteTest extends AbstractRepositoryTestCase
     public function testDeleteFails(): void
     {
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('delete')
             ->with([
                 'index' => self::INDEX['write'],
@@ -65,16 +64,16 @@ final class RepositoryDeleteTest extends AbstractRepositoryTestCase
         try {
             $this->getRepository()->delete(self::ID);
         } catch (DeleteException $e) {
-            $this->assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
-            $this->assertEquals(0, $e->getCode());
-            $this->assertEquals(self::ID, $e->getDocumentId());
+            self::assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
+            self::assertEquals(0, $e->getCode());
+            self::assertEquals(self::ID, $e->getDocumentId());
         }
     }
 
     public function testDeleteFailsBecauseDocumentNotFound(): void
     {
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('delete')
             ->with([
                 'index' => self::INDEX['write'],
@@ -83,22 +82,22 @@ final class RepositoryDeleteTest extends AbstractRepositoryTestCase
             ->willThrowException(new Missing404Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
         try {
             $this->getRepository()->delete(self::ID);
         } catch (DocumentNotFoundException $e) {
-            $this->assertEquals(self::ERROR_PREFIX . 'No document found with id ' . self::ID, $e->getMessage());
-            $this->assertEquals(0, $e->getCode());
-            $this->assertEquals(self::ID, $e->getDocumentId());
+            self::assertEquals(self::ERROR_PREFIX . 'No document found with id ' . self::ID, $e->getMessage());
+            self::assertEquals(0, $e->getCode());
+            self::assertEquals(self::ID, $e->getDocumentId());
         }
     }
 
     public function testPostDeleteIsCalled(): void
     {
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('delete')
             ->with([
                 'index' => self::INDEX['write'],
@@ -106,13 +105,13 @@ final class RepositoryDeleteTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
         $manager = new class($this->clientMock, ['index_write' => self::INDEX['write']]) extends Repository {
             protected function postDelete(string $id): void
             {
-                TestCase::assertEquals(AbstractRepositoryTestCase::ID, $id);
+                AbstractRepositoryTestCase::assertEquals(AbstractRepositoryTestCase::ID, $id);
             }
         };
 

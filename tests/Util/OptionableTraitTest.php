@@ -11,15 +11,16 @@ final class OptionableTraitTest extends TestCase
 {
     public const OPTION_A = 'option_a';
     public const OPTION_B = 'option_b';
+
     protected const NOT_AN_OPTION = 'foobar';
 
     public function testGetNotSetOption(): void
     {
         $optionable = $this->getOptionableObject();
 
-        $this->assertNull($optionable->getOption(self::OPTION_A));
-        $this->assertNull($optionable->getOption(self::OPTION_B));
-        $this->assertEmpty($optionable->getOptions());
+        self::assertNull($optionable->getOption(self::OPTION_A));
+        self::assertNull($optionable->getOption(self::OPTION_B));
+        self::assertEmpty($optionable->getOptions());
     }
 
     public function testSetAndGet(): void
@@ -30,9 +31,9 @@ final class OptionableTraitTest extends TestCase
 
         $optionable->setOption(self::OPTION_A, $myOption);
 
-        $this->assertEquals($myOption, $optionable->getOption(self::OPTION_A));
-        $this->assertNull($optionable->getOption(self::OPTION_B));
-        $this->assertEquals([self::OPTION_A => $myOption], $optionable->getOptions());
+        self::assertEquals($myOption, $optionable->getOption(self::OPTION_A));
+        self::assertNull($optionable->getOption(self::OPTION_B));
+        self::assertEquals([self::OPTION_A => $myOption], $optionable->getOptions());
     }
 
     public function testSetNull(): void
@@ -41,9 +42,9 @@ final class OptionableTraitTest extends TestCase
 
         $optionable->setOption(self::OPTION_A, null);
 
-        $this->assertNull($optionable->getOption(self::OPTION_A));
-        $this->assertNull($optionable->getOption(self::OPTION_B));
-        $this->assertEmpty($optionable->getOptions());
+        self::assertNull($optionable->getOption(self::OPTION_A));
+        self::assertNull($optionable->getOption(self::OPTION_B));
+        self::assertEmpty($optionable->getOptions());
     }
 
     public function testGetUnknownOption(): void

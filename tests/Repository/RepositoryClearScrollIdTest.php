@@ -13,7 +13,7 @@ final class RepositoryClearScrollIdTest extends AbstractRepositoryTestCase
         $scrollId = 'foobar';
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('clearScroll')
             ->with([
                 'body' => [
@@ -22,7 +22,7 @@ final class RepositoryClearScrollIdTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
         $this->getRepository()->clearScrollId($scrollId);
@@ -33,7 +33,7 @@ final class RepositoryClearScrollIdTest extends AbstractRepositoryTestCase
         $scrollId = 'foobar';
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('clearScroll')
             ->with([
                 'body' => [
@@ -43,7 +43,7 @@ final class RepositoryClearScrollIdTest extends AbstractRepositoryTestCase
             ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('error')
             ->with(
                 self::ERROR_PREFIX . self::ERROR_MESSAGE
@@ -52,8 +52,8 @@ final class RepositoryClearScrollIdTest extends AbstractRepositoryTestCase
         try {
             $this->getRepository()->clearScrollId($scrollId);
         } catch (RepositoryException $e) {
-            $this->assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
-            $this->assertEquals(0, $e->getCode());
+            self::assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
+            self::assertEquals(0, $e->getCode());
         }
     }
 }

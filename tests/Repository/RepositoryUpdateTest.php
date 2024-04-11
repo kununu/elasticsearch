@@ -6,6 +6,7 @@ namespace Kununu\Elasticsearch\Tests\Repository;
 use Exception;
 use Kununu\Elasticsearch\Exception\RepositoryConfigurationException;
 use Kununu\Elasticsearch\Exception\UpdateException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use stdClass;
 use TypeError;
 
@@ -18,7 +19,7 @@ final class RepositoryUpdateTest extends AbstractRepositoryTestCase
         ];
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('update')
             ->with([
                 'index' => self::INDEX['write'],
@@ -29,7 +30,7 @@ final class RepositoryUpdateTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
         $this->getRepository()->update(self::ID, $document);
@@ -42,7 +43,7 @@ final class RepositoryUpdateTest extends AbstractRepositoryTestCase
         ];
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('update')
             ->with([
                 'index'   => self::INDEX['write'],
@@ -54,7 +55,7 @@ final class RepositoryUpdateTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
         $this->getRepository(['force_refresh_on_write' => true])->update(self::ID, $document);
@@ -67,7 +68,7 @@ final class RepositoryUpdateTest extends AbstractRepositoryTestCase
         $document->property_b = 'b';
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('update')
             ->with([
                 'index' => self::INDEX['write'],
@@ -81,7 +82,7 @@ final class RepositoryUpdateTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
         $this->getRepository(['entity_serializer' => new EntitySerializerStub()])->update(self::ID, $document);
@@ -89,12 +90,12 @@ final class RepositoryUpdateTest extends AbstractRepositoryTestCase
 
     public function testUpdateObjectWithEntityClass(): void
     {
-        $document = $this->getEntityClassInstance();
+        $document = new PersistableEntityStub();
         $document->property_a = 'a';
         $document->property_b = 'b';
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('update')
             ->with([
                 'index' => self::INDEX['write'],
@@ -108,10 +109,10 @@ final class RepositoryUpdateTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
-        $this->getRepository(['entity_class' => $this->getEntityClass()])->update(self::ID, $document);
+        $this->getRepository(['entity_class' => PersistableEntityStub::class])->update(self::ID, $document);
     }
 
     public function testUpdateObjectFailsWithoutEntitySerializerAndEntityClass(): void
@@ -122,7 +123,7 @@ final class RepositoryUpdateTest extends AbstractRepositoryTestCase
         $this->getRepository()->update(self::ID, new stdClass());
     }
 
-    /** @dataProvider invalidDataTypesForSaveAndUpsertDataProvider */
+    #[DataProvider('invalidDataTypesForSaveAndUpsertDataProvider')]
     public function testUpdateFailsWithInvalidDataType(mixed $entity): void
     {
         $this->expectException(TypeError::class);
@@ -137,7 +138,7 @@ final class RepositoryUpdateTest extends AbstractRepositoryTestCase
         ];
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('update')
             ->with([
                 'index' => self::INDEX['write'],
@@ -149,16 +150,17 @@ final class RepositoryUpdateTest extends AbstractRepositoryTestCase
             ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
+            ->expects(self::once())
             ->method('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
         try {
             $this->getRepository()->update(self::ID, $document);
         } catch (UpdateException $e) {
-            $this->assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
-            $this->assertEquals(0, $e->getCode());
-            $this->assertEquals(self::ID, $e->getDocumentId());
-            $this->assertEquals($document, $e->getDocument());
+            self::assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
+            self::assertEquals(0, $e->getCode());
+            self::assertEquals(self::ID, $e->getDocumentId());
+            self::assertEquals($document, $e->getDocument());
         }
     }
 }

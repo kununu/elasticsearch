@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- https://phpunit.readthedocs.io/en/9.6/ -->
+<!-- https://phpunit.readthedocs.io/en/10.5/ -->
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd" bootstrap="vendor/autoload.php"
-         colors="true" beStrictAboutChangesToGlobalState="true" testdox="true">
-  <coverage includeUncoveredFiles="true">
-    <include>
-      <directory>src</directory>
-    </include>
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd" bootstrap="vendor/autoload.php"
+         colors="true" beStrictAboutChangesToGlobalState="true" cacheDirectory=".phpunit.cache" testdox="true">
+  <coverage>
     <report>
       <clover outputFile="tests/.results/tests-clover.xml"/>
       <html outputDirectory="tests/.results/html/"/>
@@ -17,11 +14,16 @@
     <ini name="display_errors" value="true"/>
   </php>
   <testsuites>
-    <testsuite name="Elasticsearch Test Suite">
+    <testsuite name="Full">
       <directory>tests</directory>
     </testsuite>
   </testsuites>
   <logging>
     <junit outputFile="tests/.results/tests-junit.xml"/>
   </logging>
+  <source>
+    <include>
+      <directory>src</directory>
+    </include>
+  </source>
 </phpunit>

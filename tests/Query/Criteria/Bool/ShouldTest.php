@@ -10,6 +10,6 @@ final class ShouldTest extends TestCase
 {
     public function testOperator(): void
     {
-        $this->assertEquals('should', Should::OPERATOR);
+        self::assertEquals('should', Should::OPERATOR);
     }
 }

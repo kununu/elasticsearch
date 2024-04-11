@@ -8,11 +8,11 @@ use PHPUnit\Framework\TestCase;
 
 final class MatchPhraseQueryTest extends TestCase
 {
-    protected const QUERY_STRING = 'what was i looking for?';
+    private const QUERY_STRING = 'what was i looking for?';
 
     public function testSingleField(): void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'match_phrase' => [
                     'field_a' => [
@@ -26,7 +26,7 @@ final class MatchPhraseQueryTest extends TestCase
 
     public function testSingleFieldWithOptions(): void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'match_phrase' => [
                     'field_a' => [

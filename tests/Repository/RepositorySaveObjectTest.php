@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\Tests\Repository;
 
 use Kununu\Elasticsearch\Exception\RepositoryConfigurationException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use stdClass;
 use TypeError;
 
@@ -16,7 +17,7 @@ final class RepositorySaveObjectTest extends AbstractRepositoryTestCase
         $document->property_b = 'b';
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('index')
             ->with([
                 'index' => self::INDEX['write'],
@@ -28,7 +29,7 @@ final class RepositorySaveObjectTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
         $this->getRepository(['entity_serializer' => new EntitySerializerStub()])->save(self::ID, $document);
@@ -36,12 +37,12 @@ final class RepositorySaveObjectTest extends AbstractRepositoryTestCase
 
     public function testSaveObjectWithEntityClass(): void
     {
-        $document = $this->getEntityClassInstance();
+        $document = new PersistableEntityStub();
         $document->property_a = 'a';
         $document->property_b = 'b';
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('index')
             ->with([
                 'index' => self::INDEX['write'],
@@ -53,10 +54,10 @@ final class RepositorySaveObjectTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
-        $this->getRepository(['entity_class' => $this->getEntityClass()])->save(self::ID, $document);
+        $this->getRepository(['entity_class' => PersistableEntityStub::class])->save(self::ID, $document);
     }
 
     public function testSaveObjectFailsWithoutEntitySerializerAndEntityClass(): void
@@ -67,7 +68,7 @@ final class RepositorySaveObjectTest extends AbstractRepositoryTestCase
         $this->getRepository()->save(self::ID, new stdClass());
     }
 
-    /** @dataProvider invalidDataTypesForSaveAndUpsertDataProvider */
+    #[DataProvider('invalidDataTypesForSaveAndUpsertDataProvider')]
     public function testSaveFailsWithInvalidDataType(mixed $entity): void
     {
         $this->expectException(TypeError::class);

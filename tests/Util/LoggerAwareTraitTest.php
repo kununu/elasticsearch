@@ -19,24 +19,26 @@ final class LoggerAwareTraitTest extends TestCase
 
         $loggerAwareObject->setLogger($logger);
 
-        $this->assertEquals($logger, $loggerAwareObject->publiclyGetLogger());
+        self::assertEquals($logger, $loggerAwareObject->getLogger());
     }
 
     public function testGetNullLoggerAsDefault(): void
     {
         $loggerAwareObject = $this->getLoggerAwareObject();
 
-        $this->assertInstanceOf(NullLogger::class, $loggerAwareObject->publiclyGetLogger());
+        self::assertInstanceOf(NullLogger::class, $loggerAwareObject->getLogger());
     }
 
     public function getLoggerAwareObject(): LoggerAwareInterface
     {
         return new class() implements LoggerAwareInterface {
-            use LoggerAwareTrait;
+            use LoggerAwareTrait {
+                getLogger as traitGetLogger;
+            }
 
-            public function publiclyGetLogger()
+            public function getLogger(): LoggerInterface
             {
-                return $this->getLogger();
+                return $this->traitGetLogger();
             }
         };
     }

@@ -9,14 +9,15 @@ use Kununu\Elasticsearch\Query\Aggregation;
 use Kununu\Elasticsearch\Query\Criteria\Filter;
 use Kununu\Elasticsearch\Query\Query;
 use Kununu\Elasticsearch\Query\QueryInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 final class RepositoryAggregateByQueryTest extends AbstractRepositoryTestCase
 {
-    /** @dataProvider queryAndSearchResultDataProvider */
+    #[DataProvider('queryAndSearchResultDataProvider')]
     public function testAggregateByQuery(QueryInterface $query, array $esResult): void
     {
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('search')
             ->with([
                 'index' => self::INDEX['read'],
@@ -26,25 +27,25 @@ final class RepositoryAggregateByQueryTest extends AbstractRepositoryTestCase
 
         $aggregationResult = $this->getRepository()->aggregateByQuery($query);
 
-        $this->assertEquals(count($esResult['hits']['hits']), $aggregationResult->getDocuments()->getCount());
-        $this->assertEquals(self::DOCUMENT_COUNT, $aggregationResult->getDocuments()->getTotal());
-        $this->assertCount(count($esResult['hits']['hits']), $aggregationResult->getDocuments());
-        $this->assertNull($aggregationResult->getDocuments()->getScrollId());
-        $this->assertEquals($esResult['hits']['hits'], $aggregationResult->getDocuments()->asArray());
+        self::assertEquals(count($esResult['hits']['hits']), $aggregationResult->getDocuments()->getCount());
+        self::assertEquals(self::DOCUMENT_COUNT, $aggregationResult->getDocuments()->getTotal());
+        self::assertCount(count($esResult['hits']['hits']), $aggregationResult->getDocuments());
+        self::assertNull($aggregationResult->getDocuments()->getScrollId());
+        self::assertEquals($esResult['hits']['hits'], $aggregationResult->getDocuments()->asArray());
 
-        $this->assertCount(1, $aggregationResult->getResults());
-        $this->assertEquals('my_aggregation', $aggregationResult->getResultByName('my_aggregation')->getName());
-        $this->assertEquals(0.1, $aggregationResult->getResultByName('my_aggregation')->getValue());
+        self::assertCount(1, $aggregationResult->getResults());
+        self::assertEquals('my_aggregation', $aggregationResult->getResultByName('my_aggregation')->getName());
+        self::assertEquals(0.1, $aggregationResult->getResultByName('my_aggregation')->getValue());
     }
 
-    /** @dataProvider queryAndSearchResultWithEntitiesDataProvider */
+    #[DataProvider('queryAndSearchResultWithEntitiesDataProvider')]
     public function testAggregateByQueryWithEntityFactory(
         QueryInterface $query,
         array $esResult,
         mixed $endResult
     ): void {
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('search')
             ->with([
                 'index' => self::INDEX['read'],
@@ -53,34 +54,34 @@ final class RepositoryAggregateByQueryTest extends AbstractRepositoryTestCase
             ->willReturn(array_merge($esResult, ['aggregations' => ['my_aggregation' => ['value' => 0.1]]]));
 
         $aggregationResult = $this
-            ->getRepository(['entity_factory' => $this->getEntityFactory()])
+            ->getRepository(['entity_factory' => new EntityFactoryStub()])
             ->aggregateByQuery($query);
 
-        $this->assertEquals(count($esResult['hits']['hits']), $aggregationResult->getDocuments()->getCount());
-        $this->assertEquals(self::DOCUMENT_COUNT, $aggregationResult->getDocuments()->getTotal());
-        $this->assertCount(count($esResult['hits']['hits']), $aggregationResult->getDocuments());
-        $this->assertNull($aggregationResult->getDocuments()->getScrollId());
-        $this->assertEquals($endResult, $aggregationResult->getDocuments()->asArray());
+        self::assertEquals(count($esResult['hits']['hits']), $aggregationResult->getDocuments()->getCount());
+        self::assertEquals(self::DOCUMENT_COUNT, $aggregationResult->getDocuments()->getTotal());
+        self::assertCount(count($esResult['hits']['hits']), $aggregationResult->getDocuments());
+        self::assertNull($aggregationResult->getDocuments()->getScrollId());
+        self::assertEquals($endResult, $aggregationResult->getDocuments()->asArray());
 
         if (!empty($aggregationResult->getDocuments())) {
             foreach ($aggregationResult->getDocuments() as $entity) {
-                $this->assertEquals(['_index' => self::INDEX['read'], '_score' => 77], $entity->_meta);
+                self::assertEquals(['_index' => self::INDEX['read'], '_score' => 77], $entity->_meta);
             }
         }
 
-        $this->assertCount(1, $aggregationResult->getResults());
-        $this->assertEquals('my_aggregation', $aggregationResult->getResultByName('my_aggregation')->getName());
-        $this->assertEquals(0.1, $aggregationResult->getResultByName('my_aggregation')->getValue());
+        self::assertCount(1, $aggregationResult->getResults());
+        self::assertEquals('my_aggregation', $aggregationResult->getResultByName('my_aggregation')->getName());
+        self::assertEquals(0.1, $aggregationResult->getResultByName('my_aggregation')->getValue());
     }
 
-    /** @dataProvider queryAndSearchResultWithEntitiesDataProvider */
+    #[DataProvider('queryAndSearchResultWithEntitiesDataProvider')]
     public function testAggregateByQueryWithEntityClass(
         QueryInterface $query,
         array $esResult,
         mixed $endResult
     ): void {
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('search')
             ->with([
                 'index' => self::INDEX['read'],
@@ -89,24 +90,24 @@ final class RepositoryAggregateByQueryTest extends AbstractRepositoryTestCase
             ->willReturn(array_merge($esResult, ['aggregations' => ['my_aggregation' => ['value' => 0.1]]]));
 
         $aggregationResult = $this
-            ->getRepository(['entity_class' => $this->getEntityClass()])
+            ->getRepository(['entity_class' => PersistableEntityStub::class])
             ->aggregateByQuery($query);
 
-        $this->assertEquals(count($esResult['hits']['hits']), $aggregationResult->getDocuments()->getCount());
-        $this->assertEquals(self::DOCUMENT_COUNT, $aggregationResult->getDocuments()->getTotal());
-        $this->assertCount(count($esResult['hits']['hits']), $aggregationResult->getDocuments());
-        $this->assertNull($aggregationResult->getDocuments()->getScrollId());
-        $this->assertEquals($endResult, $aggregationResult->getDocuments()->asArray());
+        self::assertEquals(count($esResult['hits']['hits']), $aggregationResult->getDocuments()->getCount());
+        self::assertEquals(self::DOCUMENT_COUNT, $aggregationResult->getDocuments()->getTotal());
+        self::assertCount(count($esResult['hits']['hits']), $aggregationResult->getDocuments());
+        self::assertNull($aggregationResult->getDocuments()->getScrollId());
+        self::assertEquals($endResult, $aggregationResult->getDocuments()->asArray());
 
         if (!empty($aggregationResult->getDocuments())) {
             foreach ($aggregationResult->getDocuments() as $entity) {
-                $this->assertEquals(['_index' => self::INDEX['read'], '_score' => 77], $entity->_meta);
+                self::assertEquals(['_index' => self::INDEX['read'], '_score' => 77], $entity->_meta);
             }
         }
 
-        $this->assertCount(1, $aggregationResult->getResults());
-        $this->assertEquals('my_aggregation', $aggregationResult->getResultByName('my_aggregation')->getName());
-        $this->assertEquals(0.1, $aggregationResult->getResultByName('my_aggregation')->getValue());
+        self::assertCount(1, $aggregationResult->getResults());
+        self::assertEquals('my_aggregation', $aggregationResult->getResultByName('my_aggregation')->getName());
+        self::assertEquals(0.1, $aggregationResult->getResultByName('my_aggregation')->getValue());
     }
 
     public function testAggregateByQueryFails(): void
@@ -117,7 +118,7 @@ final class RepositoryAggregateByQueryTest extends AbstractRepositoryTestCase
         );
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('search')
             ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
@@ -128,9 +129,9 @@ final class RepositoryAggregateByQueryTest extends AbstractRepositoryTestCase
         try {
             $this->getRepository()->aggregateByQuery($query);
         } catch (ReadOperationException $e) {
-            $this->assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
-            $this->assertEquals(0, $e->getCode());
-            $this->assertNull($e->getQuery());
+            self::assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
+            self::assertEquals(0, $e->getCode());
+            self::assertNull($e->getQuery());
         }
     }
 }

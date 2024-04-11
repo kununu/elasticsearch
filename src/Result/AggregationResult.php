@@ -5,7 +5,7 @@ namespace Kununu\Elasticsearch\Result;
 
 class AggregationResult implements AggregationResultInterface
 {
-    public function __construct(protected string $name, protected array $fields = [])
+    public function __construct(protected readonly string $name, protected readonly array $fields = [])
     {
     }
 

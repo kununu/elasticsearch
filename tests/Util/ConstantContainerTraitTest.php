@@ -10,12 +10,12 @@ final class ConstantContainerTraitTest extends TestCase
 {
     public function testAll(): void
     {
-        $this->assertEquals(['first', 'second', 'third'], $this->getConstantContainer()->all());
+        self::assertEquals(['first', 'second', 'third'], $this->getConstantContainer()->all());
     }
 
     public function testAllPreserveKeys(): void
     {
-        $this->assertEquals(
+        self::assertEquals(
             ['FIRST' => 'first', 'SECOND' => 'second', 'THIRD' => 'third'],
             $this->getConstantContainer()->all(true)
         );
@@ -24,16 +24,18 @@ final class ConstantContainerTraitTest extends TestCase
     public function testHasConstantTrue(): void
     {
         $container = $this->getConstantContainer();
+
         foreach ($container->all() as $constant) {
-            $this->assertTrue($container->hasConstant($constant));
+            self::assertTrue($container->hasConstant($constant));
         }
     }
 
     public function testHasConstantFalse(): void
     {
         $container = $this->getConstantContainer();
-        $this->assertFalse($container->hasConstant(''));
-        $this->assertFalse($container->hasConstant('foo'));
+
+        self::assertFalse($container->hasConstant(''));
+        self::assertFalse($container->hasConstant('foo'));
     }
 
     private function getConstantContainer(): object

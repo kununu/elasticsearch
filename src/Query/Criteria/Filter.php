@@ -17,10 +17,10 @@ use LogicException;
 class Filter implements FilterInterface
 {
     public function __construct(
-        protected string $field,
-        protected mixed $value,
-        protected ?string $operator = null,
-        protected array $options = []
+        protected readonly string $field,
+        protected readonly mixed $value,
+        protected readonly ?string $operator = null,
+        protected readonly array $options = []
     ) {
         if ($operator !== null && !Operator::hasConstant($operator)) {
             throw new InvalidArgumentException('Unknown operator "' . $operator . '" given');

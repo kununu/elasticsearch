@@ -8,11 +8,11 @@ use PHPUnit\Framework\TestCase;
 
 final class PrefixQueryTest extends TestCase
 {
-    protected const QUERY_STRING = 'what was i looking for?';
+    private const QUERY_STRING = 'what was i looking for?';
 
     public function testSingleField(): void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'prefix' => [
                     'field_a' => [
@@ -26,7 +26,7 @@ final class PrefixQueryTest extends TestCase
 
     public function testSingleFieldWithOptions(): void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'prefix' => [
                     'field_a' => [

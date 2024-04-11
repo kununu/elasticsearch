@@ -15,7 +15,7 @@ final class RepositoryDeleteByQueryTest extends AbstractRepositoryTestCase
         $expectedResult = ['some_fake_es_response' => 'deletion was successful'];
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('deleteByQuery')
             ->with([
                 'index' => self::INDEX['write'],
@@ -40,7 +40,7 @@ final class RepositoryDeleteByQueryTest extends AbstractRepositoryTestCase
             ->willReturn($expectedResult);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
         $result = $this->getRepository()->deleteByQuery(
@@ -49,7 +49,7 @@ final class RepositoryDeleteByQueryTest extends AbstractRepositoryTestCase
             )
         );
 
-        $this->assertSame($expectedResult, $result);
+        self::assertSame($expectedResult, $result);
     }
 
     public function testDeleteByQueryWithForcedRefresh(): void
@@ -57,7 +57,7 @@ final class RepositoryDeleteByQueryTest extends AbstractRepositoryTestCase
         $expectedResult = ['some_fake_es_response' => 'deletion was successful'];
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('deleteByQuery')
             ->with([
                 'index'   => self::INDEX['write'],
@@ -83,7 +83,7 @@ final class RepositoryDeleteByQueryTest extends AbstractRepositoryTestCase
             ->willReturn($expectedResult);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
         $result = $this->getRepository(['force_refresh_on_write' => true])->deleteByQuery(
@@ -92,7 +92,7 @@ final class RepositoryDeleteByQueryTest extends AbstractRepositoryTestCase
             )
         );
 
-        $this->assertSame($expectedResult, $result);
+        self::assertSame($expectedResult, $result);
     }
 
     public function testDeleteByQueryWithProceedOnConflicts(): void
@@ -100,7 +100,7 @@ final class RepositoryDeleteByQueryTest extends AbstractRepositoryTestCase
         $expectedResult = ['some_fake_es_response' => 'deletion was successful'];
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('deleteByQuery')
             ->with([
                 'index'     => self::INDEX['write'],
@@ -126,7 +126,7 @@ final class RepositoryDeleteByQueryTest extends AbstractRepositoryTestCase
             ->willReturn($expectedResult);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
         $result = $this->getRepository()->deleteByQuery(
@@ -136,13 +136,13 @@ final class RepositoryDeleteByQueryTest extends AbstractRepositoryTestCase
             true
         );
 
-        $this->assertSame($expectedResult, $result);
+        self::assertSame($expectedResult, $result);
     }
 
     public function testDeleteByQueryFails(): void
     {
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('deleteByQuery')
             ->with([
                 'index' => self::INDEX['write'],
@@ -167,6 +167,7 @@ final class RepositoryDeleteByQueryTest extends AbstractRepositoryTestCase
             ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
+            ->expects(self::once())
             ->method('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
@@ -177,8 +178,8 @@ final class RepositoryDeleteByQueryTest extends AbstractRepositoryTestCase
                 )
             );
         } catch (WriteOperationException $e) {
-            $this->assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
-            $this->assertEquals(0, $e->getCode());
+            self::assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
+            self::assertEquals(0, $e->getCode());
         }
     }
 }

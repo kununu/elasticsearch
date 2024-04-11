@@ -10,6 +10,6 @@ final class MustNotTest extends TestCase
 {
     public function testOperator(): void
     {
-        $this->assertEquals('must_not', MustNot::OPERATOR);
+        self::assertEquals('must_not', MustNot::OPERATOR);
     }
 }

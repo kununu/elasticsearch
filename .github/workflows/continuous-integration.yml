@@ -1,81 +1,84 @@
 name: Continuous Integration
 
 on:
-    push:
-        branches:
-            - master
-            - 6.0
-            - 5.0
-            - 4.0
-            - 3.0
-            - 2.5
-    pull_request:
-        types: [ opened, synchronize, reopened ]
+  push:
+    branches:
+      - master
+      - '6.0'
+      - '5.0'
+      - '4.0'
+      - '3.0'
+      - '2.5'
+
+  pull_request:
+    types: [ opened, synchronize, reopened ]
 
 env:
-    fail-fast: true
+  fail-fast: true
 
 jobs:
-    build:
-        name: PHPUnit
-        runs-on: ubuntu-20.04
-        strategy:
-            matrix:
-                php-version:
-                    - 8.0
-                dependencies:
-                    - lowest
-                    - highest
+  build:
+    name: PHPUnit
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        php-version:
+          - 8.1
+          - 8.2
+          - 8.3
+        dependencies:
+          - lowest
+          - highest
 
-        steps:
-            -   name: Checkout
-                uses: actions/checkout@v2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-            -   name: Setup PHP
-                uses: shivammathur/setup-php@v2
-                with:
-                    php-version: ${{ matrix.php-version }}
-                    coverage: xdebug
-                    extensions: ${{ matrix.extensions }}
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          coverage: xdebug
+          extensions: ${{ matrix.extensions }}
 
-            -   name: Install Composer Dependencies
-                uses: ramsey/composer-install@v1
-                with:
-                    dependency-versions: ${{ matrix.dependencies }}
-                    composer-options: "--prefer-stable"
+      - name: Install Composer Dependencies
+        uses: ramsey/composer-install@v3
+        with:
+          dependency-versions: ${{ matrix.dependencies }}
+          composer-options: "--prefer-stable"
 
-            -   name: Run PHPUnit
-                run: vendor/bin/phpunit
+      - name: Run PHPUnit
+        run: vendor/bin/phpunit
 
-            -   name: Upload coverage files
-                uses: actions/upload-artifact@v2
-                with:
-                    name: ${{ github.job }}-${{ matrix.php-version }}-coverage
-                    path: tests/.results/
+      - name: Upload coverage files
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.job }}-${{ matrix.php-version }}-${{ matrix.dependencies }}-coverage
+          path: tests/.results/
 
-    sonarcloud:
-        needs: build
-        runs-on: ubuntu-latest
-        steps:
-            -   uses: actions/checkout@v2
-                with:
-                    # Disabling shallow clone is recommended for improving relevancy of reporting
-                    fetch-depth: 0
+  sonarcloud:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Disabling shallow clone is recommended for improving relevancy of reporting
+          fetch-depth: 0
 
-            -   uses: actions/download-artifact@v2
-                with:
-                    name: build-8-coverage
-                    path: tests/.results/
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-8.1-highest-coverage
+          path: tests/.results/
 
-            -   name: Fix Code Coverage Paths
-                working-directory: tests/.results/
-                run: |
-                    sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' tests-clover.xml
-                    sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' tests-junit.xml
+      - name: Fix Code Coverage Paths
+        working-directory: tests/.results/
+        run: |
+          sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' tests-clover.xml
+          sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' tests-junit.xml
 
-            -   name: SonarCloud Scan
-                uses: sonarsource/sonarcloud-github-action@master
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                    SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 

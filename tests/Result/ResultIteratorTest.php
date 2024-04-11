@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\Tests\Result;
 
 use Kununu\Elasticsearch\Result\ResultIterator;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -12,20 +13,21 @@ final class ResultIteratorTest extends TestCase
     public static function createDataProvider(): array
     {
         return [
-            'empty array'     => [
+            'empty_array'     => [
                 'input' => [],
             ],
-            'non-empty array' => [
+            'non_empty_array' => [
                 'input' => ['some' => 'thing', 'foo' => 'bar'],
             ],
         ];
     }
 
-    /** @dataProvider createDataProvider */
+    #[DataProvider('createDataProvider')]
     public function testCreate(array $input): void
     {
         $iterator = ResultIterator::create($input);
-        $this->assertEquals($input, $iterator->asArray());
+
+        self::assertEquals($input, $iterator->asArray());
     }
 
     public function testIterate(): void
@@ -38,9 +40,9 @@ final class ResultIteratorTest extends TestCase
             ['four'  => 4],
         ]);
 
-        $this->assertEquals(['zero' => 0], $iterator->current());
-        $this->assertEquals(0, $iterator->key());
-        $this->assertTrue($iterator->valid());
+        self::assertEquals(['zero' => 0], $iterator->current());
+        self::assertEquals(0, $iterator->key());
+        self::assertTrue($iterator->valid());
     }
 
     public function testArrayAccess(): void
@@ -55,89 +57,103 @@ final class ResultIteratorTest extends TestCase
         $initialCount = count($input);
         $iterator = new ResultIterator($input);
 
-        $this->assertCount($initialCount, $iterator);
-        $this->assertEquals($initialCount, $iterator->getCount());
-        $this->assertEquals($initialCount, $iterator->count());
+        self::assertCount($initialCount, $iterator);
+        self::assertEquals($initialCount, $iterator->getCount());
+        self::assertEquals($initialCount, $iterator->count());
 
-        for ($ii = 0; $ii < count($input); $ii++) {
-            $this->assertTrue($iterator->offsetExists($ii));
-            $this->assertEquals($input[$ii], $iterator->offsetGet($ii));
-            $this->assertEquals($input[$ii], $iterator[$ii]);
+        for ($ii = 0; $ii < count($input); ++$ii) {
+            self::assertTrue($iterator->offsetExists($ii));
+            self::assertEquals($input[$ii], $iterator->offsetGet($ii));
+            self::assertEquals($input[$ii], $iterator[$ii]);
         }
 
         foreach ($iterator as $ii => $element) {
-            $this->assertEquals($input[$ii], $element);
+            self::assertEquals($input[$ii], $element);
         }
 
         $iterator->offsetUnset(0);
-        $this->assertCount($initialCount - 1, $iterator);
-        $this->assertNull($iterator[0]);
+        self::assertCount($initialCount - 1, $iterator);
+        self::assertNull($iterator[0]);
 
         unset($iterator[1]);
-        $this->assertCount($initialCount - 2, $iterator);
-        $this->assertNull($iterator[1]);
+        self::assertCount($initialCount - 2, $iterator);
+        self::assertNull($iterator[1]);
 
         $iterator->offsetSet(2, ['two' => 2.2]);
-        $this->assertEquals(['two' => 2.2], $iterator[2]);
+        self::assertEquals(['two' => 2.2], $iterator[2]);
 
         $iterator[2] = ['two' => 2.3];
-        $this->assertEquals(['two' => 2.3], $iterator[2]);
+        self::assertEquals(['two' => 2.3], $iterator[2]);
 
         $iterator[6] = ['five' => 5];
-        $this->assertEquals(['five' => 5], $iterator[6]);
+        self::assertEquals(['five' => 5], $iterator[6]);
 
         $iterator[] = ['six' => 6];
-        $this->assertEquals(['six' => 6], $iterator[7]);
+        self::assertEquals(['six' => 6], $iterator[7]);
     }
 
     public function testTotal(): void
     {
         $iterator = ResultIterator::create();
-        $this->assertEquals(0, $iterator->getTotal());
+
+        self::assertEquals(0, $iterator->getTotal());
+
         $iterator->setTotal(100);
-        $this->assertEquals(100, $iterator->getTotal());
+
+        self::assertEquals(100, $iterator->getTotal());
 
         $iterator = ResultIterator::create(['some', 'thing']);
-        $this->assertEquals(0, $iterator->getTotal());
+
+        self::assertEquals(0, $iterator->getTotal());
+
         $iterator->setTotal(200);
-        $this->assertEquals(200, $iterator->getTotal());
+
+        self::assertEquals(200, $iterator->getTotal());
     }
 
     public function testScrollId(): void
     {
         $iterator = ResultIterator::create();
-        $this->assertNull($iterator->getScrollId());
+
+        self::assertNull($iterator->getScrollId());
+
         $iterator->setScrollId('my_scroll_id');
-        $this->assertEquals('my_scroll_id', $iterator->getScrollId());
+
+        self::assertEquals('my_scroll_id', $iterator->getScrollId());
 
         $iterator = ResultIterator::create(['some', 'thing']);
-        $this->assertEquals(0, $iterator->getTotal());
+
+        self::assertEquals(0, $iterator->getTotal());
+
         $iterator->setTotal(200);
-        $this->assertEquals(200, $iterator->getTotal());
+
+        self::assertEquals(200, $iterator->getTotal());
     }
 
     public function testPushArray(): void
     {
         $iterator = ResultIterator::create();
-        $this->assertEmpty($iterator->asArray());
-        $this->assertEquals(0, $iterator->getCount());
+
+        self::assertEmpty($iterator->asArray());
+        self::assertEquals(0, $iterator->getCount());
 
         $iterator->push(['some' => 'thing']);
 
-        $this->assertEquals([['some' => 'thing']], $iterator->asArray());
-        $this->assertEquals(1, $iterator->getCount());
+        self::assertEquals([['some' => 'thing']], $iterator->asArray());
+        self::assertEquals(1, $iterator->getCount());
     }
 
     public function testPushObject(): void
     {
         $iterator = ResultIterator::create();
-        $this->assertEmpty($iterator->asArray());
-        $this->assertEquals(0, $iterator->getCount());
+
+        self::assertEmpty($iterator->asArray());
+        self::assertEquals(0, $iterator->getCount());
 
         $iterator->push(new stdClass());
 
-        $this->assertEquals([new stdClass()], $iterator->asArray());
-        $this->assertEquals(1, $iterator->getCount());
+        self::assertEquals([new stdClass()], $iterator->asArray());
+        self::assertEquals(1, $iterator->getCount());
     }
 
     public function testFirstMatch(): void
@@ -151,7 +167,7 @@ final class ResultIteratorTest extends TestCase
             fn($element): bool => $element['foo'] === 'bar'
         );
 
-        $this->assertEquals(['foo' => 'bar', 'num' => 0], $firstFooBar);
+        self::assertEquals(['foo' => 'bar', 'num' => 0], $firstFooBar);
     }
 
     public function testFirstNoMatch(): void
@@ -165,7 +181,7 @@ final class ResultIteratorTest extends TestCase
             fn($element): bool => isset($element['bar']) && $element['bar'] === 'foo'
         );
 
-        $this->assertNull($firstBarFoo);
+        self::assertNull($firstBarFoo);
     }
 
     public function testFilter(): void
@@ -180,7 +196,7 @@ final class ResultIteratorTest extends TestCase
             fn($element) => isset($element['foo']) && $element['foo'] === 'bar'
         );
 
-        $this->assertEquals([['foo' => 'bar'], ['foo' => 'bar']], $allFooBars);
+        self::assertEquals([['foo' => 'bar'], ['foo' => 'bar']], $allFooBars);
     }
 
     public function testSome(): void
@@ -194,13 +210,13 @@ final class ResultIteratorTest extends TestCase
             fn($element) => isset($element['foo']) && $element['foo'] === 'bar'
         );
 
-        $this->assertTrue($thereAreFooBars);
+        self::assertTrue($thereAreFooBars);
 
         $thereAreBarFoos = $iterator->some(
             fn($element): bool => isset($element['bar']) && $element['bar'] === 'foo'
         );
 
-        $this->assertFalse($thereAreBarFoos);
+        self::assertFalse($thereAreBarFoos);
     }
 
     public function testEveryTrue(): void
@@ -214,7 +230,7 @@ final class ResultIteratorTest extends TestCase
             fn($element): bool => isset($element['foo']) && $element['foo'] === 'bar'
         );
 
-        $this->assertTrue($thereAreOnlyFooBars);
+        self::assertTrue($thereAreOnlyFooBars);
     }
 
     public function testEveryFalse(): void
@@ -228,37 +244,38 @@ final class ResultIteratorTest extends TestCase
             fn($element): bool => isset($element['bar']) && $element['bar'] === 'foo'
         );
 
-        $this->assertFalse($thereAreOnlyBarFoos);
+        self::assertFalse($thereAreOnlyBarFoos);
     }
 
     public function testEach(): void
     {
-        $mockBuilder = $this->getMockBuilder(stdClass::class)->addMethods(['someMethod']);
-        $mocks = [
-            $mockBuilder->getMock(),
-            $mockBuilder->getMock(),
-            $mockBuilder->getMock(),
-        ];
+        $calls = 0;
+        $stubs = [];
+        for ($i = 0; $i < 3; ++$i) {
+            $stubs[$i] = new class() {
+                public int $call = 0;
 
-        foreach ($mocks as $mock) {
-            $mock
-                ->expects($this->once())
-                ->method('someMethod');
+                public function someMethod(int $call): void
+                {
+                    $this->call = $call;
+                }
+            };
         }
 
-        $calls = 0;
-
-        $iterator = ResultIterator::create($mocks);
+        $iterator = ResultIterator::create($stubs);
 
         $iterator->each(
             function($element) use (&$calls): void {
-                $calls++;
+                ++$calls;
 
-                $element->someMethod();
+                $element->someMethod($calls);
             }
         );
 
-        $this->assertEquals(count($mocks), $calls);
+        self::assertEquals(count($stubs), $calls);
+        foreach ($stubs as $i => $stub) {
+            self::assertEquals($i + 1, $stub->call);
+        }
     }
 
     public function testMap(): void
@@ -273,7 +290,7 @@ final class ResultIteratorTest extends TestCase
             fn($element): array => array_flip($element)
         );
 
-        $this->assertEquals([['bar' => 'foo'], ['bar' => 'foo'], ['foo' => 'bar']], $flipped);
+        self::assertEquals([['bar' => 'foo'], ['bar' => 'foo'], ['foo' => 'bar']], $flipped);
     }
 
     public function testReduce(): void
@@ -289,6 +306,6 @@ final class ResultIteratorTest extends TestCase
             0
         );
 
-        $this->assertEquals(2, $numberOfFooBars);
+        self::assertEquals(2, $numberOfFooBars);
     }
 }

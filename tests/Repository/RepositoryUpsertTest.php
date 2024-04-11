@@ -6,6 +6,7 @@ namespace Kununu\Elasticsearch\Tests\Repository;
 use Exception;
 use Kununu\Elasticsearch\Exception\RepositoryConfigurationException;
 use Kununu\Elasticsearch\Exception\UpsertException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use stdClass;
 use TypeError;
 
@@ -18,7 +19,7 @@ final class RepositoryUpsertTest extends AbstractRepositoryTestCase
         ];
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('update')
             ->with([
                 'index' => self::INDEX['write'],
@@ -30,7 +31,7 @@ final class RepositoryUpsertTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
         $this->getRepository()->upsert(self::ID, $document);
@@ -43,7 +44,7 @@ final class RepositoryUpsertTest extends AbstractRepositoryTestCase
         ];
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('update')
             ->with([
                 'index'   => self::INDEX['write'],
@@ -56,7 +57,7 @@ final class RepositoryUpsertTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
         $this->getRepository(['force_refresh_on_write' => true])->upsert(self::ID, $document);
@@ -69,7 +70,7 @@ final class RepositoryUpsertTest extends AbstractRepositoryTestCase
         $document->property_b = 'b';
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('update')
             ->with([
                 'index' => self::INDEX['write'],
@@ -84,7 +85,7 @@ final class RepositoryUpsertTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
         $this->getRepository(['entity_serializer' => new EntitySerializerStub()])->upsert(self::ID, $document);
@@ -92,12 +93,12 @@ final class RepositoryUpsertTest extends AbstractRepositoryTestCase
 
     public function testUpsertObjectWithEntityClass(): void
     {
-        $document = $this->getEntityClassInstance();
+        $document = new PersistableEntityStub();
         $document->property_a = 'a';
         $document->property_b = 'b';
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('update')
             ->with([
                 'index' => self::INDEX['write'],
@@ -112,10 +113,10 @@ final class RepositoryUpsertTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
-        $this->getRepository(['entity_class' => $this->getEntityClass()])->upsert(self::ID, $document);
+        $this->getRepository(['entity_class' => PersistableEntityStub::class])->upsert(self::ID, $document);
     }
 
     public function testUpsertObjectFailsWithoutEntitySerializerAndEntityClass(): void
@@ -126,7 +127,7 @@ final class RepositoryUpsertTest extends AbstractRepositoryTestCase
         $this->getRepository()->upsert(self::ID, new stdClass());
     }
 
-    /** @dataProvider invalidDataTypesForSaveAndUpsertDataProvider */
+    #[DataProvider('invalidDataTypesForSaveAndUpsertDataProvider')]
     public function testUpsertFailsWithInvalidDataType(mixed $entity): void
     {
         $this->expectException(TypeError::class);
@@ -141,7 +142,7 @@ final class RepositoryUpsertTest extends AbstractRepositoryTestCase
         ];
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('update')
             ->with([
                 'index' => self::INDEX['write'],
@@ -154,16 +155,17 @@ final class RepositoryUpsertTest extends AbstractRepositoryTestCase
             ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
+            ->expects(self::once())
             ->method('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
         try {
             $this->getRepository()->upsert(self::ID, $document);
         } catch (UpsertException $e) {
-            $this->assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
-            $this->assertEquals(0, $e->getCode());
-            $this->assertEquals(self::ID, $e->getDocumentId());
-            $this->assertEquals($document, $e->getDocument());
+            self::assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
+            self::assertEquals(0, $e->getCode());
+            self::assertEquals(self::ID, $e->getDocumentId());
+            self::assertEquals($document, $e->getDocument());
         }
     }
 }

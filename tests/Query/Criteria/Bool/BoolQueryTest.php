@@ -7,6 +7,7 @@ use Kununu\Elasticsearch\Query\Criteria\Bool\AbstractBoolQuery;
 use Kununu\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface;
 use Kununu\Elasticsearch\Query\Criteria\Filter;
 use LogicException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class BoolQueryTest extends TestCase
@@ -26,10 +27,10 @@ final class BoolQueryTest extends TestCase
         $myBoolFilter->getOperator();
     }
 
-    /** @dataProvider createDataProvider */
+    #[DataProvider('createDataProvider')]
     public function testCreate(array $input): void
     {
-        $this->assertEquals($input, $this->getConcreteBoolQuery($input)->getChildren());
+        self::assertEquals($input, $this->getConcreteBoolQuery($input)->getChildren());
     }
 
     public static function createDataProvider(): array
@@ -38,10 +39,10 @@ final class BoolQueryTest extends TestCase
             'empty'                   => [
                 'input' => [],
             ],
-            'with a filter'           => [
+            'with_a_filter'           => [
                 'input' => [Filter::create('field', 'value')],
             ],
-            'with two filters search' => [
+            'with_two_filters_search' => [
                 'input' => [
                     Filter::create('field', 'value'),
                     Filter::create('another_field', 'another_value'),
@@ -50,32 +51,32 @@ final class BoolQueryTest extends TestCase
         ];
     }
 
-    /** @dataProvider createDataProvider */
+    #[DataProvider('createDataProvider')]
     public function testAdd(array $input): void
     {
         $boolQuery = $this->getConcreteBoolQuery([]);
 
-        $this->assertEquals([], $boolQuery->getChildren());
+        self::assertEquals([], $boolQuery->getChildren());
 
         foreach ($input as $child) {
             $boolQuery->add($child);
         }
 
-        $this->assertEquals($input, $boolQuery->getChildren());
+        self::assertEquals($input, $boolQuery->getChildren());
     }
 
-    /** @dataProvider createDataProvider */
+    #[DataProvider('createDataProvider')]
     public function testToArray(array $input): void
     {
         $boolQuery = $this->getConcreteBoolQuery($input);
 
-        $this->assertEquals($input, $boolQuery->getChildren());
+        self::assertEquals($input, $boolQuery->getChildren());
 
         $serialized = $boolQuery->toArray();
 
-        $this->assertArrayHasKey('bool', $serialized);
-        $this->assertArrayHasKey('my_operator', $serialized['bool']);
-        $this->assertCount(count($input), $serialized['bool']['my_operator']);
+        self::assertArrayHasKey('bool', $serialized);
+        self::assertArrayHasKey('my_operator', $serialized['bool']);
+        self::assertCount(count($input), $serialized['bool']['my_operator']);
     }
 
     private function getConcreteBoolQuery(array $input): BoolQueryInterface

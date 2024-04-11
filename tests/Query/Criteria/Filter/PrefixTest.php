@@ -10,7 +10,7 @@ final class PrefixTest extends TestCase
 {
     public function testWithoutOptions(): void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'prefix' => [
                     'field_a' => 'foo',
@@ -22,7 +22,7 @@ final class PrefixTest extends TestCase
 
     public function testWithOptions(): void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'prefix' => [
                     'field_a' => 'foo',

@@ -8,12 +8,12 @@ use PHPUnit\Framework\TestCase;
 
 final class TermQueryTest extends TestCase
 {
-    protected const TERM = 'what was i looking for?';
-    protected const FIELD = 'field_a';
+    private const TERM = 'what was i looking for?';
+    private const FIELD = 'field_a';
 
     public function testSingleField(): void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'term' => [
                     self::FIELD => [
@@ -27,7 +27,7 @@ final class TermQueryTest extends TestCase
 
     public function testSingleFieldWithOptions(): void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'term' => [
                     self::FIELD => [

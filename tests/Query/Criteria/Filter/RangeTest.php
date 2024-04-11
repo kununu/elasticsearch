@@ -11,7 +11,7 @@ final class RangeTest extends TestCase
 {
     public function testOneElementWithoutOptions(): void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'range' => [
                     'field_a' => [
@@ -25,7 +25,7 @@ final class RangeTest extends TestCase
 
     public function testMultipleElementsWithoutOptions(): void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'range' => [
                     'field_a' => [
@@ -40,7 +40,7 @@ final class RangeTest extends TestCase
 
     public function testOneElementWithOptions(): void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'range' => [
                     'field_a' => [
@@ -55,7 +55,7 @@ final class RangeTest extends TestCase
 
     public function testMultipleElementsWithOptions(): void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'range' => [
                     'field_a' => [

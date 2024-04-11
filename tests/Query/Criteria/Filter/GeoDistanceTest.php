@@ -10,11 +10,11 @@ use PHPUnit\Framework\TestCase;
 
 final class GeoDistanceTest extends TestCase
 {
-    protected GeoDistanceInterface|MockObject $geoDistance;
+    protected MockObject&GeoDistanceInterface $geoDistance;
 
     public function testWithoutOptions(): void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'geo_distance' => [
                     'distance' => '42km',
@@ -27,7 +27,7 @@ final class GeoDistanceTest extends TestCase
 
     public function testWithOptions(): void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'geo_distance' => [
                     'distance'      => '42km',
@@ -44,12 +44,12 @@ final class GeoDistanceTest extends TestCase
         $this->geoDistance = $this->createMock(GeoDistanceInterface::class);
 
         $this->geoDistance
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('getDistance')
             ->willReturn('42km');
 
         $this->geoDistance
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('getLocation')
             ->willReturn([0, 0]);
     }

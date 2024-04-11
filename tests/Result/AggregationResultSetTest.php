@@ -6,6 +6,7 @@ namespace Kununu\Elasticsearch\Tests\Result;
 use Kununu\Elasticsearch\Result\AggregationResult;
 use Kununu\Elasticsearch\Result\AggregationResultSet;
 use Kununu\Elasticsearch\Result\ResultIterator;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class AggregationResultSetTest extends TestCase
@@ -13,12 +14,12 @@ final class AggregationResultSetTest extends TestCase
     public static function createDataProvider(): array
     {
         return [
-            'empty result' => [
+            'empty_result'     => [
                 'rawResult' => [],
             ],
-            'non-empty result' => [
+            'non_empty_result' => [
                 'rawResult' => [
-                    'my_first_agg' => [
+                    'my_first_agg'  => [
                         'value' => 0.1,
                     ],
                     'my_second_agg' => [
@@ -30,15 +31,16 @@ final class AggregationResultSetTest extends TestCase
         ];
     }
 
-    /** @dataProvider createDataProvider */
+    #[DataProvider('createDataProvider')]
     public function testCreate(array $rawResult): void
     {
         $result = AggregationResultSet::create($rawResult);
-        $this->assertCount(count($rawResult), $result->getResults());
+
+        self::assertCount(count($rawResult), $result->getResults());
         foreach ($result->getResults() as $singleResultName => $singleResult) {
-            $this->assertInstanceOf(AggregationResult::class, $singleResult);
-            $this->assertEquals($singleResultName, $singleResult->getName());
-            $this->assertEquals($rawResult[$singleResultName], $singleResult->getFields());
+            self::assertInstanceOf(AggregationResult::class, $singleResult);
+            self::assertEquals($singleResultName, $singleResult->getName());
+            self::assertEquals($rawResult[$singleResultName], $singleResult->getFields());
         }
     }
 
@@ -46,24 +48,24 @@ final class AggregationResultSetTest extends TestCase
     {
         $result = AggregationResultSet::create();
 
-        $this->assertNull($result->getDocuments());
+        self::assertNull($result->getDocuments());
 
         $documentIterator = ResultIterator::create();
 
         $result->setDocuments($documentIterator);
 
-        $this->assertEquals($documentIterator, $result->getDocuments());
+        self::assertEquals($documentIterator, $result->getDocuments());
     }
 
-    /** @dataProvider createDataProvider */
+    #[DataProvider('createDataProvider')]
     public function testGetResultByName(array $rawResult): void
     {
         $result = AggregationResultSet::create($rawResult);
 
         foreach ($result->getResults() as $singleResultName => $singleResult) {
-            $this->assertEquals($singleResult, $result->getResultByName($singleResultName));
+            self::assertEquals($singleResult, $result->getResultByName($singleResultName));
         }
 
-        $this->assertNull($result->getResultByName('this_aggregation_does_not_exist'));
+        self::assertNull($result->getResultByName('this_aggregation_does_not_exist'));
     }
 }
