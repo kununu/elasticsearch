@@ -4,10 +4,11 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\Tests\Repository;
 
 use Kununu\Elasticsearch\Query\Query;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 final class RepositoryFindScrollableByQueryTest extends AbstractRepositoryTestCase
 {
-    /** @dataProvider searchResultDataProvider */
+    #[DataProvider('searchResultDataProvider')]
     public function testFindScrollableByQueryCanOverrideScrollContextKeepalive(array $esResult, mixed $endResult): void
     {
         $query = Query::create();
@@ -20,13 +21,13 @@ final class RepositoryFindScrollableByQueryTest extends AbstractRepositoryTestCa
         ];
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('search')
             ->with($rawParams)
             ->willReturn($esResult);
 
         $result = $this->getRepository()->findScrollableByQuery($query, $keepalive);
 
-        $this->assertEquals($endResult, $result->asArray());
+        self::assertEquals($endResult, $result->asArray());
     }
 }

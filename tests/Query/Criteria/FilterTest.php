@@ -8,6 +8,7 @@ use Kununu\Elasticsearch\Query\Criteria\Filter;
 use Kununu\Elasticsearch\Query\Criteria\GeoDistanceInterface;
 use Kununu\Elasticsearch\Query\Criteria\GeoShapeInterface;
 use Kununu\Elasticsearch\Query\Criteria\Operator;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class FilterTest extends TestCase
@@ -20,15 +21,15 @@ final class FilterTest extends TestCase
         Filter::create('my_field', 'foo', 'bar');
     }
 
-    /** @dataProvider createDataProvider */
+    #[DataProvider('createDataProvider')]
     public function testCreate(string $operator, mixed $value): void
     {
         $serialized = Filter::create('my_field', $value, $operator)->toArray();
 
-        $this->assertNotEmpty($serialized);
+        self::assertNotEmpty($serialized);
     }
 
-    public function createDataProvider(): array
+    public static function createDataProvider(): array
     {
         $ret = [];
 
@@ -54,8 +55,8 @@ final class FilterTest extends TestCase
     {
         $serialized = Filter::create('my_field', 'value')->toArray();
 
-        $this->assertNotEmpty($serialized);
-        $this->assertArrayHasKey('term', $serialized);
+        self::assertNotEmpty($serialized);
+        self::assertArrayHasKey('term', $serialized);
     }
 
     public function testCreateGeoShape(): void
@@ -63,14 +64,14 @@ final class FilterTest extends TestCase
         $geoShape = $this->createMock(GeoShapeInterface::class);
 
         $geoShape
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('toArray')
             ->willReturn([]);
 
         $serialized = Filter::create('my_field', $geoShape, Operator::GEO_SHAPE)->toArray();
 
-        $this->assertNotEmpty($serialized);
-        $this->assertArrayHasKey('geo_shape', $serialized);
+        self::assertNotEmpty($serialized);
+        self::assertArrayHasKey('geo_shape', $serialized);
     }
 
     public function testCreateGeoDistance(): void
@@ -78,18 +79,18 @@ final class FilterTest extends TestCase
         $geoDistance = $this->createMock(GeoDistanceInterface::class);
 
         $geoDistance
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('getDistance')
             ->willReturn('42km');
 
         $geoDistance
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('getLocation')
             ->willReturn([0, 0]);
 
         $serialized = Filter::create('my_field', $geoDistance, Operator::GEO_DISTANCE)->toArray();
 
-        $this->assertNotEmpty($serialized);
-        $this->assertArrayHasKey('geo_distance', $serialized);
+        self::assertNotEmpty($serialized);
+        self::assertArrayHasKey('geo_distance', $serialized);
     }
 }

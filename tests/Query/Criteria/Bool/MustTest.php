@@ -10,6 +10,6 @@ final class MustTest extends TestCase
 {
     public function testOperator(): void
     {
-        $this->assertEquals('must', Must::OPERATOR);
+        self::assertEquals('must', Must::OPERATOR);
     }
 }

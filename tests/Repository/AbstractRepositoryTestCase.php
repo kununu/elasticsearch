@@ -7,8 +7,6 @@ use Elasticsearch\Client;
 use Kununu\Elasticsearch\Query\Criteria\Filter;
 use Kununu\Elasticsearch\Query\Query;
 use Kununu\Elasticsearch\Query\RawQuery;
-use Kununu\Elasticsearch\Repository\EntityFactoryInterface;
-use Kununu\Elasticsearch\Repository\PersistableEntityInterface;
 use Kununu\Elasticsearch\Repository\Repository;
 use Kununu\Elasticsearch\Repository\RepositoryInterface;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -29,19 +27,19 @@ abstract class AbstractRepositoryTestCase extends TestCase
     protected const DOCUMENT_COUNT = 42;
     protected const SCROLL_ID = 'DnF1ZXJ5VGhlbkZldGNoBQAAAAAAAAFbFkJVNEdjZWVjU';
 
-    protected Client|MockObject $clientMock;
-    protected LoggerInterface|MockObject $loggerMock;
+    protected MockObject&Client $clientMock;
+    protected MockObject&LoggerInterface $loggerMock;
 
     public static function invalidDataTypesForSaveAndUpsertDataProvider(): array
     {
         return [
-            [7],
-            [7.7],
-            [''],
-            ['string'],
-            [true],
-            [false],
-            [null],
+            'integer'      => [7],
+            'float'        => [7.7],
+            'empty_string' => [''],
+            'string'       => ['string'],
+            'true'         => [true],
+            'false'        => [false],
+            'null'         => [null],
         ];
     }
 
@@ -76,18 +74,18 @@ abstract class AbstractRepositoryTestCase extends TestCase
     public static function queriesDataProvider(): array
     {
         return [
-            'empty kununu query'     => [
+            'empty_kununu_query'     => [
                 'query' => Query::create(),
             ],
-            'some kununu term query' => [
+            'some_kununu_term_query' => [
                 'query' => Query::create(
                     Filter::create('foo', 'bar')
                 ),
             ],
-            'empty raw query'        => [
+            'empty_raw_query'        => [
                 'query' => RawQuery::create(),
             ],
-            'some raw term query'    => [
+            'some_raw_term_query'    => [
                 'query' => RawQuery::create(['query' => ['bool' => ['must' => [['term' => ['foo' => 'bar']]]]]]),
             ],
         ];
@@ -96,7 +94,7 @@ abstract class AbstractRepositoryTestCase extends TestCase
     public static function searchResultDataProvider(): array
     {
         return [
-            'no results'  => [
+            'no_results'  => [
                 'es_result'  => [
                     'hits' => [
                         'total' => [
@@ -108,7 +106,7 @@ abstract class AbstractRepositoryTestCase extends TestCase
                 ],
                 'end_result' => [],
             ],
-            'one result'  => [
+            'one_result'  => [
                 'es_result'  => [
                     'hits' => [
                         'total' => [
@@ -135,7 +133,7 @@ abstract class AbstractRepositoryTestCase extends TestCase
                     ],
                 ],
             ],
-            'two results' => [
+            'two_results' => [
                 'es_result'  => [
                     'hits' => [
                         'total' => [
@@ -187,7 +185,7 @@ abstract class AbstractRepositoryTestCase extends TestCase
         foreach (self::searchResultDataProvider() as $caseName => $case) {
             foreach ([true, false] as $scroll) {
                 $newCase = $case;
-                $fullCaseName = $caseName . '; scroll: ' . ($scroll ? 'true' : 'false');
+                $fullCaseName = sprintf('%s_with_scroll_%s', $caseName, json_encode($scroll));
                 if ($scroll) {
                     $newCase['es_result']['_scroll_id'] = self::SCROLL_ID;
                 }
@@ -204,21 +202,6 @@ abstract class AbstractRepositoryTestCase extends TestCase
     {
         $this->clientMock = $this->createMock(Client::class);
         $this->loggerMock = $this->createMock(LoggerInterface::class);
-    }
-
-    protected function getEntityClassInstance(): PersistableEntityInterface
-    {
-        return new PersistableEntityStub();
-    }
-
-    protected function getEntityClass(): string
-    {
-        return PersistableEntityStub::class;
-    }
-
-    protected function getEntityFactory(): EntityFactoryInterface
-    {
-        return new EntityFactoryStub();
     }
 
     protected function getRepository(array $additionalConfig = []): RepositoryInterface
@@ -244,7 +227,10 @@ abstract class AbstractRepositoryTestCase extends TestCase
         $allVariations = [];
         foreach ($queryVariations as $queryName => $queryVariation) {
             foreach ($resultsVariations as $resultsName => $resultsVariation) {
-                $allVariations[$queryName . ', ' . $resultsName] = array_merge($queryVariation, $resultsVariation);
+                $allVariations[sprintf('%s_%s', $queryName, $resultsName)] = array_merge(
+                    $queryVariation,
+                    $resultsVariation
+                );
             }
         }
 

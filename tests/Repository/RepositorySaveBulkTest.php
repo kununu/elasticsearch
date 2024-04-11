@@ -7,7 +7,7 @@ use Exception;
 use Kununu\Elasticsearch\Exception\BulkException;
 use Kununu\Elasticsearch\Exception\RepositoryConfigurationException;
 use Kununu\Elasticsearch\Repository\Repository;
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use stdClass;
 use TypeError;
 
@@ -23,7 +23,7 @@ final class RepositorySaveBulkTest extends AbstractRepositoryTestCase
         ];
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('bulk')
             ->with([
                 'index' => self::INDEX['write'],
@@ -40,7 +40,7 @@ final class RepositorySaveBulkTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
         $this->getRepository()->saveBulk($documents);
@@ -56,7 +56,7 @@ final class RepositorySaveBulkTest extends AbstractRepositoryTestCase
         ];
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('bulk')
             ->with([
                 'index'   => self::INDEX['write'],
@@ -74,7 +74,7 @@ final class RepositorySaveBulkTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
         $this->getRepository(['force_refresh_on_write' => true])->saveBulk($documents);
@@ -83,7 +83,7 @@ final class RepositorySaveBulkTest extends AbstractRepositoryTestCase
     public function testSaveBulkObjectsWithEntitySerializer(): void
     {
         $documents = [];
-        for ($ii = 0; $ii < 3; $ii++) {
+        for ($ii = 0; $ii < 3; ++$ii) {
             $document = new stdClass();
             $document->property_a = 'a' . $ii;
             $document->property_b = 'b' . $ii;
@@ -91,7 +91,7 @@ final class RepositorySaveBulkTest extends AbstractRepositoryTestCase
         }
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('bulk')
             ->with([
                 'index' => self::INDEX['write'],
@@ -106,7 +106,7 @@ final class RepositorySaveBulkTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
         $this->getRepository(['entity_serializer' => new EntitySerializerStub()])->saveBulk($documents);
@@ -115,15 +115,15 @@ final class RepositorySaveBulkTest extends AbstractRepositoryTestCase
     public function testSaveBulkObjectsWithEntityClass(): void
     {
         $documents = [];
-        for ($ii = 0; $ii < 3; $ii++) {
-            $document = $this->getEntityClassInstance();
+        for ($ii = 0; $ii < 3; ++$ii) {
+            $document = new PersistableEntityStub();
             $document->property_a = 'a' . $ii;
             $document->property_b = 'b' . $ii;
             $documents['doc_' . $ii] = $document;
         }
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('bulk')
             ->with([
                 'index' => self::INDEX['write'],
@@ -138,11 +138,11 @@ final class RepositorySaveBulkTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
         $this
-            ->getRepository(['entity_class' => $this->getEntityClass()])
+            ->getRepository(['entity_class' => PersistableEntityStub::class])
             ->saveBulk($documents);
     }
 
@@ -154,7 +154,7 @@ final class RepositorySaveBulkTest extends AbstractRepositoryTestCase
         $this->getRepository()->saveBulk([self::ID => new stdClass()]);
     }
 
-    /** @dataProvider invalidDataTypesForSaveAndUpsertDataProvider */
+    #[DataProvider('invalidDataTypesForSaveAndUpsertDataProvider')]
     public function testSaveBulkFailsWithInvalidDataType(mixed $entity): void
     {
         $this->expectException(TypeError::class);
@@ -176,7 +176,7 @@ final class RepositorySaveBulkTest extends AbstractRepositoryTestCase
         ];
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('bulk')
             ->with(
                 [
@@ -187,16 +187,16 @@ final class RepositorySaveBulkTest extends AbstractRepositoryTestCase
             ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
         try {
             $this->getRepository()->saveBulk($documents);
         } catch (BulkException $e) {
-            $this->assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
-            $this->assertEquals(0, $e->getCode());
-            $this->assertEquals($expectedOperations, $e->getOperations());
+            self::assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
+            self::assertEquals(0, $e->getCode());
+            self::assertEquals($expectedOperations, $e->getOperations());
         }
     }
 
@@ -209,7 +209,7 @@ final class RepositorySaveBulkTest extends AbstractRepositoryTestCase
         ];
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('bulk')
             ->with([
                 'index' => self::INDEX['write'],
@@ -220,13 +220,13 @@ final class RepositorySaveBulkTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
         $manager = new class($this->clientMock, ['index_write' => self::INDEX['write']]) extends Repository {
             protected function postSaveBulk(array $entities): void
             {
-                TestCase::assertEquals(
+                AbstractRepositoryTestCase::assertEquals(
                     [
                         AbstractRepositoryTestCase::ID => [
                             'whatever' => 'just some data',

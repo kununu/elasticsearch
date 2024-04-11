@@ -30,9 +30,9 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
 
     protected const EXCEPTION_PREFIX = 'Elasticsearch exception: ';
 
-    protected RepositoryConfiguration $config;
+    protected readonly RepositoryConfiguration $config;
 
-    public function __construct(protected Client $client, array $config)
+    public function __construct(protected readonly Client $client, array $config)
     {
         $this->config = new RepositoryConfiguration($config);
     }
@@ -141,7 +141,7 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
 
     public function findScrollableByQuery(
         QueryInterface $query,
-        string|null $scrollContextKeepalive = null
+        ?string $scrollContextKeepalive = null
     ): ResultIteratorInterface {
         return $this->executeRead(
             function() use ($query, $scrollContextKeepalive) {
@@ -157,7 +157,7 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
 
     public function findByScrollId(
         string $scrollId,
-        string|null $scrollContextKeepalive = null
+        ?string $scrollContextKeepalive = null
     ): ResultIteratorInterface {
         return $this->executeRead(
             fn() => $this->parseRawSearchResponse(

@@ -10,7 +10,7 @@ final class RegexpTest extends TestCase
 {
     public function testWithoutOptions(): void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'regexp' => [
                     'field_a' => 'foo',
@@ -22,7 +22,7 @@ final class RegexpTest extends TestCase
 
     public function testWithOptions(): void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'regexp' => [
                     'field_a' => [

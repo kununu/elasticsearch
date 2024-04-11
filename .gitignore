@@ -8,7 +8,9 @@ deploy.prop
 log/
 .env
 .env.test
-.phpunit.result.cache
+.phpunit.cache
+.phpunit.result
 tests/.results
 composer.lock
 .php-cs-fixer.cache
+phpunit.log

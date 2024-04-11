@@ -7,8 +7,11 @@ use Throwable;
 
 class DeleteException extends RepositoryException
 {
-    public function __construct(string $message = '', ?Throwable $previous = null, protected mixed $documentId = null)
-    {
+    public function __construct(
+        string $message = '',
+        ?Throwable $previous = null,
+        protected readonly mixed $documentId = null
+    ) {
         parent::__construct($message, $previous);
     }
 

@@ -5,6 +5,7 @@ namespace Kununu\Elasticsearch\Tests\Query\Criteria;
 
 use InvalidArgumentException;
 use Kununu\Elasticsearch\Query\Criteria\Search;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class SearchTest extends TestCase
@@ -25,13 +26,13 @@ final class SearchTest extends TestCase
         Search::create(['my_field'], 'foo', 'bar');
     }
 
-    /** @dataProvider createDataProvider */
+    #[DataProvider('createDataProvider')]
     public function testCreate(string $type): void
     {
         $serialized = Search::create(['my_field'], 'i am looking for something', $type)->toArray();
 
-        $this->assertNotEmpty($serialized);
-        $this->assertArrayHasKey($type, $serialized);
+        self::assertNotEmpty($serialized);
+        self::assertArrayHasKey($type, $serialized);
     }
 
     public static function createDataProvider(): array

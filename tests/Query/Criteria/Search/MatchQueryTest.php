@@ -8,11 +8,11 @@ use PHPUnit\Framework\TestCase;
 
 final class MatchQueryTest extends TestCase
 {
-    protected const QUERY_STRING = 'what was i looking for?';
+    private const QUERY_STRING = 'what was i looking for?';
 
     public function testSingleField(): void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'match' => [
                     'field_a' => [
@@ -26,7 +26,7 @@ final class MatchQueryTest extends TestCase
 
     public function testMultipleFields(): void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'multi_match' => [
                     'fields' => ['field_a', 'field_b'],
@@ -39,7 +39,7 @@ final class MatchQueryTest extends TestCase
 
     public function testSingleFieldWithOptions(): void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'match' => [
                     'field_a' => [
@@ -54,7 +54,7 @@ final class MatchQueryTest extends TestCase
 
     public function testMultipleFieldsWithOptions(): void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'multi_match' => [
                     'fields' => ['field_a', 'field_b'],

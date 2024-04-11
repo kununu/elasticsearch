@@ -5,17 +5,17 @@
   "license": "proprietary",
   "minimum-stability": "stable",
   "require": {
-    "php": ">=8.0",
+    "php": ">=8.1",
     "ext-ctype": "*",
     "ext-iconv": "*",
     "ext-json": "*",
     "ext-mbstring": "*",
     "elasticsearch/elasticsearch": "^7.0.0",
-    "psr/log": "~1.0"
+    "psr/log": "^1.0|^2.0|^3.0"
   },
   "require-dev": {
-    "kununu/scripts": ">=4.0",
-    "phpunit/phpunit": "^9.6"
+    "kununu/scripts": ">=5.0",
+    "phpunit/phpunit": "^10.5"
   },
   "autoload": {
     "psr-4": {
@@ -28,8 +28,8 @@
     }
   },
   "scripts": {
-    "test": "phpunit --no-coverage tests",
-    "test-coverage": "XDEBUG_MODE=coverage phpunit --coverage-clover tests/.results/coverage.xml --coverage-html tests/.results/html/ tests"
+    "test": "phpunit --log-events-text phpunit.log --no-coverage --no-logging --no-progress --testsuite Full",
+    "test-coverage": "XDEBUG_MODE=coverage phpunit --log-events-text phpunit.log --no-progress --testsuite Full"
   },
   "scripts-descriptions": {
     "test": "Run all tests",
@@ -38,9 +38,6 @@
   "config": {
     "allow-plugins": {
       "kununu/scripts": true
-    },
-    "preferred-install": {
-      "*": "dist"
     },
     "sort-packages": true
   }

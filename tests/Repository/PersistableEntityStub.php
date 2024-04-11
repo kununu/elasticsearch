@@ -7,6 +7,10 @@ use Kununu\Elasticsearch\Repository\PersistableEntityInterface;
 
 final class PersistableEntityStub implements PersistableEntityInterface
 {
+    public array $_meta;
+    public mixed $property_a;
+    public mixed $property_b;
+
     public function toElastic(): array
     {
         return (array) $this;

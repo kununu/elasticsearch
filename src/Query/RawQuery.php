@@ -5,7 +5,7 @@ namespace Kununu\Elasticsearch\Query;
 
 class RawQuery extends AbstractQuery
 {
-    public function __construct(protected array $body = [])
+    public function __construct(protected readonly array $body = [])
     {
     }
 

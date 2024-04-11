@@ -8,10 +8,11 @@ use Kununu\Elasticsearch\Exception\ReadOperationException;
 use Kununu\Elasticsearch\Query\Query;
 use Kununu\Elasticsearch\Query\QueryInterface;
 use Kununu\Elasticsearch\Repository\RepositoryConfiguration;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 final class RepositoryFindByQueryTest extends AbstractRepositoryTestCase
 {
-    /** @dataProvider queryAndSearchResultVariationsDataProvider */
+    #[DataProvider('queryAndSearchResultVariationsDataProvider')]
     public function testFindByQuery(QueryInterface $query, array $esResult, mixed $endResult, bool $scroll): void
     {
         $rawParams = [
@@ -24,7 +25,7 @@ final class RepositoryFindByQueryTest extends AbstractRepositoryTestCase
         }
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('search')
             ->with($rawParams)
             ->willReturn($esResult);
@@ -33,16 +34,16 @@ final class RepositoryFindByQueryTest extends AbstractRepositoryTestCase
             ? $this->getRepository()->findScrollableByQuery($query)
             : $this->getRepository()->findByQuery($query);
 
-        $this->assertEquals($endResult, $result->asArray());
-        $this->assertEquals(self::DOCUMENT_COUNT, $result->getTotal());
+        self::assertEquals($endResult, $result->asArray());
+        self::assertEquals(self::DOCUMENT_COUNT, $result->getTotal());
         if ($scroll) {
-            $this->assertEquals(self::SCROLL_ID, $result->getScrollId());
+            self::assertEquals(self::SCROLL_ID, $result->getScrollId());
         } else {
-            $this->assertNull($result->getScrollId());
+            self::assertNull($result->getScrollId());
         }
     }
 
-    /** @dataProvider queryAndSearchResultVariationsWithEntitiesDataProvider */
+    #[DataProvider('queryAndSearchResultVariationsWithEntitiesDataProvider')]
     public function testFindByQueryWithEntityFactory(
         QueryInterface $query,
         array $esResult,
@@ -59,37 +60,37 @@ final class RepositoryFindByQueryTest extends AbstractRepositoryTestCase
         }
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('search')
             ->with($rawParams)
             ->willReturn($esResult);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
-        $repository = $this->getRepository(['entity_factory' => $this->getEntityFactory()]);
+        $repository = $this->getRepository(['entity_factory' => new EntityFactoryStub()]);
 
         $result = $scroll
             ? $repository->findScrollableByQuery($query)
             : $repository->findByQuery($query);
 
-        $this->assertEquals($endResult, $result->asArray());
-        $this->assertEquals(self::DOCUMENT_COUNT, $result->getTotal());
+        self::assertEquals($endResult, $result->asArray());
+        self::assertEquals(self::DOCUMENT_COUNT, $result->getTotal());
         if ($scroll) {
-            $this->assertEquals(self::SCROLL_ID, $result->getScrollId());
+            self::assertEquals(self::SCROLL_ID, $result->getScrollId());
         } else {
-            $this->assertNull($result->getScrollId());
+            self::assertNull($result->getScrollId());
         }
 
         if ($result->getCount() > 0) {
             foreach ($result as $entity) {
-                $this->assertEquals(['_index' => self::INDEX['read'], '_score' => 77], $entity->_meta);
+                self::assertEquals(['_index' => self::INDEX['read'], '_score' => 77], $entity->_meta);
             }
         }
     }
 
-    /** @dataProvider queryAndSearchResultVariationsWithEntitiesDataProvider */
+    #[DataProvider('queryAndSearchResultVariationsWithEntitiesDataProvider')]
     public function testFindByQueryWithEntityClass(
         QueryInterface $query,
         array $esResult,
@@ -106,32 +107,32 @@ final class RepositoryFindByQueryTest extends AbstractRepositoryTestCase
         }
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('search')
             ->with($rawParams)
             ->willReturn($esResult);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
-        $repository = $this->getRepository(['entity_class' => get_class($this->getEntityClassInstance())]);
+        $repository = $this->getRepository(['entity_class' => PersistableEntityStub::class]);
 
         $result = $scroll
             ? $repository->findScrollableByQuery($query)
             : $repository->findByQuery($query);
 
-        $this->assertEquals($endResult, $result->asArray());
-        $this->assertEquals(self::DOCUMENT_COUNT, $result->getTotal());
+        self::assertEquals($endResult, $result->asArray());
+        self::assertEquals(self::DOCUMENT_COUNT, $result->getTotal());
         if ($scroll) {
-            $this->assertEquals(self::SCROLL_ID, $result->getScrollId());
+            self::assertEquals(self::SCROLL_ID, $result->getScrollId());
         } else {
-            $this->assertNull($result->getScrollId());
+            self::assertNull($result->getScrollId());
         }
 
         if ($result->getCount() > 0) {
             foreach ($result as $entity) {
-                $this->assertEquals(['_index' => self::INDEX['read'], '_score' => 77], $entity->_meta);
+                self::assertEquals(['_index' => self::INDEX['read'], '_score' => 77], $entity->_meta);
             }
         }
     }
@@ -139,21 +140,21 @@ final class RepositoryFindByQueryTest extends AbstractRepositoryTestCase
     public function testFindByQueryFails(): void
     {
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('search')
             ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
         try {
             $this->getRepository()->findByQuery(Query::create());
         } catch (ReadOperationException $e) {
-            $this->assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
-            $this->assertEquals(0, $e->getCode());
-            $this->assertNull($e->getQuery());
+            self::assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
+            self::assertEquals(0, $e->getCode());
+            self::assertNull($e->getQuery());
         }
     }
 }

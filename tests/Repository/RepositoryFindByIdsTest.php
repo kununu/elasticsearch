@@ -5,6 +5,7 @@ namespace Kununu\Elasticsearch\Tests\Repository;
 
 use Exception;
 use Kununu\Elasticsearch\Exception\ReadOperationException;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 final class RepositoryFindByIdsTest extends AbstractRepositoryTestCase
 {
@@ -134,11 +135,11 @@ final class RepositoryFindByIdsTest extends AbstractRepositoryTestCase
         );
     }
 
-    /** @dataProvider findByIdsResultDataProvider */
+    #[DataProvider('findByIdsResultDataProvider')]
     public function testFindByIds(array $esResult, mixed $endResult): void
     {
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('mget')
             ->with([
                 'index' => self::INDEX['read'],
@@ -156,21 +157,21 @@ final class RepositoryFindByIdsTest extends AbstractRepositoryTestCase
             ->willReturn($esResult);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('critical');
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
-        $this->assertEquals($endResult, $this->getRepository()->findByIds([self::ID, self::ID_2]));
+        self::assertEquals($endResult, $this->getRepository()->findByIds([self::ID, self::ID_2]));
     }
 
-    /** @dataProvider findByIdsResultDataProvider */
+    #[DataProvider('findByIdsResultDataProvider')]
     public function testFindByIdsWithSourceField(array $esResult, mixed $endResult): void
     {
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('mget')
             ->with([
                 'index' => self::INDEX['read'],
@@ -190,21 +191,21 @@ final class RepositoryFindByIdsTest extends AbstractRepositoryTestCase
             ->willReturn($esResult);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('critical');
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
-        $this->assertEquals($endResult, $this->getRepository()->findByIds([self::ID, self::ID_2], ['foo', 'foo2']));
+        self::assertEquals($endResult, $this->getRepository()->findByIds([self::ID, self::ID_2], ['foo', 'foo2']));
     }
 
-    /** @dataProvider findByIdsResultWithEntitiesDataProvider */
+    #[DataProvider('findByIdsResultWithEntitiesDataProvider')]
     public function testFindByIdWithEntityClass(array $esResult, mixed $endResult): void
     {
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('mget')
             ->with([
                 'index' => self::INDEX['read'],
@@ -222,21 +223,21 @@ final class RepositoryFindByIdsTest extends AbstractRepositoryTestCase
             ->willReturn($esResult);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('critical');
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
         $results = $this
-            ->getRepository(['entity_class' => $this->getEntityClass()])
+            ->getRepository(['entity_class' => PersistableEntityStub::class])
             ->findByIds([self::ID, self::ID_2]);
 
-        $this->assertEquals(array_values($endResult), $results);
+        self::assertEquals(array_values($endResult), $results);
         if (!empty($endResult)) {
             foreach ($endResult as $id => $result) {
-                $this->assertEquals(
+                self::assertEquals(
                     ['_index' => self::INDEX['read'], '_id' => $id, '_version' => 1, 'found' => true],
                     $result->_meta
                 );
@@ -244,11 +245,11 @@ final class RepositoryFindByIdsTest extends AbstractRepositoryTestCase
         }
     }
 
-    /** @dataProvider findByIdsResultWithEntitiesDataProvider */
+    #[DataProvider('findByIdsResultWithEntitiesDataProvider')]
     public function testFindByIdsWithEntityFactory(array $esResult, mixed $endResult): void
     {
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('mget')
             ->with([
                 'index' => self::INDEX['read'],
@@ -266,21 +267,21 @@ final class RepositoryFindByIdsTest extends AbstractRepositoryTestCase
             ->willReturn($esResult);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('critical');
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
         $results = $this
-            ->getRepository(['entity_factory' => $this->getEntityFactory()])
+            ->getRepository(['entity_factory' => new EntityFactoryStub()])
             ->findByIds([self::ID, self::ID_2]);
 
-        $this->assertEquals(array_values($endResult), $results);
+        self::assertEquals(array_values($endResult), $results);
         if (!empty($endResult)) {
             foreach ($endResult as $id => $result) {
-                $this->assertEquals(
+                self::assertEquals(
                     ['_index' => self::INDEX['read'], '_id' => $id, '_version' => 1, 'found' => true],
                     $result->_meta
                 );
@@ -290,7 +291,7 @@ final class RepositoryFindByIdsTest extends AbstractRepositoryTestCase
 
     public function testFindByIdsWithoutIds(): void
     {
-        $this->assertEmpty($this->getRepository()->findByIds([]));
+        self::assertEmpty($this->getRepository()->findByIds([]));
     }
 
     public function testFindByIdsFails(): void
@@ -310,13 +311,13 @@ final class RepositoryFindByIdsTest extends AbstractRepositoryTestCase
         ];
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('mget')
             ->with($body)
             ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('critical')
             ->with(
                 'Elasticsearch request error',
@@ -324,7 +325,7 @@ final class RepositoryFindByIdsTest extends AbstractRepositoryTestCase
             );
 
         $this->loggerMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('error')
             ->with(
                 self::ERROR_PREFIX . self::ERROR_MESSAGE
@@ -333,9 +334,9 @@ final class RepositoryFindByIdsTest extends AbstractRepositoryTestCase
         try {
             $this->getRepository()->findByIds([self::ID, self::ID_2]);
         } catch (ReadOperationException $e) {
-            $this->assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
-            $this->assertEquals(0, $e->getCode());
-            $this->assertNull($e->getQuery());
+            self::assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
+            self::assertEquals(0, $e->getCode());
+            self::assertNull($e->getQuery());
         }
     }
 }

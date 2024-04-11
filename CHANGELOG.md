@@ -16,6 +16,26 @@ to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
+## [7.0.0](https://github.com/kununu/elasticsearch/compare/v7.0.0...v6.0.1)
+
+### Backward Compatibility Breaks
+
+* Drop support for PHP 8.0 - PHP 8.1 is now the minimum version.
+
+### Bugfixes
+
+### Added
+
+### Improvements
+
+* Upgraded PHPUnit to version 10.5
+* Refactor some code to take advantage of PHP 8.1 features (read-only properties)
+* Fix tests that used deprecated/removed features on PHPUnit 10.5
+* Refactor tests to be more PHPUnit 10.5 compliant (e.g. using attributes for data providers, make all data providers static, etc.) 
+* Updated versions of continuous integration components
+
+### Deprecated
+
 ## [6.0.1](https://github.com/kununu/elasticsearch/compare/v6.0.1...v6.0.0)
 
 ### Backward Compatibility Breaks

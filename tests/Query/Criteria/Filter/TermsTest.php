@@ -10,7 +10,7 @@ final class TermsTest extends TestCase
 {
     public function testWithoutOptions(): void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'terms' => [
                     'field_a' => ['foo', 'bar'],
@@ -22,7 +22,7 @@ final class TermsTest extends TestCase
 
     public function testWithOptions(): void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'terms' => [
                     'field_a' => ['foo', 'bar'],

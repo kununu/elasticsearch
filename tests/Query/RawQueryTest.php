@@ -5,16 +5,17 @@ namespace Kununu\Elasticsearch\Tests\Query;
 
 use Kununu\Elasticsearch\Query\RawQuery;
 use Kununu\Elasticsearch\Query\SortOrder;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class RawQueryTest extends TestCase
 {
-    /** @dataProvider createDataProvider */
+    #[DataProvider('createDataProvider')]
     public function testCreate(array $rawQuery): void
     {
         $query = RawQuery::create($rawQuery);
 
-        $this->assertEquals($rawQuery, $query->toArray());
+        self::assertEquals($rawQuery, $query->toArray());
     }
 
     public static function createDataProvider(): array
@@ -23,7 +24,7 @@ final class RawQueryTest extends TestCase
             'empty'     => [
                 'rawQuery' => [],
             ],
-            'non-empty' => [
+            'non_empty' => [
                 'rawQuery' => ['query' => ['term' => ['field' => 'value']]],
             ],
         ];
@@ -37,7 +38,7 @@ final class RawQueryTest extends TestCase
             ->skip(1)
             ->limit(10);
 
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'query'   => ['term' => ['field' => 'value']],
                 '_source' => ['field_a'],

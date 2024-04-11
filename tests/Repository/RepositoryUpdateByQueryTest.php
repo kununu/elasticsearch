@@ -41,7 +41,7 @@ final class RepositoryUpdateByQueryTest extends AbstractRepositoryTestCase
         ];
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('updateByQuery')
             ->with([
                 'index' => self::INDEX['write'],
@@ -59,10 +59,10 @@ final class RepositoryUpdateByQueryTest extends AbstractRepositoryTestCase
             ->willReturn($responseBody);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
-        $this->assertEquals($responseBody, $this->getRepository()->updateByQuery($query, $updateScript));
+        self::assertEquals($responseBody, $this->getRepository()->updateByQuery($query, $updateScript));
     }
 
     public function testUpdateByQueryWithForcedRefresh(): void
@@ -96,7 +96,7 @@ final class RepositoryUpdateByQueryTest extends AbstractRepositoryTestCase
         ];
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('updateByQuery')
             ->with([
                 'index'   => self::INDEX['write'],
@@ -115,30 +115,31 @@ final class RepositoryUpdateByQueryTest extends AbstractRepositoryTestCase
             ->willReturn($responseBody);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
         $repository = $this->getRepository(['force_refresh_on_write' => true]);
 
-        $this->assertEquals($responseBody, $repository->updateByQuery($query, $updateScript));
+        self::assertEquals($responseBody, $repository->updateByQuery($query, $updateScript));
     }
 
     public function testUpdateByQueryFails(): void
     {
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('updateByQuery')
             ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
+            ->expects(self::once())
             ->method('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
         try {
             $this->getRepository()->updateByQuery(Query::create(), ['script' => []]);
         } catch (WriteOperationException $e) {
-            $this->assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
-            $this->assertEquals(0, $e->getCode());
+            self::assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
+            self::assertEquals(0, $e->getCode());
         }
     }
 }

@@ -18,7 +18,7 @@ class IndexManager implements IndexManagerInterface, LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
-    public function __construct(protected Client $client)
+    public function __construct(protected readonly Client $client)
     {
     }
 

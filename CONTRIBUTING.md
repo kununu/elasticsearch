@@ -2,13 +2,13 @@
 
 Contributions are more than **welcome** and will be fully **credited**.
 
-We accept contributions via Pull Requests on [Github](https://github.com/kununu/elasticsearch).
+We accept contributions via Pull Requests on [GitHub](https://github.com/kununu/elasticsearch).
 
 ## Pull Requests
 
-- **[PSR-12 Coding Standard](https://www.php-fig.org/psr/psr-12/)** - The easiest way to apply the conventions is to install [PHP Code Sniffer](http://pear.php.net/package/PHP_CodeSniffer).
+- **[kununu Coding Standards](https://github.com/kununu/kununu-scripts)** - The kununu coding standards are an extension of the [PSR-12](https://www.php-fig.org/psr/psr-12/). Check out [kununu Coding Standards](https://github.com/kununu/kununu-scripts) for more details. In development mode the package [kununu-scripts](https://github.com/kununu/kununu-scripts) is already a dependency that expose commands that you can use to meet our standards.
 
-- **Add tests!** - to ensure a high quality code base, your code patch can't be accepted if it doesn't have tests.
+- **Add tests!** - to ensure a high quality code base, your code patch can't be accepted if it does not have tests.
 
 - **Document any change in behaviour** - Make sure the [CHANGELOG.md](CHANGELOG.md), [README.md](README.md) and any other relevant documentation are kept up-to-date.
 

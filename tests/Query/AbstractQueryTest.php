@@ -7,6 +7,7 @@ use InvalidArgumentException;
 use Kununu\Elasticsearch\Query\AbstractQuery;
 use Kununu\Elasticsearch\Query\QueryInterface;
 use Kununu\Elasticsearch\Query\SortOrder;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class AbstractQueryTest extends TestCase
@@ -15,33 +16,33 @@ final class AbstractQueryTest extends TestCase
     {
         $query = $this->getQuery();
 
-        $this->assertEquals([], $query->toArray());
+        self::assertEquals([], $query->toArray());
     }
 
-    /** @dataProvider selectDataProvider */
+    #[DataProvider('selectDataProvider')]
     public function testSelect(mixed $input, mixed $expectedOutput): void
     {
         $query = $this->getQuery();
 
-        $this->assertNull($query->getSelect());
-        $this->assertEquals([], $query->toArray());
+        self::assertNull($query->getSelect());
+        self::assertEquals([], $query->toArray());
 
         $query->select($input);
 
-        $this->assertEquals($input, $query->getSelect());
+        self::assertEquals($input, $query->getSelect());
         $serialized = $query->toArray();
-        $this->assertArrayHasKey('_source', $serialized);
-        $this->assertEquals($expectedOutput, $serialized['_source']);
+        self::assertArrayHasKey('_source', $serialized);
+        self::assertEquals($expectedOutput, $serialized['_source']);
     }
 
     public static function selectDataProvider(): array
     {
         return [
-            'no field'         => [
+            'no_field'         => [
                 'input'           => [],
                 'expected_output' => false,
             ],
-            'one field'        => [
+            'one_field'        => [
                 'input'           => [
                     'foo',
                 ],
@@ -49,7 +50,7 @@ final class AbstractQueryTest extends TestCase
                     'foo',
                 ],
             ],
-            'two fields'       => [
+            'two_fields'       => [
                 'input'           => [
                     'foo',
                     'bar',
@@ -59,7 +60,7 @@ final class AbstractQueryTest extends TestCase
                     'bar',
                 ],
             ],
-            'same field twice' => [
+            'same_field_twice' => [
                 'input'           => [
                     'foo',
                     'foo',
@@ -75,66 +76,66 @@ final class AbstractQueryTest extends TestCase
     {
         $query = $this->getQuery();
 
-        $this->assertNull($query->getOffset());
-        $this->assertEquals([], $query->toArray());
+        self::assertNull($query->getOffset());
+        self::assertEquals([], $query->toArray());
 
         $query->skip(10);
 
-        $this->assertEquals(10, $query->getOffset());
-        $this->assertNull($query->getLimit());
-        $this->assertEquals([], $query->getSort());
-        $this->assertEquals(['from' => 10], $query->toArray());
+        self::assertEquals(10, $query->getOffset());
+        self::assertNull($query->getLimit());
+        self::assertEquals([], $query->getSort());
+        self::assertEquals(['from' => 10], $query->toArray());
 
         // override offset
         $query->skip(20);
 
-        $this->assertEquals(20, $query->getOffset());
-        $this->assertEquals(['from' => 20], $query->toArray());
+        self::assertEquals(20, $query->getOffset());
+        self::assertEquals(['from' => 20], $query->toArray());
     }
 
     public function testLimit(): void
     {
         $query = $this->getQuery();
 
-        $this->assertNull($query->getLimit());
-        $this->assertEquals([], $query->toArray());
+        self::assertNull($query->getLimit());
+        self::assertEquals([], $query->toArray());
 
         $query->limit(10);
 
-        $this->assertEquals(10, $query->getLimit());
-        $this->assertNull($query->getOffset());
-        $this->assertEquals([], $query->getSort());
-        $this->assertEquals(['size' => 10], $query->toArray());
+        self::assertEquals(10, $query->getLimit());
+        self::assertNull($query->getOffset());
+        self::assertEquals([], $query->getSort());
+        self::assertEquals(['size' => 10], $query->toArray());
 
         // override limit
         $query->limit(20);
 
-        $this->assertEquals(20, $query->getLimit());
-        $this->assertEquals(['size' => 20], $query->toArray());
+        self::assertEquals(20, $query->getLimit());
+        self::assertEquals(['size' => 20], $query->toArray());
     }
 
-    /** @dataProvider sortDataProvider */
+    #[DataProvider('sortDataProvider')]
     public function testSort(array $input, array $expectedOutput): void
     {
         $query = $this->getQuery();
 
-        $this->assertEquals([], $query->getSort());
-        $this->assertEquals([], $query->toArray());
+        self::assertEquals([], $query->getSort());
+        self::assertEquals([], $query->toArray());
 
         foreach ($input as $command) {
             $query->sort($command['key'], $command['order'], $command['options'] ?? []);
         }
 
-        $this->assertNull($query->getOffset());
-        $this->assertNull($query->getLimit());
-        $this->assertEquals($expectedOutput, $query->getSort());
-        $this->assertEquals(['sort' => $expectedOutput], $query->toArray());
+        self::assertNull($query->getOffset());
+        self::assertNull($query->getLimit());
+        self::assertEquals($expectedOutput, $query->getSort());
+        self::assertEquals(['sort' => $expectedOutput], $query->toArray());
     }
 
     public static function sortDataProvider(): array
     {
         return [
-            'one field'               => [
+            'one_field'               => [
                 'input'           => [
                     [
                         'key'   => 'foo',
@@ -145,7 +146,7 @@ final class AbstractQueryTest extends TestCase
                     'foo' => ['order' => SortOrder::ASC],
                 ],
             ],
-            'two fields'              => [
+            'two_fields'              => [
                 'input'           => [
                     [
                         'key'   => 'foo',
@@ -161,7 +162,7 @@ final class AbstractQueryTest extends TestCase
                     'bar' => ['order' => SortOrder::DESC],
                 ],
             ],
-            'override one field'      => [
+            'override_one_field'      => [
                 'input'           => [
                     [
                         'key'   => 'foo',
@@ -176,7 +177,7 @@ final class AbstractQueryTest extends TestCase
                     'foo' => ['order' => SortOrder::DESC],
                 ],
             ],
-            'one field with options'  => [
+            'one_field_with_options'  => [
                 'input'           => [
                     [
                         'key'     => 'foo',
@@ -188,7 +189,7 @@ final class AbstractQueryTest extends TestCase
                     'foo' => ['order' => SortOrder::ASC, 'missing' => '_last'],
                 ],
             ],
-            'two fields with options' => [
+            'two_fields_with_options' => [
                 'input'           => [
                     [
                         'key'     => 'foo',
@@ -209,13 +210,13 @@ final class AbstractQueryTest extends TestCase
         ];
     }
 
-    /** @dataProvider sortDataProvider */
+    #[DataProvider('sortDataProvider')]
     public function testMultipleSort(array $input, array $expectedOutput): void
     {
         $query = $this->getQuery();
 
-        $this->assertEquals([], $query->getSort());
-        $this->assertEquals([], $query->toArray());
+        self::assertEquals([], $query->getSort());
+        self::assertEquals([], $query->toArray());
 
         $combinedInput = array_reduce(
             $input,
@@ -229,10 +230,10 @@ final class AbstractQueryTest extends TestCase
 
         $query->sort($combinedInput);
 
-        $this->assertNull($query->getOffset());
-        $this->assertNull($query->getLimit());
-        $this->assertEquals($expectedOutput, $query->getSort());
-        $this->assertEquals(['sort' => $expectedOutput], $query->toArray());
+        self::assertNull($query->getOffset());
+        self::assertNull($query->getLimit());
+        self::assertEquals($expectedOutput, $query->getSort());
+        self::assertEquals(['sort' => $expectedOutput], $query->toArray());
     }
 
     public function testSortInvalidOrder(): void

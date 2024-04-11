@@ -17,6 +17,7 @@ use Kununu\Elasticsearch\Query\Criteria\Search;
 use Kununu\Elasticsearch\Query\Criteria\SearchInterface;
 use Kununu\Elasticsearch\Query\Query;
 use Kununu\Elasticsearch\Query\SortOrder;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 
@@ -26,7 +27,7 @@ final class QueryTest extends TestCase
     private const FIELD_NAME_FILTERS = 'filters';
     private const FIELD_NAME_AGGREGATIONS = 'aggregations';
 
-    /** @dataProvider createDataProvider */
+    #[DataProvider('createDataProvider')]
     public function testCreate(array $input): void
     {
         $children = [
@@ -41,9 +42,9 @@ final class QueryTest extends TestCase
 
         $query = Query::create(...$input);
 
-        $this->assertChildren($query, self::FIELD_NAME_SEARCHES, $children[Search::class]);
-        $this->assertChildren($query, self::FIELD_NAME_FILTERS, $children[Filter::class]);
-        $this->assertChildren($query, self::FIELD_NAME_AGGREGATIONS, $children[Aggregation::class]);
+        self::assertChildren($query, self::FIELD_NAME_SEARCHES, $children[Search::class]);
+        self::assertChildren($query, self::FIELD_NAME_FILTERS, $children[Filter::class]);
+        self::assertChildren($query, self::FIELD_NAME_AGGREGATIONS, $children[Aggregation::class]);
     }
 
     public static function createDataProvider(): array
@@ -52,16 +53,16 @@ final class QueryTest extends TestCase
             'empty'                           => [
                 'input' => [],
             ],
-            'with a filter'                   => [
+            'with_a_filter'                   => [
                 'input' => [Filter::create('field', 'value')],
             ],
-            'with a search'                   => [
+            'with_a_search'                   => [
                 'input' => [Search::create(['field'], 'value')],
             ],
-            'with an aggregation'             => [
+            'with_an_aggregation'             => [
                 'input' => [Aggregation::create('field', Metric::SUM)],
             ],
-            'with a little bit of everything' => [
+            'with_a_little_bit_of_everything' => [
                 'input' => [
                     Filter::create('field', 'value'),
                     Search::create(['field'], 'value'),
@@ -71,7 +72,7 @@ final class QueryTest extends TestCase
         ];
     }
 
-    /** @dataProvider createDataProvider */
+    #[DataProvider('createDataProvider')]
     public function testCreateNested(array $input): void
     {
         $children = [
@@ -88,15 +89,15 @@ final class QueryTest extends TestCase
 
         $query = Query::createNested($path, ...$input);
 
-        $this->assertChildren($query, self::FIELD_NAME_SEARCHES, $children[Search::class]);
-        $this->assertChildren($query, self::FIELD_NAME_FILTERS, $children[Filter::class]);
-        $this->assertChildren($query, self::FIELD_NAME_AGGREGATIONS, $children[Aggregation::class]);
-        $this->assertEquals($path, $query->getOption(NestableQueryInterface::OPTION_PATH));
-        $this->assertNull($query->getOption(NestableQueryInterface::OPTION_IGNORE_UNMAPPED));
-        $this->assertNull($query->getOption(NestableQueryInterface::OPTION_SCORE_MODE));
+        self::assertChildren($query, self::FIELD_NAME_SEARCHES, $children[Search::class]);
+        self::assertChildren($query, self::FIELD_NAME_FILTERS, $children[Filter::class]);
+        self::assertChildren($query, self::FIELD_NAME_AGGREGATIONS, $children[Aggregation::class]);
+        self::assertEquals($path, $query->getOption(NestableQueryInterface::OPTION_PATH));
+        self::assertNull($query->getOption(NestableQueryInterface::OPTION_IGNORE_UNMAPPED));
+        self::assertNull($query->getOption(NestableQueryInterface::OPTION_SCORE_MODE));
     }
 
-    /** @dataProvider createDataProvider */
+    #[DataProvider('createDataProvider')]
     public function testAdd(array $input): void
     {
         $children = [
@@ -107,18 +108,18 @@ final class QueryTest extends TestCase
 
         $query = Query::create();
 
-        $this->assertChildren($query, self::FIELD_NAME_SEARCHES, $children[Search::class]);
-        $this->assertChildren($query, self::FIELD_NAME_FILTERS, $children[Filter::class]);
-        $this->assertChildren($query, self::FIELD_NAME_AGGREGATIONS, $children[Aggregation::class]);
+        self::assertChildren($query, self::FIELD_NAME_SEARCHES, $children[Search::class]);
+        self::assertChildren($query, self::FIELD_NAME_FILTERS, $children[Filter::class]);
+        self::assertChildren($query, self::FIELD_NAME_AGGREGATIONS, $children[Aggregation::class]);
 
         foreach ($input as $child) {
             $children[$child::class][] = $child;
             $query->add($child);
         }
 
-        $this->assertChildren($query, self::FIELD_NAME_SEARCHES, $children[Search::class]);
-        $this->assertChildren($query, self::FIELD_NAME_FILTERS, $children[Filter::class]);
-        $this->assertChildren($query, self::FIELD_NAME_AGGREGATIONS, $children[Aggregation::class]);
+        self::assertChildren($query, self::FIELD_NAME_SEARCHES, $children[Search::class]);
+        self::assertChildren($query, self::FIELD_NAME_FILTERS, $children[Filter::class]);
+        self::assertChildren($query, self::FIELD_NAME_AGGREGATIONS, $children[Aggregation::class]);
     }
 
     public function testCreateWithOnlyInvalid(): void
@@ -156,16 +157,16 @@ final class QueryTest extends TestCase
     {
         $query = Query::create();
 
-        $this->assertChildren($query, self::FIELD_NAME_SEARCHES, []);
-        $this->assertChildren($query, self::FIELD_NAME_FILTERS, []);
-        $this->assertChildren($query, self::FIELD_NAME_AGGREGATIONS, []);
+        self::assertChildren($query, self::FIELD_NAME_SEARCHES, []);
+        self::assertChildren($query, self::FIELD_NAME_FILTERS, []);
+        self::assertChildren($query, self::FIELD_NAME_AGGREGATIONS, []);
 
         $search = Search::create(['field'], 'value');
         $query->search($search);
 
-        $this->assertChildren($query, self::FIELD_NAME_SEARCHES, [$search]);
-        $this->assertChildren($query, self::FIELD_NAME_FILTERS, []);
-        $this->assertChildren($query, self::FIELD_NAME_AGGREGATIONS, []);
+        self::assertChildren($query, self::FIELD_NAME_SEARCHES, [$search]);
+        self::assertChildren($query, self::FIELD_NAME_FILTERS, []);
+        self::assertChildren($query, self::FIELD_NAME_AGGREGATIONS, []);
     }
 
     public function testSearchWithInvalidCriteria(): void
@@ -187,54 +188,54 @@ final class QueryTest extends TestCase
     {
         $query = Query::create();
 
-        $this->assertChildren($query, self::FIELD_NAME_SEARCHES, []);
-        $this->assertChildren($query, self::FIELD_NAME_FILTERS, []);
-        $this->assertChildren($query, self::FIELD_NAME_AGGREGATIONS, []);
+        self::assertChildren($query, self::FIELD_NAME_SEARCHES, []);
+        self::assertChildren($query, self::FIELD_NAME_FILTERS, []);
+        self::assertChildren($query, self::FIELD_NAME_AGGREGATIONS, []);
 
         $filter = Filter::create('field', 'value');
         $query->where($filter);
 
-        $this->assertChildren($query, self::FIELD_NAME_SEARCHES, []);
-        $this->assertChildren($query, self::FIELD_NAME_FILTERS, [$filter]);
-        $this->assertChildren($query, self::FIELD_NAME_AGGREGATIONS, []);
+        self::assertChildren($query, self::FIELD_NAME_SEARCHES, []);
+        self::assertChildren($query, self::FIELD_NAME_FILTERS, [$filter]);
+        self::assertChildren($query, self::FIELD_NAME_AGGREGATIONS, []);
     }
 
     public function testAggregate(): void
     {
         $query = Query::create();
 
-        $this->assertChildren($query, self::FIELD_NAME_SEARCHES, []);
-        $this->assertChildren($query, self::FIELD_NAME_FILTERS, []);
-        $this->assertChildren($query, self::FIELD_NAME_AGGREGATIONS, []);
+        self::assertChildren($query, self::FIELD_NAME_SEARCHES, []);
+        self::assertChildren($query, self::FIELD_NAME_FILTERS, []);
+        self::assertChildren($query, self::FIELD_NAME_AGGREGATIONS, []);
 
         $aggregation = Aggregation::create('field', Metric::SUM);
         $query->aggregate($aggregation);
 
-        $this->assertChildren($query, self::FIELD_NAME_SEARCHES, []);
-        $this->assertChildren($query, self::FIELD_NAME_FILTERS, []);
-        $this->assertChildren($query, self::FIELD_NAME_AGGREGATIONS, [$aggregation]);
+        self::assertChildren($query, self::FIELD_NAME_SEARCHES, []);
+        self::assertChildren($query, self::FIELD_NAME_FILTERS, []);
+        self::assertChildren($query, self::FIELD_NAME_AGGREGATIONS, [$aggregation]);
     }
 
     public function testMinScore(): void
     {
         $query = Query::create();
 
-        $this->assertNull($query->getOption(Query::OPTION_MIN_SCORE));
+        self::assertNull($query->getOption(Query::OPTION_MIN_SCORE));
 
         $query->setMinScore(42);
 
-        $this->assertEquals(42, $query->getOption(Query::OPTION_MIN_SCORE));
+        self::assertEquals(42, $query->getOption(Query::OPTION_MIN_SCORE));
     }
 
     public function testSearchOperator(): void
     {
         $query = Query::create();
 
-        $this->assertEquals(Should::OPERATOR, $query->getSearchOperator());
+        self::assertEquals(Should::OPERATOR, $query->getSearchOperator());
 
         $query->setSearchOperator(Must::OPERATOR);
 
-        $this->assertEquals(Must::OPERATOR, $query->getSearchOperator());
+        self::assertEquals(Must::OPERATOR, $query->getSearchOperator());
     }
 
     public function testSetInvalidSearchOperator(): void
@@ -254,7 +255,7 @@ final class QueryTest extends TestCase
             ->skip(1)
             ->limit(10);
 
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'query'   => ['bool' => ['filter' => ['bool' => ['must' => [['term' => ['field' => 'value']]]]]]],
                 '_source' => ['field_a'],
@@ -268,10 +269,10 @@ final class QueryTest extends TestCase
         );
     }
 
-    /** @dataProvider toArrayDataProvider */
+    #[DataProvider('toArrayDataProvider')]
     public function testToArray(Query $query, array $expected): void
     {
-        $this->assertEquals($expected, $query->toArray());
+        self::assertEquals($expected, $query->toArray());
     }
 
     public static function toArrayDataProvider(): array
@@ -286,23 +287,23 @@ final class QueryTest extends TestCase
     private static function toArrayBatch1(): array
     {
         return [
-            'empty'                                  => [
+            'empty'                                     => [
                 'query'    => Query::create(),
                 'expected' => [],
             ],
-            'with a min_score'                       => [
+            'with_a_min_score'                          => [
                 'query'    => Query::create()->setMinScore(42),
                 'expected' => [
                     'min_score' => 42,
                 ],
             ],
-            'with a filter'                          => [
+            'with_a_filter'                             => [
                 'query'    => Query::create(Filter::create('field', 'value')),
                 'expected' => [
                     'query' => ['bool' => ['filter' => ['bool' => ['must' => [['term' => ['field' => 'value']]]]]]],
                 ],
             ],
-            'with a search, default search operator' => [
+            'with_a_search_and_default_search_operator' => [
                 'query'    => Query::create(Search::create(['field_a'], 'foo')),
                 'expected' => [
                     'query' => [
@@ -319,7 +320,7 @@ final class QueryTest extends TestCase
     private static function toArrayBatch2(): array
     {
         return [
-            'with two searches, AND connected'                      => [
+            'with_two_searches_connected_by_and'                    => [
                 'query'    => Query::create(
                     Search::create(['field_a'], 'foo'),
                     Search::create(['field_b'], 'bar')
@@ -335,7 +336,7 @@ final class QueryTest extends TestCase
                     ],
                 ],
             ],
-            'with an aggregation'                                   => [
+            'with_an_aggregation'                                   => [
                 'query'    => Query::create(Aggregation::create('field_a', Metric::SUM, 'my_agg')),
                 'expected' => [
                     'aggs' => [
@@ -345,7 +346,7 @@ final class QueryTest extends TestCase
                     ],
                 ],
             ],
-            'with a little bit of everything'                       => [
+            'with_a_little_bit_of_everything'                       => [
                 'query'    => Query::create(
                     Filter::create('field', 'value'),
                     Search::create(['field_a'], 'foo'),
@@ -369,7 +370,7 @@ final class QueryTest extends TestCase
                     'min_score' => 42,
                 ],
             ],
-            'advanced full text queries combined with bool queries' => [
+            'advanced_full_text_queries_combined_with_bool_queries' => [
                 'query'    => Query::create(
                     Filter::create('field', 'value')
                 )
@@ -440,7 +441,7 @@ final class QueryTest extends TestCase
     private static function toArrayBatch3(): array
     {
         return [
-            'basic nested query as filter' => [
+            'basic_nested_query_as_filter' => [
                 'query'    => Query::create(
                     Query::createNested('my_field', Filter::create('my_field.subfield', 'foobar'))
                 ),
@@ -477,7 +478,7 @@ final class QueryTest extends TestCase
                     ],
                 ],
             ],
-            'basic nested query as search' => [
+            'basic_nested_query_as_search' => [
                 'query'    => Query::create()
                     ->search(Query::createNested('my_field', Filter::create('my_field.subfield', 'foobar'))),
                 'expected' => [
@@ -510,7 +511,7 @@ final class QueryTest extends TestCase
                     ],
                 ],
             ],
-            'nested query with options'    => [
+            'nested_query_with_options'    => [
                 'query'    => Query::create(
                     Query::createNested('my_field', Filter::create('my_field.subfield', 'foobar'))
                         ->setOption(NestableQueryInterface::OPTION_SCORE_MODE, 'max')
@@ -554,16 +555,13 @@ final class QueryTest extends TestCase
         ];
     }
 
-    private function getPublicReflectionProperty(Query $query, string $fieldName): ReflectionProperty
+    private static function getPublicReflectionProperty(Query $query, string $fieldName): ReflectionProperty
     {
-        $property = new ReflectionProperty($query, $fieldName);
-        $property->setAccessible(true);
-
-        return $property;
+        return new ReflectionProperty($query, $fieldName);
     }
 
-    private function assertChildren(Query $query, string $fieldName, array $expected): void
+    private static function assertChildren(Query $query, string $fieldName, array $expected): void
     {
-        $this->assertEquals($expected, $this->getPublicReflectionProperty($query, $fieldName)->getValue($query));
+        self::assertEquals($expected, self::getPublicReflectionProperty($query, $fieldName)->getValue($query));
     }
 }

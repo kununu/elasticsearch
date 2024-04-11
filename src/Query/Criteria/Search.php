@@ -25,10 +25,10 @@ class Search implements SearchInterface
     public const TERM = TermQuery::KEYWORD;
 
     public function __construct(
-        protected array $fields,
-        protected string $queryString,
-        protected string $type = self::QUERY_STRING,
-        protected array $options = []
+        protected readonly array $fields,
+        protected readonly string $queryString,
+        protected readonly string $type = self::QUERY_STRING,
+        protected readonly array $options = []
     ) {
         if (empty($fields)) {
             throw new InvalidArgumentException('No fields given');

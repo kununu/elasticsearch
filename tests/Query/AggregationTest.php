@@ -7,18 +7,19 @@ use InvalidArgumentException;
 use Kununu\Elasticsearch\Query\Aggregation;
 use Kununu\Elasticsearch\Query\Aggregation\Bucket;
 use Kununu\Elasticsearch\Query\Aggregation\Metric;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
 final class AggregationTest extends TestCase
 {
-    /** @dataProvider createDataProvider */
+    #[DataProvider('createDataProvider')]
     public function testCreateWithoutOptions(string $field, string $type, string $name): void
     {
         $aggregation = Aggregation::create($field, $type, $name);
 
-        $this->assertEquals($name, $aggregation->getName());
-        $this->assertEquals(
+        self::assertEquals($name, $aggregation->getName());
+        self::assertEquals(
             [
                 $name => [
                     $type => [
@@ -34,7 +35,7 @@ final class AggregationTest extends TestCase
     {
         $ret = [];
         foreach (Metric::all() + Bucket::all() as $type) {
-            $ret['type ' . $type] = [
+            $ret['type_' . $type] = [
                 'field'   => 'my_field',
                 'type'    => $type,
                 'name'    => 'my_agg',
@@ -58,7 +59,7 @@ final class AggregationTest extends TestCase
             ]
         );
 
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'my_agg' => [
                     'sum' => [
@@ -75,7 +76,7 @@ final class AggregationTest extends TestCase
     {
         $aggregation = Aggregation::create('my_field', Metric::SUM);
 
-        $this->assertNotNull($aggregation->getName());
+        self::assertNotNull($aggregation->getName());
     }
 
     public function testCreateWithInvalidType(): void
@@ -91,7 +92,7 @@ final class AggregationTest extends TestCase
         $aggregation = Aggregation::create('my_field', Bucket::TERMS, 'my_term_buckets')
             ->nest(Aggregation::create('my_field', Metric::CARDINALITY, 'term_cardinality'));
 
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'my_term_buckets' => [
                     'terms' => [
@@ -116,7 +117,7 @@ final class AggregationTest extends TestCase
             ->nest(Aggregation::create('my_field', Metric::CARDINALITY, 'term_cardinality'))
             ->nest(Aggregation::create('my_field', Metric::VALUE_COUNT, 'term_value_count'));
 
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'my_term_buckets' => [
                     'terms' => [
@@ -144,7 +145,7 @@ final class AggregationTest extends TestCase
     {
         $aggregation = Aggregation::createGlobal('my_global_agg');
 
-        $this->assertEquals(
+        self::assertEquals(
             json_encode(
                 [
                     'my_global_agg' => [
@@ -160,7 +161,7 @@ final class AggregationTest extends TestCase
     {
         $aggregation = Aggregation::createGlobal('my_global_agg', ['my_option' => 'foobar']);
 
-        $this->assertEquals(
+        self::assertEquals(
             json_encode(
                 [
                     'my_global_agg' => [
@@ -178,7 +179,7 @@ final class AggregationTest extends TestCase
         $aggregation = Aggregation::createGlobal('all_products')
             ->nest(Aggregation::create('price', Metric::AVG, 'avg_price'));
 
-        $this->assertEquals(
+        self::assertEquals(
             json_encode(
                 [
                     'all_products' => [
@@ -201,7 +202,7 @@ final class AggregationTest extends TestCase
     {
         $aggregation = Aggregation::createFieldless(Bucket::FILTERS, 'my_fieldless_agg');
 
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'my_fieldless_agg' => [
                     'filters' => [],
@@ -219,7 +220,7 @@ final class AggregationTest extends TestCase
             ['other_bucket_key' => 'foobar', 'filters' => ['bucket_a' => ['term' => ['field' => 'field_a']]]]
         );
 
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'my_fieldless_agg' => [
                     'filters' => [
@@ -241,15 +242,18 @@ final class AggregationTest extends TestCase
             ['ranges' => [['from' => 1, 'to' => 2]]]
         );
 
-        $this->assertEquals([
-            'my_agg' => [
-                'range' => [
-                    'field'       => 'my_field',
-                    'ranges'      => [
-                        ['from' => 1, 'to' => 2],
+        self::assertEquals(
+            [
+                'my_agg' => [
+                    'range' => [
+                        'field'  => 'my_field',
+                        'ranges' => [
+                            ['from' => 1, 'to' => 2],
+                        ],
                     ],
                 ],
             ],
-        ], $aggregation->toArray());
+            $aggregation->toArray()
+        );
     }
 }

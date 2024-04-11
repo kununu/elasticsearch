@@ -8,11 +8,11 @@ use PHPUnit\Framework\TestCase;
 
 final class QueryStringQueryTest extends TestCase
 {
-    protected const QUERY_STRING = 'what was i looking for?';
+    private const QUERY_STRING = 'what was i looking for?';
 
     public function testSingleField(): void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'query_string' => [
                     'fields' => ['field_a'],
@@ -25,7 +25,7 @@ final class QueryStringQueryTest extends TestCase
 
     public function testMultipleFields(): void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'query_string' => [
                     'fields' => ['field_a', 'field_b'],
@@ -38,7 +38,7 @@ final class QueryStringQueryTest extends TestCase
 
     public function testWithOptions(): void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'query_string' => [
                     'fields' => ['field_a', 'field_b'],

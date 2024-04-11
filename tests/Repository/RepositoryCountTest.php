@@ -14,7 +14,7 @@ final class RepositoryCountTest extends AbstractRepositoryTestCase
         $query = Query::create();
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('count')
             ->with([
                 'index' => self::INDEX['read'],
@@ -22,26 +22,27 @@ final class RepositoryCountTest extends AbstractRepositoryTestCase
             ])
             ->willReturn(['count' => self::DOCUMENT_COUNT]);
 
-        $this->assertEquals(self::DOCUMENT_COUNT, $this->getRepository()->count());
+        self::assertEquals(self::DOCUMENT_COUNT, $this->getRepository()->count());
     }
 
     public function testCountFails(): void
     {
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('count')
             ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
+            ->expects(self::once())
             ->method('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
         try {
             $this->getRepository()->count();
         } catch (ReadOperationException $e) {
-            $this->assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
-            $this->assertEquals(0, $e->getCode());
-            $this->assertNull($e->getQuery());
+            self::assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
+            self::assertEquals(0, $e->getCode());
+            self::assertNull($e->getQuery());
         }
     }
 }

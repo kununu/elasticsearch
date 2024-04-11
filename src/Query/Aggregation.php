@@ -15,24 +15,21 @@ class Aggregation implements AggregationInterface
      */
     public const GLOBAL = 'global';
 
+    protected readonly string $name;
     /** @var AggregationInterface[] */
     protected array $nestedAggregations = [];
 
     public function __construct(
-        protected ?string $field,
-        protected string $type,
-        protected string $name = '',
-        protected array $options = []
+        protected readonly ?string $field,
+        protected readonly string $type,
+        string $name = '',
+        protected readonly array $options = []
     ) {
         if (!Metric::hasConstant($type) && !Bucket::hasConstant($type) && $type !== static::GLOBAL) {
             throw new InvalidArgumentException('Unknown type "' . $type . '" given');
         }
 
-        if (empty($name)) {
-            $name = spl_object_hash($this);
-        }
-
-        $this->name = $name;
+        $this->name = empty($name) ? spl_object_hash($this) : $name;
     }
 
     public static function create(string $field, string $type, string $name = '', array $options = []): Aggregation

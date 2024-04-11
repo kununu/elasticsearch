@@ -6,7 +6,6 @@ namespace Kununu\Elasticsearch\Tests\Repository;
 use Exception;
 use Kununu\Elasticsearch\Exception\UpsertException;
 use Kununu\Elasticsearch\Repository\Repository;
-use PHPUnit\Framework\TestCase;
 
 final class RepositorySaveTest extends AbstractRepositoryTestCase
 {
@@ -17,7 +16,7 @@ final class RepositorySaveTest extends AbstractRepositoryTestCase
         ];
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('index')
             ->with([
                 'index' => self::INDEX['write'],
@@ -26,7 +25,7 @@ final class RepositorySaveTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
         $this->getRepository()->save(self::ID, $document);
@@ -39,7 +38,7 @@ final class RepositorySaveTest extends AbstractRepositoryTestCase
         ];
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('index')
             ->with([
                 'index'   => self::INDEX['write'],
@@ -49,7 +48,7 @@ final class RepositorySaveTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
         $this->getRepository(['force_refresh_on_write' => true])->save(self::ID, $document);
@@ -62,7 +61,7 @@ final class RepositorySaveTest extends AbstractRepositoryTestCase
         ];
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('index')
             ->with([
                 'index' => self::INDEX['write'],
@@ -72,16 +71,17 @@ final class RepositorySaveTest extends AbstractRepositoryTestCase
             ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->loggerMock
+            ->expects(self::once())
             ->method('error')
             ->with(self::ERROR_PREFIX . self::ERROR_MESSAGE);
 
         try {
             $this->getRepository()->save(self::ID, $document);
         } catch (UpsertException $e) {
-            $this->assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
-            $this->assertEquals(0, $e->getCode());
-            $this->assertEquals(self::ID, $e->getDocumentId());
-            $this->assertEquals($document, $e->getDocument());
+            self::assertEquals(self::ERROR_PREFIX . self::ERROR_MESSAGE, $e->getMessage());
+            self::assertEquals(0, $e->getCode());
+            self::assertEquals(self::ID, $e->getDocumentId());
+            self::assertEquals($document, $e->getDocument());
         }
     }
 
@@ -92,7 +92,7 @@ final class RepositorySaveTest extends AbstractRepositoryTestCase
         ];
 
         $this->clientMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('index')
             ->with([
                 'index' => self::INDEX['write'],
@@ -101,14 +101,14 @@ final class RepositorySaveTest extends AbstractRepositoryTestCase
             ]);
 
         $this->loggerMock
-            ->expects($this->never())
+            ->expects(self::never())
             ->method('error');
 
         $manager = new class($this->clientMock, ['index_write' => self::INDEX['write']]) extends Repository {
             protected function postSave(string $id, array $document): void
             {
-                TestCase::assertEquals(AbstractRepositoryTestCase::ID, $id);
-                TestCase::assertEquals(['whatever' => 'just some data'], $document);
+                AbstractRepositoryTestCase::assertEquals(AbstractRepositoryTestCase::ID, $id);
+                AbstractRepositoryTestCase::assertEquals(['whatever' => 'just some data'], $document);
             }
         };
 

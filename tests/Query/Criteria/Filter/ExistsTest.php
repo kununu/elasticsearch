@@ -10,7 +10,7 @@ final class ExistsTest extends TestCase
 {
     public function testTrue(): void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'exists' => [
                     'field' => 'field_a',
@@ -22,7 +22,7 @@ final class ExistsTest extends TestCase
 
     public function testFalse(): void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'bool' => [
                     'must_not' => [

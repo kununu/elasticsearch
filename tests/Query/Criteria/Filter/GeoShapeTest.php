@@ -10,11 +10,11 @@ use PHPUnit\Framework\TestCase;
 
 final class GeoShapeTest extends TestCase
 {
-    protected GeoShapeInterface|MockObject $geoShape;
+    protected MockObject&GeoShapeInterface $geoShape;
 
     public function testWithoutOptions(): void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'geo_shape' => [
                     'field_a' => [
@@ -28,7 +28,7 @@ final class GeoShapeTest extends TestCase
 
     public function testWithOptions(): void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'geo_shape' => [
                     'field_a' => [
@@ -46,7 +46,7 @@ final class GeoShapeTest extends TestCase
         $this->geoShape = $this->createMock(GeoShapeInterface::class);
 
         $this->geoShape
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('toArray')
             ->willReturn([]);
     }
