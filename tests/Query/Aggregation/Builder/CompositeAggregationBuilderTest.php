@@ -9,6 +9,7 @@ use Kununu\Elasticsearch\Query\Aggregation\Sources;
 use Kununu\Elasticsearch\Query\Criteria\Filter;
 use Kununu\Elasticsearch\Query\Criteria\Filters;
 use Kununu\Elasticsearch\Query\Criteria\Operator;
+use Kununu\Elasticsearch\Query\RawQuery;
 use PHPUnit\Framework\TestCase;
 
 class CompositeAggregationBuilderTest extends TestCase
@@ -26,6 +27,9 @@ class CompositeAggregationBuilderTest extends TestCase
                     new SourceProperty('field', 'value')
                 )
             );
+
+        $query = $compositeAggregation->getQuery();
+        self::assertInstanceOf(RawQuery::class, $query);
 
         self::assertEquals(
             [
@@ -65,7 +69,7 @@ class CompositeAggregationBuilderTest extends TestCase
                     ]
                 ],
             ],
-            $compositeAggregation->getQuery()->toArray()
+            $compositeAggregation->toArray()
         );
     }
 }
