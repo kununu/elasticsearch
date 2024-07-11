@@ -4,13 +4,6 @@
   "type": "library",
   "license": "proprietary",
   "minimum-stability": "stable",
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/kununu/utilities.git",
-      "no-api": true
-    }
-  ],
   "require": {
     "php": ">=8.1",
     "ext-ctype": "*",
@@ -18,7 +11,7 @@
     "ext-json": "*",
     "ext-mbstring": "*",
     "elasticsearch/elasticsearch": "^7.0",
-    "kununu/utilities": "^4.8.0",
+    "kununu/collections": "^4.1.0",
     "psr/log": "^1.0|^2.0|^3.0"
   },
   "require-dev": {

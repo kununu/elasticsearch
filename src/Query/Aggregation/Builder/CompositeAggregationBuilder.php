@@ -10,8 +10,7 @@ use Kununu\Elasticsearch\Query\Criteria\Filter;
 use Kununu\Elasticsearch\Query\Criteria\Filters;
 use Kununu\Elasticsearch\Query\QueryInterface;
 use Kununu\Elasticsearch\Query\RawQuery;
-use Kununu\Utilities\Arrays\ArrayUtilities;
-use Kununu\Utilities\Elasticsearch\Q;
+use Kununu\Elasticsearch\Util\ArrayUtilities;
 use RuntimeException;
 
 class CompositeAggregationBuilder implements AggregationInterface
@@ -75,26 +74,26 @@ class CompositeAggregationBuilder implements AggregationInterface
     {
         return RawQuery::create(
             ArrayUtilities::filterNullAndEmptyValues([
-                Q::query() => [
-                    Q::bool() => [
-                        Q::must() => $this->filters->map(fn(Filter $filter) => $filter->toArray()),
+                'query' => [
+                    'bool' => [
+                        'must' => $this->filters->map(fn(Filter $filter) => $filter->toArray()),
                     ],
                 ],
-                Q::aggs() => [
+                'aggs' => [
                     $this->getName() => [
-                        Q::composite() => [
-                            Q::size() => $compositeSize,
-                            Q::sources() => $this->sources?->map(
+                        'composite' => [
+                            'size' => $compositeSize,
+                            'sources' => $this->sources?->map(
                                     fn(SourceProperty $sourceProperty) => [
                                         $sourceProperty->source => [
-                                            Q::terms() => [
-                                                Q::field() => $sourceProperty->property,
-                                                Q::missingBucket() => $sourceProperty->missingBucket,
+                                            'terms' => [
+                                                'field' => $sourceProperty->property,
+                                                'missing_bucket' => $sourceProperty->missingBucket,
                                             ]
                                         ],
                                     ]
                                 ) ?? [],
-                            Q::after() => $this->afterKey,
+                            'after' => $this->afterKey,
                         ],
                     ],
                 ],

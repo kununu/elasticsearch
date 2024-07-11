@@ -8,7 +8,6 @@ use Kununu\Elasticsearch\Query\Aggregation\Builder\CompositeAggregationBuilder;
 use Kununu\Elasticsearch\Query\Aggregation\Sources;
 use Kununu\Elasticsearch\Query\Criteria\Filters;
 use Kununu\Elasticsearch\Result\CompositeResult;
-use Kununu\Utilities\Elasticsearch\Q;
 
 final class CompositeAggregationRepository extends Repository implements CompositeAggregationRepositoryInterface
 {
@@ -24,17 +23,17 @@ final class CompositeAggregationRepository extends Repository implements Composi
                 $elasticsearchQuery->getQuery()->limit(0)
             )->getResultByName($aggregationName);
 
-            foreach ($result?->getFields()[Q::buckets()] ?? [] as $bucket) {
-                if (!empty($bucket[Q::key()]) && !empty($bucket[Q::docCount()])) {
+            foreach ($result?->getFields()['buckets'] ?? [] as $bucket) {
+                if (!empty($bucket['key']) && !empty($bucket['doc_count'])) {
                     yield new CompositeResult(
-                        $bucket[Q::key()],
-                        $bucket[Q::docCount()],
+                        $bucket['key'],
+                        $bucket['doc_count'],
                         $aggregationName
                     );
                 }
             }
 
-            $elasticsearchQuery->withAfterKey($afterKey = ($result?->get(Q::afterKey()) ?? null));
+            $elasticsearchQuery->withAfterKey($afterKey = ($result?->get('after_key') ?? null));
         } while (null !== $afterKey);
     }
 }
