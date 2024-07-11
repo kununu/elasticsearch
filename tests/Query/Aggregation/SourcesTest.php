@@ -22,8 +22,8 @@ final class SourcesTest extends TestCase
 
     public function testSourcesWithInvalidSourceProperty(): void
     {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Can only append Kununu\Elasticsearch\Query\Aggregation\SourceProperty');
+        self::expectException(InvalidArgumentException::class);
+        self::expectExceptionMessage('Can only append Kununu\Elasticsearch\Query\Aggregation\SourceProperty');
 
         (new Sources())->append('invalid');
     }

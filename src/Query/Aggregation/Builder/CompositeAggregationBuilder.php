@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Query\Aggregation\Builder;
 
+use Kununu\Elasticsearch\Exception\MissingAggregationAttributesException;
 use Kununu\Elasticsearch\Query\Aggregation\SourceProperty;
 use Kununu\Elasticsearch\Query\Aggregation\Sources;
 use Kununu\Elasticsearch\Query\AggregationInterface;
@@ -64,7 +65,7 @@ class CompositeAggregationBuilder implements AggregationInterface
     public function getName(): string
     {
         if (null === $this->name) {
-            throw new RuntimeException('Aggregation name is required');
+            throw new MissingAggregationAttributesException('Aggregation name is missing');
         }
 
         return $this->name;

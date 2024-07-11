@@ -22,8 +22,8 @@ final class FiltersTest extends TestCase
 
     public function testFiltersWithInvalidFilter(): void
     {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Can only append Kununu\Elasticsearch\Query\Criteria\Filter');
+        self::expectException(InvalidArgumentException::class);
+        self::expectExceptionMessage('Can only append Kununu\Elasticsearch\Query\Criteria\Filter');
 
         (new Filters())->append('invalid');
     }
