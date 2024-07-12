@@ -13,7 +13,7 @@ use Kununu\Elasticsearch\Query\QueryInterface;
 use Kununu\Elasticsearch\Query\RawQuery;
 use Kununu\Elasticsearch\Util\ArrayUtilities;
 
-class CompositeAggregationQueryBuilder implements CompositeAggregationQueryInterface
+final class CompositeAggregationQueryBuilder implements CompositeAggregationQueryInterface
 {
     private ?array $afterKey;
     private Filters $filters;

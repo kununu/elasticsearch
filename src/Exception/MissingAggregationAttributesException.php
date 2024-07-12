@@ -5,6 +5,6 @@ namespace Kununu\Elasticsearch\Exception;
 
 use RuntimeException;
 
-class MissingAggregationAttributesException extends RuntimeException
+final class MissingAggregationAttributesException extends RuntimeException
 {
 }

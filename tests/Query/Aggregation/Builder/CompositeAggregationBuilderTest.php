@@ -13,7 +13,7 @@ use Kununu\Elasticsearch\Query\Criteria\Operator;
 use Kununu\Elasticsearch\Query\RawQuery;
 use PHPUnit\Framework\TestCase;
 
-class CompositeAggregationBuilderTest extends TestCase
+final class CompositeAggregationBuilderTest extends TestCase
 {
     public function testCompositeAggregationBuilder(): void
     {
