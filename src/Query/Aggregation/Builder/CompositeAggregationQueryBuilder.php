@@ -6,15 +6,14 @@ namespace Kununu\Elasticsearch\Query\Aggregation\Builder;
 use Kununu\Elasticsearch\Exception\MissingAggregationAttributesException;
 use Kununu\Elasticsearch\Query\Aggregation\SourceProperty;
 use Kununu\Elasticsearch\Query\Aggregation\Sources;
-use Kununu\Elasticsearch\Query\AggregationInterface;
+use Kununu\Elasticsearch\Query\CompositeAggregationQueryInterface;
 use Kununu\Elasticsearch\Query\Criteria\Filter;
 use Kununu\Elasticsearch\Query\Criteria\Filters;
 use Kununu\Elasticsearch\Query\QueryInterface;
 use Kununu\Elasticsearch\Query\RawQuery;
 use Kununu\Elasticsearch\Util\ArrayUtilities;
-use RuntimeException;
 
-class CompositeAggregationBuilder implements AggregationInterface
+class CompositeAggregationQueryBuilder implements CompositeAggregationQueryInterface
 {
     private ?array $afterKey;
     private Filters $filters;
@@ -62,7 +61,7 @@ class CompositeAggregationBuilder implements AggregationInterface
         return $this;
     }
 
-    public function getName(): string
+    public function name(): string
     {
         if (null === $this->name) {
             throw new MissingAggregationAttributesException('Aggregation name is missing');
@@ -81,19 +80,19 @@ class CompositeAggregationBuilder implements AggregationInterface
                     ],
                 ],
                 'aggs' => [
-                    $this->getName() => [
+                    $this->name() => [
                         'composite' => [
                             'size' => $compositeSize,
                             'sources' => $this->sources?->map(
-                                    fn(SourceProperty $sourceProperty) => [
-                                        $sourceProperty->source => [
-                                            'terms' => [
-                                                'field' => $sourceProperty->property,
-                                                'missing_bucket' => $sourceProperty->missingBucket,
-                                            ]
-                                        ],
-                                    ]
-                                ) ?? [],
+                                fn(SourceProperty $sourceProperty) => [
+                                    $sourceProperty->source => [
+                                        'terms' => [
+                                            'field' => $sourceProperty->property,
+                                            'missing_bucket' => $sourceProperty->missingBucket,
+                                        ]
+                                    ],
+                                ]
+                            ) ?? [],
                             'after' => $this->afterKey,
                         ],
                     ],

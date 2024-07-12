@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\Tests\Query\Aggregation\Builder;
 
 use Kununu\Elasticsearch\Exception\MissingAggregationAttributesException;
-use Kununu\Elasticsearch\Query\Aggregation\Builder\CompositeAggregationBuilder;
+use Kununu\Elasticsearch\Query\Aggregation\Builder\CompositeAggregationQueryBuilder;
 use Kununu\Elasticsearch\Query\Aggregation\SourceProperty;
 use Kununu\Elasticsearch\Query\Aggregation\Sources;
 use Kununu\Elasticsearch\Query\Criteria\Filter;
@@ -17,7 +17,7 @@ class CompositeAggregationBuilderTest extends TestCase
 {
     public function testCompositeAggregationBuilder(): void
     {
-        $compositeAggregation = CompositeAggregationBuilder::create()
+        $compositeAggregation = CompositeAggregationQueryBuilder::create()
             ->withName('agg')
             ->withFilters(new Filters(
                 new Filter('field', 'value'),
@@ -25,7 +25,7 @@ class CompositeAggregationBuilderTest extends TestCase
             ))
             ->withSources(
                 new Sources(
-                    new SourceProperty('field', 'value')
+                    new SourceProperty('source', 'property')
                 )
             );
 
@@ -58,9 +58,9 @@ class CompositeAggregationBuilderTest extends TestCase
                             'size' => 100,
                             'sources' => [
                                 [
-                                    'field' => [
+                                    'source' => [
                                         'terms' => [
-                                            'field' => 'value',
+                                            'field' => 'property',
                                             'missing_bucket' => false,
                                         ]
                                     ]
@@ -101,9 +101,9 @@ class CompositeAggregationBuilderTest extends TestCase
                             'size' => 100,
                             'sources' => [
                                 [
-                                    'field' => [
+                                    'source' => [
                                         'terms' => [
-                                            'field' => 'value',
+                                            'field' => 'property',
                                             'missing_bucket' => false,
                                         ]
                                     ]
@@ -123,7 +123,7 @@ class CompositeAggregationBuilderTest extends TestCase
         self::expectException(MissingAggregationAttributesException::class);
         self::expectExceptionMessage('Aggregation name is missing');
 
-        $compositeAggregation = CompositeAggregationBuilder::create()
+        $compositeAggregation = CompositeAggregationQueryBuilder::create()
             ->withFilters(new Filters(
                 new Filter('field', 'value'),
                 new Filter('field2', 'value2', Operator::GREATER_THAN_EQUALS)
