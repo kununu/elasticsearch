@@ -286,7 +286,6 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         );
     }
 
-    /** @return Generator <CompositeResult> */
     public function aggregateCompositeByQuery(CompositeAggregationQueryInterface $query): Generator
     {
         $afterKey = null;
