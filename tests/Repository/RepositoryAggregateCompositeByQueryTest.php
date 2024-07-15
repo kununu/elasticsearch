@@ -34,7 +34,7 @@ final class RepositoryAggregateCompositeByQueryTest extends AbstractRepositoryTe
 
         $compositeQuery
             ->expects($this->any())
-            ->method('name')
+            ->method('getName')
             ->willReturn('agg');
 
         $compositeQuery

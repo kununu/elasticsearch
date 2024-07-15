@@ -294,14 +294,14 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
         do {
             $result = $this->aggregateByQuery(
                 $query->withAfterKey($afterKey)->getQuery()
-            )->getResultByName($query->name());
+            )->getResultByName($query->getName());
 
             foreach ($result?->getFields()['buckets'] ?? [] as $bucket) {
                 if (!empty($bucket['key']) && !empty($bucket['doc_count'])) {
                     yield new CompositeResult(
                         $bucket['key'],
                         $bucket['doc_count'],
-                        $query->name()
+                        $query->getName()
                     );
                 }
             }

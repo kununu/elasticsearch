@@ -15,17 +15,14 @@ use Kununu\Elasticsearch\Util\ArrayUtilities;
 
 final class CompositeAggregationQueryBuilder implements CompositeAggregationQueryInterface
 {
-    private ?array $afterKey;
+    private ?array $afterKey = null;
     private Filters $filters;
-    private ?string $name;
-    private ?Sources $sources;
+    private ?string $name = null;
+    private ?Sources $sources = null;
 
     private function __construct()
     {
-        $this->afterKey = null;
         $this->filters = new Filters();
-        $this->name = null;
-        $this->sources = null;
     }
 
     public static function create(): self
@@ -61,7 +58,7 @@ final class CompositeAggregationQueryBuilder implements CompositeAggregationQuer
         return $this;
     }
 
-    public function name(): string
+    public function getName(): string
     {
         if (null === $this->name) {
             throw new MissingAggregationAttributesException('Aggregation name is missing');
@@ -80,7 +77,7 @@ final class CompositeAggregationQueryBuilder implements CompositeAggregationQuer
                     ],
                 ],
                 'aggs' => [
-                    $this->name() => [
+                    $this->getName() => [
                         'composite' => [
                             'size' => $compositeSize,
                             'sources' => $this->sources?->map(

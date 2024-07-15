@@ -7,7 +7,7 @@ interface CompositeAggregationQueryInterface
 {
     public function getQuery(int $compositeSize = 100): QueryInterface;
 
-    public function name(): string;
+    public function getName(): string;
 
     public function withName(string $name): self;
 
