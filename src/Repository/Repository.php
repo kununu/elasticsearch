@@ -5,6 +5,7 @@ namespace Kununu\Elasticsearch\Repository;
 
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
+use Generator;
 use Kununu\Elasticsearch\Exception\BulkException;
 use Kununu\Elasticsearch\Exception\DeleteException;
 use Kununu\Elasticsearch\Exception\DocumentNotFoundException;
@@ -14,10 +15,12 @@ use Kununu\Elasticsearch\Exception\RepositoryException;
 use Kununu\Elasticsearch\Exception\UpdateException;
 use Kununu\Elasticsearch\Exception\UpsertException;
 use Kununu\Elasticsearch\Exception\WriteOperationException;
+use Kununu\Elasticsearch\Query\CompositeAggregationQueryInterface;
 use Kununu\Elasticsearch\Query\Query;
 use Kununu\Elasticsearch\Query\QueryInterface;
 use Kununu\Elasticsearch\Result\AggregationResultSet;
 use Kununu\Elasticsearch\Result\AggregationResultSetInterface;
+use Kununu\Elasticsearch\Result\CompositeResult;
 use Kununu\Elasticsearch\Result\ResultIterator;
 use Kununu\Elasticsearch\Result\ResultIteratorInterface;
 use Kununu\Elasticsearch\Util\LoggerAwareTrait;
@@ -281,6 +284,29 @@ class Repository implements RepositoryInterface, LoggerAwareInterface
                     ->setDocuments($this->parseRawSearchResponse($result));
             }
         );
+    }
+
+    public function aggregateCompositeByQuery(CompositeAggregationQueryInterface $query): Generator
+    {
+        $afterKey = null;
+
+        do {
+            $result = $this->aggregateByQuery(
+                $query->withAfterKey($afterKey)->getQuery()
+            )->getResultByName($query->getName());
+
+            foreach ($result?->getFields()['buckets'] ?? [] as $bucket) {
+                if (!empty($bucket['key']) && !empty($bucket['doc_count'])) {
+                    yield new CompositeResult(
+                        $bucket['key'],
+                        $bucket['doc_count'],
+                        $query->getName()
+                    );
+                }
+            }
+
+            $afterKey = $result?->get('after_key') ?? null;
+        } while (null !== $afterKey);
     }
 
     public function updateByQuery(QueryInterface $query, array $updateScript): array

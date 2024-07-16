@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Repository;
 
+use Generator;
+use Kununu\Elasticsearch\Query\CompositeAggregationQueryInterface;
 use Kununu\Elasticsearch\Query\QueryInterface;
 use Kununu\Elasticsearch\Result\AggregationResultSetInterface;
 use Kununu\Elasticsearch\Result\ResultIteratorInterface;
@@ -101,6 +103,13 @@ interface RepositoryInterface
      * This method executes aggregations specified in $query and retrieves their results as well as the matching documents.
      */
     public function aggregateByQuery(QueryInterface $query): AggregationResultSetInterface;
+
+    /**
+     * This method executes a query with composite aggregation, iterates through the results, and retrieves the data.
+     *
+     * @return Generator <CompositeResult>
+     */
+    public function aggregateCompositeByQuery(CompositeAggregationQueryInterface $query): Generator;
 
     /**
      * This method updates all documents matching a given $query using a given $updateScript.
