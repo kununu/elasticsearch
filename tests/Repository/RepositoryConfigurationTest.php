@@ -19,7 +19,7 @@ final class RepositoryConfigurationTest extends TestCase
     #[DataProvider('inflateConfigDataProvider')]
     public function testInflateConfig(array $input, string $expectedReadAlias, string $expectedWriteAlias): void
     {
-        $config = $this->build($input);
+        $config = self::build($input);
 
         self::assertEquals($expectedReadAlias, $config->getIndex(OperationType::READ));
         self::assertEquals($expectedWriteAlias, $config->getIndex(OperationType::WRITE));
@@ -66,7 +66,7 @@ final class RepositoryConfigurationTest extends TestCase
         string $operationType,
         string $expectedExceptionMessage,
     ): void {
-        $config = $this->build($input);
+        $config = self::build($input);
 
         $this->expectException(RepositoryConfigurationException::class);
         $this->expectExceptionMessage($expectedExceptionMessage);
@@ -118,7 +118,7 @@ final class RepositoryConfigurationTest extends TestCase
             }
         };
 
-        $config = $this->build(['entity_serializer' => $mySerializer]);
+        $config = self::build(['entity_serializer' => $mySerializer]);
 
         self::assertEquals($mySerializer, $config->getEntitySerializer());
     }
@@ -129,7 +129,7 @@ final class RepositoryConfigurationTest extends TestCase
 
         $this->expectException(TypeError::class);
 
-        $this->build(['entity_serializer' => $mySerializer]);
+        self::build(['entity_serializer' => $mySerializer]);
     }
 
     public function testValidEntityFactory(): void
@@ -141,7 +141,7 @@ final class RepositoryConfigurationTest extends TestCase
             }
         };
 
-        $config = $this->build(['entity_factory' => $myFactory]);
+        $config = self::build(['entity_factory' => $myFactory]);
 
         self::assertEquals($myFactory, $config->getEntityFactory());
     }
@@ -152,7 +152,7 @@ final class RepositoryConfigurationTest extends TestCase
 
         $this->expectException(TypeError::class);
 
-        $this->build(['entity_factory' => $myFactory]);
+        self::build(['entity_factory' => $myFactory]);
     }
 
     public function testValidEntityClass(): void
@@ -169,7 +169,7 @@ final class RepositoryConfigurationTest extends TestCase
             }
         };
 
-        $config = $this->build(['entity_class' => $myEntity::class]);
+        $config = self::build(['entity_class' => $myEntity::class]);
 
         self::assertEquals($myEntity::class, $config->getEntityClass());
     }
@@ -184,7 +184,7 @@ final class RepositoryConfigurationTest extends TestCase
             )
         );
 
-        $this->build(['entity_class' => stdClass::class]);
+        self::build(['entity_class' => stdClass::class]);
     }
 
     public function testNonExistentEntityClass(): void
@@ -194,13 +194,13 @@ final class RepositoryConfigurationTest extends TestCase
             'Given entity class does not exist.'
         );
 
-        $this->build(['entity_class' => '\Foo\Bar']);
+        self::build(['entity_class' => '\Foo\Bar']);
     }
 
     #[DataProvider('forceRefreshOnWriteDataProvider')]
     public function testForceRefreshOnWrite(array $input, bool $expected): void
     {
-        $config = $this->build($input);
+        $config = self::build($input);
 
         self::assertEquals($expected, $config->getForceRefreshOnWrite());
     }
@@ -262,7 +262,7 @@ final class RepositoryConfigurationTest extends TestCase
     #[DataProvider('trackTotalHitsDataProvider')]
     public function testTrackTotalHits(array $input, ?bool $expected): void
     {
-        $config = $this->build($input);
+        $config = self::build($input);
 
         self::assertEquals($expected, $config->getTrackTotalHits());
     }
@@ -324,7 +324,7 @@ final class RepositoryConfigurationTest extends TestCase
     #[DataProvider('scrollContextKeepaliveDataProvider')]
     public function testScrollContextKeepalive(array $input, string $expected): void
     {
-        $config = $this->build($input);
+        $config = self::build($input);
 
         self::assertEquals($expected, $config->getScrollContextKeepalive());
     }
@@ -355,18 +355,18 @@ final class RepositoryConfigurationTest extends TestCase
             'Invalid value for scroll_context_keepalive given. Must be a valid time unit.'
         );
 
-        $this->build(['index' => 'foobar', 'scroll_context_keepalive' => 'xxx']);
+        self::build(['index' => 'foobar', 'scroll_context_keepalive' => 'xxx']);
     }
 
     public function testGetDefaultScrollContextKeepalive(): void
     {
-        $config = $this->build();
+        $config = self::build();
 
         self::assertEquals('1m', $config->getScrollContextKeepalive());
         self::assertFalse($config->getForceRefreshOnWrite());
     }
 
-    private function build(array $config = []): RepositoryConfiguration
+    private static function build(array $config = []): RepositoryConfiguration
     {
         return new RepositoryConfiguration($config);
     }
