@@ -44,6 +44,7 @@ All notable changes to this project will be documented in this file based on ["K
     * Add those tools to the CI pipeline
     * Bump code to PHP 8.3 standards (e.g. typed constants()
     * Analyse and fix errors reported by Rector and PHPStan
+  * Replace deprecated SonarCloud action with latest SonarQube Scan action to perform Sonar checks
 
 ### Deprecated
 

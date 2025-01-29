@@ -544,15 +544,15 @@ abstract class AbstractRepository implements RepositoryInterface, LoggerAwareInt
 
     private function createPotentialEntity(array $hit): array|object
     {
-        /** @var ?PersistableEntityInterface $entityClass */
+        /** @var ?PersistableEntityInterface $class */
         // @phpstan-ignore varTag.nativeType
-        $entityClass = $this->entityClass;
+        $class = $this->entityClass;
 
-        if ((null !== $entityClass) || $this->entityFactory) {
+        if ((null !== $class) || $this->entityFactory) {
             ['source' => $source, 'meta' => $metaData] = $this->splitSourceAndMetaData($hit);
 
-            return $entityClass
-                ? $entityClass::fromElasticDocument($source, $metaData)
+            return $class
+                ? $class::fromElasticDocument($source, $metaData)
                 : $this->entityFactory->fromDocument($source, $metaData);
         }
 
