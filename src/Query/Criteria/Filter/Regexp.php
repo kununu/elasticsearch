@@ -5,7 +5,7 @@ namespace Kununu\Elasticsearch\Query\Criteria\Filter;
 
 class Regexp
 {
-    public const KEYWORD = 'regexp';
+    public const string KEYWORD = 'regexp';
 
     public static function asArray(string $field, $value, array $options = []): array
     {

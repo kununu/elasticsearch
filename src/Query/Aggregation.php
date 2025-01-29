@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Query;
 
-use InvalidArgumentException;
+use Kununu\Elasticsearch\Exception\UnknownAggregationTypeException;
 use Kununu\Elasticsearch\Query\Aggregation\Bucket;
 use Kununu\Elasticsearch\Query\Aggregation\Metric;
 use stdClass;
@@ -11,9 +11,10 @@ use stdClass;
 class Aggregation implements AggregationInterface
 {
     /**
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-global-aggregation.html
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-global-aggregation.html Elasticsearch documentation
+     * @see https://opensearch.org/docs/2.18/aggregations/bucket/global/ OpenSearch documentation
      */
-    public const GLOBAL = 'global';
+    public const string GLOBAL = 'global';
 
     protected readonly string $name;
     /** @var AggregationInterface[] */
@@ -23,10 +24,10 @@ class Aggregation implements AggregationInterface
         protected readonly ?string $field,
         protected readonly string $type,
         string $name = '',
-        protected readonly array $options = []
+        protected readonly array $options = [],
     ) {
         if (!Metric::hasConstant($type) && !Bucket::hasConstant($type) && $type !== static::GLOBAL) {
-            throw new InvalidArgumentException('Unknown type "' . $type . '" given');
+            throw new UnknownAggregationTypeException($type);
         }
 
         $this->name = empty($name) ? spl_object_hash($this) : $name;
@@ -82,7 +83,10 @@ class Aggregation implements AggregationInterface
         if (count($this->nestedAggregations) > 0) {
             $body[$this->name]['aggs'] = array_reduce(
                 $this->nestedAggregations,
-                fn(array $carry, AggregationInterface $aggregation): array => array_merge($carry, $aggregation->toArray()),
+                fn(array $carry, AggregationInterface $aggregation): array => array_merge(
+                    $carry,
+                    $aggregation->toArray()
+                ),
                 []
             );
         }

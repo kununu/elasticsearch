@@ -7,7 +7,7 @@ class MatchQuery
 {
     use MultiFieldTrait;
 
-    public const KEYWORD = 'match';
+    public const string KEYWORD = 'match';
 
     public static function asArray(array $fields, string $queryString, array $options = []): array
     {
@@ -16,7 +16,7 @@ class MatchQuery
                 'multi_match' => array_merge(
                     $options,
                     [
-                        'fields' => self::prepareFields($fields),
+                        'fields' => static::prepareFields($fields),
                         'query'  => $queryString,
                     ]
                 ),

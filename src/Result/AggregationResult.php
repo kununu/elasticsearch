@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Result;
 
+/** @phpstan-consistent-constructor */
 class AggregationResult implements AggregationResultInterface
 {
     public function __construct(protected readonly string $name, protected readonly array $fields = [])

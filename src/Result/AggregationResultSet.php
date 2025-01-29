@@ -3,9 +3,10 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Result;
 
+/** @phpstan-consistent-constructor */
 class AggregationResultSet implements AggregationResultSetInterface
 {
-    protected ResultIterator|null $documents = null;
+    protected ?ResultIteratorInterface $documents = null;
     protected array $aggregationResults = [];
 
     public function __construct(array $rawResult = [])

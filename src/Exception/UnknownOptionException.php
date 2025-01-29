@@ -5,6 +5,10 @@ namespace Kununu\Elasticsearch\Exception;
 
 use InvalidArgumentException;
 
-class UnknownOptionException extends InvalidArgumentException
+final class UnknownOptionException extends InvalidArgumentException
 {
+    public function __construct(string $option)
+    {
+        parent::__construct(sprintf('Unknown option "%s" given', $option));
+    }
 }

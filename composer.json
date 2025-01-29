@@ -1,22 +1,27 @@
 {
   "name": "kununu/elasticsearch",
-  "description": "Library for simplified querying and usage of Elasticsearch @ Kununu",
+  "description": "Library for simplified querying and usage of Elasticsearch/OpenSearch @ Kununu",
   "type": "library",
   "license": "proprietary",
   "minimum-stability": "stable",
   "require": {
-    "php": ">=8.1",
+    "php": ">=8.3",
     "ext-ctype": "*",
     "ext-iconv": "*",
     "ext-json": "*",
     "ext-mbstring": "*",
-    "elasticsearch/elasticsearch": "^7.0",
-    "kununu/collections": "^5.0",
+    "elasticsearch/elasticsearch": "^7.1",
+    "kununu/collections": "^5.1",
+    "opensearch-project/opensearch-php": "^2.0",
     "psr/log": "^1.0|^2.0|^3.0"
   },
   "require-dev": {
-    "kununu/scripts": ">=5.0",
-    "phpunit/phpunit": "^10.5"
+    "jetbrains/phpstorm-attributes": "^1.2",
+    "kununu/scripts": ">=5.1",
+    "phpstan/phpstan": "^2.1",
+    "phpstan/phpstan-phpunit": "^2.0",
+    "phpunit/phpunit": "^11.5",
+    "rector/rector": "^2.0"
   },
   "autoload": {
     "psr-4": {
@@ -30,11 +35,15 @@
   },
   "scripts": {
     "test": "phpunit --log-events-text phpunit.log --no-coverage --no-logging --no-progress --testsuite Full",
-    "test-coverage": "XDEBUG_MODE=coverage phpunit --log-events-text phpunit.log --no-progress --testsuite Full"
+    "test-coverage": "XDEBUG_MODE=coverage phpunit --log-events-text phpunit.log --no-progress --testsuite Full",
+    "rector": "rector process --dry-run --config rector-ci.php src/ tests/",
+    "phpstan": "phpstan"
   },
   "scripts-descriptions": {
     "test": "Run all tests",
-    "test-coverage": "Run all tests with coverage report"
+    "test-coverage": "Run all tests with coverage report",
+    "rector": "Run Rector in dry-run mode with CI rules",
+    "phpstan": "Run PHPStan"
   },
   "config": {
     "allow-plugins": {

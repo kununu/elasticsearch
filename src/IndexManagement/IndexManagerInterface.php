@@ -15,7 +15,7 @@ interface IndexManagerInterface
         string $index,
         array $mappings,
         array $aliases = [],
-        array $settings = []
+        array $settings = [],
     ): IndexManagerInterface;
 
     public function deleteIndex(string $index): IndexManagerInterface;

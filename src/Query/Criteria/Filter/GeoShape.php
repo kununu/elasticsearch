@@ -7,7 +7,7 @@ use Kununu\Elasticsearch\Query\Criteria\GeoShapeInterface;
 
 class GeoShape
 {
-    public const KEYWORD = 'geo_shape';
+    public const string KEYWORD = 'geo_shape';
 
     public static function asArray(string $field, GeoShapeInterface $value, array $options = []): array
     {

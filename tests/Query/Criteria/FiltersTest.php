@@ -12,19 +12,20 @@ final class FiltersTest extends TestCase
 {
     public function testFilters(): void
     {
-        $filters = new Filters();
-        self::assertCount(0, $filters);
+        $filters = (new Filters(new Filter('field', 'value')))
+            ->add(new Filter('field2', 'value2'));
 
-        $filters = new Filters(new Filter('field', 'value'));
-        $filters->append(new Filter('field2', 'value2'));
         self::assertCount(2, $filters);
-    }
+        self::assertInstanceOf(Filter::class, $filters->current());
 
-    public function testFiltersWithInvalidFilter(): void
-    {
-        self::expectException(InvalidArgumentException::class);
-        self::expectExceptionMessage('Can only append Kununu\Elasticsearch\Query\Criteria\Filter');
+        $filters = new Filters();
 
-        (new Filters())->append('invalid');
+        self::assertEmpty($filters);
+        self::assertNull($filters->current());
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(sprintf('Can only append %s', Filter::class));
+
+        $filters->append('Invalid');
     }
 }

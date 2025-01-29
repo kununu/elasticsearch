@@ -14,7 +14,7 @@ trait IterableTrait
 
     public function next(): void
     {
-        $this->position++;
+        ++$this->position;
     }
 
     public function key(): string|float|int|bool|null

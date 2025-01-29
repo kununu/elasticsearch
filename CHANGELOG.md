@@ -1,16 +1,79 @@
 # Changelog
 
-All notable changes to this project will be documented in this file based on
-the [Keep a Changelog](http://keepachangelog.com/) Standard. This project adheres
-to [Semantic Versioning](http://semver.org/).
+All notable changes to this project will be documented in this file based on ["Keep a Changelog"](http://keepachangelog.com/) Standard. This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased](https://github.com/kununu/elasticsearch/compare/v6.0.1...master)
+## [Unreleased](https://github.com/kununu/elasticsearch/compare/v9.0.0...master)
 
 ### Backward Compatibility Breaks
 
 ### Bugfixes
 
 ### Added
+
+### Improvements
+
+### Deprecated
+
+## [9.0.0](https://github.com/kununu/elasticsearch/compare/v9.0.0...v8.0.0)
+
+### Backward Compatibility Breaks
+
+* Bump PHP minimum version to PHP 8.3
+* `Kununu\Elasticsearch\IndexManagement\IndexManager` was removed
+  * Use `Kununu\Elasticsearch\IndexManagement\Elasticsearch\IndexManager` instead, for Elasticsearch
+  * Use `Kununu\Elasticsearch\IndexManagement\OpenSearch\IndexManager` for OpenSearch
+* `QueryInterface::sort` method signature was changed (see bugfixes section below)
+
+### Bugfixes
+
+* Implementation in `Kununu\Elasticsearch\Query\AbstractQuery` of `QueryInterface::sort` method was redefining the signature:
+  * Now the interface supports the proper 3 arguments (which were even mentioned in the documentation) 
+
+### Added
+
+* Support for OpenSearch 2.x
+  * Index Manager
+  * Repository
+
+### Improvements
+
+* For the library internal development:
+  * Bump PHPUnit version to 11.5 
+  * Formatted all code according to the latest release of `kununu/scripts`
+  * Introduce code quality tools: Rector and PHPStan
+    * Add those tools to the CI pipeline
+    * Bump code to PHP 8.3 standards (e.g. typed constants()
+    * Analyse and fix errors reported by Rector and PHPStan
+
+### Deprecated
+
+* `Kununu\Elasticsearch\Repository\Repository` is deprecated
+  * It should be replaced by `Kununu\Elasticsearch\Repository\Elasticsearch\Repository` if being used isolated
+  * Or child classes should extend from `Kununu\Elasticsearch\Repository\Elasticsearch\AbstractElasticsearchRepository` instead
+
+## [8.0.0](https://github.com/kununu/elasticsearch/compare/v7.1.0...v8.0.0)
+
+### Backward Compatibility Breaks
+
+### Bugfixes
+
+### Added
+
+* Update `kununu/collections` from 4.1 to 5.0
+
+### Improvements
+
+### Deprecated
+
+## [7.1.0](https://github.com/kununu/elasticsearch/compare/v7.1.0...v7.0.0)
+
+### Backward Compatibility Breaks
+
+### Bugfixes
+
+### Added
+ 
+* Add Aggregate Composite By Query
 
 ### Improvements
 

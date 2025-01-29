@@ -83,13 +83,13 @@ final class ResultIteratorTest extends TestCase
         self::assertEquals(['two' => 2.2], $iterator[2]);
 
         $iterator[2] = ['two' => 2.3];
-        self::assertEquals(['two' => 2.3], $iterator[2]);
+        self::assertEquals(['two' => 2.3], $iterator->offsetGet(2));
 
         $iterator[6] = ['five' => 5];
-        self::assertEquals(['five' => 5], $iterator[6]);
+        self::assertEquals(['five' => 5], $iterator->offsetGet(6));
 
         $iterator[] = ['six' => 6];
-        self::assertEquals(['six' => 6], $iterator[7]);
+        self::assertEquals(['six' => 6], $iterator->offsetGet(7));
     }
 
     public function testTotal(): void
@@ -252,7 +252,7 @@ final class ResultIteratorTest extends TestCase
         $calls = 0;
         $stubs = [];
         for ($i = 0; $i < 3; ++$i) {
-            $stubs[$i] = new class() {
+            $stubs[$i] = new class {
                 public int $call = 0;
 
                 public function someMethod(int $call): void

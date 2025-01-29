@@ -5,7 +5,6 @@ namespace Kununu\Elasticsearch\Tests\Query;
 
 use InvalidArgumentException;
 use Kununu\Elasticsearch\Query\AbstractQuery;
-use Kununu\Elasticsearch\Query\QueryInterface;
 use Kununu\Elasticsearch\Query\SortOrder;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -30,7 +29,9 @@ final class AbstractQueryTest extends TestCase
         $query->select($input);
 
         self::assertEquals($input, $query->getSelect());
+
         $serialized = $query->toArray();
+
         self::assertArrayHasKey('_source', $serialized);
         self::assertEquals($expectedOutput, $serialized['_source']);
     }
@@ -39,33 +40,33 @@ final class AbstractQueryTest extends TestCase
     {
         return [
             'no_field'         => [
-                'input'           => [],
-                'expected_output' => false,
+                'input'          => [],
+                'expectedOutput' => false,
             ],
             'one_field'        => [
-                'input'           => [
+                'input'          => [
                     'foo',
                 ],
-                'expected_output' => [
+                'expectedOutput' => [
                     'foo',
                 ],
             ],
             'two_fields'       => [
-                'input'           => [
+                'input'          => [
                     'foo',
                     'bar',
                 ],
-                'expected_output' => [
+                'expectedOutput' => [
                     'foo',
                     'bar',
                 ],
             ],
             'same_field_twice' => [
-                'input'           => [
+                'input'          => [
                     'foo',
                     'foo',
                 ],
-                'expected_output' => [
+                'expectedOutput' => [
                     'foo',
                 ],
             ],
@@ -136,18 +137,18 @@ final class AbstractQueryTest extends TestCase
     {
         return [
             'one_field'               => [
-                'input'           => [
+                'input'          => [
                     [
                         'key'   => 'foo',
                         'order' => SortOrder::ASC,
                     ],
                 ],
-                'expected_output' => [
+                'expectedOutput' => [
                     'foo' => ['order' => SortOrder::ASC],
                 ],
             ],
             'two_fields'              => [
-                'input'           => [
+                'input'          => [
                     [
                         'key'   => 'foo',
                         'order' => SortOrder::ASC,
@@ -157,13 +158,13 @@ final class AbstractQueryTest extends TestCase
                         'order' => SortOrder::DESC,
                     ],
                 ],
-                'expected_output' => [
+                'expectedOutput' => [
                     'foo' => ['order' => SortOrder::ASC],
                     'bar' => ['order' => SortOrder::DESC],
                 ],
             ],
             'override_one_field'      => [
-                'input'           => [
+                'input'          => [
                     [
                         'key'   => 'foo',
                         'order' => SortOrder::ASC,
@@ -173,24 +174,24 @@ final class AbstractQueryTest extends TestCase
                         'order' => SortOrder::DESC,
                     ],
                 ],
-                'expected_output' => [
+                'expectedOutput' => [
                     'foo' => ['order' => SortOrder::DESC],
                 ],
             ],
             'one_field_with_options'  => [
-                'input'           => [
+                'input'          => [
                     [
                         'key'     => 'foo',
                         'order'   => SortOrder::ASC,
                         'options' => ['missing' => '_last'],
                     ],
                 ],
-                'expected_output' => [
+                'expectedOutput' => [
                     'foo' => ['order' => SortOrder::ASC, 'missing' => '_last'],
                 ],
             ],
             'two_fields_with_options' => [
-                'input'           => [
+                'input'          => [
                     [
                         'key'     => 'foo',
                         'order'   => SortOrder::ASC,
@@ -202,7 +203,7 @@ final class AbstractQueryTest extends TestCase
                         'options' => ['mode' => 'avg'],
                     ],
                 ],
-                'expected_output' => [
+                'expectedOutput' => [
                     'foo' => ['order' => SortOrder::ASC, 'missing' => '_last'],
                     'bar' => ['order' => SortOrder::DESC, 'mode' => 'avg'],
                 ],
@@ -243,9 +244,9 @@ final class AbstractQueryTest extends TestCase
         $this->getQuery()->sort('foo', 'bar');
     }
 
-    private function getQuery(): QueryInterface
+    private function getQuery(): AbstractQuery
     {
-        return new class() extends AbstractQuery {
+        return new class extends AbstractQuery {
             public function toArray(): array
             {
                 return $this->buildBaseBody();

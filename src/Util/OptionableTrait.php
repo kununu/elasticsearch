@@ -39,7 +39,7 @@ trait OptionableTrait
     protected function validateOption(string $option): void
     {
         if (!in_array($option, $this->getAvailableOptions(), true)) {
-            throw new UnknownOptionException('Unknown option "' . $option . '" given.');
+            throw new UnknownOptionException($option);
         }
     }
 }

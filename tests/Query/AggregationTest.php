@@ -39,9 +39,6 @@ final class AggregationTest extends TestCase
                 'field'   => 'my_field',
                 'type'    => $type,
                 'name'    => 'my_agg',
-                'options' => [
-                    'some_option' => 'has_a_value',
-                ],
             ];
         }
 
@@ -76,7 +73,7 @@ final class AggregationTest extends TestCase
     {
         $aggregation = Aggregation::create('my_field', Metric::SUM);
 
-        self::assertNotNull($aggregation->getName());
+        self::assertNotEquals('', $aggregation->getName());
     }
 
     public function testCreateWithInvalidType(): void

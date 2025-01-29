@@ -5,7 +5,7 @@ namespace Kununu\Elasticsearch\Query\Criteria\Search;
 
 class TermQuery
 {
-    public const KEYWORD = 'term';
+    public const string KEYWORD = 'term';
 
     public static function asArray(string $field, $term, array $options = []): array
     {

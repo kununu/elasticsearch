@@ -9,10 +9,10 @@ use PHPUnit\Framework\TestCase;
 
 final class OptionableTraitTest extends TestCase
 {
-    public const OPTION_A = 'option_a';
-    public const OPTION_B = 'option_b';
+    public const string OPTION_A = 'option_a';
+    public const string OPTION_B = 'option_b';
 
-    protected const NOT_AN_OPTION = 'foobar';
+    protected const string NOT_AN_OPTION = 'foobar';
 
     public function testGetNotSetOption(): void
     {
@@ -52,7 +52,7 @@ final class OptionableTraitTest extends TestCase
         $optionable = $this->getOptionableObject();
 
         $this->expectException(UnknownOptionException::class);
-        $this->expectExceptionMessage('Unknown option "' . self::NOT_AN_OPTION . '" given.');
+        $this->expectExceptionMessage(sprintf('Unknown option "%s" given', self::NOT_AN_OPTION));
 
         $optionable->getOption(self::NOT_AN_OPTION);
     }
@@ -62,14 +62,14 @@ final class OptionableTraitTest extends TestCase
         $optionable = $this->getOptionableObject();
 
         $this->expectException(UnknownOptionException::class);
-        $this->expectExceptionMessage('Unknown option "' . self::NOT_AN_OPTION . '" given.');
+        $this->expectExceptionMessage(sprintf('Unknown option "%s" given', self::NOT_AN_OPTION));
 
         $optionable->setOption(self::NOT_AN_OPTION, 'foo');
     }
 
     private function getOptionableObject(): object
     {
-        return new class() {
+        return new class {
             use OptionableTrait;
 
             protected function getAvailableOptions(): array

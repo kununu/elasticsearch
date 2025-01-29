@@ -5,7 +5,7 @@ namespace Kununu\Elasticsearch\Query\Criteria\Filter;
 
 class Range
 {
-    public const KEYWORD = 'range';
+    public const string KEYWORD = 'range';
 
     public static function asArray(string $field, array $value, array $options = []): array
     {

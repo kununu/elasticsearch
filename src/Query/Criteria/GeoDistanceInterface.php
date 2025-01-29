@@ -14,7 +14,9 @@ interface GeoDistanceInterface
 
     /**
      * Accepted units:
-     * https://www.elastic.co/guide/en/elasticsearch/reference/7.9/common-options.html#distance-units
+     *
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/7.9/common-options.html#distance-units Elasticsearch documentation
+     * @see https://opensearch.org/docs/2.18/api-reference/units/ OpenSearch documentation
      */
     public function getDistance(): string;
 }

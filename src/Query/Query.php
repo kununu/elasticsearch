@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\Query;
 
 use InvalidArgumentException;
+use Kununu\Elasticsearch\Exception\InvalidSearchArgumentException;
+use Kununu\Elasticsearch\Exception\UnknownChildArgumentTypeException;
 use Kununu\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface;
 use Kununu\Elasticsearch\Query\Criteria\Bool\Must;
 use Kununu\Elasticsearch\Query\Criteria\Bool\Should;
@@ -13,17 +15,18 @@ use Kununu\Elasticsearch\Query\Criteria\NestableQueryInterface;
 use Kununu\Elasticsearch\Query\Criteria\SearchInterface;
 use Kununu\Elasticsearch\Util\OptionableTrait;
 
+/** @phpstan-consistent-constructor */
 class Query extends AbstractQuery implements NestableQueryInterface
 {
     use OptionableTrait;
 
-    public const OPTION_MIN_SCORE = 'min_score';
+    public const string OPTION_MIN_SCORE = 'min_score';
 
-    protected const MINIMUM_SHOULD_MATCH = 1; // relevant when $searchOperator === 'should'
+    protected const int MINIMUM_SHOULD_MATCH = 1; // relevant when $searchOperator === 'should'
 
     protected bool $nested = false;
 
-    /** @var SearchInterface[] */
+    /** @var array<CriteriaInterface> */
     protected array $searches = [];
     /** @var FilterInterface[] */
     protected array $filters = [];
@@ -63,7 +66,11 @@ class Query extends AbstractQuery implements NestableQueryInterface
         $isNestedQuery = $search instanceof NestableQueryInterface;
 
         if (!$isSearch && !$isBool && !$isNestedQuery) {
-            throw new InvalidArgumentException(sprintf('Argument $search must be one of [%s, %s, %s]', SearchInterface::class, BoolQueryInterface::class, NestableQueryInterface::class));
+            throw new InvalidSearchArgumentException(
+                SearchInterface::class,
+                BoolQueryInterface::class,
+                NestableQueryInterface::class
+            );
         }
 
         $this->searches[] = $search;
@@ -162,10 +169,10 @@ class Query extends AbstractQuery implements NestableQueryInterface
     {
         match (true) {
             $child instanceof FilterInterface,
-            $child instanceof NestableQueryInterface     => $this->filters[] = $child,
-            $child instanceof SearchInterface            => $this->searches[] = $child,
-            $child instanceof AggregationInterface       => $this->aggregations[] = $child,
-            default                                      => throw new InvalidArgumentException('Argument #' . $argumentIndex . ' is of unknown type')
+            $child instanceof NestableQueryInterface => $this->filters[] = $child,
+            $child instanceof SearchInterface        => $this->searches[] = $child,
+            $child instanceof AggregationInterface   => $this->aggregations[] = $child,
+            default                                  => throw new UnknownChildArgumentTypeException($argumentIndex),
         };
     }
 }

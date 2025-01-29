@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Tests\Query\Criteria\Bool;
 
-use Kununu\Elasticsearch\Query\Criteria\Bool\AbstractBoolQuery;
-use Kununu\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface;
 use Kununu\Elasticsearch\Query\Criteria\Filter;
+use Kununu\Elasticsearch\Tests\Stub\BoolQueryNoOperatorStub;
+use Kununu\Elasticsearch\Tests\Stub\BoolQueryOperatorStub;
 use LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -17,20 +17,13 @@ final class BoolQueryTest extends TestCase
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage('No operator defined');
 
-        $myBoolFilter = new class() extends AbstractBoolQuery {
-            public function getOperator(): string
-            {
-                return parent::getOperator();
-            }
-        };
-
-        $myBoolFilter->getOperator();
+        (new BoolQueryNoOperatorStub())->getOperator();
     }
 
     #[DataProvider('createDataProvider')]
     public function testCreate(array $input): void
     {
-        self::assertEquals($input, $this->getConcreteBoolQuery($input)->getChildren());
+        self::assertEquals($input, (new BoolQueryOperatorStub(...$input))->getChildren());
     }
 
     public static function createDataProvider(): array
@@ -54,7 +47,7 @@ final class BoolQueryTest extends TestCase
     #[DataProvider('createDataProvider')]
     public function testAdd(array $input): void
     {
-        $boolQuery = $this->getConcreteBoolQuery([]);
+        $boolQuery = new BoolQueryOperatorStub();
 
         self::assertEquals([], $boolQuery->getChildren());
 
@@ -68,7 +61,7 @@ final class BoolQueryTest extends TestCase
     #[DataProvider('createDataProvider')]
     public function testToArray(array $input): void
     {
-        $boolQuery = $this->getConcreteBoolQuery($input);
+        $boolQuery = new BoolQueryOperatorStub(...$input);
 
         self::assertEquals($input, $boolQuery->getChildren());
 
@@ -77,17 +70,5 @@ final class BoolQueryTest extends TestCase
         self::assertArrayHasKey('bool', $serialized);
         self::assertArrayHasKey('my_operator', $serialized['bool']);
         self::assertCount(count($input), $serialized['bool']['my_operator']);
-    }
-
-    private function getConcreteBoolQuery(array $input): BoolQueryInterface
-    {
-        return new class(...$input) extends AbstractBoolQuery {
-            public const OPERATOR = 'my_operator';
-
-            public function getChildren(): array
-            {
-                return $this->children;
-            }
-        };
     }
 }

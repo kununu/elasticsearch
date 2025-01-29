@@ -7,7 +7,7 @@ class QueryStringQuery
 {
     use MultiFieldTrait;
 
-    public const KEYWORD = 'query_string';
+    public const string KEYWORD = 'query_string';
 
     public static function asArray(array $fields, string $queryString, array $options = []): array
     {

@@ -3,7 +3,8 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Query\Criteria;
 
-use InvalidArgumentException;
+use Kununu\Elasticsearch\Exception\UnhandledOperatorException;
+use Kununu\Elasticsearch\Exception\UnknownOperatorException;
 use Kununu\Elasticsearch\Query\Criteria\Filter\Exists;
 use Kununu\Elasticsearch\Query\Criteria\Filter\GeoDistance;
 use Kununu\Elasticsearch\Query\Criteria\Filter\GeoShape;
@@ -12,18 +13,18 @@ use Kununu\Elasticsearch\Query\Criteria\Filter\Range;
 use Kununu\Elasticsearch\Query\Criteria\Filter\Regexp;
 use Kununu\Elasticsearch\Query\Criteria\Filter\Term;
 use Kununu\Elasticsearch\Query\Criteria\Filter\Terms;
-use LogicException;
 
+/** @phpstan-consistent-constructor */
 class Filter implements FilterInterface
 {
     public function __construct(
         protected readonly string $field,
         protected readonly mixed $value,
         protected readonly ?string $operator = null,
-        protected readonly array $options = []
+        protected readonly array $options = [],
     ) {
         if ($operator !== null && !Operator::hasConstant($operator)) {
-            throw new InvalidArgumentException('Unknown operator "' . $operator . '" given');
+            throw new UnknownOperatorException($this->operator);
         }
     }
 
@@ -90,7 +91,7 @@ class Filter implements FilterInterface
                 $this->value,
                 $this->options
             ),
-            default                       => throw new LogicException('Unhandled operator "' . $this->operator . '"'),
+            default                       => throw new UnhandledOperatorException($this->operator),
         };
     }
 }

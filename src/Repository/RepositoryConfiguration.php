@@ -7,30 +7,32 @@ use Kununu\Elasticsearch\Exception\RepositoryConfigurationException;
 
 class RepositoryConfiguration
 {
-    protected const OPTION_INDEX = 'index';
-    protected const OPTION_INDEX_READ = 'index_read';
-    protected const OPTION_INDEX_WRITE = 'index_write';
-    protected const OPTION_ENTITY_SERIALIZER = 'entity_serializer';
-    protected const OPTION_ENTITY_FACTORY = 'entity_factory';
-    protected const OPTION_ENTITY_CLASS = 'entity_class';
-    protected const OPTION_FORCE_REFRESH_ON_WRITE = 'force_refresh_on_write';
-    protected const OPTION_TRACK_TOTAL_HITS = 'track_total_hits';
-    protected const OPTION_SCROLL_CONTEXT_KEEPALIVE = 'scroll_context_keepalive';
-
     /**
      * 1 minute per default
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/7.9/search-request-scroll.html#scroll-search-context
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/7.9/paginate-search-results.html#scroll-search-results Elasticsearch documentation
+     * @see https://opensearch.org/docs/2.18/search-plugins/searching-data/paginate/#scroll-search OpenSearch documentation
      */
-    public const DEFAULT_SCROLL_CONTEXT_KEEPALIVE = '1m';
+    public const string DEFAULT_SCROLL_CONTEXT_KEEPALIVE = '1m';
+
+    protected const string OPTION_INDEX = 'index';
+    protected const string OPTION_INDEX_READ = 'index_read';
+    protected const string OPTION_INDEX_WRITE = 'index_write';
+    protected const string OPTION_ENTITY_SERIALIZER = 'entity_serializer';
+    protected const string OPTION_ENTITY_FACTORY = 'entity_factory';
+    protected const string OPTION_ENTITY_CLASS = 'entity_class';
+    protected const string OPTION_FORCE_REFRESH_ON_WRITE = 'force_refresh_on_write';
+    protected const string OPTION_TRACK_TOTAL_HITS = 'track_total_hits';
+    protected const string OPTION_SCROLL_CONTEXT_KEEPALIVE = 'scroll_context_keepalive';
+    protected const string TIME_UNITS_REGEX = '/\d+(d|h|m|s|ms|micros|nanos)/';
 
     protected array $index = [];
-    protected EntitySerializerInterface|null $entitySerializer = null;
-    protected EntityFactoryInterface|null $entityFactory = null;
-    protected string|null $entityClass = null;
+    protected ?EntitySerializerInterface $entitySerializer = null;
+    protected ?EntityFactoryInterface $entityFactory = null;
+    protected ?string $entityClass = null;
     protected bool $forceRefreshOnWrite = false;
-    protected bool|null $trackTotalHits = null;
-    protected string|null $scrollContextKeepalive = null;
+    protected ?bool $trackTotalHits = null;
+    protected ?string $scrollContextKeepalive = null;
 
     public function __construct(array $config)
     {
@@ -42,7 +44,9 @@ class RepositoryConfiguration
         $indexForOperationType = $this->index[$operationType] ?? '';
 
         if (!$indexForOperationType) {
-            throw new RepositoryConfigurationException('No valid index name configured for operation "' . $operationType . '"');
+            throw new RepositoryConfigurationException(
+                'No valid index name configured for operation "' . $operationType . '"'
+            );
         }
 
         return $indexForOperationType;
@@ -94,7 +98,9 @@ class RepositoryConfiguration
             }
 
             if (!is_a($this->entityClass, PersistableEntityInterface::class, true)) {
-                throw new RepositoryConfigurationException(sprintf('Invalid entity class given. Must be of type %s', PersistableEntityInterface::class));
+                throw new RepositoryConfigurationException(
+                    sprintf('Invalid entity class given. Must be of type %s', PersistableEntityInterface::class)
+                );
             }
         }
 
@@ -115,9 +121,12 @@ class RepositoryConfiguration
         }
 
         if (isset($config[static::OPTION_SCROLL_CONTEXT_KEEPALIVE])) {
-            if (!preg_match('/\d+(d|h|m|s|ms|micros|nanos)/', $config[static::OPTION_SCROLL_CONTEXT_KEEPALIVE])) {
-                // see https://www.elastic.co/guide/en/elasticsearch/reference/7.9/common-options.html#time-units
-                throw new RepositoryConfigurationException('Invalid value for scroll_context_keepalive given. Must be a valid time unit.');
+            if (!preg_match(static::TIME_UNITS_REGEX, (string) $config[static::OPTION_SCROLL_CONTEXT_KEEPALIVE])) {
+                // See https://www.elastic.co/guide/en/elasticsearch/reference/7.9/common-options.html#time-units
+                // See https://opensearch.org/docs/2.18/api-reference/units/
+                throw new RepositoryConfigurationException(
+                    'Invalid value for scroll_context_keepalive given. Must be a valid time unit.'
+                );
             }
             $this->scrollContextKeepalive = $config[static::OPTION_SCROLL_CONTEXT_KEEPALIVE];
         }

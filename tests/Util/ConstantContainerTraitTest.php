@@ -40,12 +40,15 @@ final class ConstantContainerTraitTest extends TestCase
 
     private function getConstantContainer(): object
     {
-        return new class() {
+        return new class {
             use ConstantContainerTrait;
 
-            public const FIRST = 'first';
-            protected const SECOND = 'second';
-            private const THIRD = 'third';
+            public const string FIRST = 'first';
+
+            protected const string SECOND = 'second';
+
+            // @phpstan-ignore classConstant.unused
+            private const string THIRD = 'third';
         };
     }
 }

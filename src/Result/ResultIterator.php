@@ -7,6 +7,7 @@ use ArrayAccess;
 use Countable;
 use Iterator;
 
+/** @phpstan-consistent-constructor */
 class ResultIterator implements Iterator, ArrayAccess, Countable, ResultIteratorInterface
 {
     use ArrayAccessTrait;
@@ -14,7 +15,7 @@ class ResultIterator implements Iterator, ArrayAccess, Countable, ResultIterator
     use IterableTrait;
 
     protected int $total = 0;
-    protected string|null $scrollId = null;
+    protected ?string $scrollId = null;
 
     public function __construct(protected array $results = [])
     {

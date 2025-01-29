@@ -7,7 +7,7 @@ use Kununu\Elasticsearch\Query\Criteria\GeoDistanceInterface;
 
 class GeoDistance
 {
-    public const KEYWORD = 'geo_distance';
+    public const string KEYWORD = 'geo_distance';
 
     public static function asArray(string $field, GeoDistanceInterface $value, array $options = []): array
     {

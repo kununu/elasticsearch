@@ -23,9 +23,9 @@ use ReflectionProperty;
 
 final class QueryTest extends TestCase
 {
-    private const FIELD_NAME_SEARCHES = 'searches';
-    private const FIELD_NAME_FILTERS = 'filters';
-    private const FIELD_NAME_AGGREGATIONS = 'aggregations';
+    private const string FIELD_NAME_SEARCHES = 'searches';
+    private const string FIELD_NAME_FILTERS = 'filters';
+    private const string FIELD_NAME_AGGREGATIONS = 'aggregations';
 
     #[DataProvider('createDataProvider')]
     public function testCreate(array $input): void
@@ -128,7 +128,7 @@ final class QueryTest extends TestCase
         $this->expectExceptionMessage('Argument #0 is of unknown type');
 
         Query::create(
-            new class() implements CriteriaInterface {
+            new class implements CriteriaInterface {
                 public function toArray(): array
                 {
                     return [];
@@ -144,7 +144,7 @@ final class QueryTest extends TestCase
 
         Query::create(
             Filter::create('field', 'value'),
-            new class() implements CriteriaInterface {
+            new class implements CriteriaInterface {
                 public function toArray(): array
                 {
                     return [];

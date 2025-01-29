@@ -17,13 +17,13 @@ use Elasticsearch\ClientBuilder;
 use Kununu\Elasticsearch\Query\Criteria\Filter;
 use Kununu\Elasticsearch\Query\Criteria\Search;
 use Kununu\Elasticsearch\Query\Query;
-use Kununu\Elasticsearch\Repository\Repository;
+use Kununu\Elasticsearch\Repository\AbstractRepository;
 
 // create very minimal client
 $client = ClientBuilder::create()->build();
 
 // create a new repository and bind it to my_index/my_type
-$repository = new Repository(
+$repository = new AbstractRepository(
     $client,
     [
         'index' => 'my_index',

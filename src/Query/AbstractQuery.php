@@ -7,9 +7,9 @@ use InvalidArgumentException;
 
 abstract class AbstractQuery implements QueryInterface
 {
-    protected array|null $select = null;
-    protected int|null $limit = null;
-    protected int|null $offset = null;
+    protected ?array $select = null;
+    protected ?int $limit = null;
+    protected ?int $offset = null;
     protected array $sort = [];
 
     protected function buildBaseBody(): array

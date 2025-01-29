@@ -3,43 +3,32 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Tests\Util;
 
-use Kununu\Elasticsearch\Util\LoggerAwareTrait;
+use Kununu\Elasticsearch\Tests\Stub\LoggerAwareStub;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 final class LoggerAwareTraitTest extends TestCase
 {
+    private LoggerAwareStub $loggerAwareObject;
+    private MockObject&LoggerInterface $logger;
+
     public function testSetLogger(): void
     {
-        $loggerAwareObject = $this->getLoggerAwareObject();
+        $this->loggerAwareObject->setLogger($this->logger);
 
-        $logger = $this->createMock(LoggerInterface::class);
-
-        $loggerAwareObject->setLogger($logger);
-
-        self::assertEquals($logger, $loggerAwareObject->getLogger());
+        self::assertEquals($this->logger, $this->loggerAwareObject->getLogger());
     }
 
     public function testGetNullLoggerAsDefault(): void
     {
-        $loggerAwareObject = $this->getLoggerAwareObject();
-
-        self::assertInstanceOf(NullLogger::class, $loggerAwareObject->getLogger());
+        self::assertInstanceOf(NullLogger::class, $this->loggerAwareObject->getLogger());
     }
 
-    public function getLoggerAwareObject(): LoggerAwareInterface
+    protected function setUp(): void
     {
-        return new class() implements LoggerAwareInterface {
-            use LoggerAwareTrait {
-                getLogger as traitGetLogger;
-            }
-
-            public function getLogger(): LoggerInterface
-            {
-                return $this->traitGetLogger();
-            }
-        };
+        $this->loggerAwareObject = new LoggerAwareStub();
+        $this->logger = $this->createMock(LoggerInterface::class);
     }
 }

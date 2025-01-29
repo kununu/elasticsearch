@@ -3,12 +3,13 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Query\Criteria\Bool;
 
+use Kununu\Elasticsearch\Exception\NoOperatorDefinedException;
 use Kununu\Elasticsearch\Query\Criteria\CriteriaInterface;
-use LogicException;
 
+/** @phpstan-consistent-constructor */
 abstract class AbstractBoolQuery implements BoolQueryInterface
 {
-    public const OPERATOR = null;
+    public const ?string OPERATOR = null;
 
     /** @var CriteriaInterface[] */
     protected array $children = [];
@@ -45,7 +46,7 @@ abstract class AbstractBoolQuery implements BoolQueryInterface
     protected function getOperator(): string
     {
         if (!static::OPERATOR) {
-            throw new LogicException('No operator defined');
+            throw new NoOperatorDefinedException();
         }
 
         return static::OPERATOR;

@@ -7,7 +7,7 @@ use Kununu\Elasticsearch\Query\Criteria\Bool\MustNot;
 
 class Exists
 {
-    public const KEYWORD = 'exists';
+    public const string KEYWORD = 'exists';
 
     public static function asArray(string $field, bool $value): array
     {

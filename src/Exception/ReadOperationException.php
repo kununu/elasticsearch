@@ -10,9 +10,10 @@ class ReadOperationException extends RepositoryException
     public function __construct(
         string $message = '',
         ?Throwable $previous = null,
-        protected readonly mixed $query = null
+        protected readonly mixed $query = null,
+        ?string $prefix = null,
     ) {
-        parent::__construct($message, $previous);
+        parent::__construct($message, $previous, $prefix);
     }
 
     public function getQuery(): mixed

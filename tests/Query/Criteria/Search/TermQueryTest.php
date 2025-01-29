@@ -8,8 +8,8 @@ use PHPUnit\Framework\TestCase;
 
 final class TermQueryTest extends TestCase
 {
-    private const TERM = 'what was i looking for?';
-    private const FIELD = 'field_a';
+    private const string TERM = 'what was i looking for?';
+    private const string FIELD = 'field_a';
 
     public function testSingleField(): void
     {

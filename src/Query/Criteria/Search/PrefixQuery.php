@@ -5,7 +5,7 @@ namespace Kununu\Elasticsearch\Query\Criteria\Search;
 
 class PrefixQuery
 {
-    public const KEYWORD = 'prefix';
+    public const string KEYWORD = 'prefix';
 
     public static function asArray(array $fields, $queryString, array $options = []): array
     {

@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 final class QueryStringQueryTest extends TestCase
 {
-    private const QUERY_STRING = 'what was i looking for?';
+    private const string QUERY_STRING = 'what was i looking for?';
 
     public function testSingleField(): void
     {
