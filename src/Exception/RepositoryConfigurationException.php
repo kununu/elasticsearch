@@ -15,11 +15,6 @@ Invalid value for scroll_context_keepalive given. Must be a valid time unit
 TEXT;
     private const string NO_ENTITY_SERIALIZER = 'No entity serializer configured while trying to persist object';
 
-    private function __construct(string $message)
-    {
-        parent::__construct($message);
-    }
-
     public static function noValidIndexForOperation(string $operationType): self
     {
         return new self(sprintf(self::NO_VALID_INDEX_FOR_OPERATION, $operationType));
