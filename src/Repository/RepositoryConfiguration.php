@@ -5,7 +5,7 @@ namespace Kununu\Elasticsearch\Repository;
 
 use Kununu\Elasticsearch\Exception\RepositoryConfigurationException;
 
-class RepositoryConfiguration
+final class RepositoryConfiguration
 {
     /**
      * 1 minute per default
@@ -44,9 +44,7 @@ class RepositoryConfiguration
         $indexForOperationType = $this->index[$operationType] ?? '';
 
         if (!$indexForOperationType) {
-            throw new RepositoryConfigurationException(
-                'No valid index name configured for operation "' . $operationType . '"'
-            );
+            throw RepositoryConfigurationException::noValidIndexForOperation($operationType);
         }
 
         return $indexForOperationType;
@@ -69,7 +67,7 @@ class RepositoryConfiguration
 
     public function getScrollContextKeepalive(): string
     {
-        return $this->scrollContextKeepalive ?: static::DEFAULT_SCROLL_CONTEXT_KEEPALIVE;
+        return $this->scrollContextKeepalive ?: self::DEFAULT_SCROLL_CONTEXT_KEEPALIVE;
     }
 
     public function getForceRefreshOnWrite(): bool
@@ -86,49 +84,45 @@ class RepositoryConfiguration
     {
         $this->index = array_filter(
             [
-                OperationType::READ  => $config[static::OPTION_INDEX_READ] ?? null,
-                OperationType::WRITE => $config[static::OPTION_INDEX_WRITE] ?? null,
+                OperationType::READ  => $config[self::OPTION_INDEX_READ] ?? null,
+                OperationType::WRITE => $config[self::OPTION_INDEX_WRITE] ?? null,
             ]
         );
 
-        if (isset($config[static::OPTION_ENTITY_CLASS])) {
-            $this->entityClass = $config[static::OPTION_ENTITY_CLASS];
+        if (isset($config[self::OPTION_ENTITY_CLASS])) {
+            $this->entityClass = $config[self::OPTION_ENTITY_CLASS];
             if (!class_exists($this->entityClass)) {
-                throw new RepositoryConfigurationException('Given entity class does not exist.');
+                throw RepositoryConfigurationException::entityClassDoesNotExist();
             }
 
             if (!is_a($this->entityClass, PersistableEntityInterface::class, true)) {
-                throw new RepositoryConfigurationException(
-                    sprintf('Invalid entity class given. Must be of type %s', PersistableEntityInterface::class)
-                );
+                throw RepositoryConfigurationException::invalidEntityClass(PersistableEntityInterface::class);
             }
         }
 
-        if (isset($config[static::OPTION_ENTITY_SERIALIZER])) {
-            $this->entitySerializer = $config[static::OPTION_ENTITY_SERIALIZER];
+        if (isset($config[self::OPTION_ENTITY_SERIALIZER])) {
+            $this->entitySerializer = $config[self::OPTION_ENTITY_SERIALIZER];
         }
 
-        if (isset($config[static::OPTION_ENTITY_FACTORY])) {
-            $this->entityFactory = $config[static::OPTION_ENTITY_FACTORY];
+        if (isset($config[self::OPTION_ENTITY_FACTORY])) {
+            $this->entityFactory = $config[self::OPTION_ENTITY_FACTORY];
         }
 
-        if (isset($config[static::OPTION_FORCE_REFRESH_ON_WRITE])) {
-            $this->forceRefreshOnWrite = (bool) $config[static::OPTION_FORCE_REFRESH_ON_WRITE];
+        if (isset($config[self::OPTION_FORCE_REFRESH_ON_WRITE])) {
+            $this->forceRefreshOnWrite = (bool) $config[self::OPTION_FORCE_REFRESH_ON_WRITE];
         }
 
-        if (isset($config[static::OPTION_TRACK_TOTAL_HITS])) {
-            $this->trackTotalHits = (bool) $config[static::OPTION_TRACK_TOTAL_HITS];
+        if (isset($config[self::OPTION_TRACK_TOTAL_HITS])) {
+            $this->trackTotalHits = (bool) $config[self::OPTION_TRACK_TOTAL_HITS];
         }
 
-        if (isset($config[static::OPTION_SCROLL_CONTEXT_KEEPALIVE])) {
-            if (!preg_match(static::TIME_UNITS_REGEX, (string) $config[static::OPTION_SCROLL_CONTEXT_KEEPALIVE])) {
+        if (isset($config[self::OPTION_SCROLL_CONTEXT_KEEPALIVE])) {
+            if (!preg_match(self::TIME_UNITS_REGEX, (string) $config[self::OPTION_SCROLL_CONTEXT_KEEPALIVE])) {
                 // See https://www.elastic.co/guide/en/elasticsearch/reference/7.9/common-options.html#time-units
                 // See https://opensearch.org/docs/2.18/api-reference/units/
-                throw new RepositoryConfigurationException(
-                    'Invalid value for scroll_context_keepalive given. Must be a valid time unit.'
-                );
+                throw RepositoryConfigurationException::invalidScrollContextKeepAlive();
             }
-            $this->scrollContextKeepalive = $config[static::OPTION_SCROLL_CONTEXT_KEEPALIVE];
+            $this->scrollContextKeepalive = $config[self::OPTION_SCROLL_CONTEXT_KEEPALIVE];
         }
     }
 

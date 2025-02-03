@@ -529,14 +529,13 @@ abstract class AbstractRepository implements RepositoryInterface, LoggerAwareInt
     {
         $class = $this->entityClass;
         $serializer = $this->config->getEntitySerializer();
+        $exception = RepositoryConfigurationException::noEntitySerializer();
 
         return match (true) {
             is_object($entity) => match (true) {
                 is_string($class) && $entity instanceof $class   => $entity->toElastic(),
                 $serializer instanceof EntitySerializerInterface => $serializer->toElastic($entity),
-                default                                          => throw new RepositoryConfigurationException(
-                    'No entity serializer configured while trying to persist object'
-                ),
+                default                                          => throw $exception,
             },
             default            => $entity,
         };

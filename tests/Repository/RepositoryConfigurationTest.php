@@ -191,7 +191,7 @@ final class RepositoryConfigurationTest extends TestCase
     {
         $this->expectException(RepositoryConfigurationException::class);
         $this->expectExceptionMessage(
-            'Given entity class does not exist.'
+            'Given entity class does not exist'
         );
 
         self::build(['entity_class' => '\Foo\Bar']);
@@ -351,9 +351,7 @@ final class RepositoryConfigurationTest extends TestCase
     public function testInvalidScrollContextKeepalive(): void
     {
         $this->expectException(RepositoryConfigurationException::class);
-        $this->expectExceptionMessage(
-            'Invalid value for scroll_context_keepalive given. Must be a valid time unit.'
-        );
+        $this->expectExceptionMessage('Invalid value for scroll_context_keepalive given. Must be a valid time unit');
 
         self::build(['index' => 'foobar', 'scroll_context_keepalive' => 'xxx']);
     }
