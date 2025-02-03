@@ -9,7 +9,7 @@ final class RawQuery extends AbstractBaseQuery
     {
     }
 
-    public static function create(array $rawQuery = []): RawQuery
+    public static function create(array $rawQuery = []): self
     {
         return new self($rawQuery);
     }

@@ -10,7 +10,7 @@ final class Search extends AbstractSearch
         string $queryString,
         string $type = self::QUERY_STRING,
         array $options = [],
-    ): Search {
+    ): self {
         return new self($fields, $queryString, $type, $options);
     }
 }

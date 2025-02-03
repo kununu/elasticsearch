@@ -34,7 +34,7 @@ abstract class AbstractIndexManager implements IndexManagerInterface, LoggerAwar
     {
     }
 
-    public function addAlias(string $index, string $alias): IndexManagerInterface
+    public function addAlias(string $index, string $alias): static
     {
         $this->execute(
             operation: fn() => $this->client->indices()->putAlias(['index' => $index, 'name' => $alias]),
@@ -46,7 +46,7 @@ abstract class AbstractIndexManager implements IndexManagerInterface, LoggerAwar
         return $this;
     }
 
-    public function removeAlias(string $index, string $alias): IndexManagerInterface
+    public function removeAlias(string $index, string $alias): static
     {
         $this->execute(
             operation: fn() => $this->client->indices()->deleteAlias(['index' => $index, 'name' => $alias]),
@@ -58,7 +58,7 @@ abstract class AbstractIndexManager implements IndexManagerInterface, LoggerAwar
         return $this;
     }
 
-    public function switchAlias(string $alias, string $fromIndex, string $toIndex): IndexManagerInterface
+    public function switchAlias(string $alias, string $fromIndex, string $toIndex): static
     {
         $this->execute(
             operation: fn() => $this->client->indices()->updateAliases([
@@ -82,7 +82,7 @@ abstract class AbstractIndexManager implements IndexManagerInterface, LoggerAwar
         array $mappings = [],
         array $aliases = [],
         array $settings = [],
-    ): IndexManagerInterface {
+    ): static {
         $params = [
             'index' => $index,
         ];
@@ -109,7 +109,7 @@ abstract class AbstractIndexManager implements IndexManagerInterface, LoggerAwar
         return $this;
     }
 
-    public function deleteIndex(string $index): IndexManagerInterface
+    public function deleteIndex(string $index): static
     {
         $this->execute(
             operation: fn() => $this->client->indices()->delete(['index' => $index]),
@@ -121,7 +121,7 @@ abstract class AbstractIndexManager implements IndexManagerInterface, LoggerAwar
         return $this;
     }
 
-    public function putMapping(string $index, array $mapping, array $extraParams = []): IndexManagerInterface
+    public function putMapping(string $index, array $mapping, array $extraParams = []): static
     {
         $params = array_merge(['index' => $index, 'body' => $mapping], $extraParams);
 

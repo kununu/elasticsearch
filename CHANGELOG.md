@@ -23,6 +23,7 @@ All notable changes to this project will be documented in this file based on ["K
   * Use `Kununu\Elasticsearch\IndexManagement\Elasticsearch\IndexManager` instead, for Elasticsearch
   * Use `Kununu\Elasticsearch\IndexManagement\OpenSearch\IndexManager` for OpenSearch
 * All non-abstract classes from `Kununu\Elasticsearch\Query` namespace are now **final**
+* All non-abstract classes from `Kununu\Elasticsearch\Result` namespace are now **final**
 * `QueryInterface::sort` method signature was changed (see bugfixes section below)
 
 ### Bugfixes
