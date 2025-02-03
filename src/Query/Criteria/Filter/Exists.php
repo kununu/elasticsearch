@@ -5,13 +5,13 @@ namespace Kununu\Elasticsearch\Query\Criteria\Filter;
 
 use Kununu\Elasticsearch\Query\Criteria\Bool\MustNot;
 
-class Exists
+final class Exists
 {
     public const string KEYWORD = 'exists';
 
     public static function asArray(string $field, bool $value): array
     {
-        $filter = [static::KEYWORD => ['field' => $field]];
+        $filter = [self::KEYWORD => ['field' => $field]];
 
         if (!$value) {
             $filter = [

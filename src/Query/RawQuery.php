@@ -3,8 +3,7 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Query;
 
-/** @phpstan-consistent-constructor */
-class RawQuery extends AbstractQuery
+final class RawQuery extends AbstractBaseQuery
 {
     public function __construct(protected readonly array $body = [])
     {
@@ -12,7 +11,7 @@ class RawQuery extends AbstractQuery
 
     public static function create(array $rawQuery = []): RawQuery
     {
-        return new static($rawQuery);
+        return new self($rawQuery);
     }
 
     public function toArray(): array

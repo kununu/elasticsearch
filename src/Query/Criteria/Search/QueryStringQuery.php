@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Query\Criteria\Search;
 
-class QueryStringQuery
+final class QueryStringQuery
 {
     use MultiFieldTrait;
 
@@ -12,7 +12,7 @@ class QueryStringQuery
     public static function asArray(array $fields, string $queryString, array $options = []): array
     {
         return [
-            static::KEYWORD => array_merge(
+            self::KEYWORD => array_merge(
                 $options,
                 [
                     'fields' => self::prepareFields($fields),

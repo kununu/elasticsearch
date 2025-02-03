@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Query\Criteria\Search;
 
-class MatchQuery
+final class MatchQuery
 {
     use MultiFieldTrait;
 
@@ -16,14 +16,14 @@ class MatchQuery
                 'multi_match' => array_merge(
                     $options,
                     [
-                        'fields' => static::prepareFields($fields),
+                        'fields' => self::prepareFields($fields),
                         'query'  => $queryString,
                     ]
                 ),
             ];
         } else {
             $query = [
-                static::KEYWORD => [
+                self::KEYWORD => [
                     $fields[0] => array_merge(
                         $options,
                         [

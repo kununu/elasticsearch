@@ -4,99 +4,167 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\Query;
 
 use InvalidArgumentException;
+use Kununu\Elasticsearch\Exception\InvalidSearchArgumentException;
+use Kununu\Elasticsearch\Exception\UnknownChildArgumentTypeException;
+use Kununu\Elasticsearch\Query\Criteria\Bool\BoolQueryInterface;
+use Kununu\Elasticsearch\Query\Criteria\Bool\Must;
+use Kununu\Elasticsearch\Query\Criteria\Bool\Should;
+use Kununu\Elasticsearch\Query\Criteria\CriteriaInterface;
+use Kununu\Elasticsearch\Query\Criteria\FilterInterface;
+use Kununu\Elasticsearch\Query\Criteria\NestableQueryInterface;
+use Kununu\Elasticsearch\Query\Criteria\SearchInterface;
+use Kununu\Elasticsearch\Util\OptionableTrait;
 
-abstract class AbstractQuery implements QueryInterface
+abstract class AbstractQuery extends AbstractBaseQuery implements NestableQueryInterface
 {
-    protected ?array $select = null;
-    protected ?int $limit = null;
-    protected ?int $offset = null;
-    protected array $sort = [];
+    use OptionableTrait;
 
-    protected function buildBaseBody(): array
+    public const string OPTION_MIN_SCORE = 'min_score';
+
+    protected const int MINIMUM_SHOULD_MATCH = 1; // relevant when $searchOperator === 'should'
+
+    protected bool $nested = false;
+
+    /** @var array<CriteriaInterface> */
+    protected array $searches = [];
+    /** @var array<FilterInterface> */
+    protected array $filters = [];
+    /** @var array<AggregationInterface> */
+    protected array $aggregations = [];
+
+    protected string $searchOperator = Should::OPERATOR;
+
+    public function __construct(CriteriaInterface|AggregationInterface ...$children)
     {
-        $body = [];
-        if ($this->limit !== null) {
-            $body['size'] = $this->limit;
+        foreach ($children as $i => $child) {
+            $this->addChild($child, $i);
         }
-
-        if ($this->offset !== null) {
-            $body['from'] = $this->offset;
-        }
-
-        if (!empty($this->sort)) {
-            $body['sort'] = $this->sort;
-        }
-
-        if (is_array($this->select)) {
-            $body['_source'] = count($this->select) ? array_values(array_unique($this->select)) : false;
-        }
-
-        return $body;
     }
 
-    public function select(array $selectFields): QueryInterface
+    public function add(mixed $child): static
     {
-        $this->select = $selectFields;
+        $this->addChild($child);
 
         return $this;
     }
 
-    public function sort(string|array $field, string $order = SortOrder::ASC, array $options = []): QueryInterface
+    public function search(CriteriaInterface $search): static
     {
-        if (is_string($field)) {
-            if (!in_array($order, SortOrder::all(), true)) {
-                throw new InvalidArgumentException('Invalid sort direction given');
-            }
-            $this->sort[$field] = ['order' => $order];
-        } elseif (is_array($field)) {
-            array_walk(
-                $field,
-                fn($value, $key) => $this->sort(
-                    $key,
-                    $value['order'] ?? SortOrder::ASC,
-                    $value['options'] ?? []
-                )
+        $isSearch = $search instanceof SearchInterface;
+        $isBool = $search instanceof BoolQueryInterface;
+        $isNestedQuery = $search instanceof NestableQueryInterface;
+
+        if (!$isSearch && !$isBool && !$isNestedQuery) {
+            throw new InvalidSearchArgumentException(
+                SearchInterface::class,
+                BoolQueryInterface::class,
+                NestableQueryInterface::class
             );
         }
 
-        if (count($options)) {
-            $this->sort[$field] = array_merge($this->sort[$field], $options);
+        $this->searches[] = $search;
+
+        return $this;
+    }
+
+    public function where(FilterInterface $filter): static
+    {
+        return $this->add($filter);
+    }
+
+    public function aggregate(AggregationInterface $aggregation): static
+    {
+        $this->addChild($aggregation);
+
+        return $this;
+    }
+
+    public function toArray(): array
+    {
+        $body = $this->nested ? [] : $this->buildBaseBody();
+
+        if (!empty($this->searches)) {
+            $preparedSearches = array_map(
+                fn(CriteriaInterface $search): array => $search->toArray(),
+                $this->searches
+            );
+
+            $body['query'] = match ($this->searchOperator) {
+                Must::OPERATOR => ['bool' => ['must' => $preparedSearches]],
+                default        => [
+                    'bool' => [
+                        'should'               => $preparedSearches,
+                        'minimum_should_match' => static::MINIMUM_SHOULD_MATCH,
+                    ],
+                ],
+            };
         }
 
+        if (!empty($this->filters)) {
+            $body['query']['bool']['filter'] = Must::create(...$this->filters)->toArray();
+        }
+
+        if (!empty($this->aggregations) && !$this->nested) {
+            $body['aggs'] = [];
+            foreach ($this->aggregations as $aggregation) {
+                $body['aggs'] = array_merge($body['aggs'], $aggregation->toArray());
+            }
+        }
+
+        $body = array_merge($body, $this->getOptions());
+
+        return $this->nested ? ['nested' => $body] : $body;
+    }
+
+    public function setMinScore(float $minScore): static
+    {
+        return $this->setOption(static::OPTION_MIN_SCORE, $minScore);
+    }
+
+    public function getSearchOperator(): string
+    {
+        return $this->searchOperator;
+    }
+
+    public function setSearchOperator(string $logicalOperator): static
+    {
+        if (!in_array($logicalOperator, [Must::OPERATOR, Should::OPERATOR], true)) {
+            throw new InvalidArgumentException("The value '$logicalOperator' is not valid.");
+        }
+
+        $this->searchOperator = $logicalOperator;
+
         return $this;
     }
 
-    public function limit(int $size): QueryInterface
+    protected function getAvailableOptions(): array
     {
-        $this->limit = $size;
+        return $this->nested
+            ? [
+                NestableQueryInterface::OPTION_PATH,
+                NestableQueryInterface::OPTION_IGNORE_UNMAPPED,
+                NestableQueryInterface::OPTION_SCORE_MODE,
+                NestableQueryInterface::OPTION_INNER_HITS,
+            ]
+            : [static::OPTION_MIN_SCORE];
+    }
+
+    protected function nestAt(string $path): static
+    {
+        $this->nested = true;
+        $this->setOption(static::OPTION_PATH, $path);
 
         return $this;
     }
 
-    public function skip(int $offset): QueryInterface
+    protected function addChild(mixed $child, int $argumentIndex = 0): void
     {
-        $this->offset = $offset;
-
-        return $this;
-    }
-
-    public function getSelect(): array|bool|null
-    {
-        return $this->select;
-    }
-
-    public function getLimit(): ?int
-    {
-        return $this->limit;
-    }
-
-    public function getOffset(): ?int
-    {
-        return $this->offset;
-    }
-
-    public function getSort(): array
-    {
-        return $this->sort;
+        match (true) {
+            $child instanceof FilterInterface,
+            $child instanceof NestableQueryInterface => $this->filters[] = $child,
+            $child instanceof SearchInterface        => $this->searches[] = $child,
+            $child instanceof AggregationInterface   => $this->aggregations[] = $child,
+            default                                  => throw new UnknownChildArgumentTypeException($argumentIndex),
+        };
     }
 }

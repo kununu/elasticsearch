@@ -7,7 +7,7 @@ use Kununu\Elasticsearch\Exception\MissingAggregationAttributesException;
 use Kununu\Elasticsearch\Query\Aggregation\SourceProperty;
 use Kununu\Elasticsearch\Query\Aggregation\Sources;
 use Kununu\Elasticsearch\Query\CompositeAggregationQueryInterface;
-use Kununu\Elasticsearch\Query\Criteria\Filter;
+use Kununu\Elasticsearch\Query\Criteria\FilterInterface;
 use Kununu\Elasticsearch\Query\Criteria\Filters;
 use Kununu\Elasticsearch\Query\QueryInterface;
 use Kununu\Elasticsearch\Query\RawQuery;
@@ -75,7 +75,7 @@ final class CompositeAggregationQueryBuilder implements CompositeAggregationQuer
             self::filterNullAndEmptyValues([
                 'query' => [
                     'bool' => [
-                        'must' => $this->filters->map(fn(Filter $filter) => $filter->toArray()),
+                        'must' => $this->filters->map(fn(FilterInterface $filter) => $filter->toArray()),
                     ],
                 ],
                 'aggs' => [

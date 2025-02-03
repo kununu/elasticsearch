@@ -20,7 +20,7 @@ final class Filters extends AbstractCollection
 {
     private const string INVALID = 'Can only append %s';
 
-    public function __construct(Filter ...$filters)
+    public function __construct(FilterInterface ...$filters)
     {
         parent::__construct();
 
@@ -29,10 +29,10 @@ final class Filters extends AbstractCollection
         }
     }
 
-    public function current(): ?Filter
+    public function current(): ?FilterInterface
     {
         $current = parent::current();
-        assert($this->count() > 0 ? $current instanceof Filter : null === $current);
+        assert($this->count() > 0 ? $current instanceof FilterInterface : null === $current);
 
         return $current;
     }
@@ -40,8 +40,10 @@ final class Filters extends AbstractCollection
     public function append($value): void
     {
         match (true) {
-            $value instanceof Filter => parent::append($value),
-            default                  => throw new InvalidArgumentException(sprintf(self::INVALID, Filter::class)),
+            $value instanceof FilterInterface => parent::append($value),
+            default                           => throw new InvalidArgumentException(
+                sprintf(self::INVALID, FilterInterface::class)
+            ),
         };
     }
 }

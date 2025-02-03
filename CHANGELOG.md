@@ -22,11 +22,12 @@ All notable changes to this project will be documented in this file based on ["K
 * `Kununu\Elasticsearch\IndexManagement\IndexManager` was removed
   * Use `Kununu\Elasticsearch\IndexManagement\Elasticsearch\IndexManager` instead, for Elasticsearch
   * Use `Kununu\Elasticsearch\IndexManagement\OpenSearch\IndexManager` for OpenSearch
+* All non-abstract classes from `Kununu\Elasticsearch\Query` namespace are now **final**
 * `QueryInterface::sort` method signature was changed (see bugfixes section below)
 
 ### Bugfixes
 
-* Implementation in `Kununu\Elasticsearch\Query\AbstractQuery` of `QueryInterface::sort` method was redefining the signature:
+* Implementation of `QueryInterface::sort` method was redefining the signature:
   * Now the interface supports the proper 3 arguments (which were even mentioned in the documentation) 
 
 ### Added

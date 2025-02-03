@@ -3,14 +3,14 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Query\Criteria\Search;
 
-class PrefixQuery
+final class PrefixQuery
 {
     public const string KEYWORD = 'prefix';
 
     public static function asArray(array $fields, $queryString, array $options = []): array
     {
         return [
-            static::KEYWORD => [
+            self::KEYWORD => [
                 $fields[0] => array_merge(
                     $options,
                     [

@@ -6,12 +6,11 @@ namespace Kununu\Elasticsearch\Query\Criteria\Bool;
 use Kununu\Elasticsearch\Exception\NoOperatorDefinedException;
 use Kununu\Elasticsearch\Query\Criteria\CriteriaInterface;
 
-/** @phpstan-consistent-constructor */
 abstract class AbstractBoolQuery implements BoolQueryInterface
 {
     public const ?string OPERATOR = null;
 
-    /** @var CriteriaInterface[] */
+    /** @var array<CriteriaInterface> */
     protected array $children = [];
 
     public function __construct(CriteriaInterface ...$children)
@@ -19,12 +18,7 @@ abstract class AbstractBoolQuery implements BoolQueryInterface
         $this->children = $children;
     }
 
-    public static function create(CriteriaInterface ...$children): BoolQueryInterface
-    {
-        return new static(...$children);
-    }
-
-    public function add(CriteriaInterface $child): BoolQueryInterface
+    public function add(CriteriaInterface $child): static
     {
         $this->children[] = $child;
 

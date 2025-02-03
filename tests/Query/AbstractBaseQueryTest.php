@@ -4,12 +4,12 @@ declare(strict_types=1);
 namespace Kununu\Elasticsearch\Tests\Query;
 
 use InvalidArgumentException;
-use Kununu\Elasticsearch\Query\AbstractQuery;
+use Kununu\Elasticsearch\Query\AbstractBaseQuery;
 use Kununu\Elasticsearch\Query\SortOrder;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-final class AbstractQueryTest extends TestCase
+final class AbstractBaseQueryTest extends TestCase
 {
     public function testBuildBaseBodyEmpty(): void
     {
@@ -244,9 +244,9 @@ final class AbstractQueryTest extends TestCase
         $this->getQuery()->sort('foo', 'bar');
     }
 
-    private function getQuery(): AbstractQuery
+    private function getQuery(): AbstractBaseQuery
     {
-        return new class extends AbstractQuery {
+        return new class extends AbstractBaseQuery {
             public function toArray(): array
             {
                 return $this->buildBaseBody();
