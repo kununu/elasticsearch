@@ -43,7 +43,7 @@ All notable changes to this project will be documented in this file based on ["K
   * Formatted all code according to the latest release of `kununu/scripts`
   * Introduce code quality tools: Rector and PHPStan
     * Add those tools to the CI pipeline
-    * Bump code to PHP 8.3 standards (e.g. typed constants()
+    * Bump code to PHP 8.3 standards (e.g. typed constants)
     * Analyse and fix errors reported by Rector and PHPStan
   * Replace deprecated SonarCloud action with latest SonarQube Scan action to perform Sonar checks
 
