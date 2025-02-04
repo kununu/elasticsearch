@@ -12,19 +12,20 @@ final class SourcesTest extends TestCase
 {
     public function testSources(): void
     {
-        $sources = new Sources();
-        self::assertCount(0, $sources);
+        $sources = (new Sources(new SourceProperty('source', 'property', true)))
+            ->add(new SourceProperty('source2', 'property2', false));
 
-        $sources = new Sources(new SourceProperty('source', 'property', true));
-        $sources->append(new SourceProperty('source2', 'property2', false));
         self::assertCount(2, $sources);
-    }
+        self::assertInstanceOf(SourceProperty::class, $sources->current());
 
-    public function testSourcesWithInvalidSourceProperty(): void
-    {
-        self::expectException(InvalidArgumentException::class);
-        self::expectExceptionMessage('Can only append Kununu\Elasticsearch\Query\Aggregation\SourceProperty');
+        $sources = new Sources();
 
-        (new Sources())->append('invalid');
+        self::assertEmpty($sources);
+        self::assertNull($sources->current());
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(sprintf('Can only append %s', SourceProperty::class));
+
+        $sources->append('Invalid');
     }
 }

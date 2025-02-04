@@ -3,15 +3,15 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Query;
 
-class RawQuery extends AbstractQuery
+final class RawQuery extends AbstractBaseQuery
 {
     public function __construct(protected readonly array $body = [])
     {
     }
 
-    public static function create(array $rawQuery = []): RawQuery
+    public static function create(array $rawQuery = []): self
     {
-        return new static($rawQuery);
+        return new self($rawQuery);
     }
 
     public function toArray(): array

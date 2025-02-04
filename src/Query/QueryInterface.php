@@ -17,7 +17,7 @@ interface QueryInterface
 
     public function getLimit(): ?int;
 
-    public function sort(string $field, string $order = SortOrder::ASC): QueryInterface;
+    public function sort(string|array $field, string $order = SortOrder::ASC, array $options = []): QueryInterface;
 
     public function getSort(): array;
 

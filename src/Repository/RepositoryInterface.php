@@ -7,6 +7,7 @@ use Generator;
 use Kununu\Elasticsearch\Query\CompositeAggregationQueryInterface;
 use Kununu\Elasticsearch\Query\QueryInterface;
 use Kununu\Elasticsearch\Result\AggregationResultSetInterface;
+use Kununu\Elasticsearch\Result\CompositeResult;
 use Kununu\Elasticsearch\Result\ResultIteratorInterface;
 
 interface RepositoryInterface
@@ -61,7 +62,7 @@ interface RepositoryInterface
      */
     public function findScrollableByQuery(
         QueryInterface $query,
-        string|null $scrollContextKeepalive = null
+        ?string $scrollContextKeepalive = null,
     ): ResultIteratorInterface;
 
     /**
@@ -71,7 +72,7 @@ interface RepositoryInterface
      */
     public function findByScrollId(
         string $scrollId,
-        string|null $scrollContextKeepalive = null
+        ?string $scrollContextKeepalive = null,
     ): ResultIteratorInterface;
 
     /**
@@ -82,7 +83,7 @@ interface RepositoryInterface
     /**
      * This method retrieves a single document based on a given $id.
      */
-    public function findById(string $id, array $sourceFields = []): object|array|null;
+    public function findById(string $id, array $sourceFields = []): array|object|null;
 
     /**
      * This method bulk retrieves multiple documents based on the given $ids.
@@ -107,7 +108,7 @@ interface RepositoryInterface
     /**
      * This method executes a query with composite aggregation, iterates through the results, and retrieves the data.
      *
-     * @return Generator <CompositeResult>
+     * @return Generator<CompositeResult>
      */
     public function aggregateCompositeByQuery(CompositeAggregationQueryInterface $query): Generator;
 

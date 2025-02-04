@@ -17,7 +17,7 @@ use Elasticsearch\ClientBuilder;
 use Kununu\Elasticsearch\Query\Criteria\Filter;
 use Kununu\Elasticsearch\Query\Criteria\Search;
 use Kununu\Elasticsearch\Query\Query;
-use Kununu\Elasticsearch\Repository\Repository;
+use Kununu\Elasticsearch\Repository\Elasticsearch\Repository;
 
 // create very minimal client
 $client = ClientBuilder::create()->build();
@@ -92,19 +92,24 @@ and managing aliases.
 
 ## Version Matrix
 
-This package is developed against and used on very specific versions of Elasticsearch and the official elasticsearch-php
-library. Any other version may or may not work.
+This package is developed against and used on very specific versions of Elasticsearch/OpenSearch (and the official `elasticsearch/elasticsearch` and `opensearch-project/opensearch-php` client libraries).
 
-| `kununu/elasticsearch` | `elasticsearch/elasticsearch-php` | Elasticsearch | PHP          |
-|------------------------|-----------------------------------|---------------|--------------|
-| 2.x                    | 6.5.x                             | 6.4           | \>=7.2, <8.0 |
-| 3.x                    | 7.x                               | 7.9           | \>=7.2, <8.0 |
-| 4.x                    | 7.x                               | 7.9           | \>=8.0       |
-| 5.x                    | 7.x                               | 7.9           | \>=8.0       |
-| 6.x                    | 7.x                               | 7.9           | \>=8.0       |
-| 7.x                    | 7.x                               | 7.9           | \>=8.1       |
+Any other version may or may not work.
 
-See also https://github.com/elastic/elasticsearch-php#version-matrix
+| `kununu/elasticsearch` | `elasticsearch/elasticsearch` | Elasticsearch | `opensearch-project/opensearch-php` | OpenSearch | PHP          |
+|------------------------|-------------------------------|---------------|-------------------------------------|------------|--------------|
+| 2.x                    | 6.5.x                         | 6.4           | -                                   | -          | \>=7.2, <8.0 |
+| 3.x                    | 7.x                           | 7.9           | -                                   | -          | \>=7.2, <8.0 |
+| 4.x                    | 7.x                           | 7.9           | -                                   | -          | \>=8.0       |
+| 5.x                    | 7.x                           | 7.9           | -                                   | -          | \>=8.0       |
+| 6.x                    | 7.x                           | 7.9           | -                                   | -          | \>=8.0       |
+| 7.x                    | 7.x                           | 7.9           | -                                   | -          | \>=8.1       |
+| 8.x                    | 7.x                           | 7.9           | -                                   | -          | \>=8.1       |
+| 9.x                    | 7.x                           | 7.9           | 2.x                                 | 2.x        | \>=8.3       |
+
+See also:
+- https://github.com/elastic/elasticsearch-php#version-matrix
+- https://github.com/opensearch-project/opensearch-php/blob/main/COMPATIBILITY.md
 
 ## Contributing
 

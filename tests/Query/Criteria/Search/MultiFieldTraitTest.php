@@ -43,7 +43,7 @@ final class MultiFieldTraitTest extends TestCase
 
     private function getMultiFieldCapableObject(): object
     {
-        return new class() {
+        return new class {
             use MultiFieldTrait {
                 prepareFields as traitPrepareFields;
             }

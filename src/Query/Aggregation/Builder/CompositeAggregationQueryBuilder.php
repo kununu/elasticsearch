@@ -7,14 +7,16 @@ use Kununu\Elasticsearch\Exception\MissingAggregationAttributesException;
 use Kununu\Elasticsearch\Query\Aggregation\SourceProperty;
 use Kununu\Elasticsearch\Query\Aggregation\Sources;
 use Kununu\Elasticsearch\Query\CompositeAggregationQueryInterface;
-use Kununu\Elasticsearch\Query\Criteria\Filter;
+use Kununu\Elasticsearch\Query\Criteria\FilterInterface;
 use Kununu\Elasticsearch\Query\Criteria\Filters;
 use Kununu\Elasticsearch\Query\QueryInterface;
 use Kununu\Elasticsearch\Query\RawQuery;
-use Kununu\Elasticsearch\Util\ArrayUtilities;
+use Kununu\Elasticsearch\Util\UtilitiesTrait;
 
 final class CompositeAggregationQueryBuilder implements CompositeAggregationQueryInterface
 {
+    use UtilitiesTrait;
+
     private ?array $afterKey = null;
     private Filters $filters;
     private ?string $name = null;
@@ -61,7 +63,7 @@ final class CompositeAggregationQueryBuilder implements CompositeAggregationQuer
     public function getName(): string
     {
         if (null === $this->name) {
-            throw new MissingAggregationAttributesException('Aggregation name is missing');
+            throw new MissingAggregationAttributesException();
         }
 
         return $this->name;
@@ -70,23 +72,23 @@ final class CompositeAggregationQueryBuilder implements CompositeAggregationQuer
     public function getQuery(int $compositeSize = 100): QueryInterface
     {
         return RawQuery::create(
-            ArrayUtilities::filterNullAndEmptyValues([
+            self::filterNullAndEmptyValues([
                 'query' => [
                     'bool' => [
-                        'must' => $this->filters->map(fn(Filter $filter) => $filter->toArray()),
+                        'must' => $this->filters->map(fn(FilterInterface $filter) => $filter->toArray()),
                     ],
                 ],
                 'aggs' => [
                     $this->getName() => [
                         'composite' => [
-                            'size' => $compositeSize,
+                            'size'    => $compositeSize,
                             'sources' => $this->sources?->map(
                                 fn(SourceProperty $sourceProperty) => [
                                     $sourceProperty->source => [
                                         'terms' => [
-                                            'field' => $sourceProperty->property,
+                                            'field'          => $sourceProperty->property,
                                             'missing_bucket' => $sourceProperty->missingBucket,
-                                        ]
+                                        ],
                                     ],
                                 ]
                             ) ?? [],

@@ -19,7 +19,7 @@ final class RepositoryConfigurationTest extends TestCase
     #[DataProvider('inflateConfigDataProvider')]
     public function testInflateConfig(array $input, string $expectedReadAlias, string $expectedWriteAlias): void
     {
-        $config = new RepositoryConfiguration($input);
+        $config = self::build($input);
 
         self::assertEquals($expectedReadAlias, $config->getIndex(OperationType::READ));
         self::assertEquals($expectedWriteAlias, $config->getIndex(OperationType::WRITE));
@@ -29,44 +29,47 @@ final class RepositoryConfigurationTest extends TestCase
     {
         return [
             'only_index_name_given'                            => [
-                'input'                => ['index' => 'my_index'],
-                'expected_read_alias'  => 'my_index',
-                'expected_write_alias' => 'my_index',
+                'input'              => ['index' => 'my_index'],
+                'expectedReadAlias'  => 'my_index',
+                'expectedWriteAlias' => 'my_index',
             ],
             'index_name_and_read_alias_given'                  => [
-                'input'                => ['index' => 'my_index', 'index_read' => 'my_index_read'],
-                'expected_read_alias'  => 'my_index_read',
-                'expected_write_alias' => 'my_index',
+                'input'              => ['index' => 'my_index', 'index_read' => 'my_index_read'],
+                'expectedReadAlias'  => 'my_index_read',
+                'expectedWriteAlias' => 'my_index',
             ],
             'index_name_and_write_alias_given'                 => [
-                'input'                => ['index' => 'my_index', 'index_write' => 'my_index_write'],
-                'expected_read_alias'  => 'my_index',
-                'expected_write_alias' => 'my_index_write',
+                'input'              => ['index' => 'my_index', 'index_write' => 'my_index_write'],
+                'expectedReadAlias'  => 'my_index',
+                'expectedWriteAlias' => 'my_index_write',
             ],
             'read_and_write_alias_given'                       => [
-                'input'                => ['index_read' => 'my_index_read', 'index_write' => 'my_index_write'],
-                'expected_read_alias'  => 'my_index_read',
-                'expected_write_alias' => 'my_index_write',
+                'input'              => ['index_read' => 'my_index_read', 'index_write' => 'my_index_write'],
+                'expectedReadAlias'  => 'my_index_read',
+                'expectedWriteAlias' => 'my_index_write',
             ],
             'index_name_as_well_as_read_and_write_alias_given' => [
-                'input'                => [
+                'input'              => [
                     'index'       => 'this_will_be_ignored',
                     'index_read'  => 'my_index_read',
                     'index_write' => 'my_index_write',
                 ],
-                'expected_read_alias'  => 'my_index_read',
-                'expected_write_alias' => 'my_index_write',
+                'expectedReadAlias'  => 'my_index_read',
+                'expectedWriteAlias' => 'my_index_write',
             ],
         ];
     }
 
     #[DataProvider('noValidIndexConfiguredDataProvider')]
-    public function testNoValidIndexConfigured(array $input, string $operationType, string $expectedExceptionMsg): void
-    {
-        $config = new RepositoryConfiguration($input);
+    public function testNoValidIndexConfigured(
+        array $input,
+        string $operationType,
+        string $expectedExceptionMessage,
+    ): void {
+        $config = self::build($input);
 
         $this->expectException(RepositoryConfigurationException::class);
-        $this->expectExceptionMessage($expectedExceptionMsg);
+        $this->expectExceptionMessage($expectedExceptionMessage);
 
         $config->getIndex($operationType);
     }
@@ -94,8 +97,8 @@ final class RepositoryConfigurationTest extends TestCase
         $variations = [];
         foreach ($cases as $name => $data) {
             foreach ([OperationType::READ, OperationType::WRITE] as $operationType) {
-                $data['operation_type'] = $operationType;
-                $data['expected_exception_msg'] = sprintf(
+                $data['operationType'] = $operationType;
+                $data['expectedExceptionMessage'] = sprintf(
                     'No valid index name configured for operation "%s"',
                     $operationType
                 );
@@ -108,14 +111,14 @@ final class RepositoryConfigurationTest extends TestCase
 
     public function testValidEntitySerializer(): void
     {
-        $mySerializer = new class() implements EntitySerializerInterface {
+        $mySerializer = new class implements EntitySerializerInterface {
             public function toElastic($entity): array
             {
                 return [];
             }
         };
 
-        $config = new RepositoryConfiguration(['entity_serializer' => $mySerializer]);
+        $config = self::build(['entity_serializer' => $mySerializer]);
 
         self::assertEquals($mySerializer, $config->getEntitySerializer());
     }
@@ -126,19 +129,19 @@ final class RepositoryConfigurationTest extends TestCase
 
         $this->expectException(TypeError::class);
 
-        self::assertNull(new RepositoryConfiguration(['entity_serializer' => $mySerializer]));
+        self::build(['entity_serializer' => $mySerializer]);
     }
 
     public function testValidEntityFactory(): void
     {
-        $myFactory = new class() implements EntityFactoryInterface {
+        $myFactory = new class implements EntityFactoryInterface {
             public function fromDocument(array $document, array $metaData): object
             {
                 return new stdClass();
             }
         };
 
-        $config = new RepositoryConfiguration(['entity_factory' => $myFactory]);
+        $config = self::build(['entity_factory' => $myFactory]);
 
         self::assertEquals($myFactory, $config->getEntityFactory());
     }
@@ -149,12 +152,12 @@ final class RepositoryConfigurationTest extends TestCase
 
         $this->expectException(TypeError::class);
 
-        self::assertNull(new RepositoryConfiguration(['entity_factory' => $myFactory]));
+        self::build(['entity_factory' => $myFactory]);
     }
 
     public function testValidEntityClass(): void
     {
-        $myEntity = new class() implements PersistableEntityInterface {
+        $myEntity = new class implements PersistableEntityInterface {
             public function toElastic(): array
             {
                 return [];
@@ -166,7 +169,7 @@ final class RepositoryConfigurationTest extends TestCase
             }
         };
 
-        $config = new RepositoryConfiguration(['entity_class' => $myEntity::class]);
+        $config = self::build(['entity_class' => $myEntity::class]);
 
         self::assertEquals($myEntity::class, $config->getEntityClass());
     }
@@ -181,25 +184,25 @@ final class RepositoryConfigurationTest extends TestCase
             )
         );
 
-        self::assertNull(new RepositoryConfiguration(['entity_class' => stdClass::class]));
+        self::build(['entity_class' => stdClass::class]);
     }
 
     public function testNonExistentEntityClass(): void
     {
         $this->expectException(RepositoryConfigurationException::class);
         $this->expectExceptionMessage(
-            'Given entity class does not exist.'
+            'Given entity class does not exist'
         );
 
-        self::assertNull(new RepositoryConfiguration(['entity_class' => '\Foo\Bar']));
+        self::build(['entity_class' => '\Foo\Bar']);
     }
 
     #[DataProvider('forceRefreshOnWriteDataProvider')]
     public function testForceRefreshOnWrite(array $input, bool $expected): void
     {
-        $config = new RepositoryConfiguration($input);
+        $config = self::build($input);
 
-        self::assertSame($expected, $config->getForceRefreshOnWrite());
+        self::assertEquals($expected, $config->getForceRefreshOnWrite());
     }
 
     public static function forceRefreshOnWriteDataProvider(): array
@@ -259,9 +262,9 @@ final class RepositoryConfigurationTest extends TestCase
     #[DataProvider('trackTotalHitsDataProvider')]
     public function testTrackTotalHits(array $input, ?bool $expected): void
     {
-        $config = new RepositoryConfiguration($input);
+        $config = self::build($input);
 
-        self::assertSame($expected, $config->getTrackTotalHits());
+        self::assertEquals($expected, $config->getTrackTotalHits());
     }
 
     public static function trackTotalHitsDataProvider(): array
@@ -321,9 +324,9 @@ final class RepositoryConfigurationTest extends TestCase
     #[DataProvider('scrollContextKeepaliveDataProvider')]
     public function testScrollContextKeepalive(array $input, string $expected): void
     {
-        $config = new RepositoryConfiguration($input);
+        $config = self::build($input);
 
-        self::assertSame($expected, $config->getScrollContextKeepalive());
+        self::assertEquals($expected, $config->getScrollContextKeepalive());
     }
 
     public static function scrollContextKeepaliveDataProvider(): array
@@ -348,18 +351,21 @@ final class RepositoryConfigurationTest extends TestCase
     public function testInvalidScrollContextKeepalive(): void
     {
         $this->expectException(RepositoryConfigurationException::class);
-        $this->expectExceptionMessage(
-            'Invalid value for scroll_context_keepalive given. Must be a valid time unit.'
-        );
+        $this->expectExceptionMessage('Invalid value for scroll_context_keepalive given. Must be a valid time unit');
 
-        self::assertNull(new RepositoryConfiguration(['index' => 'foobar', 'scroll_context_keepalive' => 'xxx']));
+        self::build(['index' => 'foobar', 'scroll_context_keepalive' => 'xxx']);
     }
 
     public function testGetDefaultScrollContextKeepalive(): void
     {
-        $config = new RepositoryConfiguration([]);
+        $config = self::build();
 
-        self::assertSame('1m', $config->getScrollContextKeepalive());
+        self::assertEquals('1m', $config->getScrollContextKeepalive());
         self::assertFalse($config->getForceRefreshOnWrite());
+    }
+
+    private static function build(array $config = []): RepositoryConfiguration
+    {
+        return new RepositoryConfiguration($config);
     }
 }

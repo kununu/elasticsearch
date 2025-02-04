@@ -3,14 +3,14 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Query\Criteria\Search;
 
-class TermQuery
+final class TermQuery
 {
-    public const KEYWORD = 'term';
+    public const string KEYWORD = 'term';
 
     public static function asArray(string $field, $term, array $options = []): array
     {
         return [
-            static::KEYWORD => [
+            self::KEYWORD => [
                 $field => array_merge(
                     $options,
                     [

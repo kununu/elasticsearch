@@ -3,52 +3,10 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Result;
 
-class AggregationResult implements AggregationResultInterface
+final class AggregationResult extends AbstractAggregationResult
 {
-    public function __construct(protected readonly string $name, protected readonly array $fields = [])
+    public static function create(string $name, array $rawResult): self
     {
-    }
-
-    public static function create(string $name, array $rawResult): AggregationResult
-    {
-        return new static($name, $rawResult);
-    }
-
-    public function toArray(): array
-    {
-        return [
-            $this->name => $this->fields,
-        ];
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function getFields(): array
-    {
-        return $this->fields;
-    }
-
-    public function get(string $field): mixed
-    {
-        return $this->fields[$field] ?? null;
-    }
-
-    /**
-     * Shortcut for bucket aggregations to directly retrieve the buckets list.
-     */
-    public function getBuckets(): ?array
-    {
-        return $this->get('buckets');
-    }
-
-    /**
-     * Shortcut method for single-value numeric metrics aggregations to directly retrieve the value field.
-     */
-    public function getValue(): ?float
-    {
-        return $this->get('value');
+        return new self($name, $rawResult);
     }
 }

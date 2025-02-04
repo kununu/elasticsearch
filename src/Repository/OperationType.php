@@ -5,6 +5,6 @@ namespace Kununu\Elasticsearch\Repository;
 
 final class OperationType
 {
-    public const READ = 'read';
-    public const WRITE = 'write';
+    public const string READ = 'read';
+    public const string WRITE = 'write';
 }

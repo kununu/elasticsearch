@@ -10,9 +10,10 @@ class BulkException extends WriteOperationException
     public function __construct(
         string $message = '',
         ?Throwable $previous = null,
-        protected readonly ?array $operations = null
+        protected readonly ?array $operations = null,
+        ?string $prefix = null,
     ) {
-        parent::__construct($message, $previous);
+        parent::__construct($message, $previous, $prefix);
     }
 
     public function getOperations(): ?array

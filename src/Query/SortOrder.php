@@ -9,6 +9,6 @@ final class SortOrder
 {
     use ConstantContainerTrait;
 
-    public const ASC = 'asc';
-    public const DESC = 'desc';
+    public const string ASC = 'asc';
+    public const string DESC = 'desc';
 }

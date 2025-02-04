@@ -30,8 +30,8 @@ final class CompositeAggregationBuilderTest extends TestCase
             );
 
         $query = $compositeAggregation->getQuery();
-        self::assertInstanceOf(RawQuery::class, $query);
 
+        self::assertInstanceOf(RawQuery::class, $query);
         self::assertEquals(
             [
                 'query' => [
@@ -39,35 +39,35 @@ final class CompositeAggregationBuilderTest extends TestCase
                         'must' => [
                             [
                                 'term' => [
-                                    'field' => 'value'
-                                ]
+                                    'field' => 'value',
+                                ],
                             ],
                             [
                                 'range' => [
                                     'field2' => [
-                                        'gte' => 'value2'
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
+                                        'gte' => 'value2',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                 ],
                 'aggs' => [
                     'agg' => [
                         'composite' => [
-                            'size' => 100,
+                            'size'    => 100,
                             'sources' => [
                                 [
                                     'source' => [
                                         'terms' => [
-                                            'field' => 'property',
+                                            'field'          => 'property',
                                             'missing_bucket' => false,
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                 ],
             ],
             $compositeAggregation->toArray()
@@ -82,46 +82,46 @@ final class CompositeAggregationBuilderTest extends TestCase
                         'must' => [
                             [
                                 'term' => [
-                                    'field' => 'value'
-                                ]
+                                    'field' => 'value',
+                                ],
                             ],
                             [
                                 'range' => [
                                     'field2' => [
-                                        'gte' => 'value2'
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
+                                        'gte' => 'value2',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                 ],
                 'aggs' => [
                     'agg' => [
                         'composite' => [
-                            'size' => 100,
+                            'size'    => 100,
                             'sources' => [
                                 [
                                     'source' => [
                                         'terms' => [
-                                            'field' => 'property',
+                                            'field'          => 'property',
                                             'missing_bucket' => false,
-                                        ]
-                                    ]
-                                ]
+                                        ],
+                                    ],
+                                ],
                             ],
-                            'after' => ['field' => 'value']
-                        ]
-                    ]
+                            'after' => ['field' => 'value'],
+                        ],
+                    ],
                 ],
             ],
             $compositeAggregation->toArray()
         );
     }
 
-    public function testCompositeAggregationBuilderWithNoAggregationName()
+    public function testCompositeAggregationBuilderWithNoAggregationName(): void
     {
-        self::expectException(MissingAggregationAttributesException::class);
-        self::expectExceptionMessage('Aggregation name is missing');
+        $this->expectException(MissingAggregationAttributesException::class);
+        $this->expectExceptionMessage('Aggregation name is missing');
 
         $compositeAggregation = CompositeAggregationQueryBuilder::create()
             ->withFilters(new Filters(

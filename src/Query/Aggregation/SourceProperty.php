@@ -3,13 +3,12 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Query\Aggregation;
 
-final class SourceProperty
+final readonly class SourceProperty
 {
     public function __construct(
-        public readonly string $source,
-        public readonly string $property,
-        public readonly bool $missingBucket = false
-    )
-    {
+        public string $source,
+        public string $property,
+        public bool $missingBucket = false,
+    ) {
     }
 }

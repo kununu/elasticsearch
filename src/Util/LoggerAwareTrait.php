@@ -8,7 +8,7 @@ use Psr\Log\NullLogger;
 
 trait LoggerAwareTrait
 {
-    protected LoggerInterface|null $logger = null;
+    protected ?LoggerInterface $logger = null;
 
     public function setLogger(LoggerInterface $logger): void
     {

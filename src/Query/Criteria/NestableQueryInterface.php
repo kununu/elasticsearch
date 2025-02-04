@@ -5,8 +5,8 @@ namespace Kununu\Elasticsearch\Query\Criteria;
 
 interface NestableQueryInterface extends CriteriaInterface
 {
-    public const OPTION_PATH = 'path';
-    public const OPTION_SCORE_MODE = 'score_mode';
-    public const OPTION_IGNORE_UNMAPPED = 'ignore_unmapped';
-    public const OPTION_INNER_HITS = 'inner_hits';
+    public const string OPTION_PATH = 'path';
+    public const string OPTION_SCORE_MODE = 'score_mode';
+    public const string OPTION_IGNORE_UNMAPPED = 'ignore_unmapped';
+    public const string OPTION_INNER_HITS = 'inner_hits';
 }

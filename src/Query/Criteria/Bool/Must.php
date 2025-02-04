@@ -3,7 +3,9 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Query\Criteria\Bool;
 
-class Must extends AbstractBoolQuery
+final class Must extends AbstractBoolQuery
 {
-    public const OPERATOR = 'must';
+    use BoolQueryCreateTrait;
+
+    public const string OPERATOR = 'must';
 }

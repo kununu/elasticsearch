@@ -3,11 +3,11 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Query\Criteria\Search;
 
-class MatchQuery
+final class MatchQuery
 {
     use MultiFieldTrait;
 
-    public const KEYWORD = 'match';
+    public const string KEYWORD = 'match';
 
     public static function asArray(array $fields, string $queryString, array $options = []): array
     {
@@ -23,7 +23,7 @@ class MatchQuery
             ];
         } else {
             $query = [
-                static::KEYWORD => [
+                self::KEYWORD => [
                     $fields[0] => array_merge(
                         $options,
                         [

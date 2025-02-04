@@ -1,14 +1,16 @@
 # Results
-To make working with Elasticsearch responses more pleasant, this package introduces a few classes to wrap raw JSON responses.
+To make working with Elasticsearch/OpenSearch responses more pleasant, this package introduces a few classes to wrap raw JSON responses.
 
 ## ResultIterator
-Requests to the Elasticsearch `_search` endpoint usually return a list of "hits", i.e. documents that matched the given query.
+
+Requests to the Elasticsearch/OpenSearch `_search` endpoint usually return a list of "hits", i.e. documents that matched the given query.
 
 This list of hits (plus some meta-information) is parsed and handled by the `ResultIterator` class.
 
 ResultIterators are [iterable](https://www.php.net/manual/en/language.types.iterable.php) (hence the name) and [array-accessible](https://www.php.net/manual/en/class.arrayaccess.php).
 
 ### Basic Usage
+
 ```php
 // to get a ResultIterator, let's find the first 10 documents in an index:
 $resultIterator = $someElasticManager->findByQuery(Query::create()->limit(10));
@@ -30,6 +32,7 @@ foreach($resultIterator as $document) { ... }
 ```
 
 ### Usage with Scroll Cursors
+
 ```php
 // we want to iterate over all documents in an index, so let's use a scroll cursor:
 $resultIterator = $someElasticManager->findScrollableByQuery(Query::create());
@@ -43,6 +46,7 @@ $resultIterator = $someElasticManager->findByScrollId($resultIterator->getScroll
 ```
 
 ### Advanced Features
+
 As sugar on top of the basic functionality of the result iterator there are some handy methods which simplify working with a set of documents.
 
 These include:
@@ -127,9 +131,13 @@ $reduced = array_reduce($results->asArray(), $reducer, $initial);
 ```
 
 ## AggregationResultSet
-Responses of aggregation requests contain more information than a `ResultIterator` can handle. An `AggregationResultSet` bundles a `ResultIterator` (for the matching documents) with an array of `AggregationResult` objects.
+
+Responses of aggregation requests contain more information than a `ResultIterator` can handle. 
+
+An `AggregationResultSet` bundles a `ResultIterator` (for the matching documents) with an array of `AggregationResult` objects.
 
 ### Usage
+
 ```php
 $result = $someElasticManager->aggregate(
     Query::create(
@@ -152,14 +160,18 @@ foreach($result->getResults() as $aggregationName => $aggregationResult) {
 ```
 
 ## AggregationResult
+
 This class makes available the result of a single aggregation. It exposes the aggregation name and the result fields.
-Each field can be accessed individually by name. Additionally, there are dedicated getter methods for the most common
-fields (`value`
-for [single-value numeric metrics aggregations](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/search-aggregations-metrics.html)
-and `buckets`
-for [bucket aggregations](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/search-aggregations-bucket.html))
+
+Each field can be accessed individually by name. 
+
+Additionally, there are dedicated getter methods for the most common fields:
+
+- `value`for [single-value numeric metrics aggregations](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/search-aggregations-metrics.html)
+- `buckets` for [bucket aggregations](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/search-aggregations-bucket.html))
 
 ### Usage
+
 ```php
 $result = $someElasticManager->aggregate(
     Query::create(

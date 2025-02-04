@@ -16,18 +16,18 @@ final class Operator
 {
     use ConstantContainerTrait;
 
-    public const EXISTS = Exists::KEYWORD;
-    public const PREFIX = Prefix::KEYWORD;
-    public const REGEXP = Regexp::KEYWORD;
-    public const TERM = Term::KEYWORD;
-    public const TERMS = Terms::KEYWORD;
+    public const string EXISTS = Exists::KEYWORD;
+    public const string PREFIX = Prefix::KEYWORD;
+    public const string REGEXP = Regexp::KEYWORD;
+    public const string TERM = Term::KEYWORD;
+    public const string TERMS = Terms::KEYWORD;
 
-    public const LESS_THAN = 'lt';
-    public const GREATER_THAN = 'gt';
-    public const LESS_THAN_EQUALS = 'lte';
-    public const GREATER_THAN_EQUALS = 'gte';
-    public const BETWEEN = 'between';
+    public const string LESS_THAN = 'lt';
+    public const string GREATER_THAN = 'gt';
+    public const string LESS_THAN_EQUALS = 'lte';
+    public const string GREATER_THAN_EQUALS = 'gte';
+    public const string BETWEEN = 'between';
 
-    public const GEO_DISTANCE = GeoDistance::KEYWORD;
-    public const GEO_SHAPE = GeoShape::KEYWORD;
+    public const string GEO_DISTANCE = GeoDistance::KEYWORD;
+    public const string GEO_SHAPE = GeoShape::KEYWORD;
 }

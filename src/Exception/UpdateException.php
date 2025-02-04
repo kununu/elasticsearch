@@ -11,9 +11,10 @@ class UpdateException extends WriteOperationException
         string $message = '',
         ?Throwable $previous = null,
         protected readonly mixed $documentId = null,
-        protected readonly ?array $document = null
+        protected readonly ?array $document = null,
+        ?string $prefix = null,
     ) {
-        parent::__construct($message, $previous);
+        parent::__construct($message, $previous, $prefix);
     }
 
     public function getDocumentId(): mixed

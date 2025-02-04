@@ -5,10 +5,20 @@ namespace Kununu\Elasticsearch\Query\Aggregation;
 
 use InvalidArgumentException;
 use Kununu\Collection\AbstractCollection;
+use Kununu\Collection\Collection;
 
+/**
+ * @method static self fromIterable(iterable $data)
+ * @method        self add(mixed $value)
+ * @method        self diff(Collection $other)
+ * @method        self duplicates(bool $strict = true, bool $uniques = false)
+ * @method        self each(callable $function, bool $rewind = true)
+ * @method        self reverse()
+ * @method        self unique()
+ */
 final class Sources extends AbstractCollection
 {
-    private const INVALID = 'Can only append %s';
+    private const string INVALID = 'Can only append %s';
 
     public function __construct(SourceProperty ...$sourceProperties)
     {
@@ -30,8 +40,10 @@ final class Sources extends AbstractCollection
     public function append($value): void
     {
         match (true) {
-            $value instanceof SourceProperty  => parent::append($value),
-            default                           => throw new InvalidArgumentException(sprintf(self::INVALID, SourceProperty::class))
+            $value instanceof SourceProperty => parent::append($value),
+            default                          => throw new InvalidArgumentException(
+                sprintf(self::INVALID, SourceProperty::class)
+            ),
         };
     }
 }
