@@ -47,7 +47,8 @@
   },
   "config": {
     "allow-plugins": {
-      "kununu/scripts": true
+      "kununu/scripts": true,
+      "php-http/discovery": false
     },
     "sort-packages": true
   }
