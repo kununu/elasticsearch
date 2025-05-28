@@ -23,7 +23,7 @@ final class PersistableEntityStub implements PersistableEntityInterface
     {
         $entity = new self();
         foreach ($document as $key => $value) {
-            $entity->$key = $value;
+            $entity->{$key} = $value;
         }
         $entity->_meta = $metaData;
 

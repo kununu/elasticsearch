@@ -117,7 +117,7 @@ abstract class AbstractFindByIdsTestCase extends AbstractRepositoryTestCase
                     if ($docs['found']) {
                         $entity = new PersistableEntityStub();
                         foreach ($docs['_source'] as $key => $value) {
-                            $entity->$key = $value;
+                            $entity->{$key} = $value;
                         }
                         $entity->_meta = [
                             '_index'   => $docs['_index'],

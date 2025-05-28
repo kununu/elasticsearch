@@ -272,7 +272,7 @@ abstract class AbstractRepositoryTestCase extends AbstractClientTestCase
                     function(array $result): PersistableEntityStub {
                         $entity = new PersistableEntityStub();
                         foreach ($result['_source'] as $key => $value) {
-                            $entity->$key = $value;
+                            $entity->{$key} = $value;
                         }
                         $entity->_meta = ['_index' => $result['_index'], '_score' => $result['_score']];
 

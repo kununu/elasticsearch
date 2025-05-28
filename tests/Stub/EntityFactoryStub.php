@@ -11,7 +11,7 @@ final class EntityFactoryStub implements EntityFactoryInterface
     {
         $entity = new PersistableEntityStub();
         foreach ($document as $key => $value) {
-            $entity->$key = $value;
+            $entity->{$key} = $value;
         }
         $entity->_meta = $metaData;
 
