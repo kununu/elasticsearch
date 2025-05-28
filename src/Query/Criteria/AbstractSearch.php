@@ -12,6 +12,7 @@ use Kununu\Elasticsearch\Query\Criteria\Search\MatchQuery;
 use Kununu\Elasticsearch\Query\Criteria\Search\PrefixQuery;
 use Kununu\Elasticsearch\Query\Criteria\Search\QueryStringQuery;
 use Kununu\Elasticsearch\Query\Criteria\Search\TermQuery;
+use Kununu\Elasticsearch\Query\Criteria\Search\WildcardQuery;
 use Kununu\Elasticsearch\Util\ConstantContainerTrait;
 
 abstract class AbstractSearch implements SearchInterface
@@ -24,6 +25,7 @@ abstract class AbstractSearch implements SearchInterface
     public const string PREFIX = PrefixQuery::KEYWORD;
     public const string QUERY_STRING = QueryStringQuery::KEYWORD;
     public const string TERM = TermQuery::KEYWORD;
+    public const string WILDCARD = WildcardQuery::KEYWORD;
 
     public function __construct(
         protected readonly array $fields,
@@ -58,6 +60,7 @@ abstract class AbstractSearch implements SearchInterface
             ),
             static::PREFIX              => PrefixQuery::asArray($this->fields, $this->queryString, $this->options),
             static::TERM                => TermQuery::asArray($this->fields[0], $this->queryString, $this->options),
+            static::WILDCARD            => WildcardQuery::asArray($this->fields[0], $this->queryString, $this->options),
             default                     => throw new UnhandledFullTextSearchTypeException($this->type),
         };
     }
