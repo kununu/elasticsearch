@@ -100,7 +100,7 @@ final class UtilitiesTraitTest extends TestCase
         string $separator,
         string $itemMask,
         string $expected,
-        int|float|string ...$values,
+        array $values = [],
     ): void {
         $result = self::formatMultiple($separator, $itemMask, ...$values);
 
@@ -111,39 +111,47 @@ final class UtilitiesTraitTest extends TestCase
     {
         return [
             'no_values'    => [
-                ',',
-                '%s',
-                '',
+                'separator' => ',',
+                'itemMask'  => '%s',
+                'expected'  => '',
             ],
             'single_value' => [
-                '#',
-                '%d',
-                '100',
-                100,
+                'separator' => '#',
+                'itemMask'  => '%d',
+                'expected'  => '100',
+                'values'    => [
+                    100,
+                ],
             ],
             'string_mask'  => [
-                ',',
-                '%s',
-                '1,2.5,value',
-                1,
-                2.5,
-                'value',
+                'separator' => ',',
+                'itemMask'  => '%s',
+                'expected'  => '1,2.5,value',
+                'values'    => [
+                    1,
+                    2.5,
+                    'value',
+                ],
             ],
             'int_mask'     => [
-                ',',
-                '%d',
-                '1,2,0',
-                1,
-                2.5,
-                'value',
+                'separator' => ',',
+                'itemMask'  => '%d',
+                'expected'  => '1,2,0',
+                'values'    => [
+                    1,
+                    2.5,
+                    'value',
+                ],
             ],
             'float_mask'   => [
-                ';',
-                '%.2f',
-                '1.00;2.50;0.00',
-                1,
-                2.5,
-                'value',
+                'separator' => ';',
+                'itemMask'  => '%.2f',
+                'expected'  => '1.00;2.50;0.00',
+                'values'    => [
+                    1,
+                    2.5,
+                    'value',
+                ],
             ],
         ];
     }
