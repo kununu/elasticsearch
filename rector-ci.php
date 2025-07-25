@@ -11,7 +11,7 @@ return RectorConfig::configure()
     ->withPhpSets(php83: true)
     ->withAttributesSets(phpunit: true)
     ->withSets([
-        PHPUnitSetList::PHPUNIT_110,
+        PHPUnitSetList::PHPUNIT_120,
     ])
     ->withRules([
         FinalizeTestCaseClassRector::class,

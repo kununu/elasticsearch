@@ -11,16 +11,16 @@
     "ext-json": "*",
     "ext-mbstring": "*",
     "elasticsearch/elasticsearch": "^7.1",
-    "kununu/collections": "^5.1",
+    "kununu/collections": "^6.2",
     "opensearch-project/opensearch-php": "^2.0",
     "psr/log": "^1.0|^2.0|^3.0"
   },
   "require-dev": {
     "jetbrains/phpstorm-attributes": "^1.2",
-    "kununu/scripts": ">=5.1",
+    "kununu/scripts": ">=6.1",
     "phpstan/phpstan": "^2.1",
     "phpstan/phpstan-phpunit": "^2.0",
-    "phpunit/phpunit": "^11.5",
+    "phpunit/phpunit": "^12.2",
     "rector/rector": "^2.0"
   },
   "autoload": {
