@@ -14,6 +14,24 @@ All notable changes to this project will be documented in this file based on ["K
 
 ### Deprecated
 
+## [10.0.0](https://github.com/kununu/elasticsearch/compare/v10.0.0...v9.0.0)
+
+### Backward Compatibility Breaks
+
+* Update `kununu/collections` to ^6.2
+
+### Bugfixes
+
+### Added
+
+
+### Improvements
+
+* For the library internal development:
+  * Bump PHPUnit version to 12.2
+
+### Deprecated
+
 ## [9.0.0](https://github.com/kununu/elasticsearch/compare/v9.0.0...v8.0.0)
 
 ### Backward Compatibility Breaks
