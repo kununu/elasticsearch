@@ -272,7 +272,7 @@ abstract class AbstractRepository implements RepositoryInterface, LoggerAwareInt
 
                 if ($this->entityClass || $this->entityFactory) {
                     return array_map(
-                        fn(array $doc): array|object => $this->createPotentialEntity($doc),
+                        $this->createPotentialEntity(...),
                         $docs
                     );
                 }
@@ -491,7 +491,7 @@ abstract class AbstractRepository implements RepositoryInterface, LoggerAwareInt
     protected function parseRawSearchResponse(array $rawResult): ResultIteratorInterface
     {
         $results = array_map(
-            fn(array $hit) => $this->createPotentialEntity($hit),
+            $this->createPotentialEntity(...),
             $rawResult['hits']['hits'] ?? []
         );
 

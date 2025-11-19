@@ -35,7 +35,7 @@ jobs:
           composer-options: "--prefer-stable --optimize-autoloader --no-progress --no-interaction"
 
       - name: Run PHP CS Fixer
-        run: vendor/bin/php-cs-fixer check --using-cache=no --config vendor/kununu/scripts/src/PHP/CodeStandards/Scripts/php_cs src/ tests/
+        run: vendor/bin/php-cs-fixer check --using-cache=no --config vendor/kununu/code-tools/php-cs-fixer.php src/ tests/
 
       - name: Run Rector
         run: vendor/bin/rector process --ansi --dry-run --config rector-ci.php src/ tests/
@@ -103,7 +103,7 @@ jobs:
           sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' tests-junit.xml
 
       - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v4.2
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

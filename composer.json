@@ -17,7 +17,7 @@
   },
   "require-dev": {
     "jetbrains/phpstorm-attributes": "^1.2",
-    "kununu/scripts": ">=6.1",
+    "kununu/code-tools": "^3.1",
     "phpstan/phpstan": "^2.1",
     "phpstan/phpstan-phpunit": "^2.0",
     "phpunit/phpunit": "^12.2",
@@ -47,8 +47,8 @@
   },
   "config": {
     "allow-plugins": {
-      "kununu/scripts": true,
-      "php-http/discovery": false
+      "php-http/discovery": false,
+      "kununu/code-tools": true
     },
     "sort-packages": true
   }
