@@ -23,13 +23,6 @@
     "phpunit/phpunit": "^12.2",
     "rector/rector": "^2.0"
   },
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/kununu/code-tools.git",
-      "no-api": true
-    }
-  ],
   "autoload": {
     "psr-4": {
       "Kununu\\Elasticsearch\\": "src"
