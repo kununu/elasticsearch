@@ -21,7 +21,8 @@ abstract class AbstractQuery extends AbstractBaseQuery implements NestableQueryI
 
     public const string OPTION_MIN_SCORE = 'min_score';
 
-    protected const int MINIMUM_SHOULD_MATCH = 1; // relevant when $searchOperator === 'should'
+    // relevant when $searchOperator === 'should'
+    protected const int MINIMUM_SHOULD_MATCH = 1;
 
     protected bool $nested = false;
 
@@ -85,7 +86,7 @@ abstract class AbstractQuery extends AbstractBaseQuery implements NestableQueryI
 
         if (!empty($this->searches)) {
             $preparedSearches = array_map(
-                fn(CriteriaInterface $search): array => $search->toArray(),
+                static fn(CriteriaInterface $search): array => $search->toArray(),
                 $this->searches
             );
 

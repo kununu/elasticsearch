@@ -267,9 +267,9 @@ abstract class AbstractRepositoryTestCase extends AbstractClientTestCase
     protected static function modifySearchResultDataForEntityUseCases(array $baseData): array
     {
         return array_map(
-            function(array $variables) {
+            static function(array $variables) {
                 $variables['endResult'] = array_map(
-                    function(array $result): PersistableEntityStub {
+                    static function(array $result): PersistableEntityStub {
                         $entity = new PersistableEntityStub();
                         foreach ($result['_source'] as $key => $value) {
                             $entity->{$key} = $value;
@@ -291,7 +291,7 @@ abstract class AbstractRepositoryTestCase extends AbstractClientTestCase
     {
         array_walk(
             $baseData,
-            function(array &$item): void {
+            static function(array &$item): void {
                 unset($item['endResult']);
             }
         );

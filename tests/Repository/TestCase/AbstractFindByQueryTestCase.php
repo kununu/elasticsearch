@@ -9,10 +9,12 @@ use Kununu\Elasticsearch\Query\Query;
 use Kununu\Elasticsearch\Query\QueryInterface;
 use Kununu\Elasticsearch\Repository\RepositoryConfiguration;
 use Kununu\Elasticsearch\Result\ResultIterator;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 abstract class AbstractFindByQueryTestCase extends AbstractRepositoryTestCase
 {
+    #[AllowMockObjectsWithoutExpectations]
     #[DataProvider('queryAndSearchResultVariationsDataProvider')]
     public function testFindByQuery(QueryInterface $query, array $result, mixed $endResult, bool $scroll): void
     {
@@ -26,7 +28,7 @@ abstract class AbstractFindByQueryTestCase extends AbstractRepositoryTestCase
         }
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('search')
             ->with($rawParams)
             ->willReturn($result);
@@ -61,13 +63,13 @@ abstract class AbstractFindByQueryTestCase extends AbstractRepositoryTestCase
         }
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('search')
             ->with($rawParams)
             ->willReturn($result);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $repository = $this->getRepositoryWithEntityFactory();
@@ -106,13 +108,13 @@ abstract class AbstractFindByQueryTestCase extends AbstractRepositoryTestCase
         }
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('search')
             ->with($rawParams)
             ->willReturn($result);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $repository = $this->getRepositoryWithEntityClass();
@@ -138,12 +140,12 @@ abstract class AbstractFindByQueryTestCase extends AbstractRepositoryTestCase
     public function testFindByQueryFails(): void
     {
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('search')
             ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->logger
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('error')
             ->with($this->formatMessage(self::ERROR_MESSAGE));
 

@@ -75,7 +75,7 @@ final class CompositeAggregationQueryBuilder implements CompositeAggregationQuer
             self::filterNullAndEmptyValues([
                 'query' => [
                     'bool' => [
-                        'must' => $this->filters->map(fn(FilterInterface $filter) => $filter->toArray()),
+                        'must' => $this->filters->map(static fn(FilterInterface $filter) => $filter->toArray()),
                     ],
                 ],
                 'aggs' => [
@@ -83,7 +83,7 @@ final class CompositeAggregationQueryBuilder implements CompositeAggregationQuer
                         'composite' => [
                             'size'    => $compositeSize,
                             'sources' => $this->sources?->map(
-                                fn(SourceProperty $sourceProperty) => [
+                                static fn(SourceProperty $sourceProperty) => [
                                     $sourceProperty->source => [
                                         'terms' => [
                                             'field'          => $sourceProperty->property,

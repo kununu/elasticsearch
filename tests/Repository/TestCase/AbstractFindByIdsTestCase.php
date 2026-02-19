@@ -6,6 +6,7 @@ namespace Kununu\Elasticsearch\Tests\Repository\TestCase;
 use Exception;
 use Kununu\Elasticsearch\Exception\ReadOperationException;
 use Kununu\Elasticsearch\Tests\Stub\PersistableEntityStub;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 abstract class AbstractFindByIdsTestCase extends AbstractRepositoryTestCase
@@ -111,7 +112,7 @@ abstract class AbstractFindByIdsTestCase extends AbstractRepositoryTestCase
     public static function findByIdsResultWithEntitiesDataProvider(): array
     {
         return array_map(
-            function(array $variables): array {
+            static function(array $variables): array {
                 $variables['endResult'] = [];
                 foreach ($variables['result']['docs'] as $docs) {
                     if ($docs['found']) {
@@ -140,7 +141,7 @@ abstract class AbstractFindByIdsTestCase extends AbstractRepositoryTestCase
     public function testFindByIds(array $result, mixed $endResult): void
     {
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('mget')
             ->with([
                 'index' => self::INDEX['read'],
@@ -158,11 +159,11 @@ abstract class AbstractFindByIdsTestCase extends AbstractRepositoryTestCase
             ->willReturn($result);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('critical');
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         self::assertEquals($endResult, $this->getRepository()->findByIds([self::ID, self::ID_2]));
@@ -172,7 +173,7 @@ abstract class AbstractFindByIdsTestCase extends AbstractRepositoryTestCase
     public function testFindByIdsWithSourceField(array $result, mixed $endResult): void
     {
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('mget')
             ->with([
                 'index' => self::INDEX['read'],
@@ -192,11 +193,11 @@ abstract class AbstractFindByIdsTestCase extends AbstractRepositoryTestCase
             ->willReturn($result);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('critical');
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         self::assertEquals($endResult, $this->getRepository()->findByIds([self::ID, self::ID_2], ['foo', 'foo2']));
@@ -206,7 +207,7 @@ abstract class AbstractFindByIdsTestCase extends AbstractRepositoryTestCase
     public function testFindByIdWithEntityClass(array $result, mixed $endResult): void
     {
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('mget')
             ->with([
                 'index' => self::INDEX['read'],
@@ -224,11 +225,11 @@ abstract class AbstractFindByIdsTestCase extends AbstractRepositoryTestCase
             ->willReturn($result);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('critical');
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $results = $this->getRepositoryWithEntityClass()->findByIds([self::ID, self::ID_2]);
@@ -248,7 +249,7 @@ abstract class AbstractFindByIdsTestCase extends AbstractRepositoryTestCase
     public function testFindByIdsWithEntityFactory(array $result, mixed $endResult): void
     {
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('mget')
             ->with([
                 'index' => self::INDEX['read'],
@@ -266,11 +267,11 @@ abstract class AbstractFindByIdsTestCase extends AbstractRepositoryTestCase
             ->willReturn($result);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('critical');
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $results = $this->getRepositoryWithEntityFactory()->findByIds([self::ID, self::ID_2]);
@@ -286,6 +287,7 @@ abstract class AbstractFindByIdsTestCase extends AbstractRepositoryTestCase
         }
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testFindByIdsWithoutIds(): void
     {
         self::assertEmpty($this->getRepository()->findByIds([]));
@@ -308,13 +310,13 @@ abstract class AbstractFindByIdsTestCase extends AbstractRepositoryTestCase
         ];
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('mget')
             ->with($body)
             ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->logger
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('critical')
             ->with(
                 $this->formatMessage('Request error'),
@@ -322,7 +324,7 @@ abstract class AbstractFindByIdsTestCase extends AbstractRepositoryTestCase
             );
 
         $this->logger
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('error')
             ->with(
                 $this->formatMessage(self::ERROR_MESSAGE)

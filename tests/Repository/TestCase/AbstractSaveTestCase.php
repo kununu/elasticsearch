@@ -16,7 +16,7 @@ abstract class AbstractSaveTestCase extends AbstractRepositoryTestCase
         ];
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('index')
             ->with([
                 'index' => self::INDEX['write'],
@@ -25,7 +25,7 @@ abstract class AbstractSaveTestCase extends AbstractRepositoryTestCase
             ]);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $this->getRepository()->save(self::ID, $document);
@@ -38,7 +38,7 @@ abstract class AbstractSaveTestCase extends AbstractRepositoryTestCase
         ];
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('index')
             ->with([
                 'index'   => self::INDEX['write'],
@@ -48,7 +48,7 @@ abstract class AbstractSaveTestCase extends AbstractRepositoryTestCase
             ]);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $this->getRepositoryWithForceRefresh()->save(self::ID, $document);
@@ -61,7 +61,7 @@ abstract class AbstractSaveTestCase extends AbstractRepositoryTestCase
         ];
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('index')
             ->with([
                 'index' => self::INDEX['write'],
@@ -71,7 +71,7 @@ abstract class AbstractSaveTestCase extends AbstractRepositoryTestCase
             ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->logger
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('error')
             ->with($this->formatMessage(self::ERROR_MESSAGE));
 
@@ -92,7 +92,7 @@ abstract class AbstractSaveTestCase extends AbstractRepositoryTestCase
         ];
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('index')
             ->with([
                 'index' => self::INDEX['write'],
@@ -101,7 +101,7 @@ abstract class AbstractSaveTestCase extends AbstractRepositoryTestCase
             ]);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $repository = new class($this->client, ['index_write' => self::INDEX['write']]) extends AbstractRepository {

@@ -44,12 +44,12 @@ final class GeoDistanceTest extends TestCase
         $this->geoDistance = $this->createMock(GeoDistanceInterface::class);
 
         $this->geoDistance
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getDistance')
             ->willReturn('42km');
 
         $this->geoDistance
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getLocation')
             ->willReturn([0, 0]);
     }

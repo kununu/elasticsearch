@@ -6,15 +6,17 @@ namespace Kununu\Elasticsearch\Tests\Repository\TestCase;
 use Exception;
 use Kununu\Elasticsearch\Exception\ReadOperationException;
 use Kununu\Elasticsearch\Query\Query;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
 abstract class AbstractCountTestCase extends AbstractRepositoryTestCase
 {
+    #[AllowMockObjectsWithoutExpectations]
     public function testCount(): void
     {
         $query = Query::create();
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('count')
             ->with([
                 'index' => self::INDEX['read'],
@@ -28,12 +30,12 @@ abstract class AbstractCountTestCase extends AbstractRepositoryTestCase
     public function testCountFails(): void
     {
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('count')
             ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->logger
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('error')
             ->with($this->formatMessage(self::ERROR_MESSAGE));
 

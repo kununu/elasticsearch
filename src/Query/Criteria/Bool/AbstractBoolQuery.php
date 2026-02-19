@@ -30,7 +30,7 @@ abstract class AbstractBoolQuery implements BoolQueryInterface
         return [
             'bool' => [
                 $this->getOperator() => array_map(
-                    fn(CriteriaInterface $child): array => $child->toArray(),
+                    static fn(CriteriaInterface $child): array => $child->toArray(),
                     $this->children
                 ),
             ],

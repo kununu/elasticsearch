@@ -64,7 +64,7 @@ final class FilterTest extends TestCase
         $geoShape = $this->createMock(GeoShapeInterface::class);
 
         $geoShape
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('toArray')
             ->willReturn([]);
 
@@ -79,12 +79,12 @@ final class FilterTest extends TestCase
         $geoDistance = $this->createMock(GeoDistanceInterface::class);
 
         $geoDistance
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getDistance')
             ->willReturn('42km');
 
         $geoDistance
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getLocation')
             ->willReturn([0, 0]);
 

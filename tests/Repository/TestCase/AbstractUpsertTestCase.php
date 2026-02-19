@@ -7,6 +7,7 @@ use Exception;
 use Kununu\Elasticsearch\Exception\RepositoryConfigurationException;
 use Kununu\Elasticsearch\Exception\UpsertException;
 use Kununu\Elasticsearch\Tests\Stub\PersistableEntityStub;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use stdClass;
 use TypeError;
@@ -20,7 +21,7 @@ abstract class AbstractUpsertTestCase extends AbstractRepositoryTestCase
         ];
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('update')
             ->with([
                 'index' => self::INDEX['write'],
@@ -32,7 +33,7 @@ abstract class AbstractUpsertTestCase extends AbstractRepositoryTestCase
             ]);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $this->getRepository()->upsert(self::ID, $document);
@@ -45,7 +46,7 @@ abstract class AbstractUpsertTestCase extends AbstractRepositoryTestCase
         ];
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('update')
             ->with([
                 'index'   => self::INDEX['write'],
@@ -58,7 +59,7 @@ abstract class AbstractUpsertTestCase extends AbstractRepositoryTestCase
             ]);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $this->getRepositoryWithForceRefresh()->upsert(self::ID, $document);
@@ -71,7 +72,7 @@ abstract class AbstractUpsertTestCase extends AbstractRepositoryTestCase
         $document->property_b = 'b';
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('update')
             ->with([
                 'index' => self::INDEX['write'],
@@ -86,7 +87,7 @@ abstract class AbstractUpsertTestCase extends AbstractRepositoryTestCase
             ]);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $this->getRepositoryWithEntitySerializer()->upsert(self::ID, $document);
@@ -99,7 +100,7 @@ abstract class AbstractUpsertTestCase extends AbstractRepositoryTestCase
         $document->property_b = 'b';
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('update')
             ->with([
                 'index' => self::INDEX['write'],
@@ -114,12 +115,13 @@ abstract class AbstractUpsertTestCase extends AbstractRepositoryTestCase
             ]);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $this->getRepositoryWithEntityClass()->upsert(self::ID, $document);
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testUpsertObjectFailsWithoutEntitySerializerAndEntityClass(): void
     {
         $this->expectException(RepositoryConfigurationException::class);
@@ -128,6 +130,7 @@ abstract class AbstractUpsertTestCase extends AbstractRepositoryTestCase
         $this->getRepository()->upsert(self::ID, new stdClass());
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     #[DataProvider('invalidDataTypesForSaveAndUpsertDataProvider')]
     public function testUpsertFailsWithInvalidDataType(mixed $entity): void
     {
@@ -143,7 +146,7 @@ abstract class AbstractUpsertTestCase extends AbstractRepositoryTestCase
         ];
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('update')
             ->with([
                 'index' => self::INDEX['write'],
@@ -156,7 +159,7 @@ abstract class AbstractUpsertTestCase extends AbstractRepositoryTestCase
             ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->logger
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('error')
             ->with($this->formatMessage(self::ERROR_MESSAGE));
 

@@ -12,15 +12,17 @@ use Kununu\Elasticsearch\Query\Query;
 use Kununu\Elasticsearch\Query\QueryInterface;
 use Kununu\Elasticsearch\Result\AggregationResult;
 use Kununu\Elasticsearch\Result\ResultIterator;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 abstract class AbstractAggregateByQueryTestCase extends AbstractRepositoryTestCase
 {
+    #[AllowMockObjectsWithoutExpectations]
     #[DataProvider('queryAndSearchResultDataProvider')]
     public function testAggregateByQuery(QueryInterface $query, array $result): void
     {
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('search')
             ->with([
                 'index' => self::INDEX['read'],
@@ -55,6 +57,7 @@ abstract class AbstractAggregateByQueryTestCase extends AbstractRepositoryTestCa
         self::assertEquals(0.1, $aggregation->getValue());
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     #[DataProvider('queryAndSearchResultWithEntitiesDataProvider')]
     public function testAggregateByQueryWithEntityFactory(
         QueryInterface $query,
@@ -62,7 +65,7 @@ abstract class AbstractAggregateByQueryTestCase extends AbstractRepositoryTestCa
         mixed $endResult,
     ): void {
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('search')
             ->with([
                 'index' => self::INDEX['read'],
@@ -100,6 +103,7 @@ abstract class AbstractAggregateByQueryTestCase extends AbstractRepositoryTestCa
         self::assertEquals(0.1, $aggregation->getValue());
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     #[DataProvider('queryAndSearchResultWithEntitiesDataProvider')]
     public function testAggregateByQueryWithEntityClass(
         QueryInterface $query,
@@ -107,7 +111,7 @@ abstract class AbstractAggregateByQueryTestCase extends AbstractRepositoryTestCa
         mixed $endResult,
     ): void {
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('search')
             ->with([
                 'index' => self::INDEX['read'],
@@ -153,12 +157,12 @@ abstract class AbstractAggregateByQueryTestCase extends AbstractRepositoryTestCa
         );
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('search')
             ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->logger
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('error')
             ->with($this->formatMessage(self::ERROR_MESSAGE));
 

@@ -12,7 +12,7 @@ abstract class AbstractDeleteBulkTestCase extends AbstractRepositoryTestCase
     public function testDeleteBulk(): void
     {
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('bulk')
             ->with([
                 'index' => self::INDEX['write'],
@@ -31,7 +31,7 @@ abstract class AbstractDeleteBulkTestCase extends AbstractRepositoryTestCase
             ]);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $this->getRepository()->deleteBulk(self::ID, self::ID_2);
@@ -40,7 +40,7 @@ abstract class AbstractDeleteBulkTestCase extends AbstractRepositoryTestCase
     public function testDeleteBulkWithForcedRefresh(): void
     {
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('bulk')
             ->with([
                 'index'   => self::INDEX['write'],
@@ -60,7 +60,7 @@ abstract class AbstractDeleteBulkTestCase extends AbstractRepositoryTestCase
             ]);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $this->getRepositoryWithForceRefresh()->deleteBulk(self::ID, self::ID_2);
@@ -69,7 +69,7 @@ abstract class AbstractDeleteBulkTestCase extends AbstractRepositoryTestCase
     public function testDeleteBulkFails(): void
     {
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('bulk')
             ->with([
                 'index' => self::INDEX['write'],
@@ -89,7 +89,7 @@ abstract class AbstractDeleteBulkTestCase extends AbstractRepositoryTestCase
             ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->logger
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('error')
             ->with($this->formatMessage(self::ERROR_MESSAGE));
 
@@ -105,7 +105,7 @@ abstract class AbstractDeleteBulkTestCase extends AbstractRepositoryTestCase
     public function testPostDeleteBulkIsCalled(): void
     {
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('bulk')
             ->with([
                 'index' => self::INDEX['write'],
@@ -124,7 +124,7 @@ abstract class AbstractDeleteBulkTestCase extends AbstractRepositoryTestCase
             ]);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $repository = new class($this->client, ['index_write' => self::INDEX['write']]) extends AbstractRepository {
@@ -142,11 +142,11 @@ abstract class AbstractDeleteBulkTestCase extends AbstractRepositoryTestCase
     public function testDeleteBulkWithoutIds(): void
     {
         $this->client
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('bulk');
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $this->getRepository()->deleteBulk();

@@ -68,13 +68,7 @@ abstract class AbstractResultIterator implements Iterator, ArrayAccess, Countabl
      */
     public function first(callable $fn): ?array
     {
-        foreach ($this->results as $result) {
-            if ($fn($result)) {
-                return $result;
-            }
-        }
-
-        return null;
+        return array_find($this->results, static fn($result) => $fn($result));
     }
 
     /**
@@ -94,13 +88,7 @@ abstract class AbstractResultIterator implements Iterator, ArrayAccess, Countabl
      */
     public function some(callable $fn): bool
     {
-        foreach ($this->results as $key => $result) {
-            if ($fn($result, $key)) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any($this->results, static fn($result, $key) => $fn($result, $key));
     }
 
     /**
@@ -110,13 +98,7 @@ abstract class AbstractResultIterator implements Iterator, ArrayAccess, Countabl
      */
     public function every(callable $fn): bool
     {
-        foreach ($this->results as $key => $result) {
-            if (!$fn($result, $key)) {
-                return false;
-            }
-        }
-
-        return true;
+        return array_all($this->results, static fn($result, $key) => $fn($result, $key));
     }
 
     /**

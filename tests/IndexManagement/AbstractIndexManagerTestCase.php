@@ -13,6 +13,7 @@ use Kununu\Elasticsearch\IndexManagement\IndexManagerInterface;
 use Kununu\Elasticsearch\Tests\AbstractClientTestCase;
 use OpenSearch\Client as OpenSearchClient;
 use OpenSearch\Namespaces\IndicesNamespace as OpenSearchIndicesNamespace;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
@@ -62,7 +63,7 @@ TEXT;
         $this->setUpIndexOperation();
 
         $this->indices
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('putAlias')
             ->with([
                 'index' => self::INDEX,
@@ -72,7 +73,7 @@ TEXT;
 
         if ($expectError) {
             $this->logger
-                ->expects(self::once())
+                ->expects($this->once())
                 ->method('error')
                 ->with(
                     $this->formatMessage('Could not add alias for index'),
@@ -83,7 +84,7 @@ TEXT;
             $this->expectExceptionMessage($this->formatMessage(self::OPERATION_NOT_ACKNOWLEDGED));
         } else {
             $this->logger
-                ->expects(self::never())
+                ->expects($this->never())
                 ->method('error');
         }
 
@@ -96,7 +97,7 @@ TEXT;
         $this->setUpIndexOperation();
 
         $this->indices
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('deleteAlias')
             ->with([
                 'index' => self::INDEX,
@@ -106,7 +107,7 @@ TEXT;
 
         if ($expectError) {
             $this->logger
-                ->expects(self::once())
+                ->expects($this->once())
                 ->method('error')
                 ->with(
                     $this->formatMessage('Could not remove alias for index'),
@@ -117,7 +118,7 @@ TEXT;
             $this->expectExceptionMessage($this->formatMessage(self::OPERATION_NOT_ACKNOWLEDGED));
         } else {
             $this->logger
-                ->expects(self::never())
+                ->expects($this->never())
                 ->method('error');
         }
 
@@ -130,7 +131,7 @@ TEXT;
         $this->setUpIndexOperation();
 
         $this->indices
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('updateAliases')
             ->with([
                 'body' => [
@@ -144,7 +145,7 @@ TEXT;
 
         if ($expectError) {
             $this->logger
-                ->expects(self::once())
+                ->expects($this->once())
                 ->method('error')
                 ->with(
                     $this->formatMessage('Could not switch alias for index'),
@@ -160,7 +161,7 @@ TEXT;
             $this->expectExceptionMessage($this->formatMessage(self::OPERATION_NOT_ACKNOWLEDGED));
         } else {
             $this->logger
-                ->expects(self::never())
+                ->expects($this->never())
                 ->method('error');
         }
 
@@ -173,13 +174,13 @@ TEXT;
         $this->setUpIndexOperation();
 
         $this->indices
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('create')
             ->with($expectedRequestBody)
             ->willReturn(['acknowledged' => true]);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $this->manager->createIndex(...$input);
@@ -256,12 +257,12 @@ TEXT;
         $this->setUpIndexOperation();
 
         $this->indices
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('create')
             ->willReturn($response);
 
         $this->logger
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('error')
             ->with(
                 $this->formatMessage('Could not create index'),
@@ -297,7 +298,7 @@ TEXT;
         $this->setUpIndexOperation();
 
         $this->indices
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('delete')
             ->with([
                 'index' => self::INDEX,
@@ -306,7 +307,7 @@ TEXT;
 
         if ($expectError) {
             $this->logger
-                ->expects(self::once())
+                ->expects($this->once())
                 ->method('error')
                 ->with(
                     $this->formatMessage('Could not delete index'),
@@ -317,7 +318,7 @@ TEXT;
             $this->expectExceptionMessage($this->formatMessage(self::OPERATION_NOT_ACKNOWLEDGED));
         } else {
             $this->logger
-                ->expects(self::never())
+                ->expects($this->never())
                 ->method('error');
         }
 
@@ -330,7 +331,7 @@ TEXT;
         $this->setUpIndexOperation();
 
         $this->indices
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('putMapping')
             ->with([
                 'index'       => self::INDEX,
@@ -341,7 +342,7 @@ TEXT;
 
         if ($expectError) {
             $this->logger
-                ->expects(self::once())
+                ->expects($this->once())
                 ->method('error')
                 ->with(
                     $this->formatMessage('Could not put mapping'),
@@ -356,7 +357,7 @@ TEXT;
             $this->expectExceptionMessage($this->formatMessage(self::OPERATION_NOT_ACKNOWLEDGED));
         } else {
             $this->logger
-                ->expects(self::never())
+                ->expects($this->never())
                 ->method('error');
         }
 
@@ -369,7 +370,7 @@ TEXT;
         $this->setUpIndexOperation();
 
         $this->indices
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getAlias')
             ->with([
                 'name' => self::ALIAS,
@@ -377,7 +378,7 @@ TEXT;
             ->willReturn($response);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         self::assertEquals($expectedResult, $this->manager->getIndicesByAlias(self::ALIAS));
@@ -406,7 +407,7 @@ TEXT;
         $this->setUpIndexOperation();
 
         $this->indices
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getAlias')
             ->with([
                 'name' => self::ALIAS,
@@ -414,7 +415,7 @@ TEXT;
             ->willThrowException(new Exception(self::GENERAL_EXCEPTION));
 
         $this->logger
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('error')
             ->with(
                 $this->formatMessage('Unable to get indices by alias'),
@@ -435,7 +436,7 @@ TEXT;
         $this->setUpIndexOperation();
 
         $this->indices
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getAlias')
             ->with([
                 'name' => self::ALIAS,
@@ -443,7 +444,7 @@ TEXT;
             ->willThrowException($this->createMissingException());
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         self::assertEquals([], $this->manager->getIndicesByAlias(self::ALIAS));
@@ -455,7 +456,7 @@ TEXT;
         $this->setUpIndexOperation();
 
         $this->indices
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('get')
             ->with([
                 'index' => '_all',
@@ -463,7 +464,7 @@ TEXT;
             ->willReturn($response);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         self::assertEquals($expectedResult, $this->manager->getIndicesAliasesMapping());
@@ -524,7 +525,7 @@ TEXT;
         $this->setUpIndexOperation();
 
         $this->indices
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('get')
             ->with([
                 'index' => '_all',
@@ -532,7 +533,7 @@ TEXT;
             ->willThrowException(new Exception(self::GENERAL_EXCEPTION));
 
         $this->logger
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('error')
             ->with(
                 $this->formatMessage('Unable to get indices'),
@@ -552,7 +553,7 @@ TEXT;
         $this->setUpIndexOperation();
 
         $this->indices
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('get')
             ->with([
                 'index' => '_all',
@@ -560,16 +561,17 @@ TEXT;
             ->willThrowException($this->createMissingException());
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         self::assertEquals([], $this->manager->getIndicesAliasesMapping());
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testReindex(): void
     {
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('reindex')
             ->with([
                 'refresh'             => true,
@@ -584,16 +586,17 @@ TEXT;
             ->willReturn(['acknowledged' => true]);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $this->manager->reindex(self::INDEX, self::INDEX_V2);
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testFailReindex(): void
     {
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('reindex')
             ->with([
                 'refresh'             => true,
@@ -608,7 +611,7 @@ TEXT;
             ->willThrowException(new Exception(self::GENERAL_EXCEPTION));
 
         $this->logger
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('error')
             ->with(
                 $this->formatMessage('Unable to reindex'),
@@ -625,6 +628,7 @@ TEXT;
         $this->manager->reindex(self::INDEX, self::INDEX_V2);
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     #[DataProvider('putSettingsDataProvider')]
     public function testPutSettings(
         array $settings,
@@ -644,11 +648,11 @@ TEXT;
         if ($expectError || $expectValidationError) {
             if ($expectValidationError) {
                 $this->indices
-                    ->expects(self::never())
+                    ->expects($this->never())
                     ->method('putSettings');
             } else {
                 $indicesInvoker = $this->indices
-                    ->expects(self::once())
+                    ->expects($this->once())
                     ->method('putSettings')
                     ->with($params);
 
@@ -659,7 +663,7 @@ TEXT;
                 }
 
                 $this->logger
-                    ->expects(self::once())
+                    ->expects($this->once())
                     ->method('error')
                     ->with(
                         $this->formatMessage('Unable to put settings'),
@@ -671,7 +675,7 @@ TEXT;
             $this->expectExceptionMessage($this->formatMessage($expectedValidationMessage));
         } else {
             $this->indices
-                ->expects(self::once())
+                ->expects($this->once())
                 ->method('putSettings')
                 ->with($params)
                 ->willReturn($response);
@@ -741,7 +745,7 @@ TEXT;
         $this->setUpIndexOperation();
 
         $this->indices
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getAlias')
             ->with(['name' => self::ALIAS])
             ->willReturn($response);
@@ -755,7 +759,7 @@ TEXT;
         }
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $result = $this->manager->getSingleIndexByAlias(self::ALIAS);
@@ -802,7 +806,7 @@ TEXT;
     private function setUpIndexOperation(bool $expectCall = true): void
     {
         $this->client
-            ->expects($expectCall ? self::once() : self::never())
+            ->expects($expectCall ? $this->once() : $this->never())
             ->method('indices')
             ->willReturn($this->indices);
     }

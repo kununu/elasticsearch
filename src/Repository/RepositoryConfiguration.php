@@ -15,24 +15,24 @@ final class RepositoryConfiguration
      */
     public const string DEFAULT_SCROLL_CONTEXT_KEEPALIVE = '1m';
 
-    protected const string OPTION_INDEX = 'index';
-    protected const string OPTION_INDEX_READ = 'index_read';
-    protected const string OPTION_INDEX_WRITE = 'index_write';
-    protected const string OPTION_ENTITY_SERIALIZER = 'entity_serializer';
-    protected const string OPTION_ENTITY_FACTORY = 'entity_factory';
-    protected const string OPTION_ENTITY_CLASS = 'entity_class';
-    protected const string OPTION_FORCE_REFRESH_ON_WRITE = 'force_refresh_on_write';
-    protected const string OPTION_TRACK_TOTAL_HITS = 'track_total_hits';
-    protected const string OPTION_SCROLL_CONTEXT_KEEPALIVE = 'scroll_context_keepalive';
-    protected const string TIME_UNITS_REGEX = '/\d+(d|h|m|s|ms|micros|nanos)/';
+    private const string OPTION_INDEX = 'index';
+    private const string OPTION_INDEX_READ = 'index_read';
+    private const string OPTION_INDEX_WRITE = 'index_write';
+    private const string OPTION_ENTITY_SERIALIZER = 'entity_serializer';
+    private const string OPTION_ENTITY_FACTORY = 'entity_factory';
+    private const string OPTION_ENTITY_CLASS = 'entity_class';
+    private const string OPTION_FORCE_REFRESH_ON_WRITE = 'force_refresh_on_write';
+    private const string OPTION_TRACK_TOTAL_HITS = 'track_total_hits';
+    private const string OPTION_SCROLL_CONTEXT_KEEPALIVE = 'scroll_context_keepalive';
+    private const string TIME_UNITS_REGEX = '/\d+(d|h|m|s|ms|micros|nanos)/';
 
-    protected array $index = [];
-    protected ?EntitySerializerInterface $entitySerializer = null;
-    protected ?EntityFactoryInterface $entityFactory = null;
-    protected ?string $entityClass = null;
-    protected bool $forceRefreshOnWrite = false;
-    protected ?bool $trackTotalHits = null;
-    protected ?string $scrollContextKeepalive = null;
+    private array $index = [];
+    private ?EntitySerializerInterface $entitySerializer = null;
+    private ?EntityFactoryInterface $entityFactory = null;
+    private ?string $entityClass = null;
+    private bool $forceRefreshOnWrite = false;
+    private ?bool $trackTotalHits = null;
+    private ?string $scrollContextKeepalive = null;
 
     public function __construct(array $config)
     {
@@ -80,7 +80,7 @@ final class RepositoryConfiguration
         return $this->trackTotalHits;
     }
 
-    protected function parseConfig(array $config): void
+    private function parseConfig(array $config): void
     {
         $this->index = array_filter(
             [
@@ -126,7 +126,7 @@ final class RepositoryConfiguration
         }
     }
 
-    protected function inflateConfig(array $config): array
+    private function inflateConfig(array $config): array
     {
         if (isset($config[self::OPTION_INDEX])) {
             foreach ([self::OPTION_INDEX_READ, self::OPTION_INDEX_WRITE] as $operationAlias) {

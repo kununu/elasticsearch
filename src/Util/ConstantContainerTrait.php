@@ -9,7 +9,7 @@ trait ConstantContainerTrait
 {
     public static function all(bool $preserveKeys = false): array
     {
-        $constants = (new ReflectionClass(self::class))->getConstants();
+        $constants = new ReflectionClass(self::class)->getConstants();
 
         return $preserveKeys ? $constants : array_values($constants);
     }

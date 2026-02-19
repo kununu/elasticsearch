@@ -14,6 +14,6 @@ final class Query extends AbstractQuery
 
     public static function createNested(string $path, CriteriaInterface|AggregationInterface ...$children): self
     {
-        return (new self(...$children))->nestAt($path);
+        return new self(...$children)->nestAt($path);
     }
 }
