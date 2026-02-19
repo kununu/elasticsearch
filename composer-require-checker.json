@@ -1,0 +1,5 @@
+{
+  "symbol-whitelist": [
+    "Symfony\\Contracts\\Service\\Attribute\\Required"
+  ]
+}
