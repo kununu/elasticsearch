@@ -8,6 +8,7 @@ use Kununu\Elasticsearch\Exception\BulkException;
 use Kununu\Elasticsearch\Exception\RepositoryConfigurationException;
 use Kununu\Elasticsearch\Repository\AbstractRepository;
 use Kununu\Elasticsearch\Tests\Stub\PersistableEntityStub;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use stdClass;
 use TypeError;
@@ -24,7 +25,7 @@ abstract class AbstractSaveBulkTestCase extends AbstractRepositoryTestCase
         ];
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('bulk')
             ->with([
                 'index' => self::INDEX['write'],
@@ -41,7 +42,7 @@ abstract class AbstractSaveBulkTestCase extends AbstractRepositoryTestCase
             ]);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $this->getRepository()->saveBulk($documents);
@@ -57,7 +58,7 @@ abstract class AbstractSaveBulkTestCase extends AbstractRepositoryTestCase
         ];
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('bulk')
             ->with([
                 'index'   => self::INDEX['write'],
@@ -75,7 +76,7 @@ abstract class AbstractSaveBulkTestCase extends AbstractRepositoryTestCase
             ]);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $this->getRepositoryWithForceRefresh()->saveBulk($documents);
@@ -92,7 +93,7 @@ abstract class AbstractSaveBulkTestCase extends AbstractRepositoryTestCase
         }
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('bulk')
             ->with([
                 'index' => self::INDEX['write'],
@@ -107,7 +108,7 @@ abstract class AbstractSaveBulkTestCase extends AbstractRepositoryTestCase
             ]);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $this->getRepositoryWithEntitySerializer()->saveBulk($documents);
@@ -124,7 +125,7 @@ abstract class AbstractSaveBulkTestCase extends AbstractRepositoryTestCase
         }
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('bulk')
             ->with([
                 'index' => self::INDEX['write'],
@@ -139,12 +140,13 @@ abstract class AbstractSaveBulkTestCase extends AbstractRepositoryTestCase
             ]);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $this->getRepositoryWithEntityClass()->saveBulk($documents);
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testSaveBulkObjectsFailsWithoutEntitySerializerAndEntityClass(): void
     {
         $this->expectException(RepositoryConfigurationException::class);
@@ -153,6 +155,7 @@ abstract class AbstractSaveBulkTestCase extends AbstractRepositoryTestCase
         $this->getRepository()->saveBulk([self::ID => new stdClass()]);
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     #[DataProvider('invalidDataTypesForSaveAndUpsertDataProvider')]
     public function testSaveBulkFailsWithInvalidDataType(mixed $entity): void
     {
@@ -175,7 +178,7 @@ abstract class AbstractSaveBulkTestCase extends AbstractRepositoryTestCase
         ];
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('bulk')
             ->with(
                 [
@@ -186,7 +189,7 @@ abstract class AbstractSaveBulkTestCase extends AbstractRepositoryTestCase
             ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->logger
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('error')
             ->with($this->formatMessage(self::ERROR_MESSAGE));
 
@@ -208,7 +211,7 @@ abstract class AbstractSaveBulkTestCase extends AbstractRepositoryTestCase
         ];
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('bulk')
             ->with([
                 'index' => self::INDEX['write'],
@@ -219,7 +222,7 @@ abstract class AbstractSaveBulkTestCase extends AbstractRepositoryTestCase
             ]);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $repository = new class($this->client, ['index_write' => self::INDEX['write']]) extends AbstractRepository {

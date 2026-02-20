@@ -3,29 +3,24 @@ declare(strict_types=1);
 
 namespace Kununu\Elasticsearch\Tests\Query\Aggregation;
 
-use InvalidArgumentException;
+use Kununu\Collection\TestCase\AbstractCollectionTestCase;
 use Kununu\Elasticsearch\Query\Aggregation\SourceProperty;
 use Kununu\Elasticsearch\Query\Aggregation\Sources;
-use PHPUnit\Framework\TestCase;
 
-final class SourcesTest extends TestCase
+final class SourcesTest extends AbstractCollectionTestCase
 {
-    public function testSources(): void
+    protected const int EXPECTED_COUNT = 2;
+    protected const string EXPECTED_ITEM_CLASS = SourceProperty::class;
+    protected const bool TEST_TO_ARRAY = false;
+
+    protected function createCollection(): Sources
     {
-        $sources = (new Sources(new SourceProperty('source', 'property', true)))
+        return new Sources(new SourceProperty('source', 'property', true))
             ->add(new SourceProperty('source2', 'property2', false));
+    }
 
-        self::assertCount(2, $sources);
-        self::assertInstanceOf(SourceProperty::class, $sources->current());
-
-        $sources = new Sources();
-
-        self::assertEmpty($sources);
-        self::assertNull($sources->current());
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage(sprintf('Can only append %s', SourceProperty::class));
-
-        $sources->append('Invalid');
+    protected function createEmptyCollection(): Sources
+    {
+        return new Sources();
     }
 }

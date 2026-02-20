@@ -106,6 +106,8 @@ Any other version may or may not work.
 | 7.x                    | 7.x                           | 7.9           | -                                   | -          | \>=8.1       |
 | 8.x                    | 7.x                           | 7.9           | -                                   | -          | \>=8.1       |
 | 9.x                    | 7.x                           | 7.9           | 2.x                                 | 2.x        | \>=8.3       |
+| 10.x                   | 7.x                           | 7.9           | 2.x                                 | 2.x        | \>=8.3       |
+| 11.x                   | 7.x                           | 7.9           | 2.x                                 | 2.x        | \>=8.4       |
 
 See also:
 - https://github.com/elastic/elasticsearch-php#version-matrix
@@ -114,3 +116,8 @@ See also:
 ## Contributing
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
+
+------------------------------
+
+![Continuous Integration](https://github.com/kununu/elasticsearch/actions/workflows/continuous-integration.yml/badge.svg)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=kununu_elasticsearch&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=kununu_elasticsearch)

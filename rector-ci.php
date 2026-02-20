@@ -4,15 +4,13 @@ declare(strict_types=1);
 use Rector\Config\RectorConfig;
 use Rector\Php83\Rector\ClassMethod\AddOverrideAttributeToOverriddenMethodsRector;
 use Rector\PHPUnit\CodeQuality\Rector\Class_\PreferPHPUnitSelfCallRector;
-use Rector\PHPUnit\Set\PHPUnitSetList;
+use Rector\PHPUnit\PHPUnit120\Rector\Class_\PropertyCreateMockToCreateStubRector;
 use Rector\Privatization\Rector\Class_\FinalizeTestCaseClassRector;
 
 return RectorConfig::configure()
-    ->withPhpSets(php83: true)
+    ->withPhpSets(php84: true)
     ->withAttributesSets(phpunit: true)
-    ->withSets([
-        PHPUnitSetList::PHPUNIT_120,
-    ])
+    ->withComposerBased(phpunit: true)
     ->withRules([
         FinalizeTestCaseClassRector::class,
         PreferPHPUnitSelfCallRector::class,
@@ -20,5 +18,8 @@ return RectorConfig::configure()
     ->withSkip([
         __DIR__ . '/rector-ci.php',
         AddOverrideAttributeToOverriddenMethodsRector::class,
+        PropertyCreateMockToCreateStubRector::class => [
+            __DIR__ . '/tests/AbstractClientTestCase.php',
+        ],
     ])
     ->withImportNames();

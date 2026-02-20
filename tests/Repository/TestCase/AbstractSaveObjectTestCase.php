@@ -5,6 +5,7 @@ namespace Kununu\Elasticsearch\Tests\Repository\TestCase;
 
 use Kununu\Elasticsearch\Exception\RepositoryConfigurationException;
 use Kununu\Elasticsearch\Tests\Stub\PersistableEntityStub;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use stdClass;
 use TypeError;
@@ -18,7 +19,7 @@ abstract class AbstractSaveObjectTestCase extends AbstractRepositoryTestCase
         $document->property_b = 'b';
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('index')
             ->with([
                 'index' => self::INDEX['write'],
@@ -30,7 +31,7 @@ abstract class AbstractSaveObjectTestCase extends AbstractRepositoryTestCase
             ]);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $this->getRepositoryWithEntitySerializer()->save(self::ID, $document);
@@ -43,7 +44,7 @@ abstract class AbstractSaveObjectTestCase extends AbstractRepositoryTestCase
         $document->property_b = 'b';
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('index')
             ->with([
                 'index' => self::INDEX['write'],
@@ -55,12 +56,13 @@ abstract class AbstractSaveObjectTestCase extends AbstractRepositoryTestCase
             ]);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $this->getRepositoryWithEntityClass()->save(self::ID, $document);
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testSaveObjectFailsWithoutEntitySerializerAndEntityClass(): void
     {
         $this->expectException(RepositoryConfigurationException::class);
@@ -69,6 +71,7 @@ abstract class AbstractSaveObjectTestCase extends AbstractRepositoryTestCase
         $this->getRepository()->save(self::ID, new stdClass());
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     #[DataProvider('invalidDataTypesForSaveAndUpsertDataProvider')]
     public function testSaveFailsWithInvalidDataType(mixed $entity): void
     {

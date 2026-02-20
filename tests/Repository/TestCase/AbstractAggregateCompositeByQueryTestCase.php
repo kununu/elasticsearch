@@ -6,9 +6,11 @@ namespace Kununu\Elasticsearch\Tests\Repository\TestCase;
 use Kununu\Elasticsearch\Query\CompositeAggregationQueryInterface;
 use Kununu\Elasticsearch\Query\QueryInterface;
 use Kununu\Elasticsearch\Result\CompositeResult;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
 abstract class AbstractAggregateCompositeByQueryTestCase extends AbstractRepositoryTestCase
 {
+    #[AllowMockObjectsWithoutExpectations]
     public function testAggregateCompositeByQuery(): void
     {
         $query = $this->createMock(QueryInterface::class);
@@ -40,7 +42,7 @@ abstract class AbstractAggregateCompositeByQueryTestCase extends AbstractReposit
             );
 
         $compositeQuery
-            ->expects($this->any())
+            ->expects($this->atLeastOnce())
             ->method('getName')
             ->willReturn('agg');
 

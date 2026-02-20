@@ -68,7 +68,7 @@ abstract class AbstractAggregation implements AggregationInterface
         if (count($this->nestedAggregations) > 0) {
             $body[$this->name]['aggs'] = array_reduce(
                 $this->nestedAggregations,
-                fn(array $carry, AggregationInterface $aggregation): array => array_merge(
+                static fn(array $carry, AggregationInterface $aggregation): array => array_merge(
                     $carry,
                     $aggregation->toArray()
                 ),

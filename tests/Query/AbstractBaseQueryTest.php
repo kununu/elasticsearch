@@ -221,7 +221,7 @@ final class AbstractBaseQueryTest extends TestCase
 
         $combinedInput = array_reduce(
             $input,
-            function(array $carry, array $command): array {
+            static function(array $carry, array $command): array {
                 $carry[$command['key']] = $command;
 
                 return $carry;

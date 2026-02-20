@@ -13,7 +13,7 @@ abstract class AbstractClearScrollIdTestCase extends AbstractRepositoryTestCase
         $scrollId = 'foobar';
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('clearScroll')
             ->with([
                 'body' => [
@@ -23,7 +23,7 @@ abstract class AbstractClearScrollIdTestCase extends AbstractRepositoryTestCase
             ->willReturn([]);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $this->getRepository()->clearScrollId($scrollId);
@@ -34,7 +34,7 @@ abstract class AbstractClearScrollIdTestCase extends AbstractRepositoryTestCase
         $scrollId = 'foobar';
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('clearScroll')
             ->with([
                 'body' => [
@@ -44,7 +44,7 @@ abstract class AbstractClearScrollIdTestCase extends AbstractRepositoryTestCase
             ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->logger
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('error')
             ->with($this->formatMessage(self::ERROR_MESSAGE));
 

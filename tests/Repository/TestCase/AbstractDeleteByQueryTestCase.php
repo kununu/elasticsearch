@@ -15,7 +15,7 @@ abstract class AbstractDeleteByQueryTestCase extends AbstractRepositoryTestCase
         $expectedResult = ['some_fake_response' => 'deletion was successful'];
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('deleteByQuery')
             ->with([
                 'index' => self::INDEX['write'],
@@ -40,7 +40,7 @@ abstract class AbstractDeleteByQueryTestCase extends AbstractRepositoryTestCase
             ->willReturn($expectedResult);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $result = $this->getRepository()->deleteByQuery(Query::create(Filter::create('foo', 'bar')));
@@ -53,7 +53,7 @@ abstract class AbstractDeleteByQueryTestCase extends AbstractRepositoryTestCase
         $expectedResult = ['some_fake_response' => 'deletion was successful'];
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('deleteByQuery')
             ->with([
                 'index'   => self::INDEX['write'],
@@ -79,7 +79,7 @@ abstract class AbstractDeleteByQueryTestCase extends AbstractRepositoryTestCase
             ->willReturn($expectedResult);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $result = $this->getRepositoryWithForceRefresh()->deleteByQuery(Query::create(Filter::create('foo', 'bar')));
@@ -92,7 +92,7 @@ abstract class AbstractDeleteByQueryTestCase extends AbstractRepositoryTestCase
         $expectedResult = ['some_fake_es_response' => 'deletion was successful'];
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('deleteByQuery')
             ->with([
                 'index'     => self::INDEX['write'],
@@ -118,7 +118,7 @@ abstract class AbstractDeleteByQueryTestCase extends AbstractRepositoryTestCase
             ->willReturn($expectedResult);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $result = $this->getRepository()->deleteByQuery(Query::create(Filter::create('foo', 'bar')), true);
@@ -129,7 +129,7 @@ abstract class AbstractDeleteByQueryTestCase extends AbstractRepositoryTestCase
     public function testDeleteByQueryFails(): void
     {
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('deleteByQuery')
             ->with([
                 'index' => self::INDEX['write'],
@@ -154,7 +154,7 @@ abstract class AbstractDeleteByQueryTestCase extends AbstractRepositoryTestCase
             ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->logger
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('error')
             ->with($this->formatMessage(self::ERROR_MESSAGE));
 

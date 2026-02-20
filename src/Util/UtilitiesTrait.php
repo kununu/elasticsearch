@@ -15,7 +15,7 @@ trait UtilitiesTrait
             }
         }
 
-        return array_filter($values, fn($value) => $value !== null && $value !== []);
+        return array_filter($values, static fn($value) => $value !== null && $value !== []);
     }
 
     protected static function formatMultiple(

@@ -14,6 +14,39 @@ All notable changes to this project will be documented in this file based on ["K
 
 ### Deprecated
 
+## [11.0.0](https://github.com/kununu/elasticsearch/compare/v11.0.0...v10.0.0)
+
+### Backward Compatibility Breaks
+
+* Bump PHP minimum version to PHP 8.4
+* Remove deprecated `Kununu\Elasticsearch\Repository\Repository` class
+* Update `kununu/collections` to ^7.0
+
+### Bugfixes
+
+### Added
+
+### Improvements
+
+* `LoggerAwareTrait::setLogger` now has the `#[Required]` attribute to allow for auto-wiring with the Symfony DI container
+* For the library internal development:
+    * Normalize `composer.json` file
+    * Update `kununu/code-tools` to ^4.0
+    * Bump PHPUnit version to 12.5
+    * Update continuous integration workflow
+      * Bump PHP version to 8.4
+      * Add Composer Dependency Analyzer step
+      * Add Composer Require Checker step
+      * Add Composer Normalizer step
+      * Add PHP_CodeSniffer step
+      * Standardize step names with other kununu libraries/bundles
+      * Bump `SonarSource/sonarqube-scan-action` to `v7.0.0`
+
+### Deprecated
+
+* `LoggerAwareTrait::getLogger` is deprecated
+
+
 ## [10.0.0](https://github.com/kununu/elasticsearch/compare/v10.0.0...v9.0.0)
 
 ### Backward Compatibility Breaks
@@ -23,7 +56,6 @@ All notable changes to this project will be documented in this file based on ["K
 ### Bugfixes
 
 ### Added
-
 
 ### Improvements
 

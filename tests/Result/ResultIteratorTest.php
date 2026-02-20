@@ -164,7 +164,7 @@ final class ResultIteratorTest extends TestCase
         ]);
 
         $firstFooBar = $iterator->first(
-            fn($element): bool => $element['foo'] === 'bar'
+            static fn($element): bool => $element['foo'] === 'bar'
         );
 
         self::assertEquals(['foo' => 'bar', 'num' => 0], $firstFooBar);
@@ -178,7 +178,7 @@ final class ResultIteratorTest extends TestCase
         ]);
 
         $firstBarFoo = $iterator->first(
-            fn($element): bool => isset($element['bar']) && $element['bar'] === 'foo'
+            static fn($element): bool => isset($element['bar']) && $element['bar'] === 'foo'
         );
 
         self::assertNull($firstBarFoo);
@@ -193,7 +193,7 @@ final class ResultIteratorTest extends TestCase
         ]);
 
         $allFooBars = $iterator->filter(
-            fn($element) => isset($element['foo']) && $element['foo'] === 'bar'
+            static fn($element) => isset($element['foo']) && $element['foo'] === 'bar'
         );
 
         self::assertEquals([['foo' => 'bar'], ['foo' => 'bar']], $allFooBars);
@@ -207,13 +207,13 @@ final class ResultIteratorTest extends TestCase
         ]);
 
         $thereAreFooBars = $iterator->some(
-            fn($element) => isset($element['foo']) && $element['foo'] === 'bar'
+            static fn($element) => isset($element['foo']) && $element['foo'] === 'bar'
         );
 
         self::assertTrue($thereAreFooBars);
 
         $thereAreBarFoos = $iterator->some(
-            fn($element): bool => isset($element['bar']) && $element['bar'] === 'foo'
+            static fn($element): bool => isset($element['bar']) && $element['bar'] === 'foo'
         );
 
         self::assertFalse($thereAreBarFoos);
@@ -227,7 +227,7 @@ final class ResultIteratorTest extends TestCase
         ]);
 
         $thereAreOnlyFooBars = $iterator->every(
-            fn($element): bool => isset($element['foo']) && $element['foo'] === 'bar'
+            static fn($element): bool => isset($element['foo']) && $element['foo'] === 'bar'
         );
 
         self::assertTrue($thereAreOnlyFooBars);
@@ -241,7 +241,7 @@ final class ResultIteratorTest extends TestCase
         ]);
 
         $thereAreOnlyBarFoos = $iterator->every(
-            fn($element): bool => isset($element['bar']) && $element['bar'] === 'foo'
+            static fn($element): bool => isset($element['bar']) && $element['bar'] === 'foo'
         );
 
         self::assertFalse($thereAreOnlyBarFoos);
@@ -265,7 +265,7 @@ final class ResultIteratorTest extends TestCase
         $iterator = ResultIterator::create($stubs);
 
         $iterator->each(
-            function($element) use (&$calls): void {
+            static function($element) use (&$calls): void {
                 ++$calls;
 
                 $element->someMethod($calls);
@@ -287,7 +287,7 @@ final class ResultIteratorTest extends TestCase
         ]);
 
         $flipped = $iterator->map(
-            fn($element): array => array_flip($element)
+            static fn($element): array => array_flip($element)
         );
 
         self::assertEquals([['bar' => 'foo'], ['bar' => 'foo'], ['foo' => 'bar']], $flipped);
@@ -302,7 +302,7 @@ final class ResultIteratorTest extends TestCase
         ]);
 
         $numberOfFooBars = $iterator->reduce(
-            fn($carry, $element): int => $carry + (($element['foo'] ?? null) === 'bar' ? 1 : 0),
+            static fn($carry, $element): int => $carry + (($element['foo'] ?? null) === 'bar' ? 1 : 0),
             0
         );
 

@@ -10,6 +10,8 @@ use Kununu\Collection\Collection;
 /**
  * @method static self fromIterable(iterable $data)
  * @method        self add(mixed $value)
+ * @method        self clear()
+ * @method        int  count()
  * @method        self diff(Collection $other)
  * @method        self duplicates(bool $strict = true, bool $uniques = false)
  * @method        self each(callable $function, bool $rewind = true)
@@ -37,7 +39,7 @@ final class Filters extends AbstractCollection
         return $current;
     }
 
-    public function append($value): void
+    public function append(mixed $value): void
     {
         match (true) {
             $value instanceof FilterInterface => parent::append($value),

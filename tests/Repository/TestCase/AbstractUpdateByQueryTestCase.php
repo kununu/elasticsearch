@@ -41,7 +41,7 @@ abstract class AbstractUpdateByQueryTestCase extends AbstractRepositoryTestCase
         ];
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('updateByQuery')
             ->with([
                 'index' => self::INDEX['write'],
@@ -59,7 +59,7 @@ abstract class AbstractUpdateByQueryTestCase extends AbstractRepositoryTestCase
             ->willReturn($responseBody);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         self::assertEquals($responseBody, $this->getRepository()->updateByQuery($query, $updateScript));
@@ -96,7 +96,7 @@ abstract class AbstractUpdateByQueryTestCase extends AbstractRepositoryTestCase
         ];
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('updateByQuery')
             ->with([
                 'index'   => self::INDEX['write'],
@@ -115,7 +115,7 @@ abstract class AbstractUpdateByQueryTestCase extends AbstractRepositoryTestCase
             ->willReturn($responseBody);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         self::assertEquals($responseBody, $this->getRepositoryWithForceRefresh()->updateByQuery($query, $updateScript));
@@ -124,12 +124,12 @@ abstract class AbstractUpdateByQueryTestCase extends AbstractRepositoryTestCase
     public function testUpdateByQueryFails(): void
     {
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('updateByQuery')
             ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->logger
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('error')
             ->with($this->formatMessage(self::ERROR_MESSAGE));
 

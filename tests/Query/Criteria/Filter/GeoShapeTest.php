@@ -46,7 +46,7 @@ final class GeoShapeTest extends TestCase
         $this->geoShape = $this->createMock(GeoShapeInterface::class);
 
         $this->geoShape
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('toArray')
             ->willReturn([]);
     }

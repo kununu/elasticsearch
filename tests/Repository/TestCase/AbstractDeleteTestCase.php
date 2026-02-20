@@ -13,7 +13,7 @@ abstract class AbstractDeleteTestCase extends AbstractRepositoryTestCase
     public function testDelete(): void
     {
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('delete')
             ->with([
                 'index' => self::INDEX['write'],
@@ -21,7 +21,7 @@ abstract class AbstractDeleteTestCase extends AbstractRepositoryTestCase
             ]);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $this->getRepository()->delete(self::ID);
@@ -30,7 +30,7 @@ abstract class AbstractDeleteTestCase extends AbstractRepositoryTestCase
     public function testDeleteWithForcedRefresh(): void
     {
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('delete')
             ->with([
                 'index'   => self::INDEX['write'],
@@ -39,7 +39,7 @@ abstract class AbstractDeleteTestCase extends AbstractRepositoryTestCase
             ]);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $this->getRepositoryWithForceRefresh()->delete(self::ID);
@@ -48,7 +48,7 @@ abstract class AbstractDeleteTestCase extends AbstractRepositoryTestCase
     public function testDeleteFails(): void
     {
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('delete')
             ->with([
                 'index' => self::INDEX['write'],
@@ -57,7 +57,7 @@ abstract class AbstractDeleteTestCase extends AbstractRepositoryTestCase
             ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->logger
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('error')
             ->with($this->formatMessage(self::ERROR_MESSAGE));
 
@@ -73,7 +73,7 @@ abstract class AbstractDeleteTestCase extends AbstractRepositoryTestCase
     public function testDeleteFailsBecauseDocumentNotFound(): void
     {
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('delete')
             ->with([
                 'index' => self::INDEX['write'],
@@ -82,7 +82,7 @@ abstract class AbstractDeleteTestCase extends AbstractRepositoryTestCase
             ->willThrowException($this->createMissingException(self::ERROR_MESSAGE));
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         try {
@@ -100,7 +100,7 @@ abstract class AbstractDeleteTestCase extends AbstractRepositoryTestCase
     public function testPostDeleteIsCalled(): void
     {
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('delete')
             ->with([
                 'index' => self::INDEX['write'],
@@ -108,7 +108,7 @@ abstract class AbstractDeleteTestCase extends AbstractRepositoryTestCase
             ]);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $repository = new class($this->client, ['index_write' => self::INDEX['write']]) extends AbstractRepository {

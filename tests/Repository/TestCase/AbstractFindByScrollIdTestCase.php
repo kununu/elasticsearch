@@ -17,7 +17,7 @@ abstract class AbstractFindByScrollIdTestCase extends AbstractRepositoryTestCase
         $scrollId = 'foobar';
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('scroll')
             ->with([
                 'body'   => [
@@ -28,7 +28,7 @@ abstract class AbstractFindByScrollIdTestCase extends AbstractRepositoryTestCase
             ->willReturn($result);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $repositoryResult = $this->getRepository()->findByScrollId($scrollId);
@@ -43,7 +43,7 @@ abstract class AbstractFindByScrollIdTestCase extends AbstractRepositoryTestCase
         $keepalive = '20m';
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('scroll')
             ->with([
                 'body'   => [
@@ -54,7 +54,7 @@ abstract class AbstractFindByScrollIdTestCase extends AbstractRepositoryTestCase
             ->willReturn($result);
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $repositoryResult = $this->getRepository()->findByScrollId($scrollId, $keepalive);
@@ -68,7 +68,7 @@ abstract class AbstractFindByScrollIdTestCase extends AbstractRepositoryTestCase
         $scrollId = 'foobar';
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('scroll')
             ->with([
                 'body'   => [
@@ -79,7 +79,7 @@ abstract class AbstractFindByScrollIdTestCase extends AbstractRepositoryTestCase
             ->willReturn(array_merge($result, ['_scroll_id' => $scrollId]));
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $repositoryResult = $this->getRepositoryWithEntityFactory()->findByScrollId($scrollId);
@@ -99,7 +99,7 @@ abstract class AbstractFindByScrollIdTestCase extends AbstractRepositoryTestCase
         $scrollId = 'foobar';
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('scroll')
             ->with([
                 'body'   => [
@@ -110,7 +110,7 @@ abstract class AbstractFindByScrollIdTestCase extends AbstractRepositoryTestCase
             ->willReturn(array_merge($result, ['_scroll_id' => $scrollId]));
 
         $this->logger
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('error');
 
         $repositoryResult = $this->getRepositoryWithEntityClass()->findByScrollId($scrollId);
@@ -129,7 +129,7 @@ abstract class AbstractFindByScrollIdTestCase extends AbstractRepositoryTestCase
         $scrollId = 'foobar';
 
         $this->client
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('scroll')
             ->with([
                 'body'   => [
@@ -140,7 +140,7 @@ abstract class AbstractFindByScrollIdTestCase extends AbstractRepositoryTestCase
             ->willThrowException(new Exception(self::ERROR_MESSAGE));
 
         $this->logger
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('error')
             ->with($this->formatMessage(self::ERROR_MESSAGE));
 

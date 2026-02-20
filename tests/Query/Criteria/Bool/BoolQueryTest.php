@@ -17,13 +17,13 @@ final class BoolQueryTest extends TestCase
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage('No operator defined');
 
-        (new BoolQueryNoOperatorStub())->getOperator();
+        new BoolQueryNoOperatorStub()->getOperator();
     }
 
     #[DataProvider('createDataProvider')]
     public function testCreate(array $input): void
     {
-        self::assertEquals($input, (new BoolQueryOperatorStub(...$input))->getChildren());
+        self::assertEquals($input, new BoolQueryOperatorStub(...$input)->getChildren());
     }
 
     public static function createDataProvider(): array
