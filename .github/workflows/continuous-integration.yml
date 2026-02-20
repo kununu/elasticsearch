@@ -69,6 +69,7 @@ jobs:
       matrix:
         php-version:
           - 8.4
+          - 8.5
         dependencies:
           - lowest
           - highest
