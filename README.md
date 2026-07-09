@@ -6,6 +6,12 @@ This package aims to
  1. reduce cognitive load when interacting with Elasticsearch by providing an intuitive query language with a fluent interface while staying very close to Elasticsearch terminology
  2. make your project independent of the underlying client library
 
+## Installation
+
+```bash
+composer require kununu/elasticsearch
+```
+
 ## Quickstart
 It does not take a lot to get you up and running with Elasticsearch. All that's required is a `Repository` which can be used to execute requests (e.g. to save a document, query for documents, etc.)
 
@@ -15,6 +21,7 @@ declare(strict_types=1);
 
 use Elasticsearch\ClientBuilder;
 use Kununu\Elasticsearch\Query\Criteria\Filter;
+use Kununu\Elasticsearch\Query\Criteria\Operator;
 use Kununu\Elasticsearch\Query\Criteria\Search;
 use Kununu\Elasticsearch\Query\Query;
 use Kununu\Elasticsearch\Repository\Elasticsearch\Repository;
