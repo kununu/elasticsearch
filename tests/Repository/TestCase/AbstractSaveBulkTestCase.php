@@ -226,7 +226,7 @@ abstract class AbstractSaveBulkTestCase extends AbstractRepositoryTestCase
             ->method('error');
 
         $repository = new class($this->client, ['index_write' => self::INDEX['write']]) extends AbstractRepository {
-            protected function postSaveBulk(array $entities): void
+            protected function postSaveBulk(array $entities, array $documents): void
             {
                 AbstractRepositoryTestCase::assertEquals(
                     [
@@ -235,6 +235,15 @@ abstract class AbstractSaveBulkTestCase extends AbstractRepositoryTestCase
                         ],
                     ],
                     $entities
+                );
+
+                AbstractRepositoryTestCase::assertEquals(
+                    [
+                        AbstractRepositoryTestCase::ID => [
+                            'whatever' => 'just some data',
+                        ],
+                    ],
+                    $documents
                 );
             }
         };
