@@ -74,9 +74,12 @@ abstract class AbstractRepository implements RepositoryInterface, LoggerAwareInt
     public function saveBulk(array $entities): void
     {
         $body = [];
+        $documents = [];
         foreach ($entities as $id => $entity) {
             $body[] = ['index' => ['_id' => $id]];
-            $body[] = $this->prepareDocument($entity);
+            $document = $this->prepareDocument($entity);
+            $documents[$id] = $document;
+            $body[] = $document;
         }
 
         try {
@@ -84,7 +87,7 @@ abstract class AbstractRepository implements RepositoryInterface, LoggerAwareInt
                 array_merge($this->buildRequestBase(OperationType::WRITE), ['body' => $body])
             );
 
-            $this->postSaveBulk($entities);
+            $this->postSaveBulk($entities, $documents);
         } catch (Throwable $t) {
             $this->logError($t);
 
@@ -401,7 +404,7 @@ abstract class AbstractRepository implements RepositoryInterface, LoggerAwareInt
         // ready to be overwritten :)
     }
 
-    protected function postSaveBulk(array $entities): void
+    protected function postSaveBulk(array $entities, array $documents): void
     {
         // ready to be overwritten :)
     }
