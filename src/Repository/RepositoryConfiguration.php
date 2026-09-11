@@ -130,9 +130,7 @@ final class RepositoryConfiguration
     {
         if (isset($config[self::OPTION_INDEX])) {
             foreach ([self::OPTION_INDEX_READ, self::OPTION_INDEX_WRITE] as $operationAlias) {
-                if (!isset($config[$operationAlias])) {
-                    $config[$operationAlias] = $config[self::OPTION_INDEX];
-                }
+                $config[$operationAlias] ??= $config[self::OPTION_INDEX];
             }
         }
 

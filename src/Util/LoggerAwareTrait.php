@@ -22,9 +22,7 @@ trait LoggerAwareTrait
 {
     protected ?LoggerInterface $logger = null {
         get {
-            if (null === $this->logger) {
-                $this->logger = new NullLogger();
-            }
+            $this->logger ??= new NullLogger();
 
             return $this->logger;
         }
