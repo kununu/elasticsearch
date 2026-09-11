@@ -16,7 +16,7 @@
     "ext-json": "*",
     "ext-mbstring": "*",
     "elasticsearch/elasticsearch": "^7.1",
-    "kununu/collections": "^7.0",
+    "kununu/collections": "^7.0 || ^8.0",
     "opensearch-project/opensearch-php": "^2.0",
     "psr/log": "^1.0 || ^2.0 || ^3.0"
   },
