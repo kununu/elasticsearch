@@ -12,7 +12,7 @@ final class SearchTest extends TestCase
 {
     public function testCreateWithoutFields(): void
     {
-        $this->expectExceptionMessage('No fields given');
+        $this->expectExceptionMessageIs('No fields given');
         $this->expectException(InvalidArgumentException::class);
 
         Search::create([], 'foo');
@@ -21,7 +21,7 @@ final class SearchTest extends TestCase
     public function testCreateWithInvalidType(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Unknown full text search type "bar" given');
+        $this->expectExceptionMessageIs('Unknown full text search type "bar" given');
 
         Search::create(['my_field'], 'foo', 'bar');
     }

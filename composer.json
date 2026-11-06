@@ -21,11 +21,8 @@
     "psr/log": "^1.0 || ^2.0 || ^3.0"
   },
   "require-dev": {
-    "jetbrains/phpstorm-attributes": "^1.2",
-    "kununu/code-tools": "^4.0",
-    "phpstan/phpstan": "^2.1",
-    "phpstan/phpstan-phpunit": "^2.0",
-    "phpunit/phpunit": "^12.5",
+    "kununu/code-tools": "^5.2",
+    "phpunit/phpunit": "^13.4",
     "shipmonk/composer-dependency-analyser": "^1.8"
   },
   "minimum-stability": "stable",
@@ -47,21 +44,62 @@
     "sort-packages": true
   },
   "scripts": {
+    "ci": [
+      "print-section 'Security Audit'",
+      "composer audit --abandoned=report",
+      "print-section 'Dependency Analyser'",
+      "composer-dependency-analyser",
+      "print-section 'Composer Require Checker'",
+      "@require-checker",
+      "print-section 'Composer Normalize'",
+      "@normalize-check",
+      "print-section 'PHP CS Fixer'",
+      "php-cs-fixer check --using-cache=no --config vendor/kununu/code-tools/dist/php-cs-fixer.php.dist src/ tests/",
+      "print-section 'PHP CodeSniffer'",
+      "@sniffer",
+      "print-section 'Rector'",
+      "@rector",
+      "print-section 'PHPStan'",
+      "@phpstan",
+      "print-section 'Tests'",
+      "@test"
+    ],
     "cs": "composer kununu:cs-fixer src/ tests/",
+    "normalize-check": [
+      "@tool:composer-normalize",
+      "@php tools/composer-normalize.phar --dry-run --indent-size 2 --indent-style space --no-check-lock --no-update-lock"
+    ],
+    "normalize-fix": [
+      "@tool:composer-normalize",
+      "@php tools/composer-normalize.phar --indent-size 2 --indent-style space --no-check-lock --no-update-lock"
+    ],
     "phpstan": "phpstan",
     "rector": "rector process --dry-run --config rector-ci.php src/ tests/",
     "rector-fix": "rector process --config rector-ci.php src/ tests/",
+    "require-checker": [
+      "@tool:composer-require-checker",
+      "@putenv XDEBUG_MODE=off",
+      "@php tools/composer-require-checker.phar check composer.json"
+    ],
     "sniffer": "phpcs",
     "test": "phpunit --log-events-text phpunit.log --no-coverage --no-logging --testsuite Full",
-    "test-coverage": "XDEBUG_MODE=coverage phpunit --log-events-text phpunit.log --testsuite Full"
+    "test-coverage": "XDEBUG_MODE=coverage phpunit --log-events-text phpunit.log --testsuite Full",
+    "tool:composer-normalize": "download-phar composer-normalize ergebnis/composer-normalize composer-normalize.phar",
+    "tool:composer-require-checker": "download-phar composer-require-checker maglnet/ComposerRequireChecker composer-require-checker.phar"
   },
   "scripts-descriptions": {
+    "ci": "Run all CI checks",
     "cs": "Run PHP CS Fixer with kununu code standards",
+    "normalize-check": "Check that composer.json is normalized",
+    "normalize-fix": "Normalize composer.json",
     "phpstan": "Run PHPStan",
     "rector": "Run Rector in dry-run mode with CI rules",
     "rector-fix": "Run Rector in fix mode with CI rules",
+    "require-checker": "Check that every used symbol comes from a declared dependency",
     "sniffer": "Run PHP_CodeSniffer",
     "test": "Run all tests",
-    "test-coverage": "Run all tests with coverage report"
+    "test-coverage": "Run all tests with coverage report",
+    "tool:composer-normalize": "Download the latest Composer Normalize PHAR into tools/",
+    "tool:composer-require-checker": "Download the latest Composer Require Checker PHAR into tools/"
   }
 }

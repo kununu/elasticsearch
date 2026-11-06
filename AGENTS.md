@@ -26,13 +26,16 @@
 
 Run via Composer scripts (defined in `composer.json` `scripts`):
 
-- `composer cs` — PHP CS Fixer with kununu code standards.
-- `composer sniffer` — PHP_CodeSniffer.
-- `composer phpstan` — PHPStan.
-- `composer rector` — Rector (dry-run, CI rules).
-- `composer test` — PHPUnit.
+- `composer ci`: all of the checks below, in the same order as the CI workflow, plus `composer audit` and `composer-dependency-analyser`.
+- `composer cs`: PHP CS Fixer with kununu code standards (applies fixes; `composer ci` only checks).
+- `composer sniffer`: PHP_CodeSniffer.
+- `composer phpstan`: PHPStan.
+- `composer rector`: Rector (dry-run, CI rules).
+- `composer require-checker`: Composer Require Checker.
+- `composer normalize-check`: Composer Normalize (dry-run; `composer normalize-fix` applies it).
+- `composer test`: PHPUnit.
 
-CI additionally runs `composer-dependency-analyser`, `composer-require-checker`, and `composer-normalize`, then a SonarCloud scan. See `.github/workflows/continuous-integration.yml`.
+Composer Require Checker and Composer Normalize run as PHARs kept in `tools/` (gitignored) by `download-phar` from `kununu/code-tools`; they are not in `require-dev`, so do not add them there. CI installs them through `shivammathur/setup-php` instead, then runs a SonarCloud scan. See `.github/workflows/continuous-integration.yml`.
 
 ## Hard constraints
 
@@ -41,3 +44,4 @@ CI additionally runs `composer-dependency-analyser`, `composer-require-checker`,
 - Coding standard is the kununu standard (extends PSR-12), enforced by `composer cs` and `composer sniffer`.
 - Semantic versioning ([SemVer 2.0.0](https://semver.org/)); changes to the public API require great consideration.
 - New behaviour requires tests and a `CHANGELOG.md` entry.
+- Pull requests are opened as drafts (`gh pr create --draft`); only mark one ready for review if CI passes. Marking it ready is always the user's decision, but CI must be green before a review is requested.

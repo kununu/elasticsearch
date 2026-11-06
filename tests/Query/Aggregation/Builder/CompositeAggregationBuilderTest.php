@@ -121,7 +121,7 @@ final class CompositeAggregationBuilderTest extends TestCase
     public function testCompositeAggregationBuilderWithNoAggregationName(): void
     {
         $this->expectException(MissingAggregationAttributesException::class);
-        $this->expectExceptionMessage('Aggregation name is missing');
+        $this->expectExceptionMessageIs('Aggregation name is missing');
 
         $compositeAggregation = CompositeAggregationQueryBuilder::create()
             ->withFilters(new Filters(

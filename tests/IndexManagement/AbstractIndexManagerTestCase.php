@@ -81,7 +81,7 @@ TEXT;
                 );
 
             $this->expectException(IndexManagementException::class);
-            $this->expectExceptionMessage($this->formatMessage(self::OPERATION_NOT_ACKNOWLEDGED));
+            $this->expectExceptionMessageIs($this->formatMessage(self::OPERATION_NOT_ACKNOWLEDGED));
         } else {
             $this->logger
                 ->expects($this->never())
@@ -115,7 +115,7 @@ TEXT;
                 );
 
             $this->expectException(IndexManagementException::class);
-            $this->expectExceptionMessage($this->formatMessage(self::OPERATION_NOT_ACKNOWLEDGED));
+            $this->expectExceptionMessageIs($this->formatMessage(self::OPERATION_NOT_ACKNOWLEDGED));
         } else {
             $this->logger
                 ->expects($this->never())
@@ -158,7 +158,7 @@ TEXT;
                 );
 
             $this->expectException(IndexManagementException::class);
-            $this->expectExceptionMessage($this->formatMessage(self::OPERATION_NOT_ACKNOWLEDGED));
+            $this->expectExceptionMessageIs($this->formatMessage(self::OPERATION_NOT_ACKNOWLEDGED));
         } else {
             $this->logger
                 ->expects($this->never())
@@ -275,7 +275,7 @@ TEXT;
             );
 
         $this->expectException(IndexManagementException::class);
-        $this->expectExceptionMessage($this->formatMessage(self::OPERATION_NOT_ACKNOWLEDGED));
+        $this->expectExceptionMessageIs($this->formatMessage(self::OPERATION_NOT_ACKNOWLEDGED));
 
         $this->manager->createIndex(self::INDEX, []);
     }
@@ -315,7 +315,7 @@ TEXT;
                 );
 
             $this->expectException(IndexManagementException::class);
-            $this->expectExceptionMessage($this->formatMessage(self::OPERATION_NOT_ACKNOWLEDGED));
+            $this->expectExceptionMessageIs($this->formatMessage(self::OPERATION_NOT_ACKNOWLEDGED));
         } else {
             $this->logger
                 ->expects($this->never())
@@ -354,7 +354,7 @@ TEXT;
                 );
 
             $this->expectException(IndexManagementException::class);
-            $this->expectExceptionMessage($this->formatMessage(self::OPERATION_NOT_ACKNOWLEDGED));
+            $this->expectExceptionMessageIs($this->formatMessage(self::OPERATION_NOT_ACKNOWLEDGED));
         } else {
             $this->logger
                 ->expects($this->never())
@@ -426,7 +426,7 @@ TEXT;
             );
 
         $this->expectException(IndexManagementException::class);
-        $this->expectExceptionMessage($this->formatMessage(self::GENERAL_EXCEPTION));
+        $this->expectExceptionMessageIs($this->formatMessage(self::GENERAL_EXCEPTION));
 
         $this->manager->getIndicesByAlias(self::ALIAS);
     }
@@ -543,7 +543,7 @@ TEXT;
             );
 
         $this->expectException(IndexManagementException::class);
-        $this->expectExceptionMessage($this->formatMessage(self::GENERAL_EXCEPTION));
+        $this->expectExceptionMessageIs($this->formatMessage(self::GENERAL_EXCEPTION));
 
         $this->manager->getIndicesAliasesMapping();
     }
@@ -623,7 +623,7 @@ TEXT;
             );
 
         $this->expectException(IndexManagementException::class);
-        $this->expectExceptionMessage($this->formatMessage(self::GENERAL_EXCEPTION));
+        $this->expectExceptionMessageIs($this->formatMessage(self::GENERAL_EXCEPTION));
 
         $this->manager->reindex(self::INDEX, self::INDEX_V2);
     }
@@ -672,7 +672,7 @@ TEXT;
             }
 
             $this->expectException(IndexManagementException::class);
-            $this->expectExceptionMessage($this->formatMessage($expectedValidationMessage));
+            $this->expectExceptionMessageIs($this->formatMessage($expectedValidationMessage));
         } else {
             $this->indices
                 ->expects($this->once())

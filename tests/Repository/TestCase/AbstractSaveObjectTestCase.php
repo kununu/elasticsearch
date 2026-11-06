@@ -66,7 +66,7 @@ abstract class AbstractSaveObjectTestCase extends AbstractRepositoryTestCase
     public function testSaveObjectFailsWithoutEntitySerializerAndEntityClass(): void
     {
         $this->expectException(RepositoryConfigurationException::class);
-        $this->expectExceptionMessage('No entity serializer configured while trying to persist object');
+        $this->expectExceptionMessageIs('No entity serializer configured while trying to persist object');
 
         $this->getRepository()->save(self::ID, new stdClass());
     }
