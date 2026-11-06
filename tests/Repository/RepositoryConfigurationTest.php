@@ -69,7 +69,7 @@ final class RepositoryConfigurationTest extends TestCase
         $config = self::build($input);
 
         $this->expectException(RepositoryConfigurationException::class);
-        $this->expectExceptionMessage($expectedExceptionMessage);
+        $this->expectExceptionMessageIs($expectedExceptionMessage);
 
         $config->getIndex($operationType);
     }
@@ -177,7 +177,7 @@ final class RepositoryConfigurationTest extends TestCase
     public function testInvalidEntityClass(): void
     {
         $this->expectException(RepositoryConfigurationException::class);
-        $this->expectExceptionMessage(
+        $this->expectExceptionMessageIs(
             sprintf(
                 'Invalid entity class given. Must be of type %s',
                 PersistableEntityInterface::class
@@ -190,7 +190,7 @@ final class RepositoryConfigurationTest extends TestCase
     public function testNonExistentEntityClass(): void
     {
         $this->expectException(RepositoryConfigurationException::class);
-        $this->expectExceptionMessage(
+        $this->expectExceptionMessageIs(
             'Given entity class does not exist'
         );
 
@@ -351,7 +351,7 @@ final class RepositoryConfigurationTest extends TestCase
     public function testInvalidScrollContextKeepalive(): void
     {
         $this->expectException(RepositoryConfigurationException::class);
-        $this->expectExceptionMessage('Invalid value for scroll_context_keepalive given. Must be a valid time unit');
+        $this->expectExceptionMessageIs('Invalid value for scroll_context_keepalive given. Must be a valid time unit');
 
         self::build(['index' => 'foobar', 'scroll_context_keepalive' => 'xxx']);
     }

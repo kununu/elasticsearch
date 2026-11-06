@@ -52,7 +52,7 @@ final class OptionableTraitTest extends TestCase
         $optionable = $this->getOptionableObject();
 
         $this->expectException(UnknownOptionException::class);
-        $this->expectExceptionMessage(sprintf('Unknown option "%s" given', self::NOT_AN_OPTION));
+        $this->expectExceptionMessageIs(sprintf('Unknown option "%s" given', self::NOT_AN_OPTION));
 
         $optionable->getOption(self::NOT_AN_OPTION);
     }
@@ -62,7 +62,7 @@ final class OptionableTraitTest extends TestCase
         $optionable = $this->getOptionableObject();
 
         $this->expectException(UnknownOptionException::class);
-        $this->expectExceptionMessage(sprintf('Unknown option "%s" given', self::NOT_AN_OPTION));
+        $this->expectExceptionMessageIs(sprintf('Unknown option "%s" given', self::NOT_AN_OPTION));
 
         $optionable->setOption(self::NOT_AN_OPTION, 'foo');
     }

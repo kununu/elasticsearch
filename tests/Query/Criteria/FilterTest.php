@@ -16,7 +16,7 @@ final class FilterTest extends TestCase
     public function testCreateWithInvalidOperator(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Unknown operator "bar" given');
+        $this->expectExceptionMessageIs('Unknown operator "bar" given');
 
         Filter::create('my_field', 'foo', 'bar');
     }

@@ -121,7 +121,7 @@ abstract class AbstractUpdateTestCase extends AbstractRepositoryTestCase
     public function testUpdateObjectFailsWithoutEntitySerializerAndEntityClass(): void
     {
         $this->expectException(RepositoryConfigurationException::class);
-        $this->expectExceptionMessage('No entity serializer configured while trying to persist object');
+        $this->expectExceptionMessageIs('No entity serializer configured while trying to persist object');
 
         $this->getRepository()->update(self::ID, new stdClass());
     }

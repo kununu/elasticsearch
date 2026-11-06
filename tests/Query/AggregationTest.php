@@ -79,7 +79,7 @@ final class AggregationTest extends TestCase
     public function testCreateWithInvalidType(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Unknown type "my_made_up_type" given');
+        $this->expectExceptionMessageIs('Unknown type "my_made_up_type" given');
 
         Aggregation::create('foo', 'my_made_up_type');
     }

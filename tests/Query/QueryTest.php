@@ -125,7 +125,7 @@ final class QueryTest extends TestCase
     public function testCreateWithOnlyInvalid(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Argument #0 is of unknown type');
+        $this->expectExceptionMessageIs('Argument #0 is of unknown type');
 
         Query::create(
             new class implements CriteriaInterface {
@@ -140,7 +140,7 @@ final class QueryTest extends TestCase
     public function testCreateWithValidAndInvalid(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Argument #1 is of unknown type');
+        $this->expectExceptionMessageIs('Argument #1 is of unknown type');
 
         Query::create(
             Filter::create('field', 'value'),
@@ -172,7 +172,7 @@ final class QueryTest extends TestCase
     public function testSearchWithInvalidCriteria(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage(
+        $this->expectExceptionMessageIs(
             sprintf(
                 'Argument $search must be one of [%s, %s, %s]',
                 SearchInterface::class,
@@ -241,7 +241,7 @@ final class QueryTest extends TestCase
     public function testSetInvalidSearchOperator(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The value \'must_not\' is not valid.');
+        $this->expectExceptionMessageIs('The value \'must_not\' is not valid.');
 
         Query::create()
             ->setSearchOperator(MustNot::OPERATOR);

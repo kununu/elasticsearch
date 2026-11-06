@@ -21,13 +21,18 @@ composer install
 
 The following Composer scripts are available (defined in `composer.json` `scripts`):
 
-- `composer cs` — run PHP CS Fixer with the kununu code standards.
-- `composer sniffer` — run PHP_CodeSniffer.
-- `composer phpstan` — run PHPStan.
-- `composer rector` — run Rector in dry-run mode with CI rules (`composer rector-fix` to apply fixes).
-- `composer test` — run the test suite (`composer test-coverage` for a coverage report).
+- `composer ci`: run every check from the CI workflow in the same order (security audit, dependency analyser, Composer Require Checker, Composer Normalize, PHP CS Fixer, PHP_CodeSniffer, Rector, PHPStan and the test suite).
+- `composer cs`: run PHP CS Fixer with the kununu code standards.
+- `composer sniffer`: run PHP_CodeSniffer.
+- `composer phpstan`: run PHPStan.
+- `composer rector`: run Rector in dry-run mode with CI rules (`composer rector-fix` to apply fixes).
+- `composer require-checker`: run Composer Require Checker.
+- `composer normalize-check`: check that `composer.json` is normalized (`composer normalize-fix` to normalize it).
+- `composer test`: run the test suite (`composer test-coverage` for a coverage report).
 
-Continuous Integration additionally runs `composer-dependency-analyser`, `composer-require-checker`, and `composer-normalize`, followed by a SonarCloud scan. See [`.github/workflows/continuous-integration.yml`](.github/workflows/continuous-integration.yml).
+Composer Require Checker and Composer Normalize are not project dependencies. Their scripts use `download-phar` from [`kununu/code-tools`](https://github.com/kununu/code-tools) to keep each tool's PHAR in `tools/` (ignored by git) on its latest release, downloading it only when a new release is out.
+
+Continuous Integration runs the same checks on PHP 8.4 and 8.5 with the lowest and highest dependencies, followed by a SonarCloud scan. See [`.github/workflows/continuous-integration.yml`](.github/workflows/continuous-integration.yml).
 
 ## Pull Requests
 
@@ -42,5 +47,7 @@ Continuous Integration additionally runs `composer-dependency-analyser`, `compos
 - **Create feature branches** — `main` is the stable branch; create a new branch for each feature.
 
 - **One pull request per feature** — if you want to do more than one thing, send multiple pull requests.
+
+- **Open pull requests as drafts**: open every pull request in draft mode (`gh pr create --draft`, or "Create draft pull request" on GitHub) and only mark it ready for review if CI passes. When to ask for a review is your call, but CI must be green first.
 
 - **Be respectful** — be excellent to other contributors.

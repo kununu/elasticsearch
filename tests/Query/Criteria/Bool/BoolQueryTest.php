@@ -15,7 +15,7 @@ final class BoolQueryTest extends TestCase
     public function testInvalidOperator(): void
     {
         $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('No operator defined');
+        $this->expectExceptionMessageIs('No operator defined');
 
         new BoolQueryNoOperatorStub()->getOperator();
     }

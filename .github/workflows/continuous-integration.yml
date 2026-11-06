@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -27,16 +27,19 @@ jobs:
         with:
           php-version: 8.4
           coverage: none
-          tools: composer-dependency-analyser, composer-normalize, composer-require-checker, cs2pr
+          tools: 'composer-normalize, composer-require-checker, cs2pr'
 
       - name: Install Composer Dependencies
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
         with:
           dependency-versions: "highest"
           composer-options: "--prefer-stable --optimize-autoloader --no-progress --no-interaction"
 
+      - name: Run Composer Audit
+        run: composer audit --abandoned=report
+
       - name: Run Composer Dependency Analyser
-        run: composer-dependency-analyser
+        run: vendor/bin/composer-dependency-analyser
 
       - name: Run Composer Require Checker
         run: composer-require-checker
@@ -45,7 +48,9 @@ jobs:
         run: composer-normalize --dry-run --indent-size 2 --indent-style space --no-check-lock --no-update-lock
 
       - name: Run PHP CS Fixer
-        run: vendor/bin/php-cs-fixer check --using-cache=no --config vendor/kununu/code-tools/php-cs-fixer.php src/ tests/
+        run: |
+          vendor/bin/php-cs-fixer check --using-cache=no --config vendor/kununu/code-tools/dist/php-cs-fixer.php.dist \
+            src/ tests/
 
       - name: Run PHP_CodeSniffer
         id: php-code-sniffer
@@ -76,28 +81,34 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
+          ini-values: "zend.assertions=1"
           coverage: pcov
 
       - name: Install Composer Dependencies
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
         with:
           dependency-versions: ${{ matrix.dependencies }}
           composer-options: "--prefer-stable --optimize-autoloader --no-progress --no-interaction"
 
       - name: Run PHPUnit
         run: |
-          vendor/bin/phpunit --colors=always --testdox \
-            --log-junit tests/.results/tests-junit.xml \
-            --coverage-clover tests/.results/tests-clover.xml
+          vendor/bin/phpunit \
+            --colors=always \
+            --testdox \
+            --testdox-summary \
+            --coverage-clover tests/.results/tests-clover.xml \
+            --log-junit tests/.results/tests-junit.xml
 
       - name: Upload coverage files
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ github.job }}-${{ matrix.php-version }}-${{ matrix.dependencies }}-coverage
           include-hidden-files: true
@@ -108,11 +119,11 @@ jobs:
     name: Code Analysis
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: tests-8.4-highest-coverage
           path: tests/.results/
@@ -124,7 +135,14 @@ jobs:
           sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' tests-junit.xml
 
       - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v7.0.0
+        uses: SonarSource/sonarqube-scan-action@v8
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Quality Gate check
+        uses: sonarsource/sonarqube-quality-gate-action@v1
+        with:
+          pollingTimeoutSec: 60
+        env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
