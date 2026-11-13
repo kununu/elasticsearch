@@ -568,7 +568,8 @@ TEXT;
     }
 
     #[AllowMockObjectsWithoutExpectations]
-    public function testReindex(): void
+    #[DataProvider('reindexDataProvider')]
+    public function testReindex(bool $skipExisting, array $expectedDest): void
     {
         $this->client
             ->expects($this->once())
@@ -580,7 +581,7 @@ TEXT;
                 'body'                => [
                     'conflicts' => 'proceed',
                     'source'    => ['index' => self::INDEX],
-                    'dest'      => ['index' => self::INDEX_V2],
+                    'dest'      => $expectedDest,
                 ],
             ])
             ->willReturn(['acknowledged' => true]);
@@ -589,11 +590,20 @@ TEXT;
             ->expects($this->never())
             ->method('error');
 
-        $this->manager->reindex(self::INDEX, self::INDEX_V2);
+        $this->manager->reindex(self::INDEX, self::INDEX_V2, $skipExisting);
+    }
+
+    public static function reindexDataProvider(): array
+    {
+        return [
+            'no_skip_existing' => [false, ['index' => self::INDEX_V2]],
+            'skip_existing'    => [true, ['index' => self::INDEX_V2, 'op_type' => 'create']],
+        ];
     }
 
     #[AllowMockObjectsWithoutExpectations]
-    public function testFailReindex(): void
+    #[DataProvider('reindexDataProvider')]
+    public function testFailReindex(bool $skipExisting, array $expectedDest): void
     {
         $this->client
             ->expects($this->once())
@@ -605,7 +615,7 @@ TEXT;
                 'body'                => [
                     'conflicts' => 'proceed',
                     'source'    => ['index' => self::INDEX],
-                    'dest'      => ['index' => self::INDEX_V2],
+                    'dest'      => $expectedDest,
                 ],
             ])
             ->willThrowException(new Exception(self::GENERAL_EXCEPTION));
@@ -616,16 +626,17 @@ TEXT;
             ->with(
                 $this->formatMessage('Unable to reindex'),
                 [
-                    'message'     => self::GENERAL_EXCEPTION,
-                    'source'      => self::INDEX,
-                    'destination' => self::INDEX_V2,
+                    'message'       => self::GENERAL_EXCEPTION,
+                    'source'        => self::INDEX,
+                    'destination'   => self::INDEX_V2,
+                    'skip_existing' => $skipExisting,
                 ]
             );
 
         $this->expectException(IndexManagementException::class);
         $this->expectExceptionMessageIs($this->formatMessage(self::GENERAL_EXCEPTION));
 
-        $this->manager->reindex(self::INDEX, self::INDEX_V2);
+        $this->manager->reindex(self::INDEX, self::INDEX_V2, $skipExisting);
     }
 
     #[AllowMockObjectsWithoutExpectations]
