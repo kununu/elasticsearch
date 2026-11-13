@@ -1,8 +1,9 @@
 # Changelog
 
-All notable changes to this project will be documented in this file based on ["Keep a Changelog"](http://keepachangelog.com/) Standard. This project adheres to [Semantic Versioning](http://semver.org/).
+All notable changes to this project will be documented in this file based on ["Keep a Changelog"](http://keepachangelog.com/) Standard.
+This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased](https://github.com/kununu/elasticsearch/compare/v11.0.0...main)
+## [Unreleased](https://github.com/kununu/elasticsearch/compare/v13.0.0...main)
 
 ### Backward Compatibility Breaks
 
@@ -12,11 +13,47 @@ All notable changes to this project will be documented in this file based on ["K
 
 ### Improvements
 
+### Deprecated
+
+## [13.0.0](https://github.com/kununu/elasticsearch/compare/v12.0.0...v13.0.0)
+
+### Backward Compatibility Breaks
+
+* `IndexManagerInterface::reindex` has a new `bool $skipExisting = false` parameter, so classes implementing the interface or overriding `AbstractIndexManager::reindex` must add it to their signature
+
+### Bugfixes
+
+### Added
+
+* `IndexManagerInterface::reindex` can skip documents that already exist in the destination index (`$skipExisting = true`), instead of overwriting them
+
+### Improvements
+
 * For the library internal development:
     * Update `kununu/code-tools` to ^5.2
     * Run Composer Require Checker and Composer Normalize as PHARs instead of `require-dev` dependencies
     * Add `ci` Composer script running the same checks as the continuous integration workflow
     * Add `require-checker`, `normalize-check` and `normalize-fix` Composer scripts
+
+### Deprecated
+
+## [12.0.0](https://github.com/kununu/elasticsearch/compare/v11.0.0...v12.0.0)
+
+### Backward Compatibility Breaks
+
+* `AbstractRepository::postSaveBulk` has a new `array $documents` parameter with the prepared documents (keyed by entity ID), so repositories overriding it must add it to their signature
+
+### Bugfixes
+
+### Added
+
+* `AbstractRepository::saveBulk` passes the prepared documents to `postSaveBulk`
+
+### Improvements
+
+* Allow `kununu/collections` ^8.0 (in addition to ^7.0)
+* For the library internal development:
+    * Add `AGENTS.md` and `CLAUDE.md`, and update `CONTRIBUTING.md` and `README.md`
 
 ### Deprecated
 

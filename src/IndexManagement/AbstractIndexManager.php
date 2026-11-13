@@ -173,7 +173,7 @@ abstract class AbstractIndexManager implements IndexManagerInterface, LoggerAwar
         );
     }
 
-    public function reindex(string $source, string $destination): void
+    public function reindex(string $source, string $destination, bool $skipExisting = false): void
     {
         $this->execute(
             operation: fn() => $this->client->reindex([
@@ -183,12 +183,15 @@ abstract class AbstractIndexManager implements IndexManagerInterface, LoggerAwar
                 'body'                => [
                     'conflicts' => 'proceed',
                     'source'    => ['index' => $source],
-                    'dest'      => ['index' => $destination],
+                    'dest'      => [
+                        'index' => $destination,
+                        ...($skipExisting ? ['op_type' => 'create'] : []),
+                    ],
                 ],
             ]),
             checkAcknowledged: false,
             logMessage: 'Unable to reindex',
-            extra: ['source' => $source, 'destination' => $destination]
+            extra: ['source' => $source, 'destination' => $destination, 'skip_existing' => $skipExisting]
         );
     }
 
