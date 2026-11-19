@@ -26,7 +26,7 @@ interface IndexManagerInterface
 
     public function getIndicesAliasesMapping(): array;
 
-    public function reindex(string $source, string $destination): void;
+    public function reindex(string $source, string $destination, bool $skipExisting = false): void;
 
     public function putSettings(string $index, array $settings = []): void;
 
